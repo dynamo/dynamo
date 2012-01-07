@@ -1,0 +1,4 @@
+/ebin/
+/src/dynamo_router_scanner.erl
+/src/dynamo_router_parser.erl
+/erl_crash.dump

@@ -1,0 +1,2 @@
+defmodule Dynamo do
+end
