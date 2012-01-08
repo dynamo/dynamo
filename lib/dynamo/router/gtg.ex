@@ -6,25 +6,24 @@ defmodule Dynamo::Router::GTG do
   # Receives a tree produced by Dynamo::Router::Parser
   # and converts it to a branch of a generalized
   # transition graph.
-  def branch(ast, endpoint) do
-    visit(ast, endpoint)
-  end
+  def branch(left, right), do: do_branch(left, right)
 
-  # Merge a list of branches given as left and the
-  # branch given as right.
-  def merge(left, right) do
-    merge(left, right, [])
-  end
+  # Merge a new branch to the list of branches.
+  def merge(list, new), do: do_merge(list, new)
 
-  ## Helpers related to branch visiting
+  ## Helpers related to branch
 
-  defp visit({ :cat, left, right }, endpoint) do
+  # If the node is a cat, the left side is surely
+  # a terminal but we need to expand the right side.
+  defp do_branch({ :cat, left, right }, endpoint) do
     left  = terminal(left)
-    right = visit(right, endpoint)
+    right = do_branch(right, endpoint)
     { left, [right] }
   end
 
-  defp visit(tuple, endpoint) do
+  # We have reached the end of the branch, so we attach
+  # the endpoint.
+  defp do_branch(tuple, endpoint) do
     { terminal(tuple), [{ :endpoint, endpoint }] }
   end
 
@@ -32,34 +31,34 @@ defmodule Dynamo::Router::GTG do
     contents
   end
 
-  ## Helpers related to merging visiting
+  ## Helpers related to merge
 
-  # If the two items are equal, jackpot! We should merge old
-  # with new and then rewind acc on top of the tail.
-  defp merge([{ left, old }|t], { left, new }, acc) do
-    merged = merge_each(left, old, new, acc)
-    Enum.foldl merged, t, fn(x, acc) { [x|acc] }
+  # If the right branch matches the left one,
+  # we proceed merging the sub-branches
+  # recursively.
+  defp do_merge([{ left, old }|t], { left, new }) do
+    do_merge(left, old, new, t)
   end
 
-  # If not equal, keep searching.
-  defp merge([h|t], tuple, acc) do
-    merge(t, tuple, [h|acc])
+  # The branches didn't match, keep searching.
+  defp do_merge([h|t], tuple) do
+    [h|do_merge(t, tuple)]
   end
 
-  # If we reached the end of the list, add the tuple at
-  # the end and reverse.
-  defp merge([], tuple, acc) do
-    List.reverse [tuple|acc]
+  # If we reached the end of the list, we haven't
+  # found a match. So add the tuple and done.
+  defp do_merge([], tuple) do
+    [tuple]
   end
 
   # Handle merge_each for endpoints where old and new are not lists.
-  defp merge_each(:endpoint, old, new, acc) do
-    [{ :endpoint, new }, { :endpoint, old }|acc]
+  defp do_merge(:endpoint, old, new, acc) do
+    [{ :endpoint, old }, { :endpoint, new }|acc]
   end
 
   # Merge each item when old/new are lists.
-  defp merge_each(left, old, new, acc) do
-    merged = Enum.foldl new, old, fn(x, acc) { merge(acc, x, []) }
+  defp do_merge(left, old, new, acc) do
+    merged = Enum.foldl new, old, fn(x, acc) { do_merge(acc, x) }
     [{ left, merged }|acc]
   end
 end
