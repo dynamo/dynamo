@@ -70,6 +70,6 @@ defmodule Dynamo::Router::Compiler do
 
   # Return an atom representing the name for the given counter.
   defp name_for(counter) do
-    list_to_atom List.flatten(['_',integer_to_list(counter)|'_recognize'])
+    :"_recognize_route_#{counter}"
   end
 end

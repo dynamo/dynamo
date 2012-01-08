@@ -11,7 +11,7 @@ defmodule Dynamo::Router do
 
     contents = quote do
       def recognize_route(verb, path, dict // 0) do
-        _0_recognize(verb, Dynamo::Router::Parser.normalize(path), dict)
+        _recognize_route_0(verb, Dynamo::Router::Parser.normalize(path), dict)
       end
     end
 
