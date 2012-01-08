@@ -4,14 +4,7 @@ ERL=erl -noshell -pa $(EBIN_DIR)
 
 .PHONY: test clean
 
-compile: ebin src/dynamo_router_scanner.erl src/dynamo_router_parser.erl
-
-src/dynamo_router_scanner.erl: src/dynamo_router_scanner.xrl
-	@ echo Compiling lexer ...
-	$(ERL) -eval 'leex:file("$<"), halt().'
-	@ mkdir -p $(EBIN_DIR)
-	$(ERLC) -o $(EBIN_DIR) $@
-	@ echo
+compile: ebin src/dynamo_router_parser.erl
 
 src/dynamo_router_parser.erl: src/dynamo_router_parser.yrl
 	@ echo Compiling parser ...
@@ -20,16 +13,16 @@ src/dynamo_router_parser.erl: src/dynamo_router_parser.yrl
 	$(ERLC) -o $(EBIN_DIR) $@
 	@ echo
 
-ebin: lib/*.ex
+ebin: lib/*.ex lib/*/*.ex
 	@ echo Compiling ...
 	@ mkdir -p $(EBIN_DIR)
 	@ touch $(EBIN_DIR)
-	elixirc $< -o ebin
+	elixirc lib/*/*.ex lib/*.ex -o ebin
 	@ echo
 
 test: compile
 	@ echo Running tests ...
-	time exunit -- test/**/*_test.exs
+	time exunit -pa ebin -- test/**/*_test.exs
 	@ echo
 
 clean:

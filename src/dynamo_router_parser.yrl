@@ -1,15 +1,18 @@
-Nonterminals
-  grammar
-  .
+Nonterminals expressions expression terminal.
 
-Terminals
-  slash star
-  .
+Terminals slash literal.
 
-Rootsymbol grammar.
+Rootsymbol expressions.
 
-grammar -> slash : '$1'.
-grammar -> star : '$1'.
+expressions -> expression expressions : { cat, '$1', '$2' }.
+expressions -> expression : '$1'.
+
+expression -> terminal : setelement(1, '$1', terminal).
+% expression -> group : '$1'.
+% expression -> start : '$1'.
+
+terminal -> slash : '$1'.
+terminal -> literal : '$1'.
 
 Erlang code.
 
