@@ -1,27 +1,27 @@
 defmodule Dynamo::Router::Scanner do
   def scan(string) do
-    tokenize(string, :literal, [], [])
+    tokenize(string, [], [])
   end
 
-  defp tokenize([?/|t], kind, buffer, acc) do
-    acc = build_buffer kind, buffer, acc
-    tokenize t, :literal, [], [translate_token(?/)|acc]
+  defp tokenize([?/|t], buffer, acc) do
+    acc = build_buffer buffer, acc
+    tokenize t, [], [translate_token(?/)|acc]
   end
 
-  defp tokenize([h|t], kind, buffer, acc) do
-    tokenize t, kind, [h|buffer], acc
+  defp tokenize([h|t], buffer, acc) do
+    tokenize t, [h|buffer], acc
   end
 
-  defp tokenize([], kind, buffer, acc) do
-    List.reverse build_buffer(kind, buffer, acc)
+  defp tokenize([], buffer, acc) do
+    List.reverse build_buffer(buffer, acc)
   end
 
-  defp build_buffer(_kind, [], acc) do
+  defp build_buffer([], acc) do
     acc
   end
 
-  defp build_buffer(kind, buffer, acc) do
-    [{kind, List.reverse(buffer)}|acc]
+  defp build_buffer(buffer, acc) do
+    [{:literal, List.reverse(buffer)}|acc]
   end
 
   defp translate_token(?/), do: { :slash, '/' }

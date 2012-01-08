@@ -9,19 +9,19 @@ defmodule Dynamo::Router::GTGTest do
   def test_branch do
     { 'foo', [
       {'/', [
-        {'bar', [ { :endpoint, [:END] } ] }
+        {'bar', [ { :endpoint, :END } ] }
       ] }
     ] } = branch('foo/bar', :END)
   end
 
   def test_branch_with_literal do
-    { 'foo', [ { :endpoint, [:END] } ] } = branch('foo', :END)
+    { 'foo', [ { :endpoint, :END } ] } = branch('foo', :END)
   end
 
   def test_merge_distinct do
     [
-      { 'foo', [ {:endpoint, [:A] } ] },
-      { 'bar', [ {:endpoint, [:B] } ] }
+      { 'foo', [ {:endpoint, :A } ] },
+      { 'bar', [ {:endpoint, :B } ] }
     ] = merge('foo', 'bar')
   end
 
@@ -29,8 +29,8 @@ defmodule Dynamo::Router::GTGTest do
     [
       { 'foo', [
         { '/', [
-          { 'bar', [ {:endpoint, [:A] } ] },
-          { 'baz', [ {:endpoint, [:B] } ] }
+          { 'bar', [ {:endpoint, :A } ] },
+          { 'baz', [ {:endpoint, :B } ] }
         ] }
       ] }
     ] = merge('foo/bar', 'foo/baz')
@@ -41,7 +41,8 @@ defmodule Dynamo::Router::GTGTest do
       { 'foo', [
         { '/', [
           { 'bar', [
-            { :endpoint, [:A, :B] }
+            { :endpoint, :A },
+            { :endpoint, :B }
           ] }
         ] }
       ] }
