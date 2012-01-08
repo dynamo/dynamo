@@ -1,13 +1,17 @@
 defmodule Dynamo::Router::Compiler do
   # Receives a merged branches as `gtg` and converts
-  # them to a series of compiled functions into the
-  # `target` module.
+  # them to a series of compiled functions injected
+  # into the `target` module.
   def compile(module, gtg, counter // 0) do
     result = Enum.foldl gtg, counter + 1, compile_each(_, _, module, counter)
     Module.eval_quoted module, error_for(name_for(counter)), [], __FILE__, __LINE__
     result
   end
 
+  # The endpoint is special cased because the second element
+  # of the tuple is not a list. If we have an endpoint, it
+  # means we just need to add the endpoint clause using the
+  # verb and the extra parameters given.
   defp compile_each({ :endpoint, { verb, extra } }, counter, module, current) do
     name = name_for(current)
 
@@ -21,6 +25,8 @@ defmodule Dynamo::Router::Compiler do
     counter + 1
   end
 
+  # Each other item besides the endpoint is simply compiled
+  # recursively.
   defp compile_each(item, counter, module, current) do
     { left, right } = flatten(item)
 
@@ -45,7 +51,8 @@ defmodule Dynamo::Router::Compiler do
   end
 
   # Return the contents to be compiled according
-  # to the left part.
+  # to the left part. If left is a list, it means
+  # we have a literal.
   defp contents_for(name, left, invoke) when is_list(left) do
     quote do
       defp unquote(name).(verb, unquote(left) ++ rest, dict) when is_list(rest) do
