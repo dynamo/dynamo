@@ -1,8 +1,11 @@
-Nonterminals expressions expression terminal.
+Nonterminals root expressions expression terminal.
 
 Terminals slash literal.
 
-Rootsymbol expressions.
+Rootsymbol root.
+
+root -> expressions : '$1'.
+root -> '$empty' : { terminal, "" }.
 
 expressions -> expression expressions : { cat, '$1', '$2' }.
 expressions -> expression : '$1'.

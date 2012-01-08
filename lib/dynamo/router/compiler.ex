@@ -8,19 +8,16 @@ defmodule Dynamo::Router::Compiler do
     result
   end
 
-  defp compile_each({ :endpoint, right }, counter, module, current) do
+  defp compile_each({ :endpoint, { verb, extra } }, counter, module, current) do
     name = name_for(current)
 
-    for ({ verb, extra } in right) do
-      contents = quote do
-        defp unquote(name).(unquote(verb), [], dict) do
-          { :ok, unquote(extra), dict }
-        end
+    contents = quote do
+      defp unquote(name).(unquote(verb), [], dict) do
+        { :ok, unquote(extra), dict }
       end
-
-      Module.eval_quoted module, contents, [], __FILE__, __LINE__
     end
 
+    Module.eval_quoted module, contents, [], __FILE__, __LINE__
     counter + 1
   end
 
@@ -51,7 +48,7 @@ defmodule Dynamo::Router::Compiler do
   # to the left part.
   defp contents_for(name, left, invoke) when is_list(left) do
     quote do
-      defp unquote(name).(verb, unquote(left) ++ rest, dict) do
+      defp unquote(name).(verb, unquote(left) ++ rest, dict) when is_list(rest) do
         unquote(invoke).(verb, rest, dict)
       end
     end
@@ -66,6 +63,6 @@ defmodule Dynamo::Router::Compiler do
 
   # Return an atom representing the name for the given counter.
   defp name_for(counter) do
-    list_to_atom(['_',counter|'_recognize'])
+    list_to_atom List.flatten(['_',integer_to_list(counter)|'_recognize'])
   end
 end

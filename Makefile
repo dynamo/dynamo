@@ -13,11 +13,11 @@ src/dynamo_router_parser.erl: src/dynamo_router_parser.yrl
 	$(ERLC) -o $(EBIN_DIR) $@
 	@ echo
 
-ebin: lib/*.ex lib/*/*.ex
+ebin: lib/*.ex lib/*/*.ex lib/*/*/*.ex
 	@ echo Compiling ...
 	@ mkdir -p $(EBIN_DIR)
 	@ touch $(EBIN_DIR)
-	elixirc lib/*/*.ex lib/*.ex -o ebin
+	elixirc lib/*/*/*.ex lib/*/*.ex lib/*.ex -o ebin
 	@ echo
 
 test: compile
