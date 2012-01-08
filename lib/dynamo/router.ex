@@ -1,7 +1,7 @@
 defmodule Dynamo::Router do
-  refer Dynamo::Router::GTG, as: GTG
-  refer Dynamo::Router::Parser, as: Parser
-  refer Dynamo::Router::Compiler, as: Compiler
+  refer Dynamo::Router::GTG
+  refer Dynamo::Router::Parser
+  refer Dynamo::Router::Compiler
 
   def compile(module, routes) do
     gtg = Enum.foldl routes, [], fn({ route, endpoint }, acc) {
@@ -10,7 +10,9 @@ defmodule Dynamo::Router do
     }
 
     contents = quote do
-      def recognize_route(verb, path, dict // 0), do: _0_recognize(verb, path, dict)
+      def recognize_route(verb, path, dict // 0) do
+        _0_recognize(verb, Dynamo::Router::Parser.normalize(path), dict)
+      end
     end
 
     Module.eval_quoted module, contents, [], __FILE__, __LINE__
