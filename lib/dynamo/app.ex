@@ -10,7 +10,7 @@ defmodule Dynamo::App do
 
   defmacro __compiling__(module) do
     # Compile routes
-    routes = Orddict.fetch Module.read_data(module), :routes, []
+    routes = Module.read_data module, :routes
     Dynamo::Router.compile(module, routes)
 
     # Clean up any internal state

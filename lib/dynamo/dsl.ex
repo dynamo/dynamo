@@ -1,15 +1,15 @@
 defmodule Dynamo::DSL do
   defmacro route(verb, path, contents) do
     quote do
-      path      = unquote(path)
-      list_path = to_list(path)
-      bin_path  = to_binary(path)
+      _path      = unquote(path)
+      _list_path = to_list(_path)
+      _bin_path  = to_binary(_path)
 
-      routes = Orddict.fetch Module.read_data(__MODULE__), :routes, []
-      name   = :"_action_#{bin_path}_#{length(routes)}"
+      _routes = Module.read_data(__MODULE__, :routes)
+      _name   = :"_action_#{_bin_path}_#{length(_routes)}"
 
-      Module.merge_data __MODULE__, routes: [{ list_path, {unquote(verb), name} }|routes]
-      def name, [request, response], [], unquote(contents)
+      Module.merge_data __MODULE__, routes: [{ _list_path, {unquote(verb), _name} }|_routes]
+      def _name, [request, response], [is_tuple(request) and is_tuple(response)], unquote(contents)
     end
   end
 
