@@ -1,4 +1,4 @@
-# Run this app with:
+# Run this app from root with:
 #
 #   elixir --no-halt -pa ebin -pa deps/misultin/ebin examples/simple.exs
 
