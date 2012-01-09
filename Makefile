@@ -2,7 +2,12 @@ EBIN_DIR=ebin
 ERLC=erlc -W0
 ERL=erl -noshell -pa $(EBIN_DIR)
 
-.PHONY: test clean
+.PHONY: setup test clean
+
+setup:
+	git submodule update --init
+	cd deps/ibrowse && make
+	cd deps/misultin && make
 
 compile: ebin src/dynamo_router_parser.erl
 
