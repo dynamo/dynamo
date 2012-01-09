@@ -4,12 +4,12 @@ ERL=erl -noshell -pa $(EBIN_DIR)
 
 .PHONY: setup test clean
 
+compile: ebin src/dynamo_router_parser.erl
+
 setup:
 	git submodule update --init
 	cd deps/ibrowse && make
 	cd deps/misultin && make
-
-compile: ebin src/dynamo_router_parser.erl
 
 src/dynamo_router_parser.erl: src/dynamo_router_parser.yrl
 	@ echo Compiling parser ...
@@ -19,6 +19,7 @@ src/dynamo_router_parser.erl: src/dynamo_router_parser.yrl
 	@ echo
 
 ebin: lib/*.ex lib/*/*.ex lib/*/*/*.ex
+	@ rm -f ebin/::*.beam
 	@ echo Compiling ...
 	@ mkdir -p $(EBIN_DIR)
 	@ touch $(EBIN_DIR)
