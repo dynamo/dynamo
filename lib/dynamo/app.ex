@@ -24,13 +24,14 @@ defmodule Dynamo::App do
       end
 
       def service(request, response) do
-        path = request.path
-        verb = request.request_method
+        { :abs_path, path } = request.get(:uri)
+        verb = request.get(:method)
+
         case recognize_route(verb, path, []) do
         match: { :ok, fun, _ }
           apply __MODULE__, fun, [request, response]
         match: :error
-          IO.puts "SERVE 404"
+          request.respond(404, [], "Status: 404")
         end
       end
     end
