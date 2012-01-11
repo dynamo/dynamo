@@ -9,7 +9,7 @@ defmodule Dynamo::DSL do
       _name   = :"_action_#{_bin_path}_#{length(_routes)}"
 
       Module.merge_data __MODULE__, routes: [{ _list_path, {unquote(verb), _name} }|_routes]
-      def _name, [request, response], [is_tuple(request) and is_tuple(response)], unquote(contents)
+      def _name, [var!(request), var!(response)], [is_tuple(var!(request)) and is_tuple(var!(response))], unquote(contents)
     end
   end
 
