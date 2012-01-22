@@ -5,7 +5,7 @@ defmodule Dynamo::App do
   defmacro __using__(module) do
     Module.merge_data module, routes: []
     Module.add_compile_callback module, __MODULE__
-    quote { require Dynamo::DSL, import: true }
+    quote { import Dynamo::DSL }
   end
 
   defmacro __compiling__(module) do

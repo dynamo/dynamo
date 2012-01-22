@@ -1,7 +1,7 @@
 defmodule Dynamo::Router do
-  refer Dynamo::Router::GTG
-  refer Dynamo::Router::Parser
-  refer Dynamo::Router::Compiler
+  require Dynamo::Router::GTG
+  require Dynamo::Router::Parser
+  require Dynamo::Router::Compiler
 
   def compile(module, routes) do
     gtg = Enum.foldl routes, [], fn({ route, endpoint }, acc) {
