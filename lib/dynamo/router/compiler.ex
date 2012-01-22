@@ -42,7 +42,7 @@ defmodule Dynamo::Router::Compiler do
   # If left part is a literal with only one item and
   # the second item is also a literal, we can flatten
   # them to avoid extra method calls.
-  defp flatten({ left, [{ right, args }] }) when is_list(left) andalso is_list(right) do
+  defp flatten({ left, [{ right, args }] }) when is_list(left) & is_list(right) do
     flatten({ left ++ right, args })
   end
 

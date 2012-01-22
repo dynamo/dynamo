@@ -13,12 +13,11 @@ defmodule Dynamo::App do
     routes = Module.read_data module, :routes
     Dynamo::Router.compile(module, routes)
 
-    # Clean up any internal state
-    # TODO: Use Module.remove_data once we add it to Elixir
-    Module.merge_data module, routes: []
-
     # Generate both an service entry points
     quote do
+      # Clean up routes
+      @routes nil
+
       def run(options // []) do
         Dynamo.run(__MODULE__, options)
       end
