@@ -1,1 +1,1 @@
-ExUnit.configure []
+ExUnit.start

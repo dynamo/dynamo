@@ -1,6 +1,6 @@
 # Run this app from root with:
 #
-#   elixir --no-halt -pa ebin -pa deps/misultin/ebin examples/simple.exs
+#   elixir -pa ebin examples/simple.exs
 
 defmodule MyApp do
   use Dynamo::App
@@ -10,4 +10,5 @@ defmodule MyApp do
   end
 end
 
+Code.prepend_path("deps/misultin/ebin")
 MyApp.run
