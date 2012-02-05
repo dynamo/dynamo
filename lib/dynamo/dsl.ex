@@ -2,7 +2,7 @@ defmodule Dynamo::DSL do
   defmacro route(verb, path, contents) do
     quote do
       _path      = unquote(path)
-      _list_path = to_list(_path)
+      _list_path = to_char_list(_path)
       _bin_path  = to_binary(_path)
 
       _routes = @routes
