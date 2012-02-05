@@ -9,7 +9,7 @@ defmodule Dynamo::DSL do
       _name   = :"_action_#{_bin_path}_#{length(_routes)}"
 
       @routes [{ _list_path, {unquote(verb), _name} }|_routes]
-      def _name, [var!(request), var!(response)], is_tuple(var!(request)) & is_tuple(var!(response)), unquote(contents)
+      def _name, [var!(request), var!(response)], is_tuple(var!(request)) andalso is_tuple(var!(response)), unquote(contents)
     end
   end
 
