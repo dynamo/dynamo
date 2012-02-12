@@ -1,9 +1,8 @@
 defmodule Dynamo::Router::Compiler do
-  # Receives a merged branches as `gtg` and converts
-  # them to a series of compiled functions injected
-  # into the `target` module.
+  # Receives merged branches as `gtg` and converts them to a
+  # series of compiled functions injected into the given module.
   def compile(module, gtg, counter // 0) do
-    result = Enum.foldl gtg, counter + 1, compile_each(_, _, module, counter)
+    result = Enum.reduce gtg, counter + 1, compile_each(&1, &2, module, counter)
     Module.eval_quoted module, error_for(name_for(counter)), [], __FILE__, __LINE__
     result
   end

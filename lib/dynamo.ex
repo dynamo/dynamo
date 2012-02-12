@@ -10,7 +10,7 @@ defmodule Dynamo do
     [
       port: 3000,
       name: name,
-      loop: fn(req) { name.service(req, {}) }
+      loop: fn(req, do: name.service(req, {}))
     ]
   end
 end

@@ -58,7 +58,7 @@ defmodule Dynamo::Router::GTG do
 
   # Merge each item when old/new are lists.
   defp do_merge(left, old, new, acc) do
-    merged = Enum.foldl new, old, fn(x, acc) { do_merge(acc, x) }
+    merged = Enum.reduce new, old, fn(x, acc, do: do_merge(acc, x))
     [{ left, merged }|acc]
   end
 end
