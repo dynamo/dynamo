@@ -1,6 +1,15 @@
 Code.require_file "../../test_helper", __FILE__
 
+defmodule Dynamo::RouterTest::Macros do
+  defmacro assert_quoted(left, right) do
+    quote do
+      assert_equal quote(do: unquote(left)), unquote(right)
+    end
+  end
+end
+
 defmodule Dynamo::RouterTest do
+  import Dynamo::RouterTest::Macros
   require Dynamo::Router, as: R
   use ExUnit::Case
 
@@ -17,5 +26,15 @@ defmodule Dynamo::RouterTest do
   def test_split_removes_trailing_slash do
     assert_equal ['foo', 'bar'], R.split('/foo/bar/')
     assert_equal ['foo', 'bar'], R.split('foo/bar/')
+  end
+
+  def test_quote_single_segment_no_variable do
+    assert_quoted ['foo'], R.generate_match('/foo')
+    assert_quoted ['foo'], R.generate_match('foo')
+  end
+
+  def test_quote_with_variable do
+    assert_quoted ['foo', id], R.generate_match('/foo/:id')
+    assert_quoted ['foo', username], R.generate_match('foo/:username')
   end
 end
