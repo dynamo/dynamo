@@ -1,6 +1,6 @@
 defmodule Dynamo::Router do
 
-  # Generates a representation that will only match routes according to the 
+  # Generates a representation that will only match routes according to the
   # given `spec`.
   #
   # ## Examples
@@ -28,17 +28,29 @@ defmodule Dynamo::Router do
 
   ## Helpers
 
-  defp generate_match([[?:|argument]|t], acc) do
-    tuple = { list_to_atom(argument),0,:quoted }
-    generate_match(t, [tuple | acc])
-  end
-
   defp generate_match([h|t], acc) do
-    generate_match(t, [h | acc])
+    generate_match(t, [ dynamic_match(h, []) | acc])
   end
 
   defp generate_match([], acc) do
     List.reverse acc
+  end
+
+  defp dynamic_match([?:|argument], []) do
+    { list_to_atom(argument), 0, :quoted }
+  end
+
+  defp dynamic_match([?:|argument], buffer) do
+    var = { list_to_atom(argument), 0, :quoted }
+    { :++, 0, [List.reverse(buffer), var] }
+  end
+
+  defp dynamic_match([h|t], buffer) do
+    dynamic_match t, [h|buffer]
+  end
+
+  defp dynamic_match([], buffer) do
+    List.reverse buffer
   end
 
   defp split(list, buffer, acc) when list == [] orelse list == [?/] do
