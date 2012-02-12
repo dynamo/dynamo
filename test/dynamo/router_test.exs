@@ -28,19 +28,18 @@ defmodule Dynamo::RouterTest do
     assert_equal ['foo', 'bar'], R.split('foo/bar/')
   end
 
-  def test_quote_single_segment_no_variable do
+  def test_generate_match_without_variable do
     assert_quoted ['foo'], R.generate_match('/foo')
     assert_quoted ['foo'], R.generate_match('foo')
   end
 
-  def test_quote_with_variable do
+  def test_generate_match_with_variable do
     assert_quoted ['foo', id], R.generate_match('/foo/:id')
     assert_quoted ['foo', username], R.generate_match('foo/:username')
   end
 
-  def test_quote_with_string_plus_variable do
+  def test_generate_match_with_string_plus_variable do
     assert_quoted ['foo', 'bar-' ++ id], R.generate_match('/foo/bar-:id')
     assert_quoted ['foo', 'bar' ++ username], R.generate_match('foo/bar:username')
   end
-
 end
