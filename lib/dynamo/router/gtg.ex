@@ -5,7 +5,10 @@
 defmodule Dynamo::Router::GTG do
   # Receives a tree produced by Dynamo::Router::Parser
   # and converts it to a branch of a generalized
-  # transition graph.
+  # transition graph. The branch is made by two parts
+  # the left part representing the current node and
+  # the right part representing the nodes the left part
+  # points to.
   def branch(left, right), do: do_branch(left, right)
 
   # Merge a new branch to the list of branches.
