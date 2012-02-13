@@ -53,7 +53,13 @@ defmodule Dynamo::RouterTest do
     assert_quoted ['foo' | ['id-' ++ _ | _] = glob], R.generate_match('foo/id-*glob').segments
   end
 
-  def test_generate_match_fails do
+  def test_generate_match_segments_and_identifiers do
+    match = R.generate_match('/foo/:bar/bar-*baz')
+    assert_quoted ['foo', bar | ['bar-' ++ _ | _] = baz], match.segments
+    assert_equal  [:baz, :bar], match.identifiers
+  end
+
+  def test_generate_invalid_match_with_segments_after_glob do
     R.generate_match('/foo/*bar/baz')
     flunk "generate_match should have failed"
   rescue: x in [Dynamo::Router::InvalidSpec]
