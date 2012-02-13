@@ -1,3 +1,5 @@
+defexception Dynamo::Router::InvalidSpec, message: "invalid route specification"
+
 defmodule Dynamo::Router do
 
   # Generates a representation that will only match routes according to the
@@ -61,13 +63,20 @@ defmodule Dynamo::Router do
 
   defp dynamic_match([?:|argument], buffer) do
     identifier = list_to_atom(argument)
-
-    expr = { :++, 0, [
-      List.reverse(buffer),
-      { identifier, 0, :quoted }
-    ] }
-
+    var = { identifier, 0, :quoted }
+    expr = quote do
+      unquote(List.reverse(buffer)) ++ unquote(var)
+    end
     { :identifier, identifier, expr }
+  end
+
+  defp dynamic_match([?*|argument], buffer) do
+    identifier = list_to_atom(argument)
+    var = { identifier, 0, :quoted }
+    expr = quote do
+      [unquote(List.reverse(buffer)) ++ _ | _] = unquote(var)
+    end
+    { :glob, identifier, expr }
   end
 
   defp dynamic_match([h|t], buffer) do
