@@ -2,7 +2,6 @@ defexception Dynamo::Router::InvalidSpec, message: "invalid route specification"
 defrecord Dynamo::Router::Match, identifiers: [], segments: []
 
 defmodule Dynamo::Router do
-
   # Generates a representation that will only match routes according to the
   # given `spec`.
   #
@@ -31,46 +30,55 @@ defmodule Dynamo::Router do
 
   ## Helpers
 
-  # Loops each segment checking finding dynamic matches.
+  # Loops each segment checking for matches.
   defp generate_match([h|t], match) do
-    final =
-      case dynamic_match(h, []) do
-      match: { :literal, literal }
-        match.prepend_segments([literal])
-      match: { :identifier, identifier, expr }
-        match.
-          prepend_segments([expr]).
-          prepend_identifiers([identifier])
-      match: { :glob, identifier, expr }
-        if t != [], do:
-          raise(InvalidSpec, message: "cannot have a *glob followed by other segments")
-
-        [hs|ts] = match.segments
-        acc = [{ :|, 0, [hs, expr] } | ts]
-
-        match.segments(acc).
-          prepend_identifiers([identifier])
-      end
-
-    generate_match(t, final)
+    handle_segment_match segment_match(h, []), t, match
   end
 
   defp generate_match([], match) do
     match.update_segments(List.reverse(&1))
   end
 
-  # In a given segment, checks if there is a dynamic match.
-  defp dynamic_match([?:|argument], []) do
+  # Handle each segment match. They can either be a
+  # :literal ('foo'), an identifier (':bar') or a glob ('*path')
+  def handle_segment_match({ :literal, literal }, t, match) do
+    generate_match t, match.prepend_segments([literal])
+  end
+
+  def handle_segment_match({ :identifier, identifier, expr }, t, match) do
+    generate_match t, match.
+      prepend_segments([expr]).
+      prepend_identifiers([identifier])
+  end
+
+  def handle_segment_match({ :glob, identifier, expr }, t, match) do
+    if t != [] do
+      raise(InvalidSpec, message: "cannot have a *glob followed by other segments")
+    end
+
+    match = match.prepend_identifiers([identifier])
+
+    case match.segments do
+    match: [hs|ts]
+      acc = [{ :|, 0, [hs, expr] } | ts]
+      match.segments(List.reverse(acc))
+    else:
+      match.segments(expr)
+    end
+  end
+
+  # In a given segment, checks if there is a match.
+  defp segment_match([?:|argument], []) do
     identifier = list_to_atom(argument)
     { :identifier, identifier, { identifier, 0, :quoted } }
   end
 
-  defp dynamic_match([?*|argument], []) do
+  defp segment_match([?*|argument], []) do
     identifier = list_to_atom(argument)
     { :glob, identifier, { identifier, 0, :quoted } }
   end
 
-  defp dynamic_match([?:|argument], buffer) do
+  defp segment_match([?:|argument], buffer) do
     identifier = list_to_atom(argument)
     var = { identifier, 0, :quoted }
     expr = quote do
@@ -79,7 +87,7 @@ defmodule Dynamo::Router do
     { :identifier, identifier, expr }
   end
 
-  defp dynamic_match([?*|argument], buffer) do
+  defp segment_match([?*|argument], buffer) do
     identifier = list_to_atom(argument)
     var = { identifier, 0, :quoted }
     expr = quote do
@@ -88,11 +96,11 @@ defmodule Dynamo::Router do
     { :glob, identifier, expr }
   end
 
-  defp dynamic_match([h|t], buffer) do
-    dynamic_match t, [h|buffer]
+  defp segment_match([h|t], buffer) do
+    segment_match t, [h|buffer]
   end
 
-  defp dynamic_match([], buffer) do
+  defp segment_match([], buffer) do
     { :literal, List.reverse buffer }
   end
 

@@ -28,7 +28,7 @@ defmodule Dynamo::RouterTest do
     assert_equal ['foo', 'bar'], R.split('foo/bar/')
   end
 
-  def test_generate_match_with_ligeral do
+  def test_generate_match_with_literal do
     assert_quoted ['foo'], R.generate_match('/foo').segments
     assert_quoted ['foo'], R.generate_match('foo').segments
   end
@@ -41,6 +41,14 @@ defmodule Dynamo::RouterTest do
   def test_generate_match_with_literal_plus_identifier do
     assert_quoted ['foo', 'bar-' ++ id], R.generate_match('/foo/bar-:id').segments
     assert_quoted ['foo', 'bar' ++ username], R.generate_match('foo/bar:username').segments
+  end
+
+  def test_generate_match_only_with_glob do
+    assert_quoted bar, R.generate_match('*bar').segments
+    assert_quoted glob, R.generate_match('/*glob').segments
+
+    assert_quoted ['id-' ++ _ | _] = bar, R.generate_match('id-*bar').segments
+    assert_quoted ['id-' ++ _ | _] = glob, R.generate_match('/id-*glob').segments
   end
 
   def test_generate_match_with_glob do

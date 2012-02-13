@@ -1,29 +1,30 @@
-defmodule Dynamo::App do
+# Dynamo::Dispatcher allows any Elixir module to match
+# requests based on the path and take action accordingly.
+#
+# ## Examples
+#
+#     defmodule MyApp do
+#       use Dynamo::Dispatcher
+#
+#       get "users/:id" do
+#         response.write_head 200, [{ "Content-Type", "application/json" }]
+#         response.end JSON.encode(User.find(id))
+#       end
+#     end
+#
+defmodule Dynamo::Dispatcher do
   # Hook invoked when Dynamo::App is used.
   # It initializes the app data, registers a
   # compile callback and import Dynamo::DSL macros.
   defmacro __using__(module) do
-    Module.merge_data module, routes: []
     Module.add_compile_callback module, __MODULE__
     quote do
-      import Dynamo::DSL
+      import Dynamo::Dispatcher::DSL
     end
   end
 
-  defmacro __compiling__(module) do
-    # Compile routes
-    routes = Module.read_data module, :routes
-    Dynamo::Router.compile(module, routes)
-
-    # Generate both an service entry points
+  defmacro __compiling__(_) do
     quote do
-      # Clean up routes
-      @routes nil
-
-      def run(options // []) do
-        Dynamo.run(__MODULE__, options)
-      end
-
       def service(request, response) do
         { :abs_path, path } = request.get(:uri)
         verb = request.get(:method)
