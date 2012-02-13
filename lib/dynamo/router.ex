@@ -1,4 +1,5 @@
 defexception Dynamo::Router::InvalidSpec, message: "invalid route specification"
+defrecord Dynamo::Router::Match, identifiers: [], segments: []
 
 defmodule Dynamo::Router do
 
@@ -10,7 +11,7 @@ defmodule Dynamo::Router do
   #     generate_match("/foo/:id") => ['foo', { :id, 0, :quoted }]
   #
   def generate_match(spec) do
-    generate_match split(spec), []
+    generate_match split(spec), Match.new
   end
 
   # Splits the given path into several segments.
@@ -31,26 +32,31 @@ defmodule Dynamo::Router do
   ## Helpers
 
   # Loops each segment checking finding dynamic matches.
-  defp generate_match([h|t], acc) do
+  defp generate_match([h|t], match) do
     final =
       case dynamic_match(h, []) do
       match: { :literal, literal }
-        [literal|acc]
-      match: { :identifier, _identifier, expr }
-        [expr|acc]
-      match: { :glob, _identifier, expr }
+        match.prepend_segments([literal])
+      match: { :identifier, identifier, expr }
+        match.
+          prepend_segments([expr]).
+          prepend_identifiers([identifier])
+      match: { :glob, identifier, expr }
         if t != [], do:
           raise(InvalidSpec, message: "cannot have a *glob followed by other segments")
 
-        [h_acc|t_acc] = acc
-        [{ :|, 0, [h_acc, expr] } | t_acc]
+        [hs|ts] = match.segments
+        acc = [{ :|, 0, [hs, expr] } | ts]
+
+        match.segments(acc).
+          prepend_identifiers([identifier])
       end
 
     generate_match(t, final)
   end
 
-  defp generate_match([], acc) do
-    List.reverse acc
+  defp generate_match([], match) do
+    match.update_segments(List.reverse(&1))
   end
 
   # In a given segment, checks if there is a dynamic match.

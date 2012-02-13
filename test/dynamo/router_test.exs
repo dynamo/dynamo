@@ -29,28 +29,28 @@ defmodule Dynamo::RouterTest do
   end
 
   def test_generate_match_with_ligeral do
-    assert_quoted ['foo'], R.generate_match('/foo')
-    assert_quoted ['foo'], R.generate_match('foo')
+    assert_quoted ['foo'], R.generate_match('/foo').segments
+    assert_quoted ['foo'], R.generate_match('foo').segments
   end
 
   def test_generate_match_with_identifier do
-    assert_quoted ['foo', id], R.generate_match('/foo/:id')
-    assert_quoted ['foo', username], R.generate_match('foo/:username')
+    assert_quoted ['foo', id], R.generate_match('/foo/:id').segments
+    assert_quoted ['foo', username], R.generate_match('foo/:username').segments
   end
 
   def test_generate_match_with_literal_plus_identifier do
-    assert_quoted ['foo', 'bar-' ++ id], R.generate_match('/foo/bar-:id')
-    assert_quoted ['foo', 'bar' ++ username], R.generate_match('foo/bar:username')
+    assert_quoted ['foo', 'bar-' ++ id], R.generate_match('/foo/bar-:id').segments
+    assert_quoted ['foo', 'bar' ++ username], R.generate_match('foo/bar:username').segments
   end
 
   def test_generate_match_with_glob do
-    assert_quoted ['foo' | bar], R.generate_match('/foo/*bar')
-    assert_quoted ['foo' | glob], R.generate_match('foo/*glob')
+    assert_quoted ['foo' | bar], R.generate_match('/foo/*bar').segments
+    assert_quoted ['foo' | glob], R.generate_match('foo/*glob').segments
   end
 
   def test_generate_match_with_literal_plus_glob do
-    assert_quoted ['foo' | ['id-' ++ _ | _] = bar], R.generate_match('/foo/id-*bar')
-    assert_quoted ['foo' | ['id-' ++ _ | _] = glob], R.generate_match('foo/id-*glob')
+    assert_quoted ['foo' | ['id-' ++ _ | _] = bar], R.generate_match('/foo/id-*bar').segments
+    assert_quoted ['foo' | ['id-' ++ _ | _] = glob], R.generate_match('foo/id-*glob').segments
   end
 
   def test_generate_match_fails do
