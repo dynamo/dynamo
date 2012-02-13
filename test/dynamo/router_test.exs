@@ -42,4 +42,9 @@ defmodule Dynamo::RouterTest do
     assert_quoted ['foo', 'bar-' ++ id], R.generate_match('/foo/bar-:id')
     assert_quoted ['foo', 'bar' ++ username], R.generate_match('foo/bar:username')
   end
+
+  def test_generate_match_with_glob do
+    assert_quoted ['foo' | bar], R.generate_match('/foo/*bar')
+    assert_quoted ['foo' | glob], R.generate_match('foo/*glob')
+  end
 end

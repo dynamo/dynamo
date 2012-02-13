@@ -28,21 +28,46 @@ defmodule Dynamo::Router do
 
   ## Helpers
 
+  # Loops each segment checking finding dynamic matches.
   defp generate_match([h|t], acc) do
-    generate_match(t, [ dynamic_match(h, []) | acc])
+    final =
+      case dynamic_match(h, []) do
+      match: { :literal, literal }
+        [literal|acc]
+      match: { :identifier, _identifier, expr }
+        [expr|acc]
+      match: { :glob, _identifier, expr }
+        [h|t] = acc
+        [{ :|, 0, [h, expr] } | t]
+      end
+
+    generate_match(t, final)
   end
 
   defp generate_match([], acc) do
     List.reverse acc
   end
 
+  # In a given segment, checks if there is a dynamic match.
   defp dynamic_match([?:|argument], []) do
-    { list_to_atom(argument), 0, :quoted }
+    identifier = list_to_atom(argument)
+    { :identifier, identifier, { identifier, 0, :quoted } }
+  end
+
+  defp dynamic_match([?*|argument], []) do
+    identifier = list_to_atom(argument)
+    { :glob, identifier, { identifier, 0, :quoted } }
   end
 
   defp dynamic_match([?:|argument], buffer) do
-    var = { list_to_atom(argument), 0, :quoted }
-    { :++, 0, [List.reverse(buffer), var] }
+    identifier = list_to_atom(argument)
+
+    expr = { :++, 0, [
+      List.reverse(buffer),
+      { identifier, 0, :quoted }
+    ] }
+
+    { :identifier, identifier, expr }
   end
 
   defp dynamic_match([h|t], buffer) do
@@ -50,9 +75,10 @@ defmodule Dynamo::Router do
   end
 
   defp dynamic_match([], buffer) do
-    List.reverse buffer
+    { :literal, List.reverse buffer }
   end
 
+  # Helpers for splitting the path.
   defp split(list, buffer, acc) when list == [] orelse list == [?/] do
     List.reverse [List.reverse(buffer)|acc]
   end
