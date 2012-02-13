@@ -39,8 +39,11 @@ defmodule Dynamo::Router do
       match: { :identifier, _identifier, expr }
         [expr|acc]
       match: { :glob, _identifier, expr }
-        [h|t] = acc
-        [{ :|, 0, [h, expr] } | t]
+        if t != [], do:
+          raise(InvalidSpec, message: "cannot have a *glob followed by other segments")
+
+        [h_acc|t_acc] = acc
+        [{ :|, 0, [h_acc, expr] } | t_acc]
       end
 
     generate_match(t, final)

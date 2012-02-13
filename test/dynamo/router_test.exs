@@ -53,4 +53,10 @@ defmodule Dynamo::RouterTest do
     assert_quoted ['foo' | ['id-' ++ _ | _] = glob], R.generate_match('foo/id-*glob')
   end
 
+  def test_generate_match_fails do
+    R.generate_match('/foo/*bar/baz')
+    flunk "generate_match should have failed"
+  rescue: x in [Dynamo::Router::InvalidSpec]
+    "cannot have a *glob followed by other segments" = x.message
+  end
 end
