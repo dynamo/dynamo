@@ -8,8 +8,12 @@ defmodule Dynamo::Router do
   #
   #     generate_match("/foo/:id") => ['foo', { :id, 0, :quoted }]
   #
+  def generate_match(spec) when is_binary(spec) do
+    generate_match binary_to_list(spec)
+  end
+
   def generate_match(spec) do
-    generate_match split(to_char_list(spec)), []
+    generate_match raw_split(spec), []
   end
 
   # Splits the given path into several segments.
@@ -19,17 +23,18 @@ defmodule Dynamo::Router do
   #
   #     split("/foo/bar") #=> ['foo', 'bar']
   #
-  def split([?/|t]) do
-    split t
+  def split(bin) when is_binary(bin) do
+    split binary_to_list(bin)
   end
 
   def split(t) do
-    split t, [], []
+    lc segment in raw_split(t), do: list_to_binary(segment)
   end
 
   ## Helpers
 
   # Loops each segment checking for matches.
+
   defp generate_match([h|t], acc) do
     handle_segment_match segment_match(h, []), t, acc
   end
@@ -40,6 +45,7 @@ defmodule Dynamo::Router do
 
   # Handle each segment match. They can either be a
   # :literal ('foo'), an identifier (':bar') or a glob ('*path')
+
   def handle_segment_match({ :literal, literal }, t, acc) do
     generate_match t, [literal|acc]
   end
@@ -63,6 +69,7 @@ defmodule Dynamo::Router do
   end
 
   # In a given segment, checks if there is a match.
+
   defp segment_match([?:|argument], []) do
     identifier = list_to_atom(argument)
     { :identifier, identifier, { identifier, 0, :quoted } }
@@ -77,7 +84,7 @@ defmodule Dynamo::Router do
     identifier = list_to_atom(argument)
     var = { identifier, 0, :quoted }
     expr = quote do
-      unquote(List.reverse(buffer)) ++ unquote(var)
+      unquote(binary_from_buffer(buffer)) <> unquote(var)
     end
     { :identifier, identifier, expr }
   end
@@ -86,7 +93,7 @@ defmodule Dynamo::Router do
     identifier = list_to_atom(argument)
     var = { identifier, 0, :quoted }
     expr = quote do
-      [unquote(List.reverse(buffer)) ++ _ | _] = unquote(var)
+      [unquote(binary_from_buffer(buffer)) <> _ | _] = unquote(var)
     end
     { :glob, identifier, expr }
   end
@@ -96,19 +103,32 @@ defmodule Dynamo::Router do
   end
 
   defp segment_match([], buffer) do
-    { :literal, List.reverse buffer }
+    { :literal, binary_from_buffer(buffer) }
   end
 
   # Helpers for splitting the path.
-  defp split(list, buffer, acc) when list == [] orelse list == [?/] do
+
+  defp raw_split([?/|t]) do
+    raw_split t, [], []
+  end
+
+  defp raw_split(t) do
+    raw_split t, [], []
+  end
+
+  defp raw_split(list, buffer, acc) when list == [] orelse list == [?/] do
     List.reverse [List.reverse(buffer)|acc]
   end
 
-  defp split([?/|t], buffer, acc) do
-    split t, [], [List.reverse(buffer)|acc]
+  defp raw_split([?/|t], buffer, acc) do
+    raw_split t, [], [List.reverse(buffer)|acc]
   end
 
-  defp split([h|t], buffer, acc) do
-    split t, [h|buffer], acc
+  defp raw_split([h|t], buffer, acc) do
+    raw_split t, [h|buffer], acc
+  end
+
+  defp binary_from_buffer(buffer) do
+    list_to_binary(List.reverse(buffer))
   end
 end
