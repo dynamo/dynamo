@@ -13,28 +13,30 @@
 #     end
 #
 defmodule Dynamo::Dispatcher do
-  # Hook invoked when Dynamo::App is used.
-  # It initializes the app data, registers a
-  # compile callback and import Dynamo::DSL macros.
-  defmacro __using__(module) do
+  defmacro __using__(module, _) do
     Module.add_compile_callback module, __MODULE__
+
     quote do
       import Dynamo::Dispatcher::DSL
+      defforward [service: 2, handle_404: 2], to: unquote(__MODULE__)
     end
+  end
+
+  def service(module, request, response) do
+    { :abs_path, path } = request.get(:uri)
+    verb = request.get(:method)
+    path = Dynamo::Router.split(path)
+    module.dispatch(verb, path, request, response)
+  end
+
+  def handle_404(_module, request, _response) do
+    request.respond(404, [], "Status: 404")
   end
 
   defmacro __compiling__(_) do
     quote do
-      def service(request, response) do
-        { :abs_path, path } = request.get(:uri)
-        verb = request.get(:method)
-
-        case recognize_route(verb, path, []) do
-        match: { :ok, fun, _ }
-          apply __MODULE__, fun, [request, response]
-        match: :error
-          request.respond(404, [], "Status: 404")
-        end
+      def dispatch(_, _, request, response) do
+        handle_404(request, response)
       end
     end
   end

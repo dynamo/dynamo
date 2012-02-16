@@ -29,42 +29,36 @@ defmodule Dynamo::RouterTest do
   end
 
   def test_generate_match_with_literal do
-    assert_quoted ['foo'], R.generate_match('/foo').segments
-    assert_quoted ['foo'], R.generate_match('foo').segments
+    assert_quoted ['foo'], R.generate_match('/foo')
+    assert_quoted ['foo'], R.generate_match('foo')
   end
 
   def test_generate_match_with_identifier do
-    assert_quoted ['foo', id], R.generate_match('/foo/:id').segments
-    assert_quoted ['foo', username], R.generate_match('foo/:username').segments
+    assert_quoted ['foo', id], R.generate_match('/foo/:id')
+    assert_quoted ['foo', username], R.generate_match('foo/:username')
   end
 
   def test_generate_match_with_literal_plus_identifier do
-    assert_quoted ['foo', 'bar-' ++ id], R.generate_match('/foo/bar-:id').segments
-    assert_quoted ['foo', 'bar' ++ username], R.generate_match('foo/bar:username').segments
+    assert_quoted ['foo', 'bar-' ++ id], R.generate_match('/foo/bar-:id')
+    assert_quoted ['foo', 'bar' ++ username], R.generate_match('foo/bar:username')
   end
 
   def test_generate_match_only_with_glob do
-    assert_quoted bar, R.generate_match('*bar').segments
-    assert_quoted glob, R.generate_match('/*glob').segments
+    assert_quoted bar, R.generate_match('*bar')
+    assert_quoted glob, R.generate_match('/*glob')
 
-    assert_quoted ['id-' ++ _ | _] = bar, R.generate_match('id-*bar').segments
-    assert_quoted ['id-' ++ _ | _] = glob, R.generate_match('/id-*glob').segments
+    assert_quoted ['id-' ++ _ | _] = bar, R.generate_match('id-*bar')
+    assert_quoted ['id-' ++ _ | _] = glob, R.generate_match('/id-*glob')
   end
 
   def test_generate_match_with_glob do
-    assert_quoted ['foo' | bar], R.generate_match('/foo/*bar').segments
-    assert_quoted ['foo' | glob], R.generate_match('foo/*glob').segments
+    assert_quoted ['foo' | bar], R.generate_match('/foo/*bar')
+    assert_quoted ['foo' | glob], R.generate_match('foo/*glob')
   end
 
   def test_generate_match_with_literal_plus_glob do
-    assert_quoted ['foo' | ['id-' ++ _ | _] = bar], R.generate_match('/foo/id-*bar').segments
-    assert_quoted ['foo' | ['id-' ++ _ | _] = glob], R.generate_match('foo/id-*glob').segments
-  end
-
-  def test_generate_match_segments_and_identifiers do
-    match = R.generate_match('/foo/:bar/bar-*baz')
-    assert_quoted ['foo', bar | ['bar-' ++ _ | _] = baz], match.segments
-    assert_equal  [:baz, :bar], match.identifiers
+    assert_quoted ['foo' | ['id-' ++ _ | _] = bar], R.generate_match('/foo/id-*bar')
+    assert_quoted ['foo' | ['id-' ++ _ | _] = glob], R.generate_match('foo/id-*glob')
   end
 
   def test_generate_invalid_match_with_segments_after_glob do

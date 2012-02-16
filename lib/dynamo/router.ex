@@ -1,5 +1,4 @@
 defexception Dynamo::Router::InvalidSpec, message: "invalid route specification"
-defrecord Dynamo::Router::Match, identifiers: [], segments: []
 
 defmodule Dynamo::Router do
   # Generates a representation that will only match routes according to the
@@ -10,7 +9,7 @@ defmodule Dynamo::Router do
   #     generate_match("/foo/:id") => ['foo', { :id, 0, :quoted }]
   #
   def generate_match(spec) do
-    generate_match split(spec), Match.new
+    generate_match split(to_char_list(spec)), []
   end
 
   # Splits the given path into several segments.
@@ -31,39 +30,35 @@ defmodule Dynamo::Router do
   ## Helpers
 
   # Loops each segment checking for matches.
-  defp generate_match([h|t], match) do
-    handle_segment_match segment_match(h, []), t, match
+  defp generate_match([h|t], acc) do
+    handle_segment_match segment_match(h, []), t, acc
   end
 
-  defp generate_match([], match) do
-    match.update_segments(List.reverse(&1))
+  defp generate_match([], acc) do
+    List.reverse(acc)
   end
 
   # Handle each segment match. They can either be a
   # :literal ('foo'), an identifier (':bar') or a glob ('*path')
-  def handle_segment_match({ :literal, literal }, t, match) do
-    generate_match t, match.prepend_segments([literal])
+  def handle_segment_match({ :literal, literal }, t, acc) do
+    generate_match t, [literal|acc]
   end
 
-  def handle_segment_match({ :identifier, identifier, expr }, t, match) do
-    generate_match t, match.
-      prepend_segments([expr]).
-      prepend_identifiers([identifier])
+  def handle_segment_match({ :identifier, _identifier, expr }, t, acc) do
+    generate_match t, [expr|acc]
   end
 
-  def handle_segment_match({ :glob, identifier, expr }, t, match) do
+  def handle_segment_match({ :glob, _identifier, expr }, t, acc) do
     if t != [] do
       raise(InvalidSpec, message: "cannot have a *glob followed by other segments")
     end
 
-    match = match.prepend_identifiers([identifier])
-
-    case match.segments do
+    case acc do
     match: [hs|ts]
-      acc = [{ :|, 0, [hs, expr] } | ts]
-      match.segments(List.reverse(acc))
+      final = [{ :|, 0, [hs, expr] } | ts]
+      List.reverse(final)
     else:
-      match.segments(expr)
+      expr
     end
   end
 

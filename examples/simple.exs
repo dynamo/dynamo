@@ -3,7 +3,7 @@
 #   elixir -pa ebin examples/simple.exs
 
 defmodule MyApp do
-  use Dynamo::App
+  use Dynamo::Dispatcher
 
   get "/foo/bar" do
     request.ok("Hello World")
@@ -11,4 +11,4 @@ defmodule MyApp do
 end
 
 Code.prepend_path("deps/misultin/ebin")
-MyApp.run
+Dynamo.run MyApp
