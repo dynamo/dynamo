@@ -1,5 +1,5 @@
 defmodule Dynamo do
-  def run(name, options) do
+  def run(name, options // []) do
     options = Orddict.merge default_options_for(name), options
     IO.puts "Running #{Orddict.get(options, :name)} on #{Orddict.get(options, :port)}"
     :misultin.start_link(options)
