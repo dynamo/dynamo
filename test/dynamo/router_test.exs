@@ -1,5 +1,17 @@
 Code.require_file "../../test_helper", __FILE__
 
+defmodule Dynamo::RouterTest::Sample0 do
+  use Dynamo::Router
+
+  def service(_req, _res) do
+    :from_sample_0
+  end
+
+  get "/nested/:arg" do
+    arg
+  end
+end
+
 defmodule Dynamo::RouterTest::Sample1 do
   use Dynamo::Router
 
@@ -34,6 +46,11 @@ defmodule Dynamo::RouterTest::Sample1 do
   match "/8/foo" do
     8
   end
+
+  put "/9/foo", to: Sample0
+
+  mount Sample0, at: "/10"
+  mount Sample0, at: ["11", "deep"]
 
   def not_found(_request, _response) do
     404
@@ -83,8 +100,20 @@ defmodule Dynamo::RouterTest do
   end
 
   def test_dispatch_any_verb do
-    assert_equal 8, Sample1.dispatch(:GET, ["8","foo"], {}, {})
-    assert_equal 8, Sample1.dispatch(:PUT, ["8","foo"], {}, {})
-    assert_equal 8, Sample1.dispatch(:POST, ["8","foo"], {}, {})
+    assert_equal 8, Sample1.dispatch(:GET,  ["8", "foo"], {}, {})
+    assert_equal 8, Sample1.dispatch(:PUT,  ["8", "foo"], {}, {})
+    assert_equal 8, Sample1.dispatch(:POST, ["8", "foo"], {}, {})
+  end
+
+  def test_pointing_to_another_endpoint do
+    assert_equal :from_sample_0, Sample1.dispatch(:PUT, ["9", "foo"], {}, {})
+  end
+
+  def test_mounting_another_endpoint do
+    assert_equal "match", Sample1.dispatch(:GET, ["10", "nested", "match"], {}, {})
+  end
+
+  def test_mounting_another_endpoint_with_explicit_path do
+    assert_equal "match", Sample1.dispatch(:GET, ["11", "deep", "nested", "match"], {}, {})
   end
 end

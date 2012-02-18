@@ -16,6 +16,7 @@ defmodule Dynamo::Router do
     Module.add_compile_callback module, __MODULE__
 
     quote do
+      @dynamo_router true
       import Dynamo::Router::DSL
       defforward [service: 2, not_found: 2], to: unquote(__MODULE__)
     end

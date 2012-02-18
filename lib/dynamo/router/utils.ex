@@ -1,12 +1,12 @@
 defexception Dynamo::Router::InvalidSpec, message: "invalid route specification"
 
 defmodule Dynamo::Router::Utils do
-  # Generates a representation that will only match routes according to the
-  # given `spec`.
+  # Generates a representation that will only match routes
+  # according to the given `spec`.
   #
   # ## Examples
   #
-  #     generate_match("/foo/:id") => ['foo', { :id, 0, :quoted }]
+  #     generate_match("/foo/:id") => ["foo", { :id, 0, nil }]
   #
   def generate_match([h|_] = match) when is_binary(h) do
     match
@@ -18,6 +18,27 @@ defmodule Dynamo::Router::Utils do
 
   def generate_match(spec) do
     generate_match raw_split(spec), []
+  end
+
+  # Generates a mounting representation that will match any
+  # route starting with the given `spec`.
+  #
+  # ## Examples
+  #
+  #     generate_mount("/foo/:id") => ["foo", { :id, 0, nil } | _glob]
+  #
+  def generate_mount([h|_] = list) when is_binary(h) do
+    [h|t] = List.reverse(list)
+    glob  = { :glob, 0, nil }
+    List.reverse [ { :|, 0, [h, glob] } | t ]
+  end
+
+  def generate_mount(spec) when is_binary(spec) do
+    generate_mount binary_to_list(spec)
+  end
+
+  def generate_mount(spec) do
+    generate_match raw_split(spec) ++ ['*glob'], []
   end
 
   # Splits the given path into several segments.

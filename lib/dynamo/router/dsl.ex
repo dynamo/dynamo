@@ -47,13 +47,83 @@ defmodule Dynamo::Router::DSL do
   #     end
   #
   defmacro match(expression, options, contents // []) do
-    options = Orddict.merge(contents, options)
+    compile(:generate_match, expression, Orddict.merge(contents, options))
+  end
 
+  # Mount the given app at the specified path.
+  #
+  # ## Examples
+  #
+  #     mount Posts, at: "/foo/bar"
+  #
+  # Now all the routes that start with /foo/bar will automatically
+  # be dispatched to `Posts` that needs to implement the service API.
+  #
+  # TODO: Append SCRIPT_NAME to the request.
+  defmacro mount(what, options) do
+    expression = Orddict.get(options, :at, nil)
+
+    unless expression, do:
+      raise ArgumentError, "Expected at: to be given to mount"
+
+    block =
+      quote do
+        target = unquote(what)
+        if Orddict.get target.__info__(:data), :dynamo_router, false do
+          target.dispatch(_verb, var!(glob), var!(request), var!(response))
+        else:
+          target.service(var!(request), var!(response))
+        end
+      end
+
+    options = Orddict.put(options, :do, block)
+    compile(:generate_mount, expression, options)
+  end
+
+  # Dispatches to the path only if it is get request.
+  # See `match/3` for more examples.
+  defmacro get(path, contents) do
+    match path, Orddict.merge(contents, via: :get)
+  end
+
+  # Dispatches to the path only if it is post request.
+  # See `match/3` for more examples.
+  defmacro post(path, contents) do
+    match path, Orddict.merge(contents, via: :post)
+  end
+
+  # Dispatches to the path only if it is put request.
+  # See `match/3` for more examples.
+  defmacro put(path, contents) do
+    match path, Orddict.merge(contents, via: :put)
+  end
+
+  # Dispatches to the path only if it is delete request.
+  # See `match/3` for more examples.
+  defmacro delete(path, contents) do
+    match path, Orddict.merge(contents, via: :delete)
+  end
+
+  ## Helpers
+
+  # Entry point for both mount and match that is actually
+  # responsible to compile the route.
+  defp compile(generator, expression, options) do
     verb  = Orddict.get options, :via, nil
     block = Orddict.get options, :do, nil
+    to    = Orddict.get options, :to, nil
 
-    { verb_var, verb_guards } = convert_verbs(List.wrap(verb))
+    verb_guards = convert_verbs(List.wrap(verb))
     { path, guards } = extract_path_and_guards(expression, default_guards(verb_guards))
+
+    contents =
+      if block do
+        block
+      elsif: to
+        quote do: unquote(to).service(var!(request), var!(response))
+      else:
+        raise ArgumentError, message: "Expected to: or do: to be given"
+      end
 
     # This is a bit tricky. We use the dynamic function definition
     # so we can generate a function completely at runtime. This allow
@@ -65,47 +135,42 @@ defmodule Dynamo::Router::DSL do
     # as arguments to def. Also notice we need to disable hygiene when
     # quoting the guards because we want the expressions inside the
     # guard to still be available in the function body.
+    #
+    # Finally, we also include both _verb and _path vars. Although they
+    # are quoted so their contents are not available inside the function.
     quote do
-      match  = Dynamo::Router::Utils.generate_match unquote(path)
-      args   = [quote(do: unquote(verb_var)), match, { :request, 0, nil }, { :response, 0, nil }]
+      match  = apply Dynamo::Router::Utils, unquote(generator), [unquote(path)]
+      args   = [
+        quote(do: _verb),
+        match,
+        { :request, 0, nil },
+        { :response, 0, nil }
+      ]
       guards = quote hygiene: false, do: unquote(guards)
-      def :dispatch, args, guards, do: unquote(block)
+      def :dispatch, args, guards, do: unquote(contents)
     end
   end
-
-  # Dispatches to the path only if it is get request.
-  # See `match/3` for more examples.
-  defmacro get(path, contents) do
-    match path, Orddict.merge(contents, via: :get)
-  end
-
-  ## Helpers
 
   # Convert the verbs given with :via into a variable
   # and guard set that can be added to the dispatch clause.
   defp convert_verbs([]) do
-    { quote(do: _), true }
+    true
   end
 
   defp convert_verbs(raw) do
-    var = quote(do: __verb__)
-
     [h|t] =
       Enum.map raw, fn(verb) ->
         verb = list_to_atom(:string.to_upper(atom_to_list(verb)))
         quote do
-          unquote(var) == unquote(verb)
+          _verb == unquote(verb)
         end
       end
 
-    guards =
-      Enum.reduce t, h, fn(i, acc) ->
-        quote do
-          unquote(acc) orelse unquote(i)
-        end
+    Enum.reduce t, h, fn(i, acc) ->
+      quote do
+        unquote(acc) orelse unquote(i)
       end
-
-    { var, guards }
+    end
   end
 
   # Extract the path and guards from the path.
