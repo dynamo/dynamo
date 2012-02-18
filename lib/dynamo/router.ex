@@ -8,6 +8,10 @@ defmodule Dynamo::Router do
   #
   #     generate_match("/foo/:id") => ['foo', { :id, 0, :quoted }]
   #
+  def generate_match([h|_] = match) when is_binary(h) do
+    match
+  end
+
   def generate_match(spec) when is_binary(spec) do
     generate_match binary_to_list(spec)
   end
@@ -83,7 +87,7 @@ defmodule Dynamo::Router do
   defp segment_match([?:|argument], buffer) do
     identifier = list_to_atom(argument)
     var = { identifier, 0, nil }
-    expr = quote hygiene: false do
+    expr = quote do
       unquote(binary_from_buffer(buffer)) <> unquote(var)
     end
     { :identifier, identifier, expr }

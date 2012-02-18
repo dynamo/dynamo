@@ -18,7 +18,7 @@ defmodule Dynamo::Dispatcher do
 
     quote do
       import Dynamo::Dispatcher::DSL
-      defforward [service: 2, handle_404: 2], to: unquote(__MODULE__)
+      defforward [service: 2, not_found: 2], to: unquote(__MODULE__)
     end
   end
 
@@ -29,14 +29,14 @@ defmodule Dynamo::Dispatcher do
     module.dispatch(verb, path, request, response)
   end
 
-  def handle_404(_module, request, _response) do
+  def not_found(_module, request, _response) do
     request.respond(404, [], "Status: 404")
   end
 
   defmacro __compiling__(_) do
     quote do
       def dispatch(_, _, request, response) do
-        handle_404(request, response)
+        not_found(request, response)
       end
     end
   end

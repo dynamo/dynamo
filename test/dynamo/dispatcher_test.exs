@@ -22,6 +22,14 @@ defmodule Dynamo::DispatcherTest::Sample1 do
   get "/5/bar-*bar" do
     bar
   end
+
+  get ["6", "foo"] do
+    200
+  end
+
+  def not_found(_request, _response) do
+    404
+  end
 end
 
 defmodule Dynamo::DispatcherTest do
@@ -46,4 +54,13 @@ defmodule Dynamo::DispatcherTest do
   def test_dispatch_glob_segment_with_prefix do
     assert_equal ["bar-baz", "baaz"], Sample1.dispatch(:GET, ["5", "bar-baz", "baaz"], {}, {})
   end
+
+  def test_dispatch_custom_route do
+    assert_equal 200, Sample1.dispatch(:GET, ["6", "foo"], {}, {})
+  end
+
+  def test_dispatch_not_found do
+    assert_equal 404, Sample1.dispatch(:GET, ["100", "foo"], {}, {})
+  end
+
 end
