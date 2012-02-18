@@ -1,4 +1,4 @@
-defmodule Dynamo::Dispatcher::DSL do
+defmodule Dynamo::Router::DSL do
   # Main API to define routes. It accepts an expression representing
   # the path and many options allowing the match to be configured.
   #
@@ -66,7 +66,7 @@ defmodule Dynamo::Dispatcher::DSL do
     # quoting the guards because we want the expressions inside the
     # guard to still be available in the function body.
     quote do
-      match  = Dynamo::Router.generate_match unquote(path)
+      match  = Dynamo::Router::Utils.generate_match unquote(path)
       args   = [quote(do: unquote(verb_var)), match, { :request, 0, nil }, { :response, 0, nil }]
       guards = quote hygiene: false, do: unquote(guards)
       def :dispatch, args, guards, do: unquote(block)

@@ -1,70 +1,90 @@
 Code.require_file "../../test_helper", __FILE__
 
-defmodule Dynamo::RouterTest::Macros do
-  defmacro assert_quoted(left, right) do
-    quote do
-      assert_equal quote(hygiene: false, do: unquote(left)), unquote(right)
-    end
+defmodule Dynamo::RouterTest::Sample1 do
+  use Dynamo::Router
+
+  get "/1/bar" do
+    1
+  end
+
+  get "/2/:bar" do
+    bar
+  end
+
+  get "/3/bar-:bar" do
+    bar
+  end
+
+  get "/4/*bar" do
+    bar
+  end
+
+  get "/5/bar-*bar" do
+    bar
+  end
+
+  get ["6", "foo"] do
+    200
+  end
+
+  get "/7/:foo" when size(foo) <= 3 do
+    foo
+  end
+
+  match "/8/foo" do
+    8
+  end
+
+  def not_found(_request, _response) do
+    404
   end
 end
 
 defmodule Dynamo::RouterTest do
-  import Dynamo::RouterTest::Macros
-  require Dynamo::Router, as: R
   use ExUnit::Case
 
-  def test_split_single_segment do
-    assert_equal ["foo"], R.split("/foo")
-    assert_equal ["foo"], R.split("foo")
+  def test_dispatch_single_segment do
+    assert_equal 1, Sample1.dispatch(:GET, ["1","bar"], {}, {})
   end
 
-  def test_split_with_more_than_one_segment do
-    assert_equal ["foo", "bar"], R.split("/foo/bar")
-    assert_equal ["foo", "bar"], R.split("foo/bar")
+  def test_dispatch_dynamic_segment do
+    assert_equal "baz", Sample1.dispatch(:GET, ["2","baz"], {}, {})
   end
 
-  def test_split_removes_trailing_slash do
-    assert_equal ["foo", "bar"], R.split("/foo/bar/")
-    assert_equal ["foo", "bar"], R.split("foo/bar/")
+  def test_dispatch_dynamic_segment_with_prefix do
+    assert_equal "baz", Sample1.dispatch(:GET, ["3","bar-baz"], {}, {})
   end
 
-  def test_generate_match_with_literal do
-    assert_quoted ["foo"], R.generate_match("/foo")
-    assert_quoted ["foo"], R.generate_match("foo")
+  def test_dispatch_glob_segment do
+    assert_equal ["baz", "baaz"], Sample1.dispatch(:GET, ["4", "baz", "baaz"], {}, {})
   end
 
-  def test_generate_match_with_identifier do
-    assert_quoted ["foo", id], R.generate_match("/foo/:id")
-    assert_quoted ["foo", username], R.generate_match("foo/:username")
+  def test_dispatch_glob_segment_with_prefix do
+    assert_equal ["bar-baz", "baaz"], Sample1.dispatch(:GET, ["5", "bar-baz", "baaz"], {}, {})
   end
 
-  def test_generate_match_with_literal_plus_identifier do
-    assert_quoted ["foo", "bar-" <> id], R.generate_match("/foo/bar-:id")
-    assert_quoted ["foo", "bar" <> username], R.generate_match("foo/bar:username")
+  def test_dispatch_custom_route do
+    assert_equal 200, Sample1.dispatch(:GET, ["6", "foo"], {}, {})
   end
 
-  def test_generate_match_only_with_glob do
-    assert_quoted bar, R.generate_match("*bar")
-    assert_quoted glob, R.generate_match("/*glob")
-
-    assert_quoted ["id-" <> _ | _] = bar, R.generate_match("id-*bar")
-    assert_quoted ["id-" <> _ | _] = glob, R.generate_match("/id-*glob")
+  def test_dispatch_not_found do
+    assert_equal 404, Sample1.dispatch(:GET, ["100", "foo"], {}, {})
   end
 
-  def test_generate_match_with_glob do
-    assert_quoted ["foo" | bar], R.generate_match("/foo/*bar")
-    assert_quoted ["foo" | glob], R.generate_match("foo/*glob")
+  def test_dispatch_with_guards do
+    assert_equal "a",   Sample1.dispatch(:GET, ["7", "a"], {}, {})
+    assert_equal "ab",  Sample1.dispatch(:GET, ["7", "ab"], {}, {})
+    assert_equal "abc", Sample1.dispatch(:GET, ["7", "abc"], {}, {})
+    assert_equal 404,   Sample1.dispatch(:GET, ["7", "abcd"], {}, {})
   end
 
-  def test_generate_match_with_literal_plus_glob do
-    assert_quoted ["foo" | ["id-" <> _ | _] = bar], R.generate_match("/foo/id-*bar")
-    assert_quoted ["foo" | ["id-" <> _ | _] = glob], R.generate_match("foo/id-*glob")
+  def test_dispatch_wrong_verb do
+    assert_equal 404, Sample1.dispatch(:POST, ["1","bar"], {}, {})
   end
 
-  def test_generate_invalid_match_with_segments_after_glob do
-    R.generate_match("/foo/*bar/baz")
-    flunk "generate_match should have failed"
-  rescue: x in [Dynamo::Router::InvalidSpec]
-    "cannot have a *glob followed by other segments" = x.message
+  def test_dispatch_any_verb do
+    assert_equal 8, Sample1.dispatch(:GET, ["8","foo"], {}, {})
+    assert_equal 8, Sample1.dispatch(:PUT, ["8","foo"], {}, {})
+    assert_equal 8, Sample1.dispatch(:POST, ["8","foo"], {}, {})
   end
 end

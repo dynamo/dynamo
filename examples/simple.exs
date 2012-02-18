@@ -3,7 +3,7 @@
 #   elixir -pa ebin examples/simple.exs
 
 defmodule MyApp do
-  use Dynamo::Dispatcher
+  use Dynamo::Router
 
   get "/foo/bar" do
     request.ok("Hello World")
