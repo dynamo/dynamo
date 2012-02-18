@@ -72,18 +72,18 @@ defmodule Dynamo::Router do
 
   defp segment_match([?:|argument], []) do
     identifier = list_to_atom(argument)
-    { :identifier, identifier, { identifier, 0, :quoted } }
+    { :identifier, identifier, { identifier, 0, nil } }
   end
 
   defp segment_match([?*|argument], []) do
     identifier = list_to_atom(argument)
-    { :glob, identifier, { identifier, 0, :quoted } }
+    { :glob, identifier, { identifier, 0, nil } }
   end
 
   defp segment_match([?:|argument], buffer) do
     identifier = list_to_atom(argument)
-    var = { identifier, 0, :quoted }
-    expr = quote do
+    var = { identifier, 0, nil }
+    expr = quote hygiene: false do
       unquote(binary_from_buffer(buffer)) <> unquote(var)
     end
     { :identifier, identifier, expr }
@@ -91,8 +91,8 @@ defmodule Dynamo::Router do
 
   defp segment_match([?*|argument], buffer) do
     identifier = list_to_atom(argument)
-    var = { identifier, 0, :quoted }
-    expr = quote do
+    var = { identifier, 0, nil }
+    expr = quote hygiene: false do
       [unquote(binary_from_buffer(buffer)) <> _ | _] = unquote(var)
     end
     { :glob, identifier, expr }

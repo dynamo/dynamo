@@ -3,7 +3,7 @@ Code.require_file "../../test_helper", __FILE__
 defmodule Dynamo::RouterTest::Macros do
   defmacro assert_quoted(left, right) do
     quote do
-      assert_equal quote(do: unquote(left)), unquote(right)
+      assert_equal quote(hygiene: false, do: unquote(left)), unquote(right)
     end
   end
 end
