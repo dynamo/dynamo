@@ -32,7 +32,7 @@ defmodule Dynamo::Dispatcher::DSL do
   ## Helpers
 
   defp extract_path_and_guards({ :when, _, [path, guards] }, extra_guard) do
-    { path, { :andalso, 0, [extra_guard, guards] } }
+    { path, { :and, 0, [guards, extra_guard] } }
   end
 
   defp extract_path_and_guards(path, extra_guard) do
@@ -43,7 +43,7 @@ defmodule Dynamo::Dispatcher::DSL do
   # when the request or the response are not used.
   defp default_guard do
     quote hygiene: false do
-      response != nil and request != nil
+      is_tuple(request) and is_tuple(response)
     end
   end
 end

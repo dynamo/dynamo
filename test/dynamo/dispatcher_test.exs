@@ -27,6 +27,10 @@ defmodule Dynamo::DispatcherTest::Sample1 do
     200
   end
 
+  get "/7/:foo" when size(foo) <= 3 do
+    foo
+  end
+
   def not_found(_request, _response) do
     404
   end
@@ -63,4 +67,14 @@ defmodule Dynamo::DispatcherTest do
     assert_equal 404, Sample1.dispatch(:GET, ["100", "foo"], {}, {})
   end
 
+  def test_dispatch_with_guards do
+    assert_equal "a",   Sample1.dispatch(:GET, ["7", "a"], {}, {})
+    assert_equal "ab",  Sample1.dispatch(:GET, ["7", "ab"], {}, {})
+    assert_equal "abc", Sample1.dispatch(:GET, ["7", "abc"], {}, {})
+    assert_equal 404,   Sample1.dispatch(:GET, ["7", "abcd"], {}, {})
+  end
+
+  def test_dispatch_wrong_verb do
+    assert_equal 404, Sample1.dispatch(:POST, ["1","bar"], {}, {})
+  end
 end
