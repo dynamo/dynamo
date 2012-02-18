@@ -31,6 +31,10 @@ defmodule Dynamo::DispatcherTest::Sample1 do
     foo
   end
 
+  match "/8/foo" do
+    8
+  end
+
   def not_found(_request, _response) do
     404
   end
@@ -76,5 +80,11 @@ defmodule Dynamo::DispatcherTest do
 
   def test_dispatch_wrong_verb do
     assert_equal 404, Sample1.dispatch(:POST, ["1","bar"], {}, {})
+  end
+
+  def test_dispatch_any_verb do
+    assert_equal 8, Sample1.dispatch(:GET, ["8","foo"], {}, {})
+    assert_equal 8, Sample1.dispatch(:PUT, ["8","foo"], {}, {})
+    assert_equal 8, Sample1.dispatch(:POST, ["8","foo"], {}, {})
   end
 end
