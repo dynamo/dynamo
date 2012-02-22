@@ -141,7 +141,7 @@ defmodule Dynamo::Router::Utils do
     raw_split t, [], []
   end
 
-  defp raw_split(list, buffer, acc) when list == [] orelse list == [?/] do
+  defp raw_split(list, buffer, acc) when list == [] or list == [?/] do
     List.reverse [List.reverse(buffer)|acc]
   end
 

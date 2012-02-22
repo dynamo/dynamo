@@ -168,7 +168,7 @@ defmodule Dynamo::Router::DSL do
 
     Enum.reduce t, h, fn(i, acc) ->
       quote do
-        unquote(acc) orelse unquote(i)
+        unquote(acc) or unquote(i)
       end
     end
   end
