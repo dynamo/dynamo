@@ -18,19 +18,20 @@ defmodule Dynamo::Router do
     quote do
       @dynamo_router true
       import Dynamo::Router::DSL
-      defforward [service: 2, not_found: 2], to: unquote(__MODULE__)
+
+      @overridable true
+      def service(request, response) do
+        { :abs_path, path } = request.get(:uri)
+        verb = request.get(:method)
+        path = Dynamo::Router::Utils.split(path)
+        dispatch(verb, path, request, response)
+      end
+
+      @overridable true
+      def not_found(request, _response) do
+        request.respond(404, [], "Status: 404")
+      end
     end
-  end
-
-  def service(module, request, response) do
-    { :abs_path, path } = request.get(:uri)
-    verb = request.get(:method)
-    path = Dynamo::Router::Utils.split(path)
-    module.dispatch(verb, path, request, response)
-  end
-
-  def not_found(_module, request, _response) do
-    request.respond(404, [], "Status: 404")
   end
 
   defmacro __compiling__(_) do
