@@ -21,15 +21,15 @@ defmodule Dynamo::Router do
 
       @overridable true
       def service(request, response) do
-        { :abs_path, path } = request.get(:uri)
-        verb = request.get(:method)
-        path = Dynamo::Router::Utils.split(path)
+        { path, request } = :cowboy_http_req.path(request)
+        { verb, request } = :cowboy_http_req.method(request)
         dispatch(verb, path, request, response)
       end
 
       @overridable true
       def not_found(request, _response) do
-        request.respond(404, [], "Status: 404")
+        { :ok, req } = :cowboy_http_req.reply(404, [], "Status: 404", request)
+        req
       end
     end
   end

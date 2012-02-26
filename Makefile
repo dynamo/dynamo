@@ -9,7 +9,7 @@ compile: ebin
 setup:
 	git submodule update --init
 	cd deps/ibrowse && make
-	cd deps/misultin && make
+	cd deps/cowboy && make
 
 ebin: lib/*.ex lib/*/*.ex lib/*/*/*.ex
 	@ rm -f ebin/::*.beam
