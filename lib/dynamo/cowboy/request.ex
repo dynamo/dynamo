@@ -1,12 +1,6 @@
 defmodule Dynamo::Cowboy::Request do
   require :cowboy_http_req, as: R
 
-  @doc false
-  # Used internally by cowboy to retrieve the original request.
-  def cowboy_request(req) do
-    _(req)
-  end
-
   @doc """
   Builds a new Dynamo::Cowboy::Request based on
   the original Cowboy request object.

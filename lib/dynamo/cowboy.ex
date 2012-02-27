@@ -24,8 +24,9 @@ defmodule Dynamo::Cowboy do
     acceptors = Orddict.get options, :acceptors, 100
     handler   = Orddict.get options, :handler, Dynamo::Cowboy::Handler
     dispatch  = Orddict.get options, :dispatch, dispatch_for(app, handler)
+    verbose   = Orddict.get options, :verbose, true
 
-    options = Enum.reduce [:port, :acceptors, :handler], options, Orddict.delete(&2, &1)
+    options = Enum.reduce [:port, :acceptors, :handler, :verbose], options, Orddict.delete(&2, &1)
     options = Orddict.put options, :dispatch, dispatch
 
     :cowboy.start_listener(app, acceptors,
@@ -33,7 +34,8 @@ defmodule Dynamo::Cowboy do
       :cowboy_http_protocol, options
     )
 
-    IO.puts "Running #{app} on port #{port} with Cowboy"
+    if verbose, do:
+      IO.puts "Running #{app} on port #{port} with Cowboy"
   end
 
   def shutdown(app) do

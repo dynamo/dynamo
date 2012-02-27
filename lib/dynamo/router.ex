@@ -20,13 +20,13 @@ defmodule Dynamo::Router do
       import Dynamo::Router::DSL
 
       @overridable true
-      def service(request, response) do
-        dispatch(request.method, request.path_segments, request, response)
+      def service(req, res) do
+        dispatch(req.method, req.path_segments, req, res)
       end
 
       @overridable true
-      def not_found(request, _response) do
-        request.reply(404, [], "Status: 404")
+      def not_found(_req, res) do
+        res.reply(404, [], "")
       end
     end
   end

@@ -4,7 +4,7 @@ defmodule Dynamo::Cowboy::RequestTest do
   use ExUnit::Case
 
   def setup_all do
-    Dynamo::Cowboy.run __MODULE__, port: 8011
+    Dynamo::Cowboy.run __MODULE__, port: 8011, verbose: false
   end
 
   def teardown_all do

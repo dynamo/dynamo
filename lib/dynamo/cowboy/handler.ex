@@ -11,8 +11,13 @@ defmodule Dynamo::Cowboy::Handler do
   end
 
   def handle(req, app) do
-    _ = app.service(Dynamo::Cowboy::Request.new(req), {})
-    { :ok, req, app }
+    res = app.service(Dynamo::Cowboy::Request.new(req), Dynamo::Cowboy::Response.new(req))
+
+    if is_record(res, Dynamo::Cowboy::Response) do
+      { :ok, res.cowboy_request, app }
+    else:
+      raise "Expected service to return a Dynamo::Cowboy::Response, got #{inspect res}"
+    end
   end
 
   def terminate(_req, _app) do

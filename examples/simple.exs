@@ -6,8 +6,7 @@ defmodule MyApp do
   use Dynamo::Router
 
   get "/foo/bar" do
-    { :ok, req } = :cowboy_http_req.reply(200, [], "Hello World!", request)
-    req
+    response.reply(200, [], "Hello World!")
   end
 end
 
