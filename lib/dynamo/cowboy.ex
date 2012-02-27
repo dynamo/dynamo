@@ -25,8 +25,6 @@ defmodule Dynamo::Cowboy do
     handler   = Orddict.get options, :handler, Dynamo::Cowboy::Handler
     dispatch  = Orddict.get options, :dispatch, dispatch_for(app, handler)
 
-    IO.puts "Running #{app} on port #{port} with Cowboy"
-
     options = Enum.reduce [:port, :acceptors, :handler], options, Orddict.delete(&2, &1)
     options = Orddict.put options, :dispatch, dispatch
 
@@ -34,6 +32,12 @@ defmodule Dynamo::Cowboy do
       :cowboy_tcp_transport, [port: port],
       :cowboy_http_protocol, options
     )
+
+    IO.puts "Running #{app} on port #{port} with Cowboy"
+  end
+
+  def shutdown(app) do
+    :cowboy.stop_listener(app)
   end
 
   @doc """

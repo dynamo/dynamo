@@ -11,7 +11,7 @@ defmodule Dynamo::Cowboy::Handler do
   end
 
   def handle(req, app) do
-    req = app.service(req, {})
+    _ = app.service(Dynamo::Cowboy::Request.new(req), {})
     { :ok, req, app }
   end
 
