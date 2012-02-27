@@ -12,7 +12,7 @@ defmodule Dynamo::Cowboy::Request do
 
   @doc """
   Return the path as a list of binaries split on "/".
-  If the request is mounted, path_segments returns
+  If the request is mounted, *path_segments* returns
   only the segments related to the current mount point.
   """
   def path_segments(req) do
@@ -20,48 +20,53 @@ defmodule Dynamo::Cowboy::Request do
   end
 
   @doc """
-  Returns the requets path relative to mount point as
+  Returns the request path relative to the mount point as
   a binary.
   """
   def path(req) do
-    "/" <> Enum.join(path_segments(req), "/")
+    to_path path_segments(req)
   end
 
   @doc """
   Returns the full path segments, disregarding the mount point.
   """
   def full_path_segments(req) do
-    R.path _(req)
+    { segments, _ } = R.path _(req)
+    segments
   end
 
   @doc """
   Returns the full path as a binary, disregarding the mount point.
   """
   def full_path(req) do
-    "/" <> Enum.join(path_segments(req), "/")
+    to_path full_path_segments(req)
   end
 
   @doc """
-  As in CGI environment, returns the current mount point.
+  As in CGI environment, returns the current mount point as segments.
   """
-  def script_info(req) do
+  def script_info_segments(req) do
     elem(req, 4)
   end
 
   @doc """
-  Mounts the request at the given path *segments* by updating both
-  script_info/1 and path_segments/1 to contain the new segments.
+  As in CGI environment, returns the current mount point as binary.
+  """
+  def script_info(req) do
+    to_path script_info_segments(req)
+  end
+
+  @doc """
+  Mounts the request by setting the new path information to the
+  *segments*. Both script_info/1 and path_segments/1 are updated.
   The segments given must be a suffix of the current path segments.
   """
   def mount(segments, req) do
-    req = setelem(req, 3, Enum.drop length(segments), path_segments(req))
-    req = setelem(req, 4, script_info(req) ++ segments)
+    current = path_segments(req)
+    { prefix, ^segments } = Enum.split current, length(current) - length(segments)
+    req = setelem(req, 3, segments)
+    req = setelem(req, 4, script_info_segments(req) ++ prefix)
     req
-  end
-
-  def reply(status, headers, response, req) do
-    { :ok, new } = :cowboy_http_req.reply(status, headers, response, _(req))
-    _(new, req)
   end
 
   @doc """
@@ -85,7 +90,11 @@ defmodule Dynamo::Cowboy::Request do
     version
   end
 
-  # Returns the original cowboy request object.
+  ## Helpers
+
+  defp to_path(segments) do
+    "/" <> Enum.join(segments, "/")
+  end
 
   defp _(req) do
     elem(req, 2)
