@@ -1,5 +1,3 @@
-Code.prepend_path("deps/cowboy/ebin")
-
 defmodule Dynamo::Cowboy::Handler do
   @moduledoc """
   This is the default Cowboy handler that is able
