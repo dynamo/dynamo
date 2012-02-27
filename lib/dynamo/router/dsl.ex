@@ -68,11 +68,12 @@ defmodule Dynamo::Router::DSL do
 
     block =
       quote do
-        target = unquote(what)
+        target  = unquote(what)
+        request = var!(request).mount(var!(glob))
         if Orddict.get target.__info__(:data), :dynamo_router, false do
-          target.dispatch(_verb, var!(glob), var!(request), var!(response))
+          target.dispatch(_verb, var!(glob), request, var!(response))
         else:
-          target.service(var!(request), var!(response))
+          target.service(request, var!(response))
         end
       end
 

@@ -1,5 +1,7 @@
 Code.require_file "../../test_helper", __FILE__
 
+defrecord Dynamo::RouterTest::RequestMock, mount: nil
+
 defmodule Dynamo::RouterTest::Sample0 do
   use Dynamo::Router
 
@@ -9,6 +11,10 @@ defmodule Dynamo::RouterTest::Sample0 do
 
   get "/nested/:arg" do
     arg
+  end
+
+  get "/with_request" do
+    request
   end
 end
 
@@ -110,10 +116,15 @@ defmodule Dynamo::RouterTest do
   end
 
   def test_mounting_another_endpoint do
-    assert_equal "match", Sample1.dispatch(:GET, ["10", "nested", "match"], {}, {})
+    assert_equal "match", Sample1.dispatch(:GET, ["10", "nested", "match"], RequestMock.new, {})
   end
 
   def test_mounting_another_endpoint_with_explicit_path do
-    assert_equal "match", Sample1.dispatch(:GET, ["11", "deep", "nested", "match"], {}, {})
+    assert_equal "match", Sample1.dispatch(:GET, ["11", "deep", "nested", "match"], RequestMock.new, {})
+  end
+
+  def test_mounting_another_endpoint_mounts_the_request do
+    request = Sample1.dispatch(:GET, ["10", "with_request"], RequestMock.new, {})
+    assert_equal ["with_request"], request.mount
   end
 end

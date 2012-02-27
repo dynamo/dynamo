@@ -6,6 +6,12 @@ defmodule Dynamo::Cowboy::RouterApp do
   get "/foo/bar" do
     response.reply(200, [], "Hello World!")
   end
+
+  get "/mounted" do
+    response.reply(200, [], request.path)
+  end
+
+  mount __MODULE__, at: "/baz"
 end
 
 defmodule Dynamo::Cowboy::RouterTest do
@@ -21,6 +27,10 @@ defmodule Dynamo::Cowboy::RouterTest do
 
   test "basic request on a router app" do
     assert_match { 200, _, "Hello World!" }, http_client.request :get, "/foo/bar"
+  end
+
+  test "basic request on a mounted app" do
+    assert_match { 200, _, "/mounted" }, http_client.request :get, "/baz/mounted"
   end
 
   test "404 response a router app" do
