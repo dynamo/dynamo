@@ -99,8 +99,4 @@ defmodule Dynamo::Cowboy::Request do
   defp _(req) do
     elem(req, 2)
   end
-
-  defp _(value, req) do
-    setelem(req, 2, value)
-  end
 end
