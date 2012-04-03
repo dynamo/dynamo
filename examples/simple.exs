@@ -1,6 +1,6 @@
 # Run this app from root with:
 #
-#   elixir -pa ebin --no-stop examples/simple.exs
+#   elixir -pa ebin --no-halt examples/simple.exs
 
 defmodule MyApp do
   use Dynamo::Router
