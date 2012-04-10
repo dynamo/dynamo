@@ -1,17 +1,21 @@
-# Dynamo.Routes brings routing semantics to your module.
-#
-# ## Examples
-#
-#     defmodule MyApp do
-#       use Dynamo.Router
-#
-#       get "users/:id" do
-#         response.write_head 200, [{ "Content-Type", "application/json" }]
-#         response.end JSON.encode(User.find(id))
-#       end
-#     end
-#
 defmodule Dynamo.Router do
+  @moduledoc """
+  Dynamo.Routes brings routing semantics to your module.
+
+  ## Examples
+
+      defmodule MyApp do
+        use Dynamo.Router
+
+        get "users/:id" do
+          response.write_head 200, [{ "Content-Type", "application/json" }]
+          response.end JSON.encode(User.find(id))
+        end
+      end
+
+  """
+
+  @doc false
   defmacro __using__(module, _) do
     Module.add_compile_callback module, __MODULE__
 
@@ -31,6 +35,7 @@ defmodule Dynamo.Router do
     end
   end
 
+  @doc false
   defmacro __compiling__(_) do
     quote do
       def dispatch(_, _, request, response) do

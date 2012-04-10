@@ -1,65 +1,68 @@
 defmodule Dynamo.Router.DSL do
-  # Main API to define routes. It accepts an expression representing
-  # the path and many options allowing the match to be configured.
-  #
-  # ## Examples
-  #
-  #     match "/foo/bar", via: :get do
-  #       request.ok("hello world")
-  #     end
-  #
-  # ## Options
-  #
-  # `match` accepts the following options:
-  #
-  # * `via:` matches the route against some specific verbs
-  # * `do:` contains the implementation to be invoked in case
-  #         the route matches
-  #
-  # ## Compilation
-  #
-  # All routes are compiled to a dispatch method that receives
-  # four arguments: the verb, the request path split on "/",
-  # the request and the response. Consider this example:
-  #
-  #     match "/foo/bar", via: :get do
-  #       request.ok("hello world")
-  #     end
-  #
-  # It is compiled to:
-  #
-  #     def dispatch(:GET, ["foo", "bar"], request, response) do
-  #       request.ok("hello world")
-  #     end
-  #
-  # This opens up a few possibilities. First, guards can be given
-  # to match:
-  #
-  #     match "/foo/:bar" when size(bar) <= 3, via: :get do
-  #       request.ok("hello world")
-  #     end
-  #
-  # Second, a list of splitten paths (which is the compiled result)
-  # is also allowed:
-  #
-  #     match ["foo", bar], via: :get do
-  #       request.ok("hello world")
-  #     end
-  #
+  @doc """
+  Main API to define routes. It accepts an expression representing
+  the path and many options allowing the match to be configured.
+
+  ## Examples
+
+      match "/foo/bar", via: :get do
+        request.ok("hello world")
+      end
+
+  ## Options
+
+  `match` accepts the following options:
+
+  * `via:` matches the route against some specific verbs
+  * `do:` contains the implementation to be invoked in case
+          the route matches
+
+  ## Compilation
+
+  All routes are compiled to a dispatch method that receives
+  four arguments: the verb, the request path split on "/",
+  the request and the response. Consider this example:
+
+      match "/foo/bar", via: :get do
+        request.ok("hello world")
+      end
+
+  It is compiled to:
+
+      def dispatch(:GET, ["foo", "bar"], request, response) do
+        request.ok("hello world")
+      end
+
+  This opens up a few possibilities. First, guards can be given
+  to match:
+
+      match "/foo/:bar" when size(bar) <= 3, via: :get do
+        request.ok("hello world")
+      end
+
+  Second, a list of splitten paths (which is the compiled result)
+  is also allowed:
+
+      match ["foo", bar], via: :get do
+        request.ok("hello world")
+      end
+
+  """
   defmacro match(expression, options, contents // []) do
     compile(:generate_match, expression, Keyword.merge(contents, options))
   end
 
-  # Mount the given app at the specified path.
-  #
-  # ## Examples
-  #
-  #     mount Posts, at: "/foo/bar"
-  #
-  # Now all the routes that start with /foo/bar will automatically
-  # be dispatched to `Posts` that needs to implement the service API.
-  #
   # TODO: Append SCRIPT_NAME to the request.
+  @doc """
+  Mount the given app at the specified path.
+
+  ## Examples
+
+      mount Posts, at: "/foo/bar"
+
+  Now all the routes that start with /foo/bar will automatically
+  be dispatched to `Posts` that needs to implement the service API.
+  """
   defmacro mount(what, options) do
     expression = Keyword.get(options, :at, nil)
 
@@ -81,26 +84,34 @@ defmodule Dynamo.Router.DSL do
     compile(:generate_mount, expression, options)
   end
 
-  # Dispatches to the path only if it is get request.
-  # See `match/3` for more examples.
+  @doc """
+  Dispatches to the path only if it is get request.
+  See `match/3` for more examples.
+  """
   defmacro get(path, contents) do
     match path, Keyword.merge(contents, via: :get)
   end
 
-  # Dispatches to the path only if it is post request.
-  # See `match/3` for more examples.
+  @doc """
+  Dispatches to the path only if it is post request.
+  See `match/3` for more examples.
+  """
   defmacro post(path, contents) do
     match path, Keyword.merge(contents, via: :post)
   end
 
-  # Dispatches to the path only if it is put request.
-  # See `match/3` for more examples.
+  @doc """
+  Dispatches to the path only if it is put request.
+  See `match/3` for more examples.
+  """
   defmacro put(path, contents) do
     match path, Keyword.merge(contents, via: :put)
   end
 
-  # Dispatches to the path only if it is delete request.
-  # See `match/3` for more examples.
+  @doc """
+  Dispatches to the path only if it is delete request.
+  See `match/3` for more examples.
+  """
   defmacro delete(path, contents) do
     match path, Keyword.merge(contents, via: :delete)
   end

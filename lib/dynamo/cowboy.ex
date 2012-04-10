@@ -13,9 +13,9 @@ defmodule Dynamo.Cowboy do
   * :dispatch - the Cowboy HTTP Dispatch info to be used
 
   ## Example
-  
+
       Dynamo.Cowboy.run MyApp, port: 80
-  
+
   """
   def run(app, options // []) do
     :application.start(:cowboy)
