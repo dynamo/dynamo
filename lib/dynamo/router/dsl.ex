@@ -47,7 +47,7 @@ defmodule Dynamo::Router::DSL do
   #     end
   #
   defmacro match(expression, options, contents // []) do
-    compile(:generate_match, expression, Orddict.merge(contents, options))
+    compile(:generate_match, expression, Keyword.merge(contents, options))
   end
 
   # Mount the given app at the specified path.
@@ -61,7 +61,7 @@ defmodule Dynamo::Router::DSL do
   #
   # TODO: Append SCRIPT_NAME to the request.
   defmacro mount(what, options) do
-    expression = Orddict.get(options, :at, nil)
+    expression = Keyword.get(options, :at, nil)
 
     unless expression, do:
       raise ArgumentError, "Expected at: to be given to mount"
@@ -70,39 +70,39 @@ defmodule Dynamo::Router::DSL do
       quote do
         target  = unquote(what)
         request = var!(request).mount(var!(glob))
-        if Orddict.get target.__info__(:data), :dynamo_router, false do
+        if Keyword.get target.__info__(:data), :dynamo_router, false do
           target.dispatch(_verb, var!(glob), request, var!(response))
         else:
           target.service(request, var!(response))
         end
       end
 
-    options = Orddict.put(options, :do, block)
+    options = Keyword.put(options, :do, block)
     compile(:generate_mount, expression, options)
   end
 
   # Dispatches to the path only if it is get request.
   # See `match/3` for more examples.
   defmacro get(path, contents) do
-    match path, Orddict.merge(contents, via: :get)
+    match path, Keyword.merge(contents, via: :get)
   end
 
   # Dispatches to the path only if it is post request.
   # See `match/3` for more examples.
   defmacro post(path, contents) do
-    match path, Orddict.merge(contents, via: :post)
+    match path, Keyword.merge(contents, via: :post)
   end
 
   # Dispatches to the path only if it is put request.
   # See `match/3` for more examples.
   defmacro put(path, contents) do
-    match path, Orddict.merge(contents, via: :put)
+    match path, Keyword.merge(contents, via: :put)
   end
 
   # Dispatches to the path only if it is delete request.
   # See `match/3` for more examples.
   defmacro delete(path, contents) do
-    match path, Orddict.merge(contents, via: :delete)
+    match path, Keyword.merge(contents, via: :delete)
   end
 
   ## Helpers
@@ -110,9 +110,9 @@ defmodule Dynamo::Router::DSL do
   # Entry point for both mount and match that is actually
   # responsible to compile the route.
   defp compile(generator, expression, options) do
-    verb  = Orddict.get options, :via, nil
-    block = Orddict.get options, :do, nil
-    to    = Orddict.get options, :to, nil
+    verb  = Keyword.get options, :via, nil
+    block = Keyword.get options, :do, nil
+    to    = Keyword.get options, :to, nil
 
     verb_guards = convert_verbs(List.wrap(verb))
     { path, guards } = extract_path_and_guards(expression, default_guards(verb_guards))

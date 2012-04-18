@@ -20,14 +20,14 @@ defmodule Dynamo::Cowboy do
   def run(app, options // []) do
     :application.start(:cowboy)
 
-    port      = Orddict.get options, :port, 3000
-    acceptors = Orddict.get options, :acceptors, 100
-    handler   = Orddict.get options, :handler, Dynamo::Cowboy::Handler
-    dispatch  = Orddict.get options, :dispatch, dispatch_for(app, handler)
-    verbose   = Orddict.get options, :verbose, true
+    port      = Keyword.get options, :port, 3000
+    acceptors = Keyword.get options, :acceptors, 100
+    handler   = Keyword.get options, :handler, Dynamo::Cowboy::Handler
+    dispatch  = Keyword.get options, :dispatch, dispatch_for(app, handler)
+    verbose   = Keyword.get options, :verbose, true
 
-    options = Enum.reduce [:port, :acceptors, :handler, :verbose], options, Orddict.delete(&2, &1)
-    options = Orddict.put options, :dispatch, dispatch
+    options = Enum.reduce [:port, :acceptors, :handler, :verbose], options, Keyword.delete(&2, &1)
+    options = Keyword.put options, :dispatch, dispatch
 
     :cowboy.start_listener(app, acceptors,
       :cowboy_tcp_transport, [port: port],
