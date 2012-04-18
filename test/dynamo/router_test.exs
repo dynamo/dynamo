@@ -1,70 +1,70 @@
 Code.require_file "../../test_helper", __FILE__
 
-defrecord Dynamo::RouterTest::RequestMock, mount: nil
+defmodule Dynamo.RouterTest do
+  use ExUnit.Case
 
-defmodule Dynamo::RouterTest::Sample0 do
-  use Dynamo::Router
+  defrecord RequestMock, mount: nil
 
-  def service(_req, _res) do
-    :from_sample_0
+  defmodule Sample0 do
+    use Dynamo.Router
+
+    def service(_req, _res) do
+      :from_sample_0
+    end
+
+    get "/nested/:arg" do
+      arg
+    end
+
+    get "/with_request" do
+      request
+    end
   end
 
-  get "/nested/:arg" do
-    arg
+  defmodule Sample1 do
+    use Dynamo.Router
+
+    get "/1/bar" do
+      1
+    end
+
+    get "/2/:bar" do
+      bar
+    end
+
+    get "/3/bar-:bar" do
+      bar
+    end
+
+    get "/4/*bar" do
+      bar
+    end
+
+    get "/5/bar-*bar" do
+      bar
+    end
+
+    get ["6", "foo"] do
+      200
+    end
+
+    get "/7/:foo" when size(foo) <= 3 do
+      foo
+    end
+
+    match "/8/foo" do
+      8
+    end
+
+    put "/9/foo", to: Sample0
+
+    mount Sample0, at: "/10"
+    mount Sample0, at: ["11", "deep"]
+
+    def not_found(_request, _response) do
+      404
+    end
   end
-
-  get "/with_request" do
-    request
-  end
-end
-
-defmodule Dynamo::RouterTest::Sample1 do
-  use Dynamo::Router
-
-  get "/1/bar" do
-    1
-  end
-
-  get "/2/:bar" do
-    bar
-  end
-
-  get "/3/bar-:bar" do
-    bar
-  end
-
-  get "/4/*bar" do
-    bar
-  end
-
-  get "/5/bar-*bar" do
-    bar
-  end
-
-  get ["6", "foo"] do
-    200
-  end
-
-  get "/7/:foo" when size(foo) <= 3 do
-    foo
-  end
-
-  match "/8/foo" do
-    8
-  end
-
-  put "/9/foo", to: Sample0
-
-  mount Sample0, at: "/10"
-  mount Sample0, at: ["11", "deep"]
-
-  def not_found(_request, _response) do
-    404
-  end
-end
-
-defmodule Dynamo::RouterTest do
-  use ExUnit::Case
 
   def test_dispatch_single_segment do
     assert_equal 1, Sample1.dispatch(:GET, ["1","bar"], {}, {})

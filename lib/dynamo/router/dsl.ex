@@ -1,4 +1,4 @@
-defmodule Dynamo::Router::DSL do
+defmodule Dynamo.Router.DSL do
   # Main API to define routes. It accepts an expression representing
   # the path and many options allowing the match to be configured.
   #
@@ -140,7 +140,7 @@ defmodule Dynamo::Router::DSL do
     # Finally, we also include both _verb and _path vars. Although they
     # are quoted so their contents are not available inside the function.
     quote do
-      match  = apply Dynamo::Router::Utils, unquote(generator), [unquote(path)]
+      match  = apply Dynamo.Router.Utils, unquote(generator), [unquote(path)]
       args   = [
         quote(do: _verb),
         match,

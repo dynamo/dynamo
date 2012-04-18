@@ -12,7 +12,7 @@ setup:
 	cd deps/cowboy && make
 
 ebin: lib/*.ex lib/*/*.ex lib/*/*/*.ex
-	@ rm -f ebin/::*.beam
+	@ rm -rf ebin
 	@ echo Compiling ...
 	@ mkdir -p $(EBIN_DIR)
 	@ touch $(EBIN_DIR)

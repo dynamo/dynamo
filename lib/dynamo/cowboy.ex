@@ -1,4 +1,4 @@
-defmodule Dynamo::Cowboy do
+defmodule Dynamo.Cowboy do
   @moduledoc """
   Provides a runner using Cowboy webserver.
   Check  run/2 for more information.
@@ -14,7 +14,7 @@ defmodule Dynamo::Cowboy do
 
   ## Example
   
-      Dynamo::Cowboy.run MyApp, port: 80
+      Dynamo.Cowboy.run MyApp, port: 80
   
   """
   def run(app, options // []) do
@@ -22,7 +22,7 @@ defmodule Dynamo::Cowboy do
 
     port      = Keyword.get options, :port, 3000
     acceptors = Keyword.get options, :acceptors, 100
-    handler   = Keyword.get options, :handler, Dynamo::Cowboy::Handler
+    handler   = Keyword.get options, :handler, Dynamo.Cowboy.Handler
     dispatch  = Keyword.get options, :dispatch, dispatch_for(app, handler)
     verbose   = Keyword.get options, :verbose, true
 

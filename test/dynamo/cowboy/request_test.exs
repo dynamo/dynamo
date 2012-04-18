@@ -1,14 +1,14 @@
 Code.require_file "../../../test_helper", __FILE__
 
-defmodule Dynamo::Cowboy::RequestTest do
-  use ExUnit::Case
+defmodule Dynamo.Cowboy.RequestTest do
+  use ExUnit.Case
 
   def setup_all do
-    Dynamo::Cowboy.run __MODULE__, port: 8011, verbose: false
+    Dynamo.Cowboy.run __MODULE__, port: 8011, verbose: false
   end
 
   def teardown_all do
-    Dynamo::Cowboy.shutdown __MODULE__
+    Dynamo.Cowboy.shutdown __MODULE__
   end
 
   def service(req, res) do

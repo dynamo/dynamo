@@ -1,28 +1,28 @@
 Code.require_file "../../../test_helper", __FILE__
 
-defmodule Dynamo::Cowboy::RouterApp do
-  use Dynamo::Router
+defmodule Dynamo.Cowboy.RouterTest do
+  use ExUnit.Case
 
-  get "/foo/bar" do
-    response.reply(200, [], "Hello World!")
+  defmodule RouterApp do
+    use Dynamo.Router
+
+    get "/foo/bar" do
+      response.reply(200, [], "Hello World!")
+    end
+
+    get "/mounted" do
+      response.reply(200, [], request.path)
+    end
+
+    mount __MODULE__, at: "/baz"
   end
-
-  get "/mounted" do
-    response.reply(200, [], request.path)
-  end
-
-  mount __MODULE__, at: "/baz"
-end
-
-defmodule Dynamo::Cowboy::RouterTest do
-  use ExUnit::Case
 
   def setup_all do
-    Dynamo::Cowboy.run RouterApp, port: 8012, verbose: false
+    Dynamo.Cowboy.run RouterApp, port: 8012, verbose: false
   end
 
   def teardown_all do
-    Dynamo::Cowboy.shutdown RouterApp
+    Dynamo.Cowboy.shutdown RouterApp
   end
 
   test "basic request on a router app" do

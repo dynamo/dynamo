@@ -1,6 +1,6 @@
 Code.require_file "../../../test_helper", __FILE__
 
-defmodule Dynamo::Router::UtilsTest::Macros do
+defmodule Dynamo.Router.UtilsTest.Macros do
   defmacro assert_quoted(left, right) do
     quote do
       assert_equal quote(hygiene: false, do: unquote(left)), unquote(right)
@@ -8,11 +8,11 @@ defmodule Dynamo::Router::UtilsTest::Macros do
   end
 end
 
-defmodule Dynamo::Router::UtilsTest do
-  import  Macros
-  require Dynamo::Router::Utils, as: R
+defmodule Dynamo.Router.UtilsTest do
+  import  Dynamo.Router.UtilsTest.Macros
+  require Dynamo.Router.Utils, as: R
 
-  use ExUnit::Case
+  use ExUnit.Case
 
   def test_split_single_segment do
     assert_equal ["foo"], R.split("/foo")
@@ -65,7 +65,7 @@ defmodule Dynamo::Router::UtilsTest do
   def test_generate_invalid_match_with_segments_after_glob do
     R.generate_match("/foo/*bar/baz")
     flunk "generate_match should have failed"
-  rescue: x in [Dynamo::Router::InvalidSpec]
+  rescue: x in [Dynamo.Router.InvalidSpec]
     "cannot have a *glob followed by other segments" = x.message
   end
 end

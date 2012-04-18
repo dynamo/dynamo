@@ -1,6 +1,6 @@
-defexception Dynamo::Router::InvalidSpec, message: "invalid route specification"
+defexception Dynamo.Router.InvalidSpec, message: "invalid route specification"
 
-defmodule Dynamo::Router::Utils do
+defmodule Dynamo.Router.Utils do
   # Generates a representation that will only match routes
   # according to the given `spec`.
   #
@@ -81,7 +81,7 @@ defmodule Dynamo::Router::Utils do
 
   def handle_segment_match({ :glob, _identifier, expr }, t, acc) do
     if t != [] do
-      raise(InvalidSpec, message: "cannot have a *glob followed by other segments")
+      raise(Dynamo.Router.InvalidSpec, message: "cannot have a *glob followed by other segments")
     end
 
     case acc do

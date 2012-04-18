@@ -1,9 +1,9 @@
-# Dynamo::Routes brings routing semantics to your module.
+# Dynamo.Routes brings routing semantics to your module.
 #
 # ## Examples
 #
 #     defmodule MyApp do
-#       use Dynamo::Router
+#       use Dynamo.Router
 #
 #       get "users/:id" do
 #         response.write_head 200, [{ "Content-Type", "application/json" }]
@@ -11,13 +11,13 @@
 #       end
 #     end
 #
-defmodule Dynamo::Router do
+defmodule Dynamo.Router do
   defmacro __using__(module, _) do
     Module.add_compile_callback module, __MODULE__
 
     quote do
       @dynamo_router true
-      import Dynamo::Router::DSL
+      import Dynamo.Router.DSL
 
       @overridable true
       def service(req, res) do

@@ -1,8 +1,8 @@
-defmodule Dynamo::Cowboy::Response do
+defmodule Dynamo.Cowboy.Response do
   require :cowboy_http_req, as: R
 
   @doc """
-  Builds a new Dynamo::Cowboy::Response based on
+  Builds a new Dynamo.Cowboy.Response based on
   the original Cowboy request object.
   """
   def new(req) do

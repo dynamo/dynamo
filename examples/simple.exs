@@ -3,7 +3,7 @@
 #   elixir -pa ebin --no-halt examples/simple.exs
 
 defmodule MyApp do
-  use Dynamo::Router
+  use Dynamo.Router
 
   get "/foo/bar" do
     response.reply(200, [], "Hello World!")
@@ -11,4 +11,4 @@ defmodule MyApp do
 end
 
 Code.prepend_path("deps/cowboy/ebin")
-Dynamo::Cowboy.run MyApp
+Dynamo.Cowboy.run MyApp

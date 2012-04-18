@@ -1,4 +1,4 @@
-defmodule Dynamo::Cowboy::Handler do
+defmodule Dynamo.Cowboy.Handler do
   @moduledoc """
   This is the default Cowboy handler that is able
   to respond to http and websockets requests.
@@ -11,12 +11,12 @@ defmodule Dynamo::Cowboy::Handler do
   end
 
   def handle(req, app) do
-    res = app.service(Dynamo::Cowboy::Request.new(req), Dynamo::Cowboy::Response.new(req))
+    res = app.service(Dynamo.Cowboy.Request.new(req), Dynamo.Cowboy.Response.new(req))
 
-    if is_record(res, Dynamo::Cowboy::Response) do
+    if is_record(res, Dynamo.Cowboy.Response) do
       { :ok, res.cowboy_request, app }
     else:
-      raise "Expected service to return a Dynamo::Cowboy::Response, got #{inspect res}"
+      raise "Expected service to return a Dynamo.Cowboy.Response, got #{inspect res}"
     end
   end
 
