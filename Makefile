@@ -21,7 +21,7 @@ ebin: lib/*.ex lib/*/*.ex lib/*/*/*.ex
 
 test: compile
 	@ echo Running tests ...
-	time elixir -pa ebin "test/**/*_test.exs"
+	time elixir -pa ebin -r "test/**/*_test.exs"
 	@ echo
 
 clean:
