@@ -126,29 +126,17 @@ defmodule Dynamo.Router.DSL do
         raise ArgumentError, message: "Expected to: or do: to be given"
       end
 
-    # This is a bit tricky. We use the dynamic function definition
-    # so we can generate a function completely at runtime. This allow
-    # us to define the router without worryting about intermediate steps.
-    #
-    # However, it comes with the downside that the name, arguments and
-    # guards for the function needs to return their quoted expression.
-    # This forces us to quote the injected guards so we can pass them
-    # as arguments to def. Also notice we need to disable hygiene when
-    # quoting the guards because we want the expressions inside the
-    # guard to still be available in the function body.
-    #
-    # Finally, we also include both _verb and _path vars. Although they
-    # are quoted so their contents are not available inside the function.
+    match = apply Dynamo.Router.Utils, generator, [path]
+
+    args = [
+      { :_verb, 0, :quoted },
+      match,
+      { :request, 0, nil },
+      { :response, 0, nil }
+    ]
+
     quote do
-      match  = apply Dynamo.Router.Utils, unquote(generator), [unquote(path)]
-      args   = [
-        quote(do: _verb),
-        match,
-        { :request, 0, nil },
-        { :response, 0, nil }
-      ]
-      guards = quote hygiene: false, do: unquote(guards)
-      def :dispatch, args, guards, do: unquote(contents)
+      def dispatch(unquote_splicing(args)) when unquote(guards), do: unquote(contents)
     end
   end
 
