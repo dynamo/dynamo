@@ -1,18 +1,15 @@
 Code.require_file "../../../test_helper", __FILE__
 
-defmodule Dynamo.Router.UtilsTest.Macros do
-  defmacro assert_quoted(left, right) do
+defmodule Dynamo.Router.UtilsTest do
+  require Dynamo.Router.Utils, as: R
+
+  use ExUnit.Case
+
+  defmacrop assert_quoted(left, right) do
     quote do
       assert_equal quote(hygiene: false, do: unquote(left)), unquote(right)
     end
   end
-end
-
-defmodule Dynamo.Router.UtilsTest do
-  import  Dynamo.Router.UtilsTest.Macros
-  require Dynamo.Router.Utils, as: R
-
-  use ExUnit.Case
 
   def test_split_single_segment do
     assert_equal ["foo"], R.split("/foo")

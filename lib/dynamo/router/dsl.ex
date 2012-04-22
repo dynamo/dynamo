@@ -89,7 +89,7 @@ defmodule Dynamo.Router.DSL do
   See `match/3` for more examples.
   """
   defmacro get(path, contents) do
-    match path, Keyword.merge(contents, via: :get)
+    compile(:generate_match, path, Keyword.merge(contents, via: :get))
   end
 
   @doc """
@@ -97,7 +97,7 @@ defmodule Dynamo.Router.DSL do
   See `match/3` for more examples.
   """
   defmacro post(path, contents) do
-    match path, Keyword.merge(contents, via: :post)
+    compile(:generate_match, path, Keyword.merge(contents, via: :post))
   end
 
   @doc """
@@ -105,7 +105,7 @@ defmodule Dynamo.Router.DSL do
   See `match/3` for more examples.
   """
   defmacro put(path, contents) do
-    match path, Keyword.merge(contents, via: :put)
+    compile(:generate_match, path, Keyword.merge(contents, via: :put))
   end
 
   @doc """
@@ -113,7 +113,7 @@ defmodule Dynamo.Router.DSL do
   See `match/3` for more examples.
   """
   defmacro delete(path, contents) do
-    match path, Keyword.merge(contents, via: :delete)
+    compile(:generate_match, path, Keyword.merge(contents, via: :delete))
   end
 
   ## Helpers
