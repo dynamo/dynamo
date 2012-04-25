@@ -2,16 +2,16 @@ EBIN_DIR=ebin
 ERLC=erlc -W0
 ERL=erl -noshell -pa $(EBIN_DIR)
 
-.PHONY: setup test clean
+.PHONY: setup test compile clean
 
-compile: ebin
+compile: $(EBIN_DIR)
 
 setup:
 	git submodule update --init
 	cd deps/ibrowse && make
 	cd deps/cowboy && make
 
-ebin: lib/*.ex lib/*/*.ex lib/*/*/*.ex
+$(EBIN_DIR): $(shell find lib -type f -name "*.ex")
 	@ rm -rf ebin
 	@ echo Compiling ...
 	@ mkdir -p $(EBIN_DIR)
