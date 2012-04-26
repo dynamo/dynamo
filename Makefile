@@ -21,7 +21,7 @@ $(EBIN_DIR): $(shell find lib -type f -name "*.ex")
 
 test: compile
 	@ echo Running tests ...
-	time elixir -pa ebin -r "test/**/*_test.exs"
+	time elixir -pa ebin -r "test/test_helper.exs" -pr "test/**/*_test.exs"
 	@ echo
 
 clean:
