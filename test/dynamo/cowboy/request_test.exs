@@ -21,49 +21,49 @@ defmodule Dynamo.Cowboy.RequestTest do
   # Tests
 
   def path_segments_0(req, res) do
-    assert_equal ["path_segments_0"], req.path_segments
+    assert req.path_segments == ["path_segments_0"]
     res
   end
 
   def path_segments_1(req, res) do
-    assert_equal ["path_segments_1", "foo", "bar", "baz"], req.path_segments
+    assert req.path_segments == ["path_segments_1", "foo", "bar", "baz"]
     res
   end
 
   def path_0(req, res) do
-    assert_equal "/path_0", req.path
+    assert req.path == "/path_0"
     res
   end
 
   def path_1(req, res) do
-    assert_equal "/path_1/foo/bar/baz", req.path
+    assert req.path == "/path_1/foo/bar/baz"
     res
   end
 
   def mount(req, res) do
-    assert_equal ["mount", "foo", "bar", "baz"], req.path_segments
+    assert req.path_segments == ["mount", "foo", "bar", "baz"]
 
     req = req.mount(["foo", "bar", "baz"])
 
-    assert_equal "/foo/bar/baz", req.path
-    assert_equal ["foo", "bar", "baz"], req.path_segments
+    assert req.path == "/foo/bar/baz"
+    assert req.path_segments == ["foo", "bar", "baz"]
 
-    assert_equal "/mount/foo/bar/baz", req.full_path
-    assert_equal ["mount", "foo", "bar", "baz"], req.full_path_segments
+    assert req.full_path == "/mount/foo/bar/baz"
+    assert req.full_path_segments == ["mount", "foo", "bar", "baz"]
 
-    assert_equal "/mount", req.script_info
-    assert_equal ["mount"], req.script_info_segments
+    assert req.script_info == "/mount"
+    assert req.script_info_segments == ["mount"]
 
     req = req.mount(["bar", "baz"])
 
-    assert_equal "/bar/baz", req.path
-    assert_equal ["bar", "baz"], req.path_segments
+    assert req.path == "/bar/baz"
+    assert req.path_segments == ["bar", "baz"]
 
-    assert_equal "/mount/foo/bar/baz", req.full_path
-    assert_equal ["mount", "foo", "bar", "baz"], req.full_path_segments
+    assert req.full_path == "/mount/foo/bar/baz"
+    assert req.full_path_segments == ["mount", "foo", "bar", "baz"]
 
-    assert_equal "/mount/foo", req.script_info
-    assert_equal ["mount", "foo"], req.script_info_segments
+    assert req.script_info == "/mount/foo"
+    assert req.script_info_segments == ["mount", "foo"]
 
     res
   end

@@ -67,64 +67,64 @@ defmodule Dynamo.RouterTest do
   end
 
   def test_dispatch_single_segment do
-    assert_equal 1, Sample1.dispatch(:GET, ["1","bar"], {}, {})
+    assert Sample1.dispatch(:GET, ["1","bar"], {}, {}) == 1
   end
 
   def test_dispatch_dynamic_segment do
-    assert_equal "baz", Sample1.dispatch(:GET, ["2","baz"], {}, {})
+    assert Sample1.dispatch(:GET, ["2","baz"], {}, {}) == "baz"
   end
 
   def test_dispatch_dynamic_segment_with_prefix do
-    assert_equal "baz", Sample1.dispatch(:GET, ["3","bar-baz"], {}, {})
+    assert Sample1.dispatch(:GET, ["3","bar-baz"], {}, {}) == "baz"
   end
 
   def test_dispatch_glob_segment do
-    assert_equal ["baz", "baaz"], Sample1.dispatch(:GET, ["4", "baz", "baaz"], {}, {})
+    assert Sample1.dispatch(:GET, ["4", "baz", "baaz"], {}, {}) == ["baz", "baaz"]
   end
 
   def test_dispatch_glob_segment_with_prefix do
-    assert_equal ["bar-baz", "baaz"], Sample1.dispatch(:GET, ["5", "bar-baz", "baaz"], {}, {})
+    assert ["bar-baz", "baaz"] == Sample1.dispatch(:GET, ["5", "bar-baz", "baaz"], {}, {})
   end
 
   def test_dispatch_custom_route do
-    assert_equal 200, Sample1.dispatch(:GET, ["6", "foo"], {}, {})
+    assert Sample1.dispatch(:GET, ["6", "foo"], {}, {}) == 200
   end
 
   def test_dispatch_not_found do
-    assert_equal 404, Sample1.dispatch(:GET, ["100", "foo"], {}, {})
+    assert Sample1.dispatch(:GET, ["100", "foo"], {}, {}) == 404
   end
 
   def test_dispatch_with_guards do
-    assert_equal "a",   Sample1.dispatch(:GET, ["7", "a"], {}, {})
-    assert_equal "ab",  Sample1.dispatch(:GET, ["7", "ab"], {}, {})
-    assert_equal "abc", Sample1.dispatch(:GET, ["7", "abc"], {}, {})
-    assert_equal 404,   Sample1.dispatch(:GET, ["7", "abcd"], {}, {})
+    assert   Sample1.dispatch(:GET, ["7", "a"], {}, {}) == "a"
+    assert  Sample1.dispatch(:GET, ["7", "ab"], {}, {}) == "ab"
+    assert Sample1.dispatch(:GET, ["7", "abc"], {}, {}) == "abc"
+    assert   Sample1.dispatch(:GET, ["7", "abcd"], {}, {}) == 404
   end
 
   def test_dispatch_wrong_verb do
-    assert_equal 404, Sample1.dispatch(:POST, ["1","bar"], {}, {})
+    assert Sample1.dispatch(:POST, ["1","bar"], {}, {}) == 404
   end
 
   def test_dispatch_any_verb do
-    assert_equal 8, Sample1.dispatch(:GET,  ["8", "foo"], {}, {})
-    assert_equal 8, Sample1.dispatch(:PUT,  ["8", "foo"], {}, {})
-    assert_equal 8, Sample1.dispatch(:POST, ["8", "foo"], {}, {})
+    assert Sample1.dispatch(:GET,  ["8", "foo"], {}, {}) == 8
+    assert Sample1.dispatch(:PUT,  ["8", "foo"], {}, {}) == 8
+    assert Sample1.dispatch(:POST, ["8", "foo"], {}, {}) == 8
   end
 
   def test_pointing_to_another_endpoint do
-    assert_equal :from_sample_0, Sample1.dispatch(:PUT, ["9", "foo"], {}, {})
+    assert Sample1.dispatch(:PUT, ["9", "foo"], {}, {}) == :from_sample_0
   end
 
   def test_mounting_another_endpoint do
-    assert_equal "match", Sample1.dispatch(:GET, ["10", "nested", "match"], RequestMock.new, {})
+    assert Sample1.dispatch(:GET, ["10", "nested", "match"], RequestMock.new, {}) == "match"
   end
 
   def test_mounting_another_endpoint_with_explicit_path do
-    assert_equal "match", Sample1.dispatch(:GET, ["11", "deep", "nested", "match"], RequestMock.new, {})
+    assert Sample1.dispatch(:GET, ["11", "deep", "nested", "match"], RequestMock.new, {}) == "match"
   end
 
   def test_mounting_another_endpoint_mounts_the_request do
     request = Sample1.dispatch(:GET, ["10", "with_request"], RequestMock.new, {})
-    assert_equal ["with_request"], request.mount
+    assert request.mount == ["with_request"]
   end
 end

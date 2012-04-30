@@ -7,23 +7,23 @@ defmodule Dynamo.Router.UtilsTest do
 
   defmacrop assert_quoted(left, right) do
     quote do
-      assert_equal quote(hygiene: false, do: unquote(left)), unquote(right)
+      assert quote(hygiene: false, do: unquote(left)) == unquote(right)
     end
   end
 
   def test_split_single_segment do
-    assert_equal ["foo"], R.split("/foo")
-    assert_equal ["foo"], R.split("foo")
+    assert R.split("/foo") == ["foo"]
+    assert R.split("foo") == ["foo"]
   end
 
   def test_split_with_more_than_one_segment do
-    assert_equal ["foo", "bar"], R.split("/foo/bar")
-    assert_equal ["foo", "bar"], R.split("foo/bar")
+    assert R.split("/foo/bar") == ["foo", "bar"]
+    assert R.split("foo/bar") == ["foo", "bar"]
   end
 
   def test_split_removes_trailing_slash do
-    assert_equal ["foo", "bar"], R.split("/foo/bar/")
-    assert_equal ["foo", "bar"], R.split("foo/bar/")
+    assert R.split("/foo/bar/") == ["foo", "bar"]
+    assert R.split("foo/bar/") == ["foo", "bar"]
   end
 
   def test_generate_match_with_literal do
