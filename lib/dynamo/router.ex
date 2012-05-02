@@ -23,15 +23,15 @@ defmodule Dynamo.Router do
       @dynamo_router true
       import Dynamo.Router.DSL
 
-      @overridable true
       def service(req, res) do
         dispatch(req.method, req.path_segments, req, res)
       end
 
-      @overridable true
       def not_found(_req, res) do
         res.reply(404, [], "")
       end
+
+      defoverridable [not_found: 2, service: 2]
     end
   end
 
