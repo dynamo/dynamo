@@ -74,29 +74,32 @@ defmodule Dynamo.Cowboy.RequestTest do
   # Triggers
 
   test :path_segments do
-    assert_success http_client.request :get, "/path_segments_0"
-    assert_success http_client.request :get, "/path_segments_1/foo/bar/baz"
+    assert_success request :get, "/path_segments_0"
+    assert_success request :get, "/path_segments_1/foo/bar/baz"
   end
 
   test :path do
-    assert_success http_client.request :get, "/path_0"
-    assert_success http_client.request :get, "/path_1/foo/bar/baz"
+    assert_success request :get, "/path_0"
+    assert_success request :get, "/path_1/foo/bar/baz"
   end
 
   test :forward_to do
-    assert_success http_client.request :get, "/forward_to/foo/bar/baz"
+    assert_success request :get, "/forward_to/foo/bar/baz"
   end
 
-  defp assert_success({ status, _, _ }) when div(status, 100) == 2 do
+  defp assert_success({ status, _, _ }) when status in 200..299 do
     :ok
   end
 
   defp assert_success({ status, _, body }) do
-    assert false, "Expected successful response, got status #{inspect status} with body #{inspect body}"
+    flunk "Expected successful response, got status #{inspect status} with body #{inspect body}"
   end
 
-  defp http_client do
-    HTTPClient.new("http://127.0.0.1:8011")
+  defp request(verb, path) do
+    { :ok, status, headers, client } =
+      :hackney.request(verb, "http://127.0.0.1:8011" <> path, [], "", [])
+    { :ok, body, _ } = :hackney.body(client)
+    { status, headers, body }
   end
 end
 

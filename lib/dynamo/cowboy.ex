@@ -35,7 +35,7 @@ defmodule Dynamo.Cowboy do
     )
 
     if verbose, do:
-      IO.puts "Running #{app} on port #{port} with Cowboy"
+      IO.puts "Running #{inspect app} on port #{port} with Cowboy"
   end
 
   def shutdown(app) do

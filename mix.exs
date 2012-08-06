@@ -8,7 +8,7 @@ defmodule Dynamo.Mixfile do
   end
 
   def deps do
-    [ { :ibrowse, git: "https://github.com/cmullaparthi/ibrowse.git" },
+    [ { :hackney, git: "https://github.com/benoitc/hackney.git", compile: "make" },
       { :cowboy,  git: "https://github.com/extend/cowboy.git" } ]
   end
 end
