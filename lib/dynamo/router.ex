@@ -2,7 +2,7 @@ defmodule Dynamo.Router do
   @moduledoc """
   `Dynamo.Routes` brings routing semantics to your module.
 
-  A Dynamo application is made of many routers that redirects requests
+  A Dynamo application is made of many routers that redirect requests
   to specific endpoints.
 
   Here is a minimal router:
