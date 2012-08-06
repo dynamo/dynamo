@@ -130,11 +130,73 @@ defmodule Dynamo.Cowboy.Request do
     R.body_qs(req)
   end
 
-  # { "multipart", style, _ } when style in ["form-data", "mixed"] -> handle_multipart(req)
+  defp parse_body({ "multipart", style, _ }, req) when style in ["form-data", "mixed"] do
+    parse_multipart(R.multipart_data(req), nil, nil, [])
+  end
 
   defp parse_body(_, req) do
     { [], req }
   end
+
+  defp parse_multipart({ :eof, req }, nil, nil, acc) do
+    { List.reverse(acc), req }
+  end
+
+  defp parse_multipart({ { :headers, headers }, req }, nil, nil, acc) do
+    parse_multipart(R.multipart_data(req), headers, "", acc)
+  end
+
+  defp parse_multipart({ { :body, tail }, req }, headers, body, acc) do
+    parse_multipart(R.multipart_data(req), headers, body <> tail, acc)
+  end
+
+  defp parse_multipart({ :end_of_part, req }, headers, body, acc) do
+    acc = multipart_entry(headers, body, acc)
+    parse_multipart(R.multipart_data(req), nil, nil, acc)
+  end
+
+  defp multipart_entry(headers, body, acc) do
+    case List.keyfind(headers, "Content-Disposition", 1) do
+      { _, value } ->
+        [_|parts] = :binary.split(value, ";", [:global]) # TODO Use Binary.split()
+        parts     = lc part inlist parts, do: to_multipart_kv(part)
+
+        case List.keyfind(parts, "name", 1) do
+          { "name", name } -> 
+            entry = 
+              case List.keyfind(parts, "filename", 1) do
+                { "filename", filename } -> 
+                  { _, type } = List.keyfind(headers, :"Content-Type", 1) || { :"Content-Type", nil }
+                  { name, Dynamo.Request.File.new(name: name, filename: filename, content_type: type, body: body) }
+                _ ->
+                  { name, body }
+              end
+
+            [entry|acc]
+          _ -> acc
+        end
+      _ -> acc
+    end
+  end
+
+  defp to_multipart_kv(binary) do
+    case :binary.split(binary, "=") do
+      [h]     -> { trim(h), nil }
+      [h,t|_] -> { trim(h), strip_quotes(t) }
+    end
+  end
+
+  defp strip_quotes(<<?", remaining | :binary>>) do
+    binary_part(remaining, 0, size(remaining) - 1)  
+  end
+
+  defp strip_quotes(other) do
+    other
+  end
+
+  # TODO Use Binary.strip
+  defp trim(<<?\s, rest | :binary>>),   do: trim(rest)
+  defp trim(rest) when is_binary(rest), do: rest
 
   defp _(req) do
     elem(req, 2)

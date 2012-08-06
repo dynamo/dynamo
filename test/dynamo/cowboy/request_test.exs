@@ -60,6 +60,18 @@ defmodule Dynamo.Cowboy.RequestTest do
     res
   end
 
+  def params_1(req, res) do
+    assert req.params[:name] == "hello"
+
+    file = req.params[:pic]
+    assert file.body == "hello\n\n"
+    assert file.name == "pic"
+    assert file.content_type == "text/plain"
+    assert file.filename == "foo.txt"
+
+    res
+  end
+
   def forward_to(req, res) do
     assert req.path_segments == ["forward_to", "foo", "bar", "baz"]
 
@@ -105,9 +117,19 @@ defmodule Dynamo.Cowboy.RequestTest do
     assert_success request :get, "/query_string_1"
   end
 
+  @multipart "------WebKitFormBoundaryw58EW1cEpjzydSCq\r\nContent-Disposition: form-data; name=\"name\"\r\n\r\nhello\r\n------WebKitFormBoundaryw58EW1cEpjzydSCq\r\nContent-Disposition: form-data; name=\"pic\"; filename=\"foo.txt\"\r\nContent-Type: text/plain\r\n\r\nhello\n\n\r\n------WebKitFormBoundaryw58EW1cEpjzydSCq\r\nContent-Disposition: form-data; name=\"commit\"\r\n\r\nCreate User\r\n------WebKitFormBoundaryw58EW1cEpjzydSCq--\r\n"
+
   test :params do
     assert_success request :get,  "/params_0?hello=world&foo=bar"
     assert_success request :post, "/params_0", [{ "Content-Type", "application/x-www-form-urlencoded" }], "hello=world&foo=bar"
+
+    multipart = @multipart
+    headers   = [
+      { "Content-Type", "multipart/form-data; boundary=----WebKitFormBoundaryw58EW1cEpjzydSCq" },
+      { "Content-Length", size(multipart) }
+    ]
+
+    assert_success request :get, "/params_1", headers, multipart
   end
 
   test :forward_to do
@@ -122,7 +144,11 @@ defmodule Dynamo.Cowboy.RequestTest do
     flunk "Expected successful response, got status #{inspect status} with body #{inspect body}"
   end
 
-  defp request(verb, path, headers // [], body // "") do
+  defp request(verb, path) do
+    request(verb, path, [], "")
+  end
+
+  defp request(verb, path, headers, body) do
     { :ok, status, headers, client } =
       :hackney.request(verb, "http://127.0.0.1:8011" <> path, headers, body, [])
     { :ok, body, _ } = :hackney.body(client)

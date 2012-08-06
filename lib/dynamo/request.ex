@@ -1,0 +1,1 @@
+defrecord Dynamo.Request.File, body: nil, name: nil, content_type: nil, filename: nil
