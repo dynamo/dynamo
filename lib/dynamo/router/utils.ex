@@ -1,6 +1,8 @@
 defexception Dynamo.Router.InvalidSpec, message: "invalid route specification"
 
 defmodule Dynamo.Router.Utils do
+  @moduledoc false
+
   @doc """
   Generates a representation that will only match routes
   according to the given `spec`.
@@ -23,25 +25,25 @@ defmodule Dynamo.Router.Utils do
   end
 
   @doc """
-  Generates a mounting representation that will match any
+  Generates a fowarding representation that will match any
   route starting with the given `spec`.
 
   ## Examples
 
-      generate_mount("/foo/:id") => ["foo", { :id, 0, nil } | _glob]
+      generate_forward("/foo/:id") => ["foo", { :id, 0, nil } | _glob]
 
   """
-  def generate_mount([h|_] = list) when is_binary(h) do
+  def generate_forward([h|_] = list) when is_binary(h) do
     [h|t] = List.reverse(list)
     glob  = { :glob, 0, nil }
     List.reverse [ { :|, 0, [h, glob] } | t ]
   end
 
-  def generate_mount(spec) when is_binary(spec) do
-    generate_mount binary_to_list(spec)
+  def generate_forward(spec) when is_binary(spec) do
+    generate_forward binary_to_list(spec)
   end
 
-  def generate_mount(spec) do
+  def generate_forward(spec) do
     generate_match raw_split(spec) ++ ['*glob'], []
   end
 

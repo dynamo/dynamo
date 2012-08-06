@@ -1,4 +1,8 @@
 defmodule Dynamo.Router.DSL do
+  @moduledoc """
+  This module provides the DSL available to dynamo routers.
+  """
+
   @doc """
   Main API to define routes. It accepts an expression representing
   the path and many options allowing the match to be configured.
@@ -16,8 +20,10 @@ defmodule Dynamo.Router.DSL do
   * `via:` matches the route against some specific verbs
   * `do:` contains the implementation to be invoked in case
           the route matches
+  * `to:` forward the request to another module that implements
+          the service/2 API
 
-  ## Compilation
+  ## Routes compilation
 
   All routes are compiled to a dispatch method that receives
   four arguments: the verb, the request path split on "/",
@@ -52,27 +58,27 @@ defmodule Dynamo.Router.DSL do
     compile(:generate_match, expression, Keyword.merge(contents, options))
   end
 
-  # TODO: Append SCRIPT_NAME to the request.
   @doc """
-  Mount the given app at the specified path.
+  Forwards the given route to the specified module.
 
   ## Examples
 
-      mount Posts, at: "/foo/bar"
+      forward "/foo/bar", to: Posts
 
   Now all the routes that start with /foo/bar will automatically
   be dispatched to `Posts` that needs to implement the service API.
   """
-  defmacro mount(what, options) do
-    expression = Keyword.get(options, :at, nil)
+  defmacro forward(expression, options) do
+    what = Keyword.get(options, :to, nil)
 
-    unless expression, do:
-      raise ArgumentError, "Expected at: to be given to mount"
+    unless what, do:
+      raise ArgumentError, "Expected to: to be given to forward"
 
     block =
       quote do
         target  = unquote(what)
-        request = var!(request).mount(var!(glob))
+        request = var!(request)
+        request = elem(request, 1).forward_to request, var!(glob), target
         if function_exported?(target, :dynamo_router?, 0) and target.dynamo_router? do
           target.dispatch(_verb, var!(glob), request, var!(response))
         else
@@ -81,7 +87,7 @@ defmodule Dynamo.Router.DSL do
       end
 
     options = Keyword.put(options, :do, block)
-    compile(:generate_mount, expression, options)
+    compile(:generate_forward, expression, options)
   end
 
   @doc """
@@ -118,7 +124,7 @@ defmodule Dynamo.Router.DSL do
 
   ## Helpers
 
-  # Entry point for both mount and match that is actually
+  # Entry point for both forward and match that is actually
   # responsible to compile the route.
   defp compile(generator, expression, options) do
     verb  = Keyword.get options, :via, nil

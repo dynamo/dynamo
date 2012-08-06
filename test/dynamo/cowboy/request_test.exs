@@ -3,6 +3,8 @@ Code.require_file "../../../test_helper", __FILE__
 defmodule Dynamo.Cowboy.RequestTest do
   use ExUnit.Case
 
+  alias Dynamo.Cowboy.Request, as: Req
+
   def setup_all do
     Dynamo.Cowboy.run __MODULE__, port: 8011, verbose: false
   end
@@ -41,30 +43,30 @@ defmodule Dynamo.Cowboy.RequestTest do
     res
   end
 
-  def mount(req, res) do
-    assert req.path_segments == ["mount", "foo", "bar", "baz"]
+  def forward_to(req, res) do
+    assert req.path_segments == ["forward_to", "foo", "bar", "baz"]
 
-    req = req.mount(["foo", "bar", "baz"])
+    req = Req.forward_to req, ["foo", "bar", "baz"], Foo
 
     assert req.path == "/foo/bar/baz"
     assert req.path_segments == ["foo", "bar", "baz"]
 
-    assert req.full_path == "/mount/foo/bar/baz"
-    assert req.full_path_segments == ["mount", "foo", "bar", "baz"]
+    assert req.full_path == "/forward_to/foo/bar/baz"
+    assert req.full_path_segments == ["forward_to", "foo", "bar", "baz"]
 
-    assert req.script_info == "/mount"
-    assert req.script_info_segments == ["mount"]
+    assert req.script_info == "/forward_to"
+    assert req.script_info_segments == ["forward_to"]
 
-    req = req.mount(["bar", "baz"])
+    req = Req.forward_to req, ["bar", "baz"], Bar
 
     assert req.path == "/bar/baz"
     assert req.path_segments == ["bar", "baz"]
 
-    assert req.full_path == "/mount/foo/bar/baz"
-    assert req.full_path_segments == ["mount", "foo", "bar", "baz"]
+    assert req.full_path == "/forward_to/foo/bar/baz"
+    assert req.full_path_segments == ["forward_to", "foo", "bar", "baz"]
 
-    assert req.script_info == "/mount/foo"
-    assert req.script_info_segments == ["mount", "foo"]
+    assert req.script_info == "/forward_to/foo"
+    assert req.script_info_segments == ["forward_to", "foo"]
 
     res
   end
@@ -82,7 +84,7 @@ defmodule Dynamo.Cowboy.RequestTest do
   end
 
   test :mount_suffix do
-    assert_success http_client.request :get, "/mount/foo/bar/baz"
+    assert_success http_client.request :get, "/forward_to/foo/bar/baz"
   end
 
   defp assert_success({ status, _, _ }) when div(status, 100) == 2 do

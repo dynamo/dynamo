@@ -3,8 +3,6 @@ Code.require_file "../../test_helper", __FILE__
 defmodule Dynamo.RouterTest do
   use ExUnit.Case
 
-  defrecord RequestMock, mount: nil
-
   defmodule Sample0 do
     use Dynamo.Router
 
@@ -58,8 +56,8 @@ defmodule Dynamo.RouterTest do
 
     put "/9/foo", to: Sample0
 
-    mount Sample0, at: "/10"
-    mount Sample0, at: ["11", "deep"]
+    forward "/10", to: Sample0
+    forward ["11", "deep"], to: Sample0
 
     def not_found(_request, _response) do
       404
@@ -115,16 +113,26 @@ defmodule Dynamo.RouterTest do
     assert Sample1.dispatch(:PUT, ["9", "foo"], {}, {}) == :from_sample_0
   end
 
-  def test_mounting_another_endpoint do
-    assert Sample1.dispatch(:GET, ["10", "nested", "match"], RequestMock.new, {}) == "match"
+  def test_forwarding_to_another_endpoint do
+    assert Sample1.dispatch(:GET, ["10", "nested", "match"], mock_req, {}) == "match"
   end
 
-  def test_mounting_another_endpoint_with_explicit_path do
-    assert Sample1.dispatch(:GET, ["11", "deep", "nested", "match"], RequestMock.new, {}) == "match"
+  def test_forwarding_to_another_endpoint_with_explicit_path do
+    assert Sample1.dispatch(:GET, ["11", "deep", "nested", "match"], mock_req, {}) == "match"
   end
 
-  def test_mounting_another_endpoint_mounts_the_request do
-    request = Sample1.dispatch(:GET, ["10", "with_request"], RequestMock.new, {})
-    assert request.mount == ["with_request"]
+  def test_forwarding_to_another_endpoint_annotates_the_request do
+    request = Sample1.dispatch(:GET, ["10", "with_request"], mock_req, {})
+    assert request.forward_to == { ["with_request"], Dynamo.RouterTest.Sample0 }
+  end
+
+  defrecord MockReq, forward_to: nil do
+    def forward_to(req, at, target) do
+      req.forward_to({ at, target })
+    end
+  end
+
+  defp mock_req do
+    MockReq.new
   end
 end

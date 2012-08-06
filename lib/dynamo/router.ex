@@ -1,18 +1,43 @@
 defmodule Dynamo.Router do
   @moduledoc """
-  Dynamo.Routes brings routing semantics to your module.
+  `Dynamo.Routes` brings routing semantics to your module.
 
-  ## Examples
+  A Dynamo application is made of many routers that redirects requests
+  to specific endpoints.
 
-      defmodule MyApp do
+  Here is a minimal router:
+
+      defmodule MyApp.Home do
         use Dynamo.Router
 
-        get "users/:id" do
-          response.write_head 200, [{ "Content-Type", "application/json" }]
-          response.end JSON.encode(User.find(id))
+        get "hello" do
+          close response, "world"
         end
       end
 
+  In this case, the endpoint can handle the route "hello". The verbs `get`,
+  `post`, `put` and `delete` are supported.
+
+  A Dynamo router can also forward a specific subroute to any other router,
+  allowing a developer to scope its application instead of having a big,
+  monolitic, routes handler:
+
+      defmodule MyApp.Main do
+        use Dynamo.Router
+        forward "home", to: MyApp.Home
+      end
+
+  Now any request at "home" in the `MyApp.Main` router will be forwarded
+  to `MyApp.Home`, but without the "home" prefix. So a request at "home/hello"
+  is seen by the `MyApp.Home` simply as "hello", matching the route we
+  defined previously and returning "world".
+
+  Although in the example above we forwarded to another Dynamo router, we
+  can forward to any module, as long as it exports the function `service/2`.
+  This function receives the request and response as arguments and must
+  return the updated response.
+
+  The macros for routes definition are imported from `Dynamo.Router.DSL`.
   """
 
   @doc false
