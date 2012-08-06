@@ -11,7 +11,7 @@ defmodule Dynamo.Cowboy.RouterTest do
     end
 
     get "/mounted" do
-      response.reply(200, [], request.path)
+      response.reply(200, [], request.path_info)
     end
 
     forward "/baz", to: __MODULE__

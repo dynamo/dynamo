@@ -48,22 +48,22 @@ defmodule Dynamo.Cowboy.RequestTest do
 
     req = Req.forward_to req, ["foo", "bar", "baz"], Foo
 
-    assert req.path == "/foo/bar/baz"
-    assert req.path_segments == ["foo", "bar", "baz"]
+    assert req.path_info == "/foo/bar/baz"
+    assert req.path_info_segments == ["foo", "bar", "baz"]
 
-    assert req.full_path == "/forward_to/foo/bar/baz"
-    assert req.full_path_segments == ["forward_to", "foo", "bar", "baz"]
+    assert req.path == "/forward_to/foo/bar/baz"
+    assert req.path_segments == ["forward_to", "foo", "bar", "baz"]
 
     assert req.script_info == "/forward_to"
     assert req.script_info_segments == ["forward_to"]
 
     req = Req.forward_to req, ["bar", "baz"], Bar
 
-    assert req.path == "/bar/baz"
-    assert req.path_segments == ["bar", "baz"]
+    assert req.path_info == "/bar/baz"
+    assert req.path_info_segments == ["bar", "baz"]
 
-    assert req.full_path == "/forward_to/foo/bar/baz"
-    assert req.full_path_segments == ["forward_to", "foo", "bar", "baz"]
+    assert req.path == "/forward_to/foo/bar/baz"
+    assert req.path_segments == ["forward_to", "foo", "bar", "baz"]
 
     assert req.script_info == "/forward_to/foo"
     assert req.script_info_segments == ["forward_to", "foo"]
@@ -83,7 +83,7 @@ defmodule Dynamo.Cowboy.RequestTest do
     assert_success http_client.request :get, "/path_1/foo/bar/baz"
   end
 
-  test :mount_suffix do
+  test :forward_to do
     assert_success http_client.request :get, "/forward_to/foo/bar/baz"
   end
 
