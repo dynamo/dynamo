@@ -59,7 +59,7 @@ defmodule Dynamo.Router.Utils do
   end
 
   def split(t) do
-    lc segment in raw_split(t), do: list_to_binary(segment)
+    lc segment inlist raw_split(t), do: list_to_binary(segment)
   end
 
   ## Helpers
@@ -91,11 +91,10 @@ defmodule Dynamo.Router.Utils do
     end
 
     case acc do
-    match: [hs|ts]
-      final = [{ :|, 0, [hs, expr] } | ts]
-      List.reverse(final)
-    else:
-      expr
+      [hs|ts] ->
+        final = [{ :|, 0, [hs, expr] } | ts]
+        List.reverse(final)
+      _ -> expr
     end
   end
 

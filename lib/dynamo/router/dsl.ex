@@ -73,9 +73,9 @@ defmodule Dynamo.Router.DSL do
       quote do
         target  = unquote(what)
         request = var!(request).mount(var!(glob))
-        if Keyword.get target.__info__(:data), :dynamo_router, false do
+        if function_exported?(target, :dynamo_router?, 0) and target.dynamo_router? do
           target.dispatch(_verb, var!(glob), request, var!(response))
-        else:
+        else
           target.service(request, var!(response))
         end
       end
@@ -129,12 +129,10 @@ defmodule Dynamo.Router.DSL do
     { path, guards } = extract_path_and_guards(expression, default_guards(verb_guards))
 
     contents =
-      if block do
-        block
-      elsif: to
-        quote do: unquote(to).service(var!(request), var!(response))
-      else:
-        raise ArgumentError, message: "Expected to: or do: to be given"
+      cond do
+        block -> block
+        to    -> quote do: unquote(to).service(var!(request), var!(response))
+        true  -> raise ArgumentError, message: "Expected to: or do: to be given"
       end
 
     match = apply Dynamo.Router.Utils, generator, [path]

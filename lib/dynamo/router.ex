@@ -16,11 +16,9 @@ defmodule Dynamo.Router do
   """
 
   @doc false
-  defmacro __using__(module, _) do
-    Module.add_compile_callback module, __MODULE__
-
+  defmacro __using__(_) do
     quote do
-      @dynamo_router true
+      @before_compile unquote(__MODULE__)
       import Dynamo.Router.DSL
 
       def service(req, res) do
@@ -31,12 +29,16 @@ defmodule Dynamo.Router do
         res.reply(404, [], "")
       end
 
+      def dynamo_router? do
+        true
+      end
+
       defoverridable [not_found: 2, service: 2]
     end
   end
 
   @doc false
-  defmacro __compiling__(_) do
+  defmacro before_compile(_) do
     quote do
       def dispatch(_, _, request, response) do
         not_found(request, response)

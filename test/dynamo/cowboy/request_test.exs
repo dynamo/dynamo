@@ -14,8 +14,9 @@ defmodule Dynamo.Cowboy.RequestTest do
   def service(req, res) do
     function = binary_to_atom hd(req.path_segments), :utf8
     apply __MODULE__, function, [req, res]
-  rescue: exception
-    res.reply(500, [], exception.message <> inspect(Code.stacktrace))
+  rescue
+    exception ->
+      res.reply(500, [], exception.message <> inspect(Code.stacktrace))
   end
 
   # Tests

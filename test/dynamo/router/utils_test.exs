@@ -62,7 +62,8 @@ defmodule Dynamo.Router.UtilsTest do
   def test_generate_invalid_match_with_segments_after_glob do
     R.generate_match("/foo/*bar/baz")
     flunk "generate_match should have failed"
-  rescue: x in [Dynamo.Router.InvalidSpec]
-    "cannot have a *glob followed by other segments" = x.message
+  rescue
+    x in [Dynamo.Router.InvalidSpec] ->
+      "cannot have a *glob followed by other segments" = x.message
   end
 end

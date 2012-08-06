@@ -15,7 +15,7 @@ defmodule Dynamo.Cowboy.Handler do
 
     if is_record(res, Dynamo.Cowboy.Response) do
       { :ok, res.cowboy_request, app }
-    else:
+    else
       raise "Expected service to return a Dynamo.Cowboy.Response, got #{inspect res}"
     end
   end

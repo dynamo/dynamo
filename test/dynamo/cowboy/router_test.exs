@@ -26,15 +26,15 @@ defmodule Dynamo.Cowboy.RouterTest do
   end
 
   test "basic request on a router app" do
-    assert_match { 200, _, "Hello World!" }, http_client.request :get, "/foo/bar"
+    assert { 200, _, "Hello World!" } = http_client.request :get, "/foo/bar"
   end
 
   test "basic request on a mounted app" do
-    assert_match { 200, _, "/mounted" }, http_client.request :get, "/baz/mounted"
+    assert { 200, _, "/mounted" } = http_client.request :get, "/baz/mounted"
   end
 
   test "404 response a router app" do
-    assert_match { 404, _, "" }, http_client.request :get, "/other"
+    assert { 404, _, "" } = http_client.request :get, "/other"
   end
 
   defp http_client do
