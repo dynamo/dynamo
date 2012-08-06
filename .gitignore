@@ -1,4 +1,3 @@
-/ebin/
-/src/dynamo_router_scanner.erl
-/src/dynamo_router_parser.erl
+/ebin
+/deps
 /erl_crash.dump
