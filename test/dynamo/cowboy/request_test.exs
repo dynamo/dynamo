@@ -16,9 +16,9 @@ defmodule Dynamo.Cowboy.RequestTest do
   def service(req, res) do
     function = binary_to_atom hd(req.path_segments), :utf8
     apply __MODULE__, function, [req, res]
-  rescue
-    exception ->
-      res.reply(500, [], exception.message <> inspect(Code.stacktrace))
+  # rescue
+  #   exception ->
+  #     res.reply(500, [], exception.message <> inspect(Code.stacktrace))
   end
 
   # Tests
@@ -40,6 +40,23 @@ defmodule Dynamo.Cowboy.RequestTest do
 
   def path_1(req, res) do
     assert req.path == "/path_1/foo/bar/baz"
+    res
+  end
+
+  def query_string_0(req, res) do
+    assert req.query_string == "hello=world&foo=bar"
+    res
+  end
+
+  def query_string_1(req, res) do
+    assert req.query_string == ""
+    res
+  end
+
+  def params_0(req, res) do
+    assert req.params[:hello]   == "world"
+    assert req.params[:foo]     == "bar"
+    assert req.params[:unknown] == nil
     res
   end
 
@@ -83,6 +100,16 @@ defmodule Dynamo.Cowboy.RequestTest do
     assert_success request :get, "/path_1/foo/bar/baz"
   end
 
+  test :query_string do
+    assert_success request :get, "/query_string_0?hello=world&foo=bar"
+    assert_success request :get, "/query_string_1"
+  end
+
+  test :params do
+    assert_success request :get,  "/params_0?hello=world&foo=bar"
+    assert_success request :post, "/params_0", [{ "Content-Type", "application/x-www-form-urlencoded" }], "hello=world&foo=bar"
+  end
+
   test :forward_to do
     assert_success request :get, "/forward_to/foo/bar/baz"
   end
@@ -95,11 +122,10 @@ defmodule Dynamo.Cowboy.RequestTest do
     flunk "Expected successful response, got status #{inspect status} with body #{inspect body}"
   end
 
-  defp request(verb, path) do
+  defp request(verb, path, headers // [], body // "") do
     { :ok, status, headers, client } =
-      :hackney.request(verb, "http://127.0.0.1:8011" <> path, [], "", [])
+      :hackney.request(verb, "http://127.0.0.1:8011" <> path, headers, body, [])
     { :ok, body, _ } = :hackney.body(client)
     { status, headers, body }
   end
 end
-

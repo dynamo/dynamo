@@ -12,7 +12,7 @@ defmodule Dynamo.Cowboy.Response do
   @doc """
   Returns the underlying cowboy request. This is used
   internally by Dynamo but may also be used by other
-  developers (with caution)
+  developers (with caution).
   """
   def cowboy_request(res) do
     _(res)

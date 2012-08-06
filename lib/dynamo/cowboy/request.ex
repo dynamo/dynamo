@@ -6,8 +6,36 @@ defmodule Dynamo.Cowboy.Request do
   the original Cowboy request object.
   """
   def new(req) do
-    { segments, _ } = R.path(req)
-    { __MODULE__, req, segments, [] }
+    { segments, req } = R.path(req)
+    { type, req }     = R.parse_header(:"Content-Type", req)
+    { params, req }   = parse_body(type, req)
+    { __MODULE__, req, segments, [], params }
+  end
+
+  @doc """
+  Returns the query string as a binary.
+  """
+  def query_string(req) do
+    { query_string, _ } = R.raw_qs _(req)
+    query_string
+  end
+
+  @doc """
+  Returns a function that allows a developer to retrieve params
+  either from query string or from post body.
+  """
+  def params(req) do
+    fn(name) ->
+      name = to_binary(name)
+      case R.qs_val(name, _(req), nil) do
+        { nil, _ } ->
+          case List.keyfind(elem(req, 5), name, 1) do
+            { ^name, value } -> value
+            nil -> nil
+          end
+        { value, _ } -> value
+      end
+    end
   end
 
   @doc """
@@ -96,6 +124,16 @@ defmodule Dynamo.Cowboy.Request do
 
   defp to_path(segments) do
     "/" <> Enum.join(segments, "/")
+  end
+
+  defp parse_body({ "application", "x-www-form-urlencoded", _ }, req) do
+    R.body_qs(req)
+  end
+
+  # { "multipart", style, _ } when style in ["form-data", "mixed"] -> handle_multipart(req)
+
+  defp parse_body(_, req) do
+    { [], req }
   end
 
   defp _(req) do
