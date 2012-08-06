@@ -1,6 +1,0 @@
-[submodule "deps/ibrowse"]
-	path = deps/ibrowse
-	url = https://github.com/cmullaparthi/ibrowse.git
-[submodule "deps/cowboy"]
-	path = deps/cowboy
-	url = https://github.com/extend/cowboy.git
