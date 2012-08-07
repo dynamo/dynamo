@@ -162,10 +162,10 @@ defmodule Dynamo.Cowboy.Request do
         parts     = lc part inlist parts, do: to_multipart_kv(part)
 
         case List.keyfind(parts, "name", 1) do
-          { "name", name } -> 
-            entry = 
+          { "name", name } ->
+            entry =
               case List.keyfind(parts, "filename", 1) do
-                { "filename", filename } -> 
+                { "filename", filename } ->
                   { _, type } = List.keyfind(headers, :"Content-Type", 1) || { :"Content-Type", nil }
                   { name, Dynamo.Request.File.new(name: name, filename: filename, content_type: type, body: body) }
                 _ ->
@@ -187,7 +187,7 @@ defmodule Dynamo.Cowboy.Request do
   end
 
   defp strip_quotes(<<?", remaining | :binary>>) do
-    binary_part(remaining, 0, size(remaining) - 1)  
+    binary_part(remaining, 0, size(remaining) - 1)
   end
 
   defp strip_quotes(other) do
