@@ -1,29 +1,22 @@
 defmodule Dynamo.Request.QueryParser do
   def parse(params) do
-    parse(params, [])
+    parse(params, Binary.Dict.new)
   end
 
-  defp parse([h|t], acc) do
-    { key, value } = h
-
+  defp parse([{ key, value }|t], acc) do
     acc =
-      case :binary.split(key, "[") do
-        [_] -> [h|acc]
-        [key, subpart] ->
-          fullpart = "[" <> subpart
-          child = :binary.part(fullpart, 1, size(fullpart) - 2)
-          case List.keyfind(acc, key, 1) do
-            { _, actual } ->
-              :lists.keyreplace(key, 1, acc, { key, [{ child, value }|actual] })
-            nil ->
-              [{ key, [{ child, value }] }|acc]
-          end
+      case Regex.run(%r"^([^\[]+)\[(.*)\]$", key) do
+        [_all, key, subpart] ->
+          current = Dict.get(acc, key, Binary.Dict.new)
+          Dict.put(acc, key, Dict.put(current, subpart, value))
+        other ->
+          Dict.put(acc, key, value)
       end
 
     parse(t, acc)
   end
 
   defp parse([], acc) do
-    List.reverse(acc)
+    acc
   end
 end

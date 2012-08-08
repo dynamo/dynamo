@@ -158,7 +158,7 @@ defmodule Dynamo.Cowboy.Request do
   defp multipart_entry(headers, body, acc) do
     case List.keyfind(headers, "Content-Disposition", 1) do
       { _, value } ->
-        [_|parts] = :binary.split(value, ";", [:global]) # TODO Use Binary.split()
+        [_|parts] = Binary.split(value, ";", global: true)
         parts     = lc part inlist parts, do: to_multipart_kv(part)
 
         case List.keyfind(parts, "name", 1) do
@@ -180,7 +180,7 @@ defmodule Dynamo.Cowboy.Request do
   end
 
   defp to_multipart_kv(binary) do
-    case :binary.split(binary, "=") do
+    case Binary.split(binary, "=") do
       [h]     -> { trim(h), nil }
       [h,t|_] -> { trim(h), strip_quotes(t) }
     end
@@ -194,7 +194,6 @@ defmodule Dynamo.Cowboy.Request do
     other
   end
 
-  # TODO Use Binary.strip
   defp trim(<<?\s, rest | :binary>>),   do: trim(rest)
   defp trim(rest) when is_binary(rest), do: rest
 

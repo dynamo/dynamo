@@ -6,15 +6,17 @@ defmodule Dynamo.Request.QueryParserTest do
   import Dynamo.Request.QueryParser
 
   test "parse simple queries" do
-    params = [{ "foo", "bar" }, { "baz", "bat" }]
-    assert parse(params) == params
+    params = parse [{ "foo", "bar" }, { "baz", "bat" }]
+    assert params["foo"] == "bar"
+    assert params["baz"] == "bat"
   end
 
   test "parse one-level nested query" do
-    params = [{ "users[name]", "hello" }]
-    assert parse(params) == [ { "users", [{ "name", "hello" }] } ]
+    params = parse [{ "users[name]", "hello" }]
+    assert params["users"]["name"] == "hello"
 
-    params = [{ "users[name]", "hello" }, { "users[age]", "17" }]
-    assert parse(params) == [ { "users", [{ "age", "17" }, { "name", "hello" }] } ]
+    params = parse [{ "users[name]", "hello" }, { "users[age]", "17" }]
+    assert params["users"]["name"] == "hello"
+    assert params["users"]["age"]  == "17"
   end
 end
