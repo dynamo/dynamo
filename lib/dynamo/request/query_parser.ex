@@ -7,8 +7,8 @@ defmodule Dynamo.Request.QueryParser do
     acc =
       case Regex.run(%r"^([^\[]+)\[(.*)\]$", key) do
         [_all, key, subpart] ->
-          current = Dict.get(acc, key, Binary.Dict.new)
-          Dict.put(acc, key, Dict.put(current, subpart, value))
+          parts = Binary.split(subpart, "][", global: true)
+          put_value_on_parts [key|parts], acc, value
         other ->
           Dict.put(acc, key, value)
       end
@@ -18,5 +18,20 @@ defmodule Dynamo.Request.QueryParser do
 
   defp parse([], acc) do
     acc
+  end
+
+  defp put_value_on_parts([key|t], acc, value) do
+    child =
+      case Dict.get(acc, key, :undefined) do
+        :undefined -> Binary.Dict.new
+        current    -> current # TODO: Validate kind
+      end
+
+    value = put_value_on_parts(t, child, value)
+    Dict.put(acc, key, value)
+  end
+
+  defp put_value_on_parts([], _, value) do
+    value
   end
 end
