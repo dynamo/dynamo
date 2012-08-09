@@ -54,6 +54,7 @@ defmodule Dynamo.Cowboy.RequestTest do
   end
 
   def params_0(req, res) do
+    req = req.fetch(:params)
     assert req.params[:hello]   == "world"
     assert req.params[:foo]     == "bar"
     assert req.params[:unknown] == nil
@@ -61,6 +62,7 @@ defmodule Dynamo.Cowboy.RequestTest do
   end
 
   def params_1(req, res) do
+    req = req.fetch(:params)
     assert req.params[:name] == "hello"
 
     file = req.params[:pic]

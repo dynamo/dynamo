@@ -98,8 +98,6 @@ defmodule Dynamo.Request.QueryParserTest do
   end
 
   defp reduce(pairs) do
-    Enum.reduce Enum.reverse(pairs), Binary.Dict.new, fn({ k, v }, acc) ->
-      Dynamo.Request.QueryParser.reduce(k, v, acc)
-    end
+    Enum.reduce Enum.reverse(pairs), Binary.Dict.new, Dynamo.Request.QueryParser.reduce(&1, &2)
   end
 end

@@ -29,20 +29,15 @@ defmodule Dynamo.Request.QueryParser do
   Parses a raw query string, decodes it and returns
   a `Binary.Dict` containing nested hashes.
   """
-  def parse("") do
-    Binary.Dict.new
+  def parse(query, dict // Binary.Dict.new)
+
+  def parse("", dict) do
+    dict
   end
 
-  def parse(query) do
+  def parse(query, dict) do
     decoder = URI.query_decoder(query)
-    Enum.reduce(Enum.reverse(decoder), Binary.Dict.new, reduce(&1, &2))
-  end
-
-  @doc """
-  Similar to `reduce(key, value, acc)`.
-  """
-  def reduce({ key, value }, acc) do
-    reduce(key, value, acc)
+    Enum.reduce(Enum.reverse(decoder), dict, reduce(&1, &2))
   end
 
   @doc """
@@ -52,7 +47,7 @@ defmodule Dynamo.Request.QueryParser do
   List are added to the accumulator in reverse order, use
   `reverse/1` to loop
   """
-  def reduce(key, value, acc) do
+  def reduce({ key, value }, acc) do
     parts =
       case Regex.run(%r"^([^\[]+)\[(.*)\]$", key) do
         [_all, key, subpart] ->

@@ -1,15 +1,19 @@
 defmodule Dynamo.Cowboy.Request do
   require :cowboy_http_req, as: R
 
+  # TODO: Plan a mechanism that makes this easier
+  @request              2
+  @path_info_segments   3
+  @script_info_segments 4
+  @params               5
+
   @doc """
   Builds a new Dynamo.Cowboy.Request based on
   the original Cowboy request object.
   """
   def new(req) do
     { segments, req } = R.path(req)
-    { type, req }     = R.parse_header(:"Content-Type", req)
-    { params, req }   = parse_body(type, req)
-    { __MODULE__, req, segments, [], params }
+    { __MODULE__, req, segments, [], nil }
   end
 
   @doc """
@@ -25,17 +29,7 @@ defmodule Dynamo.Cowboy.Request do
   either from query string or from post body.
   """
   def params(req) do
-    fn(name) ->
-      name = to_binary(name)
-      case R.qs_val(name, _(req), nil) do
-        { nil, _ } ->
-          case List.keyfind(elem(req, 5), name, 1) do
-            { ^name, value } -> value
-            nil -> nil
-          end
-        { value, _ } -> value
-      end
-    end
+    elem(req, @params) || raise Dynamo.Request.UnfetchedError, aspect: :params
   end
 
   @doc """
@@ -44,7 +38,7 @@ defmodule Dynamo.Cowboy.Request do
   only the segments related to the current forwarded endpoint.
   """
   def path_info_segments(req) do
-    elem(req, 3)
+    elem(req, @path_info_segments)
   end
 
   @doc """
@@ -75,7 +69,7 @@ defmodule Dynamo.Cowboy.Request do
   As in CGI environment, returns the current forwarded endpoint as segments.
   """
   def script_info_segments(req) do
-    elem(req, 4)
+    elem(req, @script_info_segments)
   end
 
   @doc """
@@ -106,17 +100,28 @@ defmodule Dynamo.Cowboy.Request do
     version
   end
 
+  @doc """
+  Responsible for fetching and caching
+  aspects of the response.
+  """
+  def fetch(:params, original) do
+    { query_string, req } = R.raw_qs _(original)
+    params = Dynamo.Request.QueryParser.parse(query_string)
+    { params, req } = Dynamo.Cowboy.BodyParser.parse(params, req)
+    original /> setelem(@request, req) /> setelem(@params, params)
+  end
+
   ## Dynamo API
 
-  # Mounts the request by setting the new path information to the
+  # Mounts the request by setting the new path information to the given
   # *segments*. Both script_info/1 and path_segments/1 are updated.
   # The segments given must be a suffix of the current path segments.
   @doc false
   def forward_to(req, segments, _target) do
     current = path_info_segments(req)
     { prefix, ^segments } = Enum.split current, length(current) - length(segments)
-    req = setelem(req, 3, segments)
-    req = setelem(req, 4, script_info_segments(req) ++ prefix)
+    req = setelem(req, @path_info_segments, segments)
+    req = setelem(req, @script_info_segments, script_info_segments(req) ++ prefix)
     req
   end
 
@@ -125,77 +130,6 @@ defmodule Dynamo.Cowboy.Request do
   defp to_path(segments) do
     "/" <> Enum.join(segments, "/")
   end
-
-  defp parse_body({ "application", "x-www-form-urlencoded", _ }, req) do
-    R.body_qs(req)
-  end
-
-  defp parse_body({ "multipart", style, _ }, req) when style in ["form-data", "mixed"] do
-    parse_multipart(R.multipart_data(req), nil, nil, [])
-  end
-
-  defp parse_body(_, req) do
-    { [], req }
-  end
-
-  defp parse_multipart({ :eof, req }, nil, nil, acc) do
-    { Enum.reverse(acc), req }
-  end
-
-  defp parse_multipart({ { :headers, headers }, req }, nil, nil, acc) do
-    parse_multipart(R.multipart_data(req), headers, "", acc)
-  end
-
-  defp parse_multipart({ { :body, tail }, req }, headers, body, acc) do
-    parse_multipart(R.multipart_data(req), headers, body <> tail, acc)
-  end
-
-  defp parse_multipart({ :end_of_part, req }, headers, body, acc) do
-    acc = multipart_entry(headers, body, acc)
-    parse_multipart(R.multipart_data(req), nil, nil, acc)
-  end
-
-  defp multipart_entry(headers, body, acc) do
-    case List.keyfind(headers, "Content-Disposition", 1) do
-      { _, value } ->
-        [_|parts] = Binary.split(value, ";", global: true)
-        parts     = lc part inlist parts, do: to_multipart_kv(part)
-
-        case List.keyfind(parts, "name", 1) do
-          { "name", name } ->
-            entry =
-              case List.keyfind(parts, "filename", 1) do
-                { "filename", filename } ->
-                  { _, type } = List.keyfind(headers, :"Content-Type", 1) || { :"Content-Type", nil }
-                  { name, Dynamo.Request.File.new(name: name, filename: filename, content_type: type, body: body) }
-                _ ->
-                  { name, body }
-              end
-
-            [entry|acc]
-          _ -> acc
-        end
-      _ -> acc
-    end
-  end
-
-  defp to_multipart_kv(binary) do
-    case Binary.split(binary, "=") do
-      [h]     -> { trim(h), nil }
-      [h,t|_] -> { trim(h), strip_quotes(t) }
-    end
-  end
-
-  defp strip_quotes(<<?", remaining | :binary>>) do
-    binary_part(remaining, 0, size(remaining) - 1)
-  end
-
-  defp strip_quotes(other) do
-    other
-  end
-
-  defp trim(<<?\s, rest | :binary>>),   do: trim(rest)
-  defp trim(rest) when is_binary(rest), do: rest
 
   defp _(req) do
     elem(req, 2)
