@@ -34,9 +34,9 @@ defmodule Dynamo.Router.Utils do
 
   """
   def generate_forward([h|_] = list) when is_binary(h) do
-    [h|t] = List.reverse(list)
+    [h|t] = Enum.reverse(list)
     glob  = { :glob, 0, nil }
-    List.reverse [ { :|, 0, [h, glob] } | t ]
+    Enum.reverse [ { :|, 0, [h, glob] } | t ]
   end
 
   def generate_forward(spec) when is_binary(spec) do
@@ -73,7 +73,7 @@ defmodule Dynamo.Router.Utils do
   end
 
   defp generate_match([], acc) do
-    List.reverse(acc)
+    Enum.reverse(acc)
   end
 
   # Handle each segment match. They can either be a
@@ -95,7 +95,7 @@ defmodule Dynamo.Router.Utils do
     case acc do
       [hs|ts] ->
         final = [{ :|, 0, [hs, expr] } | ts]
-        List.reverse(final)
+        Enum.reverse(final)
       _ -> expr
     end
   end
@@ -149,11 +149,11 @@ defmodule Dynamo.Router.Utils do
   end
 
   defp raw_split(list, buffer, acc) when list == [] or list == [?/] do
-    List.reverse [List.reverse(buffer)|acc]
+    Enum.reverse [Enum.reverse(buffer)|acc]
   end
 
   defp raw_split([?/|t], buffer, acc) do
-    raw_split t, [], [List.reverse(buffer)|acc]
+    raw_split t, [], [Enum.reverse(buffer)|acc]
   end
 
   defp raw_split([h|t], buffer, acc) do
@@ -161,6 +161,6 @@ defmodule Dynamo.Router.Utils do
   end
 
   defp binary_from_buffer(buffer) do
-    list_to_binary(List.reverse(buffer))
+    list_to_binary(Enum.reverse(buffer))
   end
 end

@@ -139,7 +139,7 @@ defmodule Dynamo.Cowboy.Request do
   end
 
   defp parse_multipart({ :eof, req }, nil, nil, acc) do
-    { List.reverse(acc), req }
+    { Enum.reverse(acc), req }
   end
 
   defp parse_multipart({ { :headers, headers }, req }, nil, nil, acc) do
