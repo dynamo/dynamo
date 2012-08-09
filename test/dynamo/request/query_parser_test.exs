@@ -11,6 +11,48 @@ defmodule Dynamo.Request.QueryParserTest do
     params = parse "users[name]=hello&users[age]=17"
     assert params["users"]["name"] == "hello"
     assert params["users"]["age"]  == "17"
+
+    params = parse("my+weird+field=q1%212%22%27w%245%267%2Fz8%29%3F")
+    assert params["my weird field"] == "q1!2\"'w$5&7/z8)?"
+
+    assert parse("=")[""] == ""
+    assert parse("key=")["key"] == ""
+    assert parse("=value")[""] == "value"
+
+    assert parse("foo[]")["foo"]  == []
+    assert parse("foo[]=")["foo"] == [""]
+    assert parse("foo[]=bar&foo[]=baz")["foo"] == ["bar", "baz"]
+    assert parse("foo[]=bar&foo[]=baz")["foo"] == ["bar", "baz"]
+
+    params = parse("foo[]=bar&foo[]=baz&bat[]=1&bat[]=2")
+    assert params["foo"] == ["bar", "baz"]
+    assert params["bat"] == ["1", "2"]
+
+    assert parse("x[y][z]=1")["x"]["y"]["z"] == "1"
+    assert parse("x[y][z][]=1")["x"]["y"]["z"] == ["1"]
+    assert parse("x[y][z]=1&x[y][z]=2")["x"]["y"]["z"] == "2"
+    assert parse("x[y][z][]=1&x[y][z][]=2")["x"]["y"]["z"] == ["1", "2"]
+
+    assert (parse("x[y][][z]=1")["x"]["y"] /> Enum.first)["z"] == "1"
+    assert (parse("x[y][][z][]=1")["x"]["y"] /> Enum.first)["z"] /> Enum.first == "1"
+  end
+
+  test "failure on bad queries" do
+    assert_raise Dynamo.Request.QueryParser.ParseError, fn ->
+      parse "x[y]=1&x[]=1"
+    end
+
+    assert_raise Dynamo.Request.QueryParser.ParseError, fn ->
+      IO.inspect parse "x[y]=1&x[y][][w]=2"
+    end
+
+    assert_raise Dynamo.Request.QueryParser.ParseError, fn ->
+      IO.inspect parse "x[y]=1&x=1"
+    end
+
+    assert_raise FunctionClauseError, fn ->
+      IO.inspect parse "x=%2x"
+    end
   end
 
   test "reduce simple queries" do

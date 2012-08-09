@@ -1,13 +1,38 @@
 defmodule Dynamo.Request.QueryParser do
+  defexception ParseError, message: nil
+
   @moduledoc """
-  Conveniences for parsing query strings and
-  the Dynamo query API.
+  Conveniences for parsing query strings in Dynamo.
+
+  Dynamo allows a developer to build query strings
+  that maps to Elixir structures in order to make
+  manipulation of such structures easier on the server
+  side. Here are some examples:
+
+      parse("foo=bar")["foo"] #=> "bar"
+
+  If a value is given more than once, it is overridden:
+
+      parse("foo=bar&foo=baz")["foo"] #=> "baz"
+
+  Nested structures can be created via `[key]`:
+
+      parse("foo[bar]=baz")["foo"]["bar"] #=> "baz"
+
+  Lists are created with `[]`:
+
+      parse("foo[]=bar&foo[]=baz")["foo"] #=> ["baz", "baz"]
+
   """
 
   @doc """
   Parses a raw query string, decodes it and returns
   a `Binary.Dict` containing nested hashes.
   """
+  def parse("") do
+    Binary.Dict.new
+  end
+
   def parse(query) do
     decoder = URI.query_decoder(query)
     Enum.reduce(Enum.reverse(decoder), Binary.Dict.new, reduce(&1, &2))
@@ -40,23 +65,32 @@ defmodule Dynamo.Request.QueryParser do
   end
 
   defp put_value_on_parts([key], acc, value) do
-    Dict.update(acc, key, value, identity(&1))
+    Dict.update(acc, key, value, function do
+      x when is_list(x) or is_record(x, Binary.Dict) ->
+        raise ParseError, message: "expected string at #{key}"
+      x -> x
+    end)
   end
 
   defp put_value_on_parts([key,""|t], acc, value) do
     case Dict.get(acc, key, []) do
       current when is_list(current) -> current
+      _   -> raise ParseError, message: "expected list at #{key}"
     end
 
-    value = put_value_on_parts(t, Binary.Dict.new, value)
-    Dict.put(acc, key, [value|current])
+    if value = put_value_on_parts(t, Binary.Dict.new, value) do
+      Dict.put(acc, key, [value|current])
+    else
+      Dict.put(acc, key, current)
+    end
   end
 
   defp put_value_on_parts([key|t], acc, value) do
     child =
       case Dict.get(acc, key) do
         current when is_record(current, Binary.Dict) -> current
-        nil                                          -> Binary.Dict.new
+        nil -> Binary.Dict.new
+        _   -> raise ParseError, message: "expected dict at #{key}"
       end
 
     value = put_value_on_parts(t, child, value)
@@ -66,6 +100,4 @@ defmodule Dynamo.Request.QueryParser do
   defp put_value_on_parts([], _, value) do
     value
   end
-
-  defp identity(v), do: v
 end
