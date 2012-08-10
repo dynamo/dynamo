@@ -61,15 +61,19 @@ defmodule Dynamo.Router.Callbacks do
   @doc false
   defmacro before_compile(module) do
     prepare = Module.read_attribute(module, :__prepare_callbacks)
+    finish  = Module.read_attribute(module, :__finish_callbacks)
     start   = quote do: { req, res }
-    code    = Enum.reduce(prepare, start, compile_prepare(&1, &2))
+    prepare = Enum.reduce(prepare, start, compile_prepare(&1, &2))
+    start   = quote do: res
+    finish  = Enum.reduce(finish, start, compile_finish(&1, &2))
 
     quote do
       defoverridable [dispatch: 4]
 
       def dispatch(method, path, req, res) do
-        { req, res } = unquote(code)
-        super(method, path, req, res)
+        { req, res } = unquote(prepare)
+        res = super(method, path, req, res)
+        unquote(finish)
       end
     end
   end
@@ -121,6 +125,27 @@ defmodule Dynamo.Router.Callbacks do
       case apply(unquote(mod), unquote(function), [req, res]) do
         { req, res } -> unquote(acc)
         actual -> raise unquote(InvalidPrepareCallbackError), callback: unquote(c), actual: actual
+      end
+    end
+  end
+
+  defp compile_finish(atom, acc) when is_atom(atom) do
+    case atom_to_binary(atom) do
+      "Elixir-" <> _ ->
+        compile_finish({ atom, :finish }, acc)
+      _ ->
+        quote do
+          case unquote(atom).(req, res) do
+            res -> unquote(acc)
+          end
+        end
+    end
+  end
+
+  defp compile_finish({ mod, function } = c, acc) when is_atom(mod) or is_atom(function) do
+    quote do
+      case apply(unquote(mod), unquote(function), [req, res]) do
+        res -> unquote(acc)
       end
     end
   end
