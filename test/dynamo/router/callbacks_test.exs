@@ -25,6 +25,10 @@ defmodule Dynamo.Router.CallbacksTest do
 
   defmodule Bar do
     def prepare(req, res) do
+      { req.value(1), res.value(2) }
+    end
+
+    def other(req, res) do
       { req.update_value(&1 + 1), res.update_value(&1 + 2) }
     end
   end
@@ -32,15 +36,11 @@ defmodule Dynamo.Router.CallbacksTest do
   defmodule DoubleCallbacks do
     use Dynamo.Router
 
-    prepare :foo
-    prepare { Bar, :prepare }
+    prepare Bar
+    prepare { Bar, :other }
 
     get "/foo" do
       req.value + res.value
-    end
-
-    defp foo(req, res) do
-      { req.value(1), res.value(2) }
     end
   end
 

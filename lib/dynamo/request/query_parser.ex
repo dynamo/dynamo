@@ -49,6 +49,11 @@ defmodule Dynamo.Request.QueryParser do
   """
   def reduce({ key, value }, acc) do
     parts =
+      # Any path containing [ (except at the initial
+      # position) and finishing with ]
+      #
+      #     users[address][street] #=> [ _, "users", "address][street" ]
+      #
       case Regex.run(%r"^([^\[]+)\[(.*)\]$", key) do
         [_all, key, subpart] ->
           [key|Binary.split(subpart, "][", global: true)]
@@ -59,6 +64,8 @@ defmodule Dynamo.Request.QueryParser do
     assign_parts parts, acc, value
   end
 
+  # We always assign the value in the last segment.
+  # `age=17` would match here.
   defp assign_parts([key], acc, value) do
     Dict.update(acc, key, value, function do
       x when is_list(x) or is_record(x, Binary.Dict) ->
@@ -67,6 +74,10 @@ defmodule Dynamo.Request.QueryParser do
     end)
   end
 
+  # The current segment is a list. We simply prepend
+  # the item to the list or create a new one if it does
+  # not yet. This assumes that items are iterated in
+  # reverse order.
   defp assign_parts([key,""|t], acc, value) do
     case Dict.get(acc, key, []) do
       current when is_list(current) -> current
@@ -80,6 +91,9 @@ defmodule Dynamo.Request.QueryParser do
     end
   end
 
+  # The current segment is a parent segment of a
+  # dict. We need to create a dictionary and then
+  # continue looping.
   defp assign_parts([key|t], acc, value) do
     child =
       case Dict.get(acc, key) do
