@@ -1,7 +1,7 @@
 defmodule Dynamo.Router.Callbacks do
   @moduledoc """
   This module is responsible for providing both `prepare/1` and
-  `finish/1` callbacks to routers.
+  `finalize/1` callbacks to routers.
 
   Such callbacks can be specified using:
 
@@ -16,7 +16,7 @@ defmodule Dynamo.Router.Callbacks do
     and `res`.
 
   Prepare callbacks must return a tuple `{ req, res }` with the request
-  and response, finish callbacks must return the response. Both callbacks
+  and response, finalize callbacks must return the response. Both callbacks
   receive the request and response as arguments.
 
   Note that callbacks are invoked regardless if there was a match or
@@ -45,27 +45,34 @@ defmodule Dynamo.Router.Callbacks do
     end
   end
 
+  defexception InvalidFinalizeCallbackError, callback: nil, actual: nil do
+    def message(exception) do
+      "expected finalize callback #{inspect exception.callback} to return " <>
+        "a response, but got #{inspect exception.actual}"
+    end
+  end
+
   @doc false
   defmacro __using__(_) do
     module = __CALLER__.module
 
-    Enum.each [:__prepare_callbacks, :__finish_callbacks],
+    Enum.each [:__prepare_callbacks, :__finalize_callbacks],
       Module.register_attribute(module, &1, accumulate: true, persist: false)
 
     quote location: :keep do
       @before_compile unquote(__MODULE__)
-      import unquote(__MODULE__), only: [prepare: 1, finish: 1]
+      import unquote(__MODULE__), only: [prepare: 1, finalize: 1]
     end
   end
 
   @doc false
   defmacro before_compile(module) do
     prepare = Module.read_attribute(module, :__prepare_callbacks)
-    finish  = Module.read_attribute(module, :__finish_callbacks)
+    finalize  = Module.read_attribute(module, :__finalize_callbacks)
     start   = quote do: { req, res }
     prepare = Enum.reduce(prepare, start, compile_prepare(&1, &2))
     start   = quote do: res
-    finish  = Enum.reduce(finish, start, compile_finish(&1, &2))
+    finalize  = Enum.reduce(finalize, start, compile_finalize(&1, &2))
 
     quote do
       defoverridable [dispatch: 4]
@@ -73,7 +80,7 @@ defmodule Dynamo.Router.Callbacks do
       def dispatch(method, path, req, res) do
         { req, res } = unquote(prepare)
         res = super(method, path, req, res)
-        unquote(finish)
+        unquote(finalize)
       end
     end
   end
@@ -100,9 +107,19 @@ defmodule Dynamo.Router.Callbacks do
   @doc """
   Defines an after callback that is executed after dispatch.
   """
-  defmacro finish(spec) do
+  defmacro finalize(do: block) do
     quote do
-      @__finish_callbacks unquote(spec)
+      name   = :"__finalize_callback_#{length(@__finalize_callbacks)}"
+      args   = quote do: [var!(req), var!(res)]
+      guards = quote do: [is_tuple(var!(req)) and is_tuple(var!(res))]
+      defp name, args, guards, do: unquote(block)
+      @__finalize_callbacks name
+    end
+  end
+
+  defmacro finalize(spec) do
+    quote do
+      @__finalize_callbacks unquote(spec)
     end
   end
 
@@ -129,23 +146,25 @@ defmodule Dynamo.Router.Callbacks do
     end
   end
 
-  defp compile_finish(atom, acc) when is_atom(atom) do
+  defp compile_finalize(atom, acc) when is_atom(atom) do
     case atom_to_binary(atom) do
       "Elixir-" <> _ ->
-        compile_finish({ atom, :finish }, acc)
+        compile_finalize({ atom, :finalize }, acc)
       _ ->
         quote do
           case unquote(atom).(req, res) do
-            res -> unquote(acc)
+            res when is_tuple(res) -> unquote(acc)
+            actual -> raise unquote(InvalidFinalizeCallbackError), callback: unquote(atom), actual: actual
           end
         end
     end
   end
 
-  defp compile_finish({ mod, function } = c, acc) when is_atom(mod) or is_atom(function) do
+  defp compile_finalize({ mod, function } = c, acc) when is_atom(mod) or is_atom(function) do
     quote do
       case apply(unquote(mod), unquote(function), [req, res]) do
-        res -> unquote(acc)
+        res when is_tuple(res) -> unquote(acc)
+        actual -> raise unquote(InvalidFinalizeCallbackError), callback: unquote(c), actual: actual
       end
     end
   end
