@@ -1,6 +1,6 @@
-Code.require_file "../../test_helper", __FILE__
+Code.require_file "../../../test_helper", __FILE__
 
-defmodule Dynamo.RouterTest do
+defmodule Dynamo.Router.BaseTest do
   use ExUnit.Case
 
   defmodule Sample0 do
@@ -123,7 +123,7 @@ defmodule Dynamo.RouterTest do
 
   def test_forwarding_to_another_endpoint_annotates_the_request do
     request = Sample1.dispatch(:GET, ["10", "with_request"], mock_req, {})
-    assert request.forward_to == { ["with_request"], Dynamo.RouterTest.Sample0 }
+    assert request.forward_to == { ["with_request"], Dynamo.Router.BaseTest.Sample0 }
   end
 
   defrecord MockReq, forward_to: nil do

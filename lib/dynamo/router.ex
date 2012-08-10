@@ -50,7 +50,7 @@ defmodule Dynamo.Router do
   defmacro __using__(_) do
     quote location: :keep do
       use Dynamo.Router.Base
-      # use Dynamo.Router.Callbacks
+      use Dynamo.Router.Callbacks
     end
   end
 end
