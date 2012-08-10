@@ -56,10 +56,10 @@ defmodule Dynamo.Request.QueryParser do
           [key]
       end
 
-    put_value_on_parts parts, acc, value
+    assign_parts parts, acc, value
   end
 
-  defp put_value_on_parts([key], acc, value) do
+  defp assign_parts([key], acc, value) do
     Dict.update(acc, key, value, function do
       x when is_list(x) or is_record(x, Binary.Dict) ->
         raise ParseError, message: "expected string at #{key}"
@@ -67,20 +67,20 @@ defmodule Dynamo.Request.QueryParser do
     end)
   end
 
-  defp put_value_on_parts([key,""|t], acc, value) do
+  defp assign_parts([key,""|t], acc, value) do
     case Dict.get(acc, key, []) do
       current when is_list(current) -> current
       _   -> raise ParseError, message: "expected list at #{key}"
     end
 
-    if value = put_value_on_parts(t, Binary.Dict.new, value) do
+    if value = assign_list_parts(t, value) do
       Dict.put(acc, key, [value|current])
     else
       Dict.put(acc, key, current)
     end
   end
 
-  defp put_value_on_parts([key|t], acc, value) do
+  defp assign_parts([key|t], acc, value) do
     child =
       case Dict.get(acc, key) do
         current when is_record(current, Binary.Dict) -> current
@@ -88,11 +88,10 @@ defmodule Dynamo.Request.QueryParser do
         _   -> raise ParseError, message: "expected dict at #{key}"
       end
 
-    value = put_value_on_parts(t, child, value)
+    value = assign_parts(t, child, value)
     Dict.put(acc, key, value)
   end
 
-  defp put_value_on_parts([], _, value) do
-    value
-  end
+  defp assign_list_parts([], value), do: value
+  defp assign_list_parts(t, value),  do: assign_parts(t, Binary.Dict.new, value)
 end
