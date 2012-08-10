@@ -117,7 +117,7 @@ defmodule Dynamo.Cowboy.Request do
   # *segments*. Both script_info/1 and path_segments/1 are updated.
   # The segments given must be a suffix of the current path segments.
   @doc false
-  def forward_to(req, segments, _target) do
+  def forward_to(segments, _target, req) do
     current = path_info_segments(req)
     { prefix, ^segments } = Enum.split current, length(current) - length(segments)
     req = setelem(req, @path_info_segments, segments)

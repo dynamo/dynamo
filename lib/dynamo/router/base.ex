@@ -1,7 +1,59 @@
-defmodule Dynamo.Router.DSL do
+defmodule Dynamo.Router.Base do
   @moduledoc """
-  This module provides the DSL available to dynamo routers.
+  This module provides the match DSL available to dynamo routers
+  and their basic structure. The defined module contains the
+  following functions:
+
+  * `service(req, res)` - This is the main entry point of the module,
+    as defined per the Dynamo API
+
+  * `dispatch(method, segments, req, res)` - This is the function responsible
+    to dispatch the routes. It is also where callbacks and other hooks are
+    added; When a router points to another router, it usually does so via
+    `dispatch/4`, avoiding any unecessary overhead in `service/2`
+
+  * `not_found(req, res)` - Customizes how `not_found` pages are handled
+
   """
+
+  @doc false
+  defmacro __using__(_) do
+    quote location: :keep do
+      @before_compile unquote(__MODULE__)
+      import unquote(__MODULE__), except: [before_compile: 1, __using__: 1]
+
+      @doc false
+      def service(req, res) do
+        dispatch(req.method, req.path_segments, req, res)
+      end
+
+      @doc false
+      def dispatch(method, segments, req, res) do
+        _dispatch(method, segments, req, res)
+      end
+
+      @doc false
+      def not_found(_req, res) do
+        res.reply(404, [], "")
+      end
+
+      @doc false
+      def dynamo_router? do
+        true
+      end
+
+      defoverridable [not_found: 2, service: 2, dispatch: 4]
+    end
+  end
+
+  @doc false
+  defmacro before_compile(_) do
+    quote do
+      def _dispatch(_, _, req, res) do
+        not_found(req, res)
+      end
+    end
+  end
 
   @doc """
   Main API to define routes. It accepts an expression representing
@@ -10,7 +62,7 @@ defmodule Dynamo.Router.DSL do
   ## Examples
 
       match "/foo/bar", via: :get do
-        request.ok("hello world")
+        res.ok "hello world"
       end
 
   ## Options
@@ -30,27 +82,27 @@ defmodule Dynamo.Router.DSL do
   the request and the response. Consider this example:
 
       match "/foo/bar", via: :get do
-        close response, "hello world"
+        res.ok "hello world"
       end
 
   It is compiled to:
 
-      def dispatch(:GET, ["foo", "bar"], request, response) do
-        close response, "hello world"
+      def dispatch(:GET, ["foo", "bar"], req, res) do
+        res.ok "hello world"
       end
 
   This opens up a few possibilities. First, guards can be given
   to match:
 
       match "/foo/:bar" when size(bar) <= 3, via: :get do
-        close response, "hello world"
+        res.ok "hello world"
       end
 
   Second, a list of splitten paths (which is the compiled result)
   is also allowed:
 
       match ["foo", bar], via: :get do
-        close response, "hello world"
+        res.ok "hello world"
       end
 
   """
@@ -77,12 +129,12 @@ defmodule Dynamo.Router.DSL do
     block =
       quote do
         target  = unquote(what)
-        request = var!(request)
-        request = elem(request, 1).forward_to request, var!(glob), target
+        req = var!(req)
+        req = req.forward_to var!(glob), target
         if function_exported?(target, :dynamo_router?, 0) and target.dynamo_router? do
-          target.dispatch(_verb, var!(glob), request, var!(response))
+          target.dispatch(_verb, var!(glob), req, var!(res))
         else
-          target.service(request, var!(response))
+          target.service(req, var!(res))
         end
       end
 
@@ -137,7 +189,7 @@ defmodule Dynamo.Router.DSL do
     contents =
       cond do
         block -> block
-        to    -> quote do: unquote(to).service(var!(request), var!(response))
+        to    -> quote do: unquote(to).service(var!(req), var!(res))
         true  -> raise ArgumentError, message: "Expected to: or do: to be given"
       end
 
@@ -146,12 +198,12 @@ defmodule Dynamo.Router.DSL do
     args = [
       { :_verb, 0, :quoted },
       match,
-      { :request, 0, nil },
-      { :response, 0, nil }
+      { :req, 0, nil },
+      { :res, 0, nil }
     ]
 
     quote do
-      def dispatch(unquote_splicing(args)) when unquote(guards), do: unquote(contents)
+      def _dispatch(unquote_splicing(args)) when unquote(guards), do: unquote(contents)
     end
   end
 
@@ -199,7 +251,7 @@ defmodule Dynamo.Router.DSL do
 
   defp default_guard do
     quote hygiene: false do
-      is_tuple(request) and is_tuple(response)
+      is_tuple(req) and is_tuple(res)
     end
   end
 end

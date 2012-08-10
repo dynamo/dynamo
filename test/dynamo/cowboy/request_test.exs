@@ -77,7 +77,7 @@ defmodule Dynamo.Cowboy.RequestTest do
   def forward_to(req, res) do
     assert req.path_segments == ["forward_to", "foo", "bar", "baz"]
 
-    req = Req.forward_to req, ["foo", "bar", "baz"], Foo
+    req = req.forward_to ["foo", "bar", "baz"], Foo
 
     assert req.path_info == "/foo/bar/baz"
     assert req.path_info_segments == ["foo", "bar", "baz"]
@@ -88,7 +88,7 @@ defmodule Dynamo.Cowboy.RequestTest do
     assert req.script_info == "/forward_to"
     assert req.script_info_segments == ["forward_to"]
 
-    req = Req.forward_to req, ["bar", "baz"], Bar
+    req = req.forward_to ["bar", "baz"], Bar
 
     assert req.path_info == "/bar/baz"
     assert req.path_info_segments == ["bar", "baz"]

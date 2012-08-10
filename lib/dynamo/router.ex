@@ -11,12 +11,14 @@ defmodule Dynamo.Router do
         use Dynamo.Router
 
         get "hello" do
-          close response, "world"
+          res.ok "world"
         end
       end
 
   In this case, the endpoint can handle the route "hello". The verbs `get`,
   `post`, `put` and `delete` are supported.
+
+  ## Forwarding
 
   A Dynamo router can also forward a specific subroute to any other router,
   allowing a developer to scope its application instead of having a big,
@@ -37,37 +39,18 @@ defmodule Dynamo.Router do
   This function receives the request and response as arguments and must
   return the updated response.
 
-  The macros for routes definition are imported from `Dynamo.Router.DSL`.
+  The macros for routes definition are imported from `Dynamo.Router.Base`.
+
+  ## Callbacks
+
+  TBD
   """
 
   @doc false
   defmacro __using__(_) do
-    quote do
-      @before_compile unquote(__MODULE__)
-      import Dynamo.Router.DSL
-
-      def service(req, res) do
-        dispatch(req.method, req.path_segments, req, res)
-      end
-
-      def not_found(_req, res) do
-        res.reply(404, [], "")
-      end
-
-      def dynamo_router? do
-        true
-      end
-
-      defoverridable [not_found: 2, service: 2]
-    end
-  end
-
-  @doc false
-  defmacro before_compile(_) do
-    quote do
-      def dispatch(_, _, request, response) do
-        not_found(request, response)
-      end
+    quote location: :keep do
+      use Dynamo.Router.Base
+      # use Dynamo.Router.Callbacks
     end
   end
 end

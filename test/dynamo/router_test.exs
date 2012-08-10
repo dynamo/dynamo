@@ -15,7 +15,7 @@ defmodule Dynamo.RouterTest do
     end
 
     get "/with_request" do
-      request
+      req
     end
   end
 
@@ -93,10 +93,10 @@ defmodule Dynamo.RouterTest do
   end
 
   def test_dispatch_with_guards do
-    assert   Sample1.dispatch(:GET, ["7", "a"], {}, {}) == "a"
-    assert  Sample1.dispatch(:GET, ["7", "ab"], {}, {}) == "ab"
+    assert Sample1.dispatch(:GET, ["7", "a"], {}, {}) == "a"
+    assert Sample1.dispatch(:GET, ["7", "ab"], {}, {}) == "ab"
     assert Sample1.dispatch(:GET, ["7", "abc"], {}, {}) == "abc"
-    assert   Sample1.dispatch(:GET, ["7", "abcd"], {}, {}) == 404
+    assert Sample1.dispatch(:GET, ["7", "abcd"], {}, {}) == 404
   end
 
   def test_dispatch_wrong_verb do
@@ -127,7 +127,7 @@ defmodule Dynamo.RouterTest do
   end
 
   defrecord MockReq, forward_to: nil do
-    def forward_to(req, at, target) do
+    def forward_to(at, target, req) do
       req.forward_to({ at, target })
     end
   end
