@@ -6,6 +6,13 @@ defmodule Dynamo.Cowboy.Request do
   @path_info_segments   3
   @script_info_segments 4
   @params               5
+  @cookies              6
+
+  defmacrop _(req) do
+    quote do
+      elem(unquote(req), 2)
+    end
+  end
 
   @doc """
   Builds a new Dynamo.Cowboy.Request based on
@@ -13,7 +20,7 @@ defmodule Dynamo.Cowboy.Request do
   """
   def new(req) do
     { segments, req } = R.path(req)
-    { __MODULE__, req, segments, [], nil }
+    { __MODULE__, req, segments, [], nil, nil }
   end
 
   @doc """
@@ -25,11 +32,20 @@ defmodule Dynamo.Cowboy.Request do
   end
 
   @doc """
-  Returns a function that allows a developer to retrieve params
-  either from query string or from post body.
+  Returns a Binary.Dict with params retrieved from the query
+  string or from post body. The parameters need to be explicitly
+  fetched with `request.fetch(:params)` before using this function.
   """
   def params(req) do
     elem(req, @params) || raise Dynamo.Request.UnfetchedError, aspect: :params
+  end
+
+  @doc """
+  Returns a Binary.Dict with cookies. Cookues need to be explicitly
+  fetched with `request.fetch(:cookies)` before using this function.
+  """
+  def cookies(req) do
+    elem(req, @cookies) || raise Dynamo.Request.UnfetchedError, aspect: :cookies
   end
 
   @doc """
@@ -101,14 +117,19 @@ defmodule Dynamo.Cowboy.Request do
   end
 
   @doc """
-  Responsible for fetching and caching
-  aspects of the response.
+  Responsible for fetching and caching aspects of the response.
+  The "fetchable" aspects are: `:params`, `:cookies`.
   """
   def fetch(:params, original) do
     { query_string, req } = R.raw_qs _(original)
     params = Dynamo.Request.QueryParser.parse(query_string)
     { params, req } = Dynamo.Cowboy.BodyParser.parse(params, req)
     original /> setelem(@request, req) /> setelem(@params, params)
+  end
+
+  def fetch(:cookies, original) do
+    { cookies, req } = R.cookies _(original)
+    original /> setelem(@cookies, Binary.Dict.new(cookies))
   end
 
   ## Dynamo API
@@ -129,9 +150,5 @@ defmodule Dynamo.Cowboy.Request do
 
   defp to_path(segments) do
     "/" <> Enum.join(segments, "/")
-  end
-
-  defp _(req) do
-    elem(req, 2)
   end
 end

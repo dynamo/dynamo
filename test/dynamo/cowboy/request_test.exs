@@ -102,6 +102,13 @@ defmodule Dynamo.Cowboy.RequestTest do
     res
   end
 
+  def cookies(req, res) do
+    req = req.fetch(:cookies)
+    assert req.cookies["foo"] == "bar"
+    assert req.cookies["baz"] == "bat"
+    res
+  end
+
   # Triggers
 
   test :path_segments do
@@ -119,19 +126,21 @@ defmodule Dynamo.Cowboy.RequestTest do
     assert_success request :get, "/query_string_1"
   end
 
-  @multipart "------WebKitFormBoundaryw58EW1cEpjzydSCq\r\nContent-Disposition: form-data; name=\"name\"\r\n\r\nhello\r\n------WebKitFormBoundaryw58EW1cEpjzydSCq\r\nContent-Disposition: form-data; name=\"pic\"; filename=\"foo.txt\"\r\nContent-Type: text/plain\r\n\r\nhello\n\n\r\n------WebKitFormBoundaryw58EW1cEpjzydSCq\r\nContent-Disposition: form-data; name=\"commit\"\r\n\r\nCreate User\r\n------WebKitFormBoundaryw58EW1cEpjzydSCq--\r\n"
-
   test :params do
     assert_success request :get,  "/params_0?hello=world&foo=bar"
     assert_success request :post, "/params_0", [{ "Content-Type", "application/x-www-form-urlencoded" }], "hello=world&foo=bar"
 
-    multipart = @multipart
+    multipart = "------WebKitFormBoundaryw58EW1cEpjzydSCq\r\nContent-Disposition: form-data; name=\"name\"\r\n\r\nhello\r\n------WebKitFormBoundaryw58EW1cEpjzydSCq\r\nContent-Disposition: form-data; name=\"pic\"; filename=\"foo.txt\"\r\nContent-Type: text/plain\r\n\r\nhello\n\n\r\n------WebKitFormBoundaryw58EW1cEpjzydSCq\r\nContent-Disposition: form-data; name=\"commit\"\r\n\r\nCreate User\r\n------WebKitFormBoundaryw58EW1cEpjzydSCq--\r\n"
     headers   = [
       { "Content-Type", "multipart/form-data; boundary=----WebKitFormBoundaryw58EW1cEpjzydSCq" },
       { "Content-Length", size(multipart) }
     ]
 
     assert_success request :get, "/params_1", headers, multipart
+  end
+
+  test :cookies do
+    assert_success request :get, "/cookies", [{ "Cookie", %b(foo="bar"; baz="bat") }]
   end
 
   test :forward_to do
@@ -146,11 +155,7 @@ defmodule Dynamo.Cowboy.RequestTest do
     flunk "Expected successful response, got status #{inspect status} with body #{inspect body}"
   end
 
-  defp request(verb, path) do
-    request(verb, path, [], "")
-  end
-
-  defp request(verb, path, headers, body) do
+  defp request(verb, path, headers // [], body // "") do
     { :ok, status, headers, client } =
       :hackney.request(verb, "http://127.0.0.1:8011" <> path, headers, body, [])
     { :ok, body, _ } = :hackney.body(client)
