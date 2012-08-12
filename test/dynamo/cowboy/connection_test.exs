@@ -140,10 +140,12 @@ defmodule Dynamo.Cowboy.ConnectionTest do
     assert conn.cookies["foo"] == "bar"
     assert conn.cookies["baz"] == "bat"
 
-    conn = conn.set_cookie(:foo, :new)
-    assert conn.cookies["foo"] == "new"
+    conn = conn.set_cookie(:foo, :old)
+    assert conn.cookies["foo"] == "old"
     assert conn.cookies["baz"] == "bat"
 
+    conn = conn.set_cookie(:foo, :new)
+    assert conn.cookies["foo"] == "new"
     conn.reply(200, [], "Hello")
   end
 
@@ -169,6 +171,9 @@ defmodule Dynamo.Cowboy.ConnectionTest do
 
     { _, headers, _ } = response
     assert List.keyfind(headers, "Set-Cookie", 1) == { "Set-Cookie", "foo=new; Version=1; HttpOnly" }
+
+    headers = List.keydelete(headers, "Set-Cookie", 1)
+    assert List.keyfind(headers, "Set-Cookie", 1) == nil
   end
 
   ## Misc

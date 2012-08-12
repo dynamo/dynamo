@@ -228,7 +228,8 @@ defmodule Dynamo.Cowboy.Connection do
       conn = _cookies(conn, Dict.put(cookies, key, value))
     end
 
-    _res_cookies(conn, [{ key, value, opts }|_res_cookies(conn)])
+    res_cookies = List.keydelete(_res_cookies(conn), key, 1)
+    _res_cookies(conn, [{ key, value, opts }|res_cookies])
   end
 
   ## Misc
