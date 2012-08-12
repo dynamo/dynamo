@@ -19,11 +19,15 @@ defmodule Dynamo.Cowboy.ConnectionTest do
   #     res.reply(500, [], exception.message <> inspect(Code.stacktrace))
   end
 
-  # Tests
+  # Request API
 
   def version(conn) do
     assert conn.version == { 1, 1 }
     conn
+  end
+
+  test :version do
+    assert_success request :get, "/version"
   end
 
   def path_segments_0(conn) do
@@ -36,6 +40,11 @@ defmodule Dynamo.Cowboy.ConnectionTest do
     conn
   end
 
+  test :path_segments do
+    assert_success request :get, "/path_segments_0"
+    assert_success request :get, "/path_segments_1/foo/bar/baz"
+  end
+
   def path_0(conn) do
     assert conn.path == "/path_0"
     conn
@@ -46,6 +55,11 @@ defmodule Dynamo.Cowboy.ConnectionTest do
     conn
   end
 
+  test :path do
+    assert_success request :get, "/path_0"
+    assert_success request :get, "/path_1/foo/bar/baz"
+  end
+
   def query_string_0(conn) do
     assert conn.query_string == "hello=world&foo=bar"
     conn
@@ -54,6 +68,11 @@ defmodule Dynamo.Cowboy.ConnectionTest do
   def query_string_1(conn) do
     assert conn.query_string == ""
     conn
+  end
+
+  test :query_string do
+    assert_success request :get, "/query_string_0?hello=world&foo=bar"
+    assert_success request :get, "/query_string_1"
   end
 
   def params_0(conn) do
@@ -76,6 +95,83 @@ defmodule Dynamo.Cowboy.ConnectionTest do
 
     conn
   end
+
+  test :params do
+    assert_success request :get,  "/params_0?hello=world&foo=bar"
+    assert_success request :post, "/params_0", [{ "Content-Type", "application/x-www-form-urlencoded" }], "hello=world&foo=bar"
+
+    multipart = "------WebKitFormBoundaryw58EW1cEpjzydSCq\r\nContent-Disposition: form-data; name=\"name\"\r\n\r\nhello\r\n------WebKitFormBoundaryw58EW1cEpjzydSCq\r\nContent-Disposition: form-data; name=\"pic\"; filename=\"foo.txt\"\r\nContent-Type: text/plain\r\n\r\nhello\n\n\r\n------WebKitFormBoundaryw58EW1cEpjzydSCq\r\nContent-Disposition: form-data; name=\"commit\"\r\n\r\nCreate User\r\n------WebKitFormBoundaryw58EW1cEpjzydSCq--\r\n"
+    headers   = [
+      { "Content-Type", "multipart/form-data; boundary=----WebKitFormBoundaryw58EW1cEpjzydSCq" },
+      { "Content-Length", size(multipart) }
+    ]
+
+    assert_success request :get, "/params_1", headers, multipart
+  end
+
+  ## Cookies
+
+  def req_cookies_0(conn) do
+    conn = conn.fetch(:cookies)
+    assert conn.req_cookies["foo"] == "bar"
+    assert conn.req_cookies["baz"] == "bat"
+    conn
+  end
+
+  def req_cookies_1(conn) do
+    conn = conn.fetch(:cookies)
+    assert conn.cookies["foo"] == "bar"
+    assert conn.cookies["baz"] == "bat"
+    conn
+  end
+
+  def res_cookies_0(conn) do
+    assert conn.res_cookies == []
+
+    conn = conn.set_cookie(:foo, :bar, path: "/hello")
+    assert conn.res_cookies == [{ "foo", "bar", path: "/hello" }]
+
+    conn = conn.set_cookie(:bar, :baz, http_only: false)
+    conn.reply(200, [], "Hello")
+  end
+
+  def req_res_cookies(conn) do
+    conn = conn.fetch(:cookies)
+    assert conn.cookies["foo"] == "bar"
+    assert conn.cookies["baz"] == "bat"
+
+    conn = conn.set_cookie(:foo, :new)
+    assert conn.cookies["foo"] == "new"
+    assert conn.cookies["baz"] == "bat"
+
+    conn.reply(200, [], "Hello")
+  end
+
+  test :req_cookies do
+    assert_success request :get, "/req_cookies_0", [{ "Cookie", %b(foo="bar"; baz="bat") }]
+    assert_success request :get, "/req_cookies_1", [{ "Cookie", %b(foo="bar"; baz="bat") }]
+  end
+
+  test :res_cookies do
+    response = request :get, "/res_cookies_0"
+    assert_success response
+
+    { _, headers, _ } = response
+    assert List.keyfind(headers, "Set-Cookie", 1) == { "Set-Cookie", "foo=bar; Version=1; Path=/hello; HttpOnly" }
+
+    headers = List.keydelete(headers, "Set-Cookie", 1)
+    assert List.keyfind(headers, "Set-Cookie", 1) == { "Set-Cookie","bar=baz; Version=1" }
+  end
+
+  test :req_res_cookies do
+    response = request :get, "/req_res_cookies", [{ "Cookie", %b(foo="bar"; baz="bat") }]
+    assert_success response
+
+    { _, headers, _ } = response
+    assert List.keyfind(headers, "Set-Cookie", 1) == { "Set-Cookie", "foo=new; Version=1; HttpOnly" }
+  end
+
+  ## Misc
 
   def forward_to(conn) do
     assert conn.path_segments == ["forward_to", "foo", "bar", "baz"]
@@ -105,54 +201,11 @@ defmodule Dynamo.Cowboy.ConnectionTest do
     conn
   end
 
-  def cookies(conn) do
-    conn = conn.fetch(:cookies)
-    assert conn.cookies["foo"] == "bar"
-    assert conn.cookies["baz"] == "bat"
-    conn
-  end
-
-  # Triggers
-
-  test :version do
-    assert_success request :get, "/version"
-  end
-
-  test :path_segments do
-    assert_success request :get, "/path_segments_0"
-    assert_success request :get, "/path_segments_1/foo/bar/baz"
-  end
-
-  test :path do
-    assert_success request :get, "/path_0"
-    assert_success request :get, "/path_1/foo/bar/baz"
-  end
-
-  test :query_string do
-    assert_success request :get, "/query_string_0?hello=world&foo=bar"
-    assert_success request :get, "/query_string_1"
-  end
-
-  test :params do
-    assert_success request :get,  "/params_0?hello=world&foo=bar"
-    assert_success request :post, "/params_0", [{ "Content-Type", "application/x-www-form-urlencoded" }], "hello=world&foo=bar"
-
-    multipart = "------WebKitFormBoundaryw58EW1cEpjzydSCq\r\nContent-Disposition: form-data; name=\"name\"\r\n\r\nhello\r\n------WebKitFormBoundaryw58EW1cEpjzydSCq\r\nContent-Disposition: form-data; name=\"pic\"; filename=\"foo.txt\"\r\nContent-Type: text/plain\r\n\r\nhello\n\n\r\n------WebKitFormBoundaryw58EW1cEpjzydSCq\r\nContent-Disposition: form-data; name=\"commit\"\r\n\r\nCreate User\r\n------WebKitFormBoundaryw58EW1cEpjzydSCq--\r\n"
-    headers   = [
-      { "Content-Type", "multipart/form-data; boundary=----WebKitFormBoundaryw58EW1cEpjzydSCq" },
-      { "Content-Length", size(multipart) }
-    ]
-
-    assert_success request :get, "/params_1", headers, multipart
-  end
-
-  test :cookies do
-    assert_success request :get, "/cookies", [{ "Cookie", %b(foo="bar"; baz="bat") }]
-  end
-
   test :forward_to do
     assert_success request :get, "/forward_to/foo/bar/baz"
   end
+
+  # Helpers
 
   defp assert_success({ status, _, _ }) when status in 200..299 do
     :ok

@@ -9,6 +9,6 @@ defmodule Dynamo.Mixfile do
 
   def deps do
     [ { :hackney, git: "https://github.com/benoitc/hackney.git", compile: "make" },
-      { :cowboy,  git: "https://github.com/extend/cowboy.git", tag: "0.6.1" } ]
+      { :cowboy,  git: "https://github.com/josevalim/cowboy.git", branch: "master" } ]
   end
 end
