@@ -1,7 +1,7 @@
 Code.require_file "../../../test_helper", __FILE__
 
 defmodule Dynamo.Cowboy.ConnectionTest do
-  use ExUnit.Case
+  use ExUnit.Case, async: true
 
   def setup_all do
     Dynamo.Cowboy.run __MODULE__, port: 8011, verbose: false
@@ -20,6 +20,11 @@ defmodule Dynamo.Cowboy.ConnectionTest do
   end
 
   # Tests
+
+  def version(conn) do
+    assert conn.version == { 1, 1 }
+    conn
+  end
 
   def path_segments_0(conn) do
     assert conn.path_segments == ["path_segments_0"]
@@ -108,6 +113,10 @@ defmodule Dynamo.Cowboy.ConnectionTest do
   end
 
   # Triggers
+
+  test :version do
+    assert_success request :get, "/version"
+  end
 
   test :path_segments do
     assert_success request :get, "/path_segments_0"

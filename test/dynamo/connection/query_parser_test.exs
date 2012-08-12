@@ -1,7 +1,7 @@
 Code.require_file "../../../test_helper", __FILE__
 
 defmodule Dynamo.Connection.QueryParserTest do
-  use ExUnit.Case
+  use ExUnit.Case, async: true
 
   test "parse queries" do
     params = parse "foo=bar&baz=bat"

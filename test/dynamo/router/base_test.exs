@@ -1,7 +1,7 @@
 Code.require_file "../../../test_helper", __FILE__
 
 defmodule Dynamo.Router.BaseTest do
-  use ExUnit.Case
+  use ExUnit.Case, async: true
 
   defrecord Mock, forward_to: nil do
     def forward_to(at, target, conn) do

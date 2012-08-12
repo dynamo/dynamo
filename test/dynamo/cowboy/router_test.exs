@@ -1,7 +1,7 @@
 Code.require_file "../../../test_helper", __FILE__
 
 defmodule Dynamo.Cowboy.RouterTest do
-  use ExUnit.Case
+  use ExUnit.Case, async: true
 
   defmodule RouterApp do
     use Dynamo.Router

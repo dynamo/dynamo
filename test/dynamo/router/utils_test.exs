@@ -3,7 +3,7 @@ Code.require_file "../../../test_helper", __FILE__
 defmodule Dynamo.Router.UtilsTest do
   require Dynamo.Router.Utils, as: R
 
-  use ExUnit.Case
+  use ExUnit.Case, async: true
 
   defmacrop assert_quoted(left, right) do
     quote do
