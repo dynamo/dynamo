@@ -1,23 +1,78 @@
 defmodule Dynamo.Cowboy.Connection do
   require :cowboy_http_req, as: R
 
-  # TODO: Plan a mechanism that makes this easier
-  @request              2
-  @path_info_segments   3
-  @script_info_segments 4
-  @params               5
-  @cookies              6
-  @res_cookies          7
+  ## Utilities
+  ## TODO: Generate those automatically
 
-  defmacrop _(req) do
+  defmacrop _request(conn) do
     quote do
-      elem(unquote(req), 2)
+      elem(unquote(conn), 2)
     end
   end
 
-  defmacrop _(req, value) do
+  defmacrop _request(conn, value) do
     quote do
-      setelem(unquote(req), 2, unquote(value))
+      setelem(unquote(conn), 2, unquote(value))
+    end
+  end
+
+  defmacrop _path_info_segments(conn) do
+    quote do
+      elem(unquote(conn), 3)
+    end
+  end
+
+  defmacrop _path_info_segments(conn, value) do
+    quote do
+      setelem(unquote(conn), 3, unquote(value))
+    end
+  end
+
+  defmacrop _script_info_segments(conn) do
+    quote do
+      elem(unquote(conn), 4)
+    end
+  end
+
+  defmacrop _script_info_segments(conn, value) do
+    quote do
+      setelem(unquote(conn), 4, unquote(value))
+    end
+  end
+
+  defmacrop _params(conn) do
+    quote do
+      elem(unquote(conn), 5)
+    end
+  end
+
+  defmacrop _params(conn, value) do
+    quote do
+      setelem(unquote(conn), 5, unquote(value))
+    end
+  end
+
+  defmacrop _cookies(conn) do
+    quote do
+      elem(unquote(conn), 6)
+    end
+  end
+
+  defmacrop _cookies(conn, value) do
+    quote do
+      setelem(unquote(conn), 6, unquote(value))
+    end
+  end
+
+  defmacrop _res_cookies(conn) do
+    quote do
+      elem(unquote(conn), 7)
+    end
+  end
+
+  defmacrop _res_cookies(conn, value) do
+    quote do
+      setelem(unquote(conn), 7, unquote(value))
     end
   end
 
@@ -27,7 +82,7 @@ defmodule Dynamo.Cowboy.Connection do
   Returns the query string as a binary.
   """
   def query_string(conn) do
-    { query_string, _ } = R.raw_qs _(conn)
+    { query_string, _ } = R.raw_qs _request(conn)
     query_string
   end
 
@@ -37,7 +92,7 @@ defmodule Dynamo.Cowboy.Connection do
   fetched with `conn.fetch(:params)` before using this function.
   """
   def params(conn) do
-    elem(conn, @params) || raise Dynamo.Connection.UnfetchedError, aspect: :params
+    _params(conn) || raise Dynamo.Connection.UnfetchedError, aspect: :params
   end
 
   @doc """
@@ -46,7 +101,7 @@ defmodule Dynamo.Cowboy.Connection do
   only the segments related to the current forwarded endpoint.
   """
   def path_info_segments(conn) do
-    elem(conn, @path_info_segments)
+    _path_info_segments(conn)
   end
 
   @doc """
@@ -54,14 +109,14 @@ defmodule Dynamo.Cowboy.Connection do
   as a binary.
   """
   def path_info(conn) do
-    to_path path_info_segments(conn)
+    to_path _path_info_segments(conn)
   end
 
   @doc """
   Returns the full path segments, as received by the web server.
   """
   def path_segments(conn) do
-    { segments, _ } = R.path _(conn)
+    { segments, _ } = R.path _request(conn)
     segments
   end
 
@@ -69,7 +124,7 @@ defmodule Dynamo.Cowboy.Connection do
   Returns the full path as a binary, as received by the web server.
   """
   def path(conn) do
-    { binary, _ } = R.raw_path _(conn)
+    { binary, _ } = R.raw_path _request(conn)
     binary
   end
 
@@ -77,14 +132,14 @@ defmodule Dynamo.Cowboy.Connection do
   As in CGI environment, returns the current forwarded endpoint as segments.
   """
   def script_info_segments(conn) do
-    elem(conn, @script_info_segments)
+    _script_info_segments(conn)
   end
 
   @doc """
   As in CGI environment, returns the current forwarded endpoint as binary.
   """
   def script_info(conn) do
-    to_path script_info_segments(conn)
+    to_path _script_info_segments(conn)
   end
 
   @doc """
@@ -96,7 +151,7 @@ defmodule Dynamo.Cowboy.Connection do
 
   """
   def method(conn) do
-    { verb, _ } = R.method _(conn)
+    { verb, _ } = R.method _request(conn)
     verb
   end
 
@@ -104,7 +159,7 @@ defmodule Dynamo.Cowboy.Connection do
   Returns the HTTP version.
   """
   def version(conn) do
-    { version, _ } = R.version _(conn)
+    { version, _ } = R.version _request(conn)
     version
   end
 
@@ -114,9 +169,9 @@ defmodule Dynamo.Cowboy.Connection do
   Replies to the client with the given status, headers and body
   """
   def reply(status, headers, body, conn) do
-    req = Enum.reduce elem(conn, @res_cookies), _(conn), write_cookie(&1, &2)
+    req = Enum.reduce _res_cookies(conn), _request(conn), write_cookie(&1, &2)
     { :ok, req } = R.reply(status, headers, body, req)
-    conn /> _(req) /> setelem(@res_cookies, [])
+    _res_cookies(_request(conn, req), [])
   end
 
   ## Cookies
@@ -127,7 +182,7 @@ defmodule Dynamo.Cowboy.Connection do
   before using this function.
   """
   def req_cookies(conn) do
-    { cookies, _ } = R.cookies _(conn)
+    { cookies, _ } = R.cookies _request(conn)
     Binary.Dict.new(cookies)
   end
 
@@ -136,7 +191,7 @@ defmodule Dynamo.Cowboy.Connection do
   fetched with `conn.fetch(:cookies)` before using this function.
   """
   def cookies(conn) do
-    elem(conn, @cookies) || raise Dynamo.Connection.UnfetchedError, aspect: :cookies
+    _cookies(conn) || raise Dynamo.Connection.UnfetchedError, aspect: :cookies
   end
 
   @doc """
@@ -144,7 +199,7 @@ defmodule Dynamo.Cowboy.Connection do
   containing the key, value and given options.
   """
   def res_cookies(conn) do
-    elem(conn, @res_cookies)
+    _res_cookies(conn)
   end
 
   @doc """
@@ -169,12 +224,11 @@ defmodule Dynamo.Cowboy.Connection do
     key   = to_binary(key)
     value = to_binary(value)
 
-    if cookies = elem(conn, @cookies) do
-      conn = setelem(conn, @cookies, Dict.put(cookies, key, value))
+    if cookies = _cookies(conn) do
+      conn = _cookies(conn, Dict.put(cookies, key, value))
     end
 
-    res_cookies = [{ key, value, opts }|elem(conn, @res_cookies)]
-    setelem(conn, @res_cookies, res_cookies)
+    _res_cookies(conn, [{ key, value, opts }|_res_cookies(conn)])
   end
 
   ## Misc
@@ -185,7 +239,7 @@ defmodule Dynamo.Cowboy.Connection do
   developers (with caution).
   """
   def cowboy_request(conn) do
-    _(conn)
+    _request(conn)
   end
 
   ## Internal
@@ -204,27 +258,26 @@ defmodule Dynamo.Cowboy.Connection do
   The "fetchable" aspects are: params, cookies and session.
   """
   def fetch(:params, conn) do
-    { query_string, req } = R.raw_qs _(conn)
+    { query_string, req } = R.raw_qs _request(conn)
     params = Dynamo.Connection.QueryParser.parse(query_string)
     { params, req } = Dynamo.Cowboy.BodyParser.parse(params, req)
-    conn /> setelem(@request, req) /> setelem(@params, params)
+    _params(_request(conn, req), params)
   end
 
   def fetch(:cookies, conn) do
-    { cookies, req } = R.cookies _(conn)
-    conn /> setelem(@request, req) /> setelem(@cookies, Binary.Dict.new(cookies))
+    { cookies, req } = R.cookies _request(conn)
+    _cookies(_request(conn, req), Binary.Dict.new(cookies))
   end
 
   # Mounts the request by setting the new path information to the given
   # *segments*. Both script_info/1 and path_segments/1 are updated.
   # The segments given must be a suffix of the current path segments.
   @doc false
-  def forward_to(segments, _target, req) do
-    current = path_info_segments(req)
+  def forward_to(segments, _target, conn) do
+    current = _path_info_segments(conn)
     { prefix, ^segments } = Enum.split current, length(current) - length(segments)
-    req = setelem(req, @path_info_segments, segments)
-    req = setelem(req, @script_info_segments, script_info_segments(req) ++ prefix)
-    req
+    conn = _path_info_segments(conn, segments)
+    _script_info_segments(conn, _script_info_segments(conn) ++ prefix)
   end
 
   ## Helpers
