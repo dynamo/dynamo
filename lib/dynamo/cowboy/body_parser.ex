@@ -10,12 +10,12 @@ defmodule Dynamo.Cowboy.BodyParser do
 
   defp parse_body({ "application", "x-www-form-urlencoded", _ }, dict, req) do
     { :ok, body, req } = R.body(req)
-    { Dynamo.Request.QueryParser.parse(body, dict), req }
+    { Dynamo.Connection.QueryParser.parse(body, dict), req }
   end
 
   defp parse_body({ "multipart", style, _ }, dict, req) when style in ["form-data", "mixed"] do
     { tuples, req } = parse_multipart(R.multipart_data(req), nil, nil, [])
-    dict = Enum.reduce(tuples, dict, Dynamo.Request.QueryParser.reduce(&1, &2))
+    dict = Enum.reduce(tuples, dict, Dynamo.Connection.QueryParser.reduce(&1, &2))
     { dict, req }
   end
 
@@ -52,7 +52,7 @@ defmodule Dynamo.Cowboy.BodyParser do
               case List.keyfind(parts, "filename", 1) do
                 { "filename", filename } ->
                   { _, type } = List.keyfind(headers, :"Content-Type", 1) || { :"Content-Type", nil }
-                  { name, Dynamo.Request.File.new(name: name, filename: filename, content_type: type, body: body) }
+                  { name, Dynamo.Connection.File.new(name: name, filename: filename, content_type: type, body: body) }
                 _ ->
                   { name, body }
               end

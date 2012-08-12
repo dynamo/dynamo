@@ -4,15 +4,15 @@ defmodule Dynamo.Router.Base do
   and their basic structure. The defined module contains the
   following functions:
 
-  * `service(req, res)` - This is the main entry point of the module,
+  * `service(conn)` - This is the main entry point of the module,
     as defined per the Dynamo API
 
-  * `dispatch(method, segments, req, res)` - This is the function responsible
+  * `dispatch(method, segments, conn)` - This is the function responsible
     to dispatch the routes. It is also where callbacks and other hooks are
     added; When a router points to another router, it usually does so via
-    `dispatch/4`, avoiding any unecessary overhead in `service/2`
+    `dispatch/3`, avoiding any unecessary overhead in `service/1`.
 
-  * `not_found(req, res)` - Customizes how `not_found` pages are handled
+  * `not_found(conn)` - Customizes how `not_found` pages are handled
 
   """
 
@@ -23,18 +23,18 @@ defmodule Dynamo.Router.Base do
       import unquote(__MODULE__), except: [before_compile: 1, __using__: 1]
 
       @doc false
-      def service(req, res) do
-        dispatch(req.method, req.path_segments, req, res)
+      def service(conn) do
+        dispatch(conn.method, conn.path_segments, conn)
       end
 
       @doc false
-      def dispatch(method, segments, req, res) do
-        _dispatch(method, segments, req, res)
+      def dispatch(method, segments, conn) do
+        _dispatch(method, segments, conn)
       end
 
       @doc false
-      def not_found(_req, res) do
-        res.reply(404, [], "")
+      def not_found(conn) do
+        conn.reply(404, [], "")
       end
 
       @doc false
@@ -42,15 +42,15 @@ defmodule Dynamo.Router.Base do
         true
       end
 
-      defoverridable [not_found: 2, service: 2, dispatch: 4]
+      defoverridable [not_found: 1, service: 1, dispatch: 3]
     end
   end
 
   @doc false
   defmacro before_compile(_) do
     quote do
-      def _dispatch(_, _, req, res) do
-        not_found(req, res)
+      def _dispatch(_, _, conn) do
+        not_found(conn)
       end
     end
   end
@@ -62,7 +62,7 @@ defmodule Dynamo.Router.Base do
   ## Examples
 
       match "/foo/bar", via: :get do
-        res.ok "hello world"
+        conn.ok "hello world"
       end
 
   ## Options
@@ -73,7 +73,7 @@ defmodule Dynamo.Router.Base do
   * `do:` contains the implementation to be invoked in case
           the route matches
   * `to:` forward the request to another module that implements
-          the service/2 API
+          the service/1 API
 
   ## Routes compilation
 
@@ -87,7 +87,7 @@ defmodule Dynamo.Router.Base do
 
   It is compiled to:
 
-      def dispatch(:GET, ["foo", "bar"], req, res) do
+      def dispatch(:GET, ["foo", "bar"], conn) do
         res.ok "hello world"
       end
 
@@ -95,14 +95,14 @@ defmodule Dynamo.Router.Base do
   to match:
 
       match "/foo/:bar" when size(bar) <= 3, via: :get do
-        res.ok "hello world"
+        conn.ok "hello world"
       end
 
   Second, a list of splitten paths (which is the compiled result)
   is also allowed:
 
       match ["foo", bar], via: :get do
-        res.ok "hello world"
+        conn.ok "hello world"
       end
 
   """
@@ -128,13 +128,12 @@ defmodule Dynamo.Router.Base do
 
     block =
       quote do
-        target  = unquote(what)
-        req = var!(req)
-        req = req.forward_to var!(glob), target
+        target = unquote(what)
+        conn   = var!(conn).forward_to var!(glob), target
         if function_exported?(target, :dynamo_router?, 0) and target.dynamo_router? do
-          target.dispatch(_verb, var!(glob), req, var!(res))
+          target.dispatch(_verb, var!(glob), conn)
         else
-          target.service(req, var!(res))
+          target.service(conn)
         end
       end
 
@@ -189,7 +188,7 @@ defmodule Dynamo.Router.Base do
     contents =
       cond do
         block -> block
-        to    -> quote do: unquote(to).service(var!(req), var!(res))
+        to    -> quote do: unquote(to).service(var!(conn))
         true  -> raise ArgumentError, message: "Expected to: or do: to be given"
       end
 
@@ -198,8 +197,7 @@ defmodule Dynamo.Router.Base do
     args = [
       { :_verb, 0, :quoted },
       match,
-      { :req, 0, nil },
-      { :res, 0, nil }
+      { :conn, 0, nil }
     ]
 
     quote do
@@ -251,7 +249,7 @@ defmodule Dynamo.Router.Base do
 
   defp default_guard do
     quote hygiene: false do
-      is_tuple(req) and is_tuple(res)
+      is_tuple(conn)
     end
   end
 end

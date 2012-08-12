@@ -1,7 +1,7 @@
 defmodule Dynamo.Cowboy do
   @moduledoc """
   Provides a runner using Cowboy webserver.
-  Check  run/2 for more information.
+  Check `run/2` for more information.
   """
 
   @doc """

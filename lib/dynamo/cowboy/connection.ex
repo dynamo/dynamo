@@ -1,4 +1,4 @@
-defmodule Dynamo.Cowboy.Request do
+defmodule Dynamo.Cowboy.Connection do
   require :cowboy_http_req, as: R
 
   # TODO: Plan a mechanism that makes this easier
@@ -14,14 +14,13 @@ defmodule Dynamo.Cowboy.Request do
     end
   end
 
-  @doc """
-  Builds a new Dynamo.Cowboy.Request based on
-  the original Cowboy request object.
-  """
-  def new(req) do
-    { segments, req } = R.path(req)
-    { __MODULE__, req, segments, [], nil, nil }
+  defmacrop _(req, value) do
+    quote do
+      setelem(unquote(req), 2, unquote(value))
+    end
   end
+
+  ## Request API
 
   @doc """
   Returns the query string as a binary.
@@ -37,15 +36,7 @@ defmodule Dynamo.Cowboy.Request do
   fetched with `request.fetch(:params)` before using this function.
   """
   def params(req) do
-    elem(req, @params) || raise Dynamo.Request.UnfetchedError, aspect: :params
-  end
-
-  @doc """
-  Returns a Binary.Dict with cookies. Cookues need to be explicitly
-  fetched with `request.fetch(:cookies)` before using this function.
-  """
-  def cookies(req) do
-    elem(req, @cookies) || raise Dynamo.Request.UnfetchedError, aspect: :cookies
+    elem(req, @params) || raise Dynamo.Connection.UnfetchedError, aspect: :params
   end
 
   @doc """
@@ -116,23 +107,63 @@ defmodule Dynamo.Cowboy.Request do
     version
   end
 
+  ## Response API
+
+  @doc """
+  Replies to the client with the given status, headers and body
+  """
+  def reply(status, headers, body, req) do
+    { :ok, cowboy_req } = R.reply(status, headers, body, _(req))
+    _(req, cowboy_req)
+  end
+
+  ## Cookies
+
+  @doc """
+  Returns a Binary.Dict with cookies. Cookues need to be explicitly
+  fetched with `request.fetch(:cookies)` before using this function.
+  """
+  def cookies(req) do
+    elem(req, @cookies) || raise Dynamo.Connection.UnfetchedError, aspect: :cookies
+  end
+
+  ## Misc
+
+  @doc """
+  Returns the underlying cowboy request. This is used
+  internally by Dynamo but may also be used by other
+  developers (with caution).
+  """
+  def cowboy_request(res) do
+    _(res)
+  end
+
+  ## Internal
+
+  @doc """
+  Builds a new Dynamo.Cowboy.Request based on
+  the original Cowboy request object.
+  """
+  def new(req) do
+    { segments, req } = R.path(req)
+    { __MODULE__, req, segments, [], nil, nil }
+  end
+
   @doc """
   Responsible for fetching and caching aspects of the response.
-  The "fetchable" aspects are: `:params`, `:cookies`.
+  The "fetchable" aspects are: params, cookies and session.
   """
-  def fetch(:params, original) do
-    { query_string, req } = R.raw_qs _(original)
-    params = Dynamo.Request.QueryParser.parse(query_string)
-    { params, req } = Dynamo.Cowboy.BodyParser.parse(params, req)
-    original /> setelem(@request, req) /> setelem(@params, params)
+  def fetch(:params, req) do
+    { query_string, cowboy_req } = R.raw_qs _(req)
+    params = Dynamo.Connection.QueryParser.parse(query_string)
+    { params, cowboy_req } = Dynamo.Cowboy.BodyParser.parse(params, cowboy_req)
+    req /> setelem(@request, cowboy_req) /> setelem(@params, params)
   end
 
-  def fetch(:cookies, original) do
-    { cookies, req } = R.cookies _(original)
-    original /> setelem(@cookies, Binary.Dict.new(cookies))
+  def fetch(:cookies, req) do
+    { cookies, _cowboy_req } = R.cookies _(req)
+    req /> setelem(@cookies, Binary.Dict.new(cookies))
   end
-
-  ## Dynamo API
 
   # Mounts the request by setting the new path information to the given
   # *segments*. Both script_info/1 and path_segments/1 are updated.

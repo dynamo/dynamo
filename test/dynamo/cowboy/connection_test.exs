@@ -1,9 +1,7 @@
 Code.require_file "../../../test_helper", __FILE__
 
-defmodule Dynamo.Cowboy.RequestTest do
+defmodule Dynamo.Cowboy.ConnectionTest do
   use ExUnit.Case
-
-  alias Dynamo.Cowboy.Request, as: Req
 
   def setup_all do
     Dynamo.Cowboy.run __MODULE__, port: 8011, verbose: false
@@ -13,9 +11,9 @@ defmodule Dynamo.Cowboy.RequestTest do
     Dynamo.Cowboy.shutdown __MODULE__
   end
 
-  def service(req, res) do
-    function = binary_to_atom hd(req.path_segments), :utf8
-    apply __MODULE__, function, [req, res]
+  def service(conn) do
+    function = binary_to_atom hd(conn.path_segments), :utf8
+    apply __MODULE__, function, [conn]
   # rescue
   #   exception ->
   #     res.reply(500, [], exception.message <> inspect(Code.stacktrace))
@@ -23,90 +21,90 @@ defmodule Dynamo.Cowboy.RequestTest do
 
   # Tests
 
-  def path_segments_0(req, res) do
-    assert req.path_segments == ["path_segments_0"]
-    res
+  def path_segments_0(conn) do
+    assert conn.path_segments == ["path_segments_0"]
+    conn
   end
 
-  def path_segments_1(req, res) do
-    assert req.path_segments == ["path_segments_1", "foo", "bar", "baz"]
-    res
+  def path_segments_1(conn) do
+    assert conn.path_segments == ["path_segments_1", "foo", "bar", "baz"]
+    conn
   end
 
-  def path_0(req, res) do
-    assert req.path == "/path_0"
-    res
+  def path_0(conn) do
+    assert conn.path == "/path_0"
+    conn
   end
 
-  def path_1(req, res) do
-    assert req.path == "/path_1/foo/bar/baz"
-    res
+  def path_1(conn) do
+    assert conn.path == "/path_1/foo/bar/baz"
+    conn
   end
 
-  def query_string_0(req, res) do
-    assert req.query_string == "hello=world&foo=bar"
-    res
+  def query_string_0(conn) do
+    assert conn.query_string == "hello=world&foo=bar"
+    conn
   end
 
-  def query_string_1(req, res) do
-    assert req.query_string == ""
-    res
+  def query_string_1(conn) do
+    assert conn.query_string == ""
+    conn
   end
 
-  def params_0(req, res) do
-    req = req.fetch(:params)
-    assert req.params[:hello]   == "world"
-    assert req.params[:foo]     == "bar"
-    assert req.params[:unknown] == nil
-    res
+  def params_0(conn) do
+    conn = conn.fetch(:params)
+    assert conn.params[:hello]   == "world"
+    assert conn.params[:foo]     == "bar"
+    assert conn.params[:unknown] == nil
+    conn
   end
 
-  def params_1(req, res) do
-    req = req.fetch(:params)
-    assert req.params[:name] == "hello"
+  def params_1(conn) do
+    conn = conn.fetch(:params)
+    assert conn.params[:name] == "hello"
 
-    file = req.params[:pic]
+    file = conn.params[:pic]
     assert file.body == "hello\n\n"
     assert file.name == "pic"
     assert file.content_type == "text/plain"
     assert file.filename == "foo.txt"
 
-    res
+    conn
   end
 
-  def forward_to(req, res) do
-    assert req.path_segments == ["forward_to", "foo", "bar", "baz"]
+  def forward_to(conn) do
+    assert conn.path_segments == ["forward_to", "foo", "bar", "baz"]
 
-    req = req.forward_to ["foo", "bar", "baz"], Foo
+    conn = conn.forward_to ["foo", "bar", "baz"], Foo
 
-    assert req.path_info == "/foo/bar/baz"
-    assert req.path_info_segments == ["foo", "bar", "baz"]
+    assert conn.path_info == "/foo/bar/baz"
+    assert conn.path_info_segments == ["foo", "bar", "baz"]
 
-    assert req.path == "/forward_to/foo/bar/baz"
-    assert req.path_segments == ["forward_to", "foo", "bar", "baz"]
+    assert conn.path == "/forward_to/foo/bar/baz"
+    assert conn.path_segments == ["forward_to", "foo", "bar", "baz"]
 
-    assert req.script_info == "/forward_to"
-    assert req.script_info_segments == ["forward_to"]
+    assert conn.script_info == "/forward_to"
+    assert conn.script_info_segments == ["forward_to"]
 
-    req = req.forward_to ["bar", "baz"], Bar
+    conn = conn.forward_to ["bar", "baz"], Bar
 
-    assert req.path_info == "/bar/baz"
-    assert req.path_info_segments == ["bar", "baz"]
+    assert conn.path_info == "/bar/baz"
+    assert conn.path_info_segments == ["bar", "baz"]
 
-    assert req.path == "/forward_to/foo/bar/baz"
-    assert req.path_segments == ["forward_to", "foo", "bar", "baz"]
+    assert conn.path == "/forward_to/foo/bar/baz"
+    assert conn.path_segments == ["forward_to", "foo", "bar", "baz"]
 
-    assert req.script_info == "/forward_to/foo"
-    assert req.script_info_segments == ["forward_to", "foo"]
+    assert conn.script_info == "/forward_to/foo"
+    assert conn.script_info_segments == ["forward_to", "foo"]
 
-    res
+    conn
   end
 
-  def cookies(req, res) do
-    req = req.fetch(:cookies)
-    assert req.cookies["foo"] == "bar"
-    assert req.cookies["baz"] == "bat"
-    res
+  def cookies(conn) do
+    conn = conn.fetch(:cookies)
+    assert conn.cookies["foo"] == "bar"
+    assert conn.cookies["baz"] == "bat"
+    conn
   end
 
   # Triggers

@@ -11,25 +11,25 @@ defmodule Dynamo.Router.PrepareCallbacksTest do
     prepare :foo
 
     get "/foo" do
-      req.value + res.value
+      conn.value
     end
 
-    defp foo(req, res) do
-      { req.value(1), res.value(2) }
+    defp foo(conn) do
+      conn.value(3)
     end
   end
 
   test "dispatch single callback" do
-    assert SingleCallbacks.dispatch(:GET, ["foo"], Mock.new, Mock.new) == 3
+    assert SingleCallbacks.dispatch(:GET, ["foo"], Mock.new) == 3
   end
 
   defmodule Bar do
-    def prepare(req, res) do
-      { req.value(1), res.value(2) }
+    def prepare(conn) do
+      conn.value(3)
     end
 
-    def other(req, res) do
-      { req.update_value(&1 + 1), res.update_value(&1 + 2) }
+    def other(conn) do
+      conn.update_value(&1 * 2)
     end
   end
 
@@ -40,32 +40,32 @@ defmodule Dynamo.Router.PrepareCallbacksTest do
     prepare { Bar, :other }
 
     get "/foo" do
-      req.value + res.value
+      conn.value
     end
   end
 
   test "dispatch double callback" do
-    assert DoubleCallbacks.dispatch(:GET, ["foo"], Mock.new, Mock.new) == 6
+    assert DoubleCallbacks.dispatch(:GET, ["foo"], Mock.new) == 6
   end
 
   defmodule BlockCallbacks do
     use Dynamo.Router
 
     prepare do
-      { req.value(1), res.value(2) }
+      conn.value(3)
     end
 
     prepare do
-      { req.update_value(&1 + 1), res.update_value(&1 + 2) }
+      conn.update_value(&1 * 2)
     end
 
     get "/foo" do
-      req.value + res.value
+      conn.value
     end
   end
 
   test "dispatch block callback" do
-    assert BlockCallbacks.dispatch(:GET, ["foo"], Mock.new, Mock.new) == 6
+    assert BlockCallbacks.dispatch(:GET, ["foo"], Mock.new) == 6
   end
 
   defmodule InvalidCallbacks do
@@ -76,13 +76,13 @@ defmodule Dynamo.Router.PrepareCallbacksTest do
     end
 
     get "/foo" do
-      req.value + res.value
+      conn.value
     end
   end
 
   test "invalid dispatch callback" do
-    assert_raise Dynamo.Router.Callbacks.InvalidPrepareCallbackError, fn ->
-      InvalidCallbacks.dispatch(:GET, ["foo"], Mock.new, Mock.new)
+    assert_raise Dynamo.Router.Callbacks.InvalidCallbackError, fn ->
+      InvalidCallbacks.dispatch(:GET, ["foo"], Mock.new)
     end
   end
 end
@@ -98,25 +98,25 @@ defmodule Dynamo.Router.FinishCallbacksTest do
     finalize :foo
 
     get "/foo" do
-      res.value(2)
+      conn.value(3)
     end
 
-    defp foo(req, res) do
-      res.value(req.value + res.value)
+    defp foo(conn) do
+      conn.update_value(&1 * 2)
     end
   end
 
   test "dispatch single callback" do
-    assert SingleCallbacks.dispatch(:GET, ["foo"], Mock.new(value: 1), Mock.new).value == 3
+    assert SingleCallbacks.dispatch(:GET, ["foo"], Mock.new).value == 6
   end
 
   defmodule Bar do
-    def finalize(_req, res) do
-      res.update_value(&1 + 1)
+    def finalize(conn) do
+      conn.update_value(&1 + 1)
     end
 
-    def other(req, res) do
-      res.value(req.value + res.value)
+    def other(conn) do
+      conn.update_value(&1 * 2)
     end
   end
 
@@ -127,32 +127,32 @@ defmodule Dynamo.Router.FinishCallbacksTest do
     finalize { Bar, :other }
 
     get "/foo" do
-      res.value(2)
+      conn.value(2)
     end
   end
 
   test "dispatch double callback" do
-    assert DoubleCallbacks.dispatch(:GET, ["foo"], Mock.new(value: 1), Mock.new).value == 4
+    assert DoubleCallbacks.dispatch(:GET, ["foo"], Mock.new).value == 6
   end
 
   defmodule BlockCallbacks do
     use Dynamo.Router
 
     finalize do
-      res.update_value(&1 + 1)
+      conn.update_value(&1 + 1)
     end
 
     finalize do
-      res.value(req.value + res.value)
+      conn.update_value(&1 * 2)
     end
 
     get "/foo" do
-      res.value(2)
+      conn.value(2)
     end
   end
 
   test "dispatch block callback" do
-    assert BlockCallbacks.dispatch(:GET, ["foo"], Mock.new(value: 1), Mock.new).value == 4
+    assert BlockCallbacks.dispatch(:GET, ["foo"], Mock.new).value == 6
   end
 
   defmodule InvalidCallbacks do
@@ -163,13 +163,13 @@ defmodule Dynamo.Router.FinishCallbacksTest do
     end
 
     get "/foo" do
-      res.value(2)
+      conn.value(2)
     end
   end
 
   test "invalid dispatch callback" do
-    assert_raise Dynamo.Router.Callbacks.InvalidFinalizeCallbackError, fn ->
-      InvalidCallbacks.dispatch(:GET, ["foo"], Mock.new, Mock.new)
+    assert_raise Dynamo.Router.Callbacks.InvalidCallbackError, fn ->
+      InvalidCallbacks.dispatch(:GET, ["foo"], Mock.new)
     end
   end
 end

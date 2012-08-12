@@ -12,12 +12,10 @@ defmodule Dynamo.Router.Callbacks do
     to be invoked;
 
   * `[do: block]` - a chunk of code to be executed as callback. The block
-    has access to the request and response types via the variables `req`
-    and `res`.
+    has access to the connection as `conn`.
 
-  Prepare callbacks must return a tuple `{ req, res }` with the request
-  and response, finalize callbacks must return the response. Both callbacks
-  receive the request and response as arguments.
+  Callbacks receive the connection as argument and must return the update
+  connection (if any change happens).
 
   Note that callbacks are invoked regardless if there was a match or
   not in the current module.
@@ -28,8 +26,8 @@ defmodule Dynamo.Router.Callbacks do
         use Dynamo.Router
 
         prepare do
-          unless request.cookies[:user_id] do
-            redirect_to response, "/"
+          unless conn.cookies[:user_id] do
+            redirect_to conn, "/"
           end
         end
 
@@ -38,17 +36,10 @@ defmodule Dynamo.Router.Callbacks do
 
   """
 
-  defexception InvalidPrepareCallbackError, callback: nil, actual: nil do
+  defexception InvalidCallbackError, kind: nil, callback: nil, actual: nil do
     def message(exception) do
-      "expected prepare callback #{inspect exception.callback} to return " <>
-        "{ req, res }, but got #{inspect exception.actual}"
-    end
-  end
-
-  defexception InvalidFinalizeCallbackError, callback: nil, actual: nil do
-    def message(exception) do
-      "expected finalize callback #{inspect exception.callback} to return " <>
-        "a response, but got #{inspect exception.actual}"
+      "expected #{exception.kind} callback #{inspect exception.callback} to return " <>
+        "connection, but got #{inspect exception.actual}"
     end
   end
 
@@ -67,19 +58,17 @@ defmodule Dynamo.Router.Callbacks do
 
   @doc false
   defmacro before_compile(module) do
-    prepare = Module.read_attribute(module, :__prepare_callbacks)
-    finalize  = Module.read_attribute(module, :__finalize_callbacks)
-    start   = quote do: { req, res }
-    prepare = Enum.reduce(prepare, start, compile_prepare(&1, &2))
-    start   = quote do: res
-    finalize  = Enum.reduce(finalize, start, compile_finalize(&1, &2))
+    prepare  = Module.read_attribute(module, :__prepare_callbacks)
+    finalize = Module.read_attribute(module, :__finalize_callbacks)
+    start    = quote do: conn
+    prepare  = Enum.reduce(prepare, start, compile_prepare(&1, &2))
+    finalize = Enum.reduce(finalize, start, compile_finalize(&1, &2))
 
     quote do
-      defoverridable [dispatch: 4]
+      defoverridable [dispatch: 3]
 
-      def dispatch(method, path, req, res) do
-        { req, res } = unquote(prepare)
-        res = super(method, path, req, res)
+      def dispatch(method, path, conn) do
+        conn = super(method, path, unquote(prepare))
         unquote(finalize)
       end
     end
@@ -91,8 +80,8 @@ defmodule Dynamo.Router.Callbacks do
   defmacro prepare(do: block) do
     quote do
       name   = :"__prepare_callback_#{length(@__prepare_callbacks)}"
-      args   = quote do: [var!(req), var!(res)]
-      guards = quote do: [is_tuple(var!(req)) and is_tuple(var!(res))]
+      args   = quote do: [var!(conn)]
+      guards = quote do: [is_tuple(var!(conn))]
       defp name, args, guards, do: unquote(block)
       @__prepare_callbacks name
     end
@@ -110,8 +99,8 @@ defmodule Dynamo.Router.Callbacks do
   defmacro finalize(do: block) do
     quote do
       name   = :"__finalize_callback_#{length(@__finalize_callbacks)}"
-      args   = quote do: [var!(req), var!(res)]
-      guards = quote do: [is_tuple(var!(req)) and is_tuple(var!(res))]
+      args   = quote do: [var!(conn)]
+      guards = quote do: [is_tuple(var!(conn))]
       defp name, args, guards, do: unquote(block)
       @__finalize_callbacks name
     end
@@ -129,9 +118,9 @@ defmodule Dynamo.Router.Callbacks do
         compile_prepare({ atom, :prepare }, acc)
       _ ->
         quote do
-          case unquote(atom).(req, res) do
-            { req, res } -> unquote(acc)
-            actual -> raise unquote(InvalidPrepareCallbackError), callback: unquote(atom), actual: actual
+          case unquote(atom).(conn) do
+            conn when is_tuple(conn) -> unquote(acc)
+            actual -> raise unquote(InvalidCallbackError), kind: :prepare, callback: unquote(atom), actual: actual
           end
         end
     end
@@ -139,9 +128,9 @@ defmodule Dynamo.Router.Callbacks do
 
   defp compile_prepare({ mod, function } = c, acc) when is_atom(mod) or is_atom(function) do
     quote do
-      case apply(unquote(mod), unquote(function), [req, res]) do
-        { req, res } -> unquote(acc)
-        actual -> raise unquote(InvalidPrepareCallbackError), callback: unquote(c), actual: actual
+      case apply(unquote(mod), unquote(function), [conn]) do
+        conn when is_tuple(conn) -> unquote(acc)
+        actual -> raise unquote(InvalidCallbackError), kind: :prepare, callback: unquote(c), actual: actual
       end
     end
   end
@@ -152,9 +141,9 @@ defmodule Dynamo.Router.Callbacks do
         compile_finalize({ atom, :finalize }, acc)
       _ ->
         quote do
-          case unquote(atom).(req, res) do
-            res when is_tuple(res) -> unquote(acc)
-            actual -> raise unquote(InvalidFinalizeCallbackError), callback: unquote(atom), actual: actual
+          case unquote(atom).(conn) do
+            conn when is_tuple(conn) -> unquote(acc)
+            actual -> raise unquote(InvalidCallbackError), kind: :finalize, callback: unquote(atom), actual: actual
           end
         end
     end
@@ -162,9 +151,9 @@ defmodule Dynamo.Router.Callbacks do
 
   defp compile_finalize({ mod, function } = c, acc) when is_atom(mod) or is_atom(function) do
     quote do
-      case apply(unquote(mod), unquote(function), [req, res]) do
-        res when is_tuple(res) -> unquote(acc)
-        actual -> raise unquote(InvalidFinalizeCallbackError), callback: unquote(c), actual: actual
+      case apply(unquote(mod), unquote(function), [conn]) do
+            conn when is_tuple(conn) -> unquote(acc)
+        actual -> raise unquote(InvalidCallbackError), kind: :finalize, callback: unquote(c), actual: actual
       end
     end
   end

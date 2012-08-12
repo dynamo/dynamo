@@ -35,7 +35,7 @@ defmodule Dynamo.Router do
   defined previously and returning "world".
 
   Although in the example above we forwarded to another Dynamo router, we
-  can forward to any module, as long as it exports the function `service/2`.
+  can forward to any module, as long as it exports the function `service/1`.
   This function receives the request and response as arguments and must
   return the updated response.
 

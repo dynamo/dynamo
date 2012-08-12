@@ -1,4 +1,4 @@
-defmodule Dynamo.Request.QueryParser do
+defmodule Dynamo.Connection.QueryParser do
   defexception ParseError, message: nil
 
   @moduledoc """

@@ -12,12 +12,12 @@ defmodule Dynamo.Cowboy.Handler do
   end
 
   def handle(req, app) do
-    res = app.service(Dynamo.Cowboy.Request.new(req), Dynamo.Cowboy.Response.new(req))
+    conn = app.service(Dynamo.Cowboy.Connection.new(req))
 
-    if is_record(res, Dynamo.Cowboy.Response) do
-      { :ok, res.cowboy_request, app }
+    if is_record(conn, Dynamo.Cowboy.Connection) do
+      { :ok, conn.cowboy_request, app }
     else
-      raise "Expected service to return a Dynamo.Cowboy.Response, got #{inspect res}"
+      raise "Expected service to return a Dynamo.Cowboy.Response, got #{inspect conn}"
     end
   end
 
