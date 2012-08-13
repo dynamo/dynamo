@@ -76,6 +76,18 @@ defmodule Dynamo.Cowboy.Connection do
     end
   end
 
+  defmacrop _assigns(conn) do
+    quote do
+      elem(unquote(conn), 8)
+    end
+  end
+
+  defmacrop _assigns(conn, value) do
+    quote do
+      setelem(unquote(conn), 8, unquote(value))
+    end
+  end
+
   ## Request API
 
   @doc """
@@ -238,7 +250,7 @@ defmodule Dynamo.Cowboy.Connection do
   """
   def delete_cookie(key, opts // [], conn) do
     key  = to_binary(key)
-    unix = { { 1970, 1, 1 }, { 0, 0, 0 } }
+    unix = { { 1970, 1, 1 }, { 12, 0, 0 } }
     opts = Keyword.merge(opts, max_age: 0, local_time: unix)
 
     if cookies = _cookies(conn) do
@@ -247,6 +259,22 @@ defmodule Dynamo.Cowboy.Connection do
 
     res_cookies = List.keydelete(_res_cookies(conn), key, 1)
     _res_cookies(conn, [{ key, "", opts }|res_cookies])
+  end
+
+  ## Assigns
+
+  @doc """
+  Returns a keywords list with assigns set so far.
+  """
+  def assigns(conn) do
+    _assigns(conn)
+  end
+
+  @doc """
+  Sets a new assign with the given key and value.
+  """
+  def assign(key, value, conn) do
+    _assigns(conn, Keyword.put(_assigns(conn), key, value))
   end
 
   ## Misc
@@ -260,15 +288,13 @@ defmodule Dynamo.Cowboy.Connection do
     _request(conn)
   end
 
-  ## Internal
-
   @doc """
   Builds a new Dynamo.Cowboy.Request based on
   the original Cowboy request object.
   """
   def new(req) do
     { segments, req } = R.path(req)
-    { __MODULE__, req, segments, [], nil, nil, [] }
+    { __MODULE__, req, segments, [], nil, nil, [], [] }
   end
 
   @doc """

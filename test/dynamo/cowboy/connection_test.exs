@@ -177,6 +177,24 @@ defmodule Dynamo.Cowboy.ConnectionTest do
     assert List.keyfind(headers, "Set-Cookie", 1) == nil
   end
 
+  ## Assigns
+
+  def assigns(conn) do
+    assert conn.assigns == []
+
+    conn = conn.assign :foo, "bar"
+    assert conn.assigns == [foo: "bar"]
+
+    conn = conn.assign :foo, "baz"
+    assert conn.assigns == [foo: "baz"]
+
+    conn
+  end
+
+  test :assigns do
+    assert_success request :get, "/assigns"
+  end
+
   ## Misc
 
   def forward_to(conn) do
