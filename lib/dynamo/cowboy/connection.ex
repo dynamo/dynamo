@@ -263,7 +263,7 @@ defmodule Dynamo.Cowboy.Connection do
   end
 
   @doc """
-  A shortcut to `conn.send(conn.status, conn.body)`.
+  A shortcut to `conn.send(conn.status, conn.resp_body)`.
   """
   def send(conn) do
     send(_status(conn), _resp_body(conn), conn)
@@ -281,7 +281,13 @@ defmodule Dynamo.Cowboy.Connection do
   end
 
   @doc """
-  Returns true if a reply was already sent back to the client.
+  Returns the response state. It can be:
+
+  * `:blank` - the response was not configured yet
+  * `:configured` - the response was configured via `conn.resp`
+  * `:chunked` - the response is being sent in chunks
+  * `:sent` - the response was sent
+
   """
   def state(conn) do
     _state(conn)
