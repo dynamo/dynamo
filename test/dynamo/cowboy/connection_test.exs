@@ -125,17 +125,17 @@ defmodule Dynamo.Cowboy.ConnectionTest do
     conn
   end
 
-  def res_cookies_0(conn) do
-    assert conn.res_cookies == []
+  def resp_cookies_0(conn) do
+    assert conn.resp_cookies == []
 
     conn = conn.set_cookie(:foo, :bar, path: "/hello")
-    assert conn.res_cookies == [{ "foo", "bar", path: "/hello" }]
+    assert conn.resp_cookies == [{ "foo", "bar", path: "/hello" }]
 
     conn = conn.set_cookie(:bar, :baz, http_only: false)
     conn.reply(200, [], "Hello")
   end
 
-  def req_res_cookies(conn) do
+  def req_resp_cookies(conn) do
     conn = conn.fetch(:cookies)
     assert conn.cookies["foo"] == "bar"
     assert conn.cookies["baz"] == "bat"
@@ -154,8 +154,8 @@ defmodule Dynamo.Cowboy.ConnectionTest do
     assert_success request :get, "/req_cookies_1", [{ "Cookie", %b(foo="bar"; baz="bat") }]
   end
 
-  test :res_cookies do
-    response = request :get, "/res_cookies_0"
+  test :resp_cookies do
+    response = request :get, "/resp_cookies_0"
     assert_success response
 
     { _, headers, _ } = response
@@ -165,8 +165,8 @@ defmodule Dynamo.Cowboy.ConnectionTest do
     assert List.keyfind(headers, "Set-Cookie", 1) == { "Set-Cookie","bar=baz; Version=1" }
   end
 
-  test :req_res_cookies do
-    response = request :get, "/req_res_cookies", [{ "Cookie", %b(foo="bar"; baz="bat") }]
+  test :req_resp_cookies do
+    response = request :get, "/req_resp_cookies", [{ "Cookie", %b(foo="bar"; baz="bat") }]
     assert_success response
 
     { _, headers, _ } = response
@@ -206,6 +206,32 @@ defmodule Dynamo.Cowboy.ConnectionTest do
 
   test :req_headers do
     assert_success request :get, "/req_headers", [{ "X-Special", "foo" }]
+  end
+
+  def resp_headers(conn) do
+    assert conn.resp_headers == Binary.Dict.new
+
+    conn = conn.set_resp_header("X-Header", "First")
+    assert conn.resp_headers["X-Header"] == "First"
+
+    conn = conn.set_resp_header("X-Header", "Second")
+    assert conn.resp_headers["X-Header"] == "Second"
+
+    conn = conn.delete_resp_header("X-Header")
+    assert conn.resp_headers["X-Header"] == nil
+
+    conn = conn.set_resp_header("X-Header", "Third")
+    assert conn.resp_headers["X-Header"] == "Third"
+
+    conn.reply(200, [], "Done")
+  end
+
+  test :resp_headers do
+    response = request :get, "/resp_headers"
+    assert_success response
+
+    { _, headers, _ } = response
+    assert List.keyfind(headers, "X-Header", 1) == { "X-Header", "Third" }
   end
 
   ## Misc

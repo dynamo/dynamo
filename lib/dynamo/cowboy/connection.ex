@@ -76,27 +76,39 @@ defmodule Dynamo.Cowboy.Connection do
     end
   end
 
-  defmacrop _res_cookies(conn) do
+  defmacrop _resp_headers(conn) do
     quote do
       elem(unquote(conn), 8)
     end
   end
 
-  defmacrop _res_cookies(conn, value) do
+  defmacrop _resp_headers(conn, value) do
     quote do
       setelem(unquote(conn), 8, unquote(value))
     end
   end
 
-  defmacrop _assigns(conn) do
+  defmacrop _resp_cookies(conn) do
     quote do
       elem(unquote(conn), 9)
     end
   end
 
-  defmacrop _assigns(conn, value) do
+  defmacrop _resp_cookies(conn, value) do
     quote do
       setelem(unquote(conn), 9, unquote(value))
+    end
+  end
+
+  defmacrop _assigns(conn) do
+    quote do
+      elem(unquote(conn), 10)
+    end
+  end
+
+  defmacrop _assigns(conn, value) do
+    quote do
+      setelem(unquote(conn), 10, unquote(value))
     end
   end
 
@@ -193,20 +205,42 @@ defmodule Dynamo.Cowboy.Connection do
   Replies to the client with the given status, headers and body
   """
   def reply(status, headers, body, conn) do
-    req = Enum.reduce _res_cookies(conn), _request(conn), write_cookie(&1, &2)
-    { :ok, req } = R.reply(status, headers, body, req)
-    _res_cookies(_request(conn, req), [])
+    req = Enum.reduce _resp_cookies(conn), _request(conn), write_cookie(&1, &2)
+    { :ok, req } = R.reply(status, Dict.to_list(_resp_headers(conn)), body, req)
+    _resp_cookies(_request(conn, req), [])
   end
 
   ## Headers
 
   @doc """
-  Returns the headers as `Binary.Dict`. Note that duplicated entries
-  are removed. The headers need to be explicitly fetched with
+  Returns the request headers as `Binary.Dict`. Note that duplicated
+  entries are removed. The headers need to be explicitly fetched with
   `conn.fetch(:headers)` before using this function.
   """
   def req_headers(conn) do
     _req_headers(conn) || raise Dynamo.Connection.UnfetchedError, aspect: :req_headers
+  end
+
+  @doc """
+  Returns the response headers as `Binary.Dict`.
+  """
+  def resp_headers(conn) do
+    _resp_headers(conn)
+  end
+
+  @doc """
+  Sets the response header, overriding any previous value.
+  Both `key` and `value` are converted to binary.
+  """
+  def set_resp_header(key, value, conn) do
+    _resp_headers(conn, Dict.put(_resp_headers(conn), key, to_binary(value)))
+  end
+
+  @doc """
+  Deletes the response header.
+  """
+  def delete_resp_header(key, conn) do
+    _resp_headers(conn, Dict.delete(_resp_headers(conn), key))
   end
 
   ## Cookies
@@ -233,8 +267,8 @@ defmodule Dynamo.Cowboy.Connection do
   Returns the response cookies as a list of three element tuples
   containing the key, value and given options.
   """
-  def res_cookies(conn) do
-    _res_cookies(conn)
+  def resp_cookies(conn) do
+    _resp_cookies(conn)
   end
 
   @doc """
@@ -263,8 +297,8 @@ defmodule Dynamo.Cowboy.Connection do
       conn = _cookies(conn, Dict.put(cookies, key, value))
     end
 
-    res_cookies = List.keydelete(_res_cookies(conn), key, 1)
-    _res_cookies(conn, [{ key, value, opts }|res_cookies])
+    resp_cookies = List.keydelete(_resp_cookies(conn), key, 1)
+    _resp_cookies(conn, [{ key, value, opts }|resp_cookies])
   end
 
   @doc """
@@ -280,8 +314,8 @@ defmodule Dynamo.Cowboy.Connection do
       conn = _cookies(conn, Dict.delete(cookies, key))
     end
 
-    res_cookies = List.keydelete(_res_cookies(conn), key, 1)
-    _res_cookies(conn, [{ key, "", opts }|res_cookies])
+    resp_cookies = List.keydelete(_resp_cookies(conn), key, 1)
+    _resp_cookies(conn, [{ key, "", opts }|resp_cookies])
   end
 
   ## Assigns
@@ -317,7 +351,7 @@ defmodule Dynamo.Cowboy.Connection do
   """
   def new(req) do
     { segments, req } = R.path(req)
-    { __MODULE__, req, segments, [], nil, nil, nil, [], [] }
+    { __MODULE__, req, segments, [], nil, nil, nil, Binary.Dict.new, [], [] }
   end
 
   @doc """
@@ -341,10 +375,11 @@ defmodule Dynamo.Cowboy.Connection do
     _req_headers(_request(conn, req), Binary.Dict.new(headers))
   end
 
-  # Mounts the request by setting the new path information to the given
-  # *segments*. Both script_info/1 and path_segments/1 are updated.
-  # The segments given must be a suffix of the current path segments.
-  @doc false
+  @doc """
+  Mounts the request by setting the new path information to the given
+  *segments*. Both script_info/1 and path_segments/1 are updated.
+  The segments given must be a suffix of the current path segments.
+  """
   def forward_to(segments, _target, conn) do
     current = _path_info_segments(conn)
     { prefix, ^segments } = Enum.split current, length(current) - length(segments)
