@@ -195,6 +195,19 @@ defmodule Dynamo.Cowboy.ConnectionTest do
     assert_success request :get, "/assigns"
   end
 
+  ## Headers
+
+  def req_headers(conn) do
+    conn = conn.fetch(:headers)
+    assert conn.req_headers["Host"] == "127.0.0.1:8011"
+    assert conn.req_headers["X-Special"] == "foo"
+    conn
+  end
+
+  test :req_headers do
+    assert_success request :get, "/req_headers", [{ "X-Special", "foo" }]
+  end
+
   ## Misc
 
   def forward_to(conn) do

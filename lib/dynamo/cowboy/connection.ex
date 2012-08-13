@@ -40,51 +40,63 @@ defmodule Dynamo.Cowboy.Connection do
     end
   end
 
-  defmacrop _params(conn) do
+  defmacrop _req_headers(conn) do
     quote do
       elem(unquote(conn), 5)
     end
   end
 
-  defmacrop _params(conn, value) do
+  defmacrop _req_headers(conn, value) do
     quote do
       setelem(unquote(conn), 5, unquote(value))
     end
   end
 
-  defmacrop _cookies(conn) do
+  defmacrop _params(conn) do
     quote do
       elem(unquote(conn), 6)
     end
   end
 
-  defmacrop _cookies(conn, value) do
+  defmacrop _params(conn, value) do
     quote do
       setelem(unquote(conn), 6, unquote(value))
     end
   end
 
-  defmacrop _res_cookies(conn) do
+  defmacrop _cookies(conn) do
     quote do
       elem(unquote(conn), 7)
     end
   end
 
-  defmacrop _res_cookies(conn, value) do
+  defmacrop _cookies(conn, value) do
     quote do
       setelem(unquote(conn), 7, unquote(value))
     end
   end
 
-  defmacrop _assigns(conn) do
+  defmacrop _res_cookies(conn) do
     quote do
       elem(unquote(conn), 8)
     end
   end
 
-  defmacrop _assigns(conn, value) do
+  defmacrop _res_cookies(conn, value) do
     quote do
       setelem(unquote(conn), 8, unquote(value))
+    end
+  end
+
+  defmacrop _assigns(conn) do
+    quote do
+      elem(unquote(conn), 9)
+    end
+  end
+
+  defmacrop _assigns(conn, value) do
+    quote do
+      setelem(unquote(conn), 9, unquote(value))
     end
   end
 
@@ -99,8 +111,8 @@ defmodule Dynamo.Cowboy.Connection do
   end
 
   @doc """
-  Returns a Binary.Dict with params retrieved from the query
-  string or from post body. The parameters need to be explicitly
+  Returns the params retrieved from the query string and the request
+  body as a `Binary.Dict`. The parameters need to be explicitly
   fetched with `conn.fetch(:params)` before using this function.
   """
   def params(conn) do
@@ -184,6 +196,17 @@ defmodule Dynamo.Cowboy.Connection do
     req = Enum.reduce _res_cookies(conn), _request(conn), write_cookie(&1, &2)
     { :ok, req } = R.reply(status, headers, body, req)
     _res_cookies(_request(conn, req), [])
+  end
+
+  ## Headers
+
+  @doc """
+  Returns the headers as `Binary.Dict`. Note that duplicated entries
+  are removed. The headers need to be explicitly fetched with
+  `conn.fetch(:headers)` before using this function.
+  """
+  def req_headers(conn) do
+    _req_headers(conn) || raise Dynamo.Connection.UnfetchedError, aspect: :req_headers
   end
 
   ## Cookies
@@ -294,12 +317,12 @@ defmodule Dynamo.Cowboy.Connection do
   """
   def new(req) do
     { segments, req } = R.path(req)
-    { __MODULE__, req, segments, [], nil, nil, [], [] }
+    { __MODULE__, req, segments, [], nil, nil, nil, [], [] }
   end
 
   @doc """
   Responsible for fetching and caching aspects of the response.
-  The "fetchable" aspects are: params, cookies and session.
+  The "fetchable" aspects are: headers, params, cookies and session.
   """
   def fetch(:params, conn) do
     { query_string, req } = R.raw_qs _request(conn)
@@ -311,6 +334,11 @@ defmodule Dynamo.Cowboy.Connection do
   def fetch(:cookies, conn) do
     { cookies, req } = R.cookies _request(conn)
     _cookies(_request(conn, req), Binary.Dict.new(cookies))
+  end
+
+  def fetch(:headers, conn) do
+    { headers, req } = R.headers _request(conn)
+    _req_headers(_request(conn, req), Binary.Dict.new(headers))
   end
 
   # Mounts the request by setting the new path information to the given
