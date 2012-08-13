@@ -7,11 +7,11 @@ defmodule Dynamo.Cowboy.RouterTest do
     use Dynamo.Router
 
     get "/foo/bar" do
-      conn.reply(200, [], "Hello World!")
+      conn.reply(200, "Hello World!")
     end
 
     get "/mounted" do
-      conn.reply(200, [], conn.path_info)
+      conn.reply(200, conn.path_info)
     end
 
     forward "/baz", to: __MODULE__
@@ -34,7 +34,7 @@ defmodule Dynamo.Cowboy.RouterTest do
   end
 
   test "404 response a router app" do
-    assert { 404, _, "" } = request :get, "/other"
+    assert { 404, _, "Not found" } = request :get, "/other"
   end
 
   defp request(verb, path) do

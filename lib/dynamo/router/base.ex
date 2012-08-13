@@ -34,7 +34,7 @@ defmodule Dynamo.Router.Base do
 
       @doc false
       def not_found(conn) do
-        conn.reply(404, [], "")
+        conn.reply(404, "Not found")
       end
 
       @doc false

@@ -14,9 +14,9 @@ defmodule Dynamo.Cowboy.ConnectionTest do
   def service(conn) do
     function = binary_to_atom hd(conn.path_segments), :utf8
     apply __MODULE__, function, [conn]
-  # rescue
-  #   exception ->
-  #     res.reply(500, [], exception.message <> inspect(Code.stacktrace))
+  rescue
+    exception ->
+      conn.reply(500, exception.message <> "\n" <> Exception.formatted_stacktrace)
   end
 
   # Request API
@@ -132,7 +132,7 @@ defmodule Dynamo.Cowboy.ConnectionTest do
     assert conn.resp_cookies == [{ "foo", "bar", path: "/hello" }]
 
     conn = conn.set_cookie(:bar, :baz, http_only: false)
-    conn.reply(200, [], "Hello")
+    conn.reply(200, "Hello")
   end
 
   def req_resp_cookies(conn) do
@@ -146,7 +146,7 @@ defmodule Dynamo.Cowboy.ConnectionTest do
 
     conn = conn.delete_cookie(:foo)
     assert conn.cookies["foo"] == nil
-    conn.reply(200, [], "Hello")
+    conn.reply(200, "Hello")
   end
 
   test :req_cookies do
@@ -223,7 +223,7 @@ defmodule Dynamo.Cowboy.ConnectionTest do
     conn = conn.set_resp_header("X-Header", "Third")
     assert conn.resp_headers["X-Header"] == "Third"
 
-    conn.reply(200, [], "Done")
+    conn.reply(200, "Hello")
   end
 
   test :resp_headers do
@@ -232,6 +232,22 @@ defmodule Dynamo.Cowboy.ConnectionTest do
 
     { _, headers, _ } = response
     assert List.keyfind(headers, "X-Header", 1) == { "X-Header", "Third" }
+  end
+
+  ## Request Body API
+
+  def reply(conn) do
+    refute conn.replied?
+    assert conn.status == nil
+
+    conn = conn.reply(200, "OK")
+    assert conn.replied?
+    assert conn.status == 200
+    conn
+  end
+
+  test :reply do
+    assert { 200, _, "OK" } = request :get, "/reply"
   end
 
   ## Misc

@@ -6,7 +6,7 @@ defmodule MyApp do
   use Dynamo.Router
 
   get "/foo/bar" do
-    response.reply(200, [], "Hello World!")
+    conn.reply(200, "Hello World!")
   end
 end
 

@@ -112,6 +112,18 @@ defmodule Dynamo.Cowboy.Connection do
     end
   end
 
+  defmacrop _status(conn) do
+    quote do
+      elem(unquote(conn), 11)
+    end
+  end
+
+  defmacrop _status(conn, value) do
+    quote do
+      setelem(unquote(conn), 11, unquote(value))
+    end
+  end
+
   ## Request API
 
   @doc """
@@ -202,12 +214,26 @@ defmodule Dynamo.Cowboy.Connection do
   ## Response API
 
   @doc """
-  Replies to the client with the given status, headers and body
+  Returns the response status code, nil if the response was not yet sent.
   """
-  def reply(status, headers, body, conn) do
+  def status(conn) do
+    _status(conn)
+  end
+
+  @doc """
+  Replies to the client with the given status and body.
+  """
+  def reply(status, body, conn) do
     req = Enum.reduce _resp_cookies(conn), _request(conn), write_cookie(&1, &2)
     { :ok, req } = R.reply(status, Dict.to_list(_resp_headers(conn)), body, req)
-    _resp_cookies(_request(conn, req), [])
+    _status(_request(conn, req), status)
+  end
+
+  @doc """
+  Returns true if a reply was already sent back to the client.
+  """
+  def replied?(conn) do
+    _status(conn) != nil
   end
 
   ## Headers
@@ -351,7 +377,7 @@ defmodule Dynamo.Cowboy.Connection do
   """
   def new(req) do
     { segments, req } = R.path(req)
-    { __MODULE__, req, segments, [], nil, nil, nil, Binary.Dict.new, [], [] }
+    { __MODULE__, req, segments, [], nil, nil, nil, Binary.Dict.new, [], [], nil }
   end
 
   @doc """
