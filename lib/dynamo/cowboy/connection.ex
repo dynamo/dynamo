@@ -232,6 +232,23 @@ defmodule Dynamo.Cowboy.Connection do
     _res_cookies(conn, [{ key, value, opts }|res_cookies])
   end
 
+  @doc """
+  Deletes a cookie. The same options given when setting the cookie
+  must be given on delete to ensure the browser will pick them up.
+  """
+  def delete_cookie(key, opts // [], conn) do
+    key  = to_binary(key)
+    unix = { { 1970, 1, 1 }, { 0, 0, 0 } }
+    opts = Keyword.merge(opts, max_age: 0, local_time: unix)
+
+    if cookies = _cookies(conn) do
+      conn = _cookies(conn, Dict.delete(cookies, key))
+    end
+
+    res_cookies = List.keydelete(_res_cookies(conn), key, 1)
+    _res_cookies(conn, [{ key, "", opts }|res_cookies])
+  end
+
   ## Misc
 
   @doc """
