@@ -43,7 +43,27 @@ defmodule Dynamo.Router do
 
   ## Callbacks
 
-  TBD
+  Routers also include callbacks functionality via both `prepare/1` and
+  `finalize/1` macros. Such callbacks receive the connection as argument
+  and may return an updated version. For example:
+
+      defmodule MyApp do
+        use Dynamo.Router
+
+        prepare :check_user_cookie
+
+        get ...
+
+        defp check_user_cookie(conn) do
+          unless conn.cookies[:user_id] do
+            redirect_to conn, "/"
+          end
+        end
+      end
+
+  Notice that, if a prepare callbacks replies, redirects or anything,
+  the stack aborts and the connection is returned. Check
+  `Dynamo.Router.Callbacks` for more information.
   """
 
   @doc false

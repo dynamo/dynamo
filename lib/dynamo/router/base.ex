@@ -62,7 +62,7 @@ defmodule Dynamo.Router.Base do
   ## Examples
 
       match "/foo/bar", via: :get do
-        conn.ok "hello world"
+        conn.reply 200, "hello world"
       end
 
   ## Options
@@ -82,27 +82,27 @@ defmodule Dynamo.Router.Base do
   the request and the response. Consider this example:
 
       match "/foo/bar", via: :get do
-        res.ok "hello world"
+        conn.reply 200, "hello world"
       end
 
   It is compiled to:
 
       def dispatch(:GET, ["foo", "bar"], conn) do
-        res.ok "hello world"
+        conn.reply 200, "hello world"
       end
 
   This opens up a few possibilities. First, guards can be given
   to match:
 
       match "/foo/:bar" when size(bar) <= 3, via: :get do
-        conn.ok "hello world"
+        conn.reply "hello world"
       end
 
   Second, a list of splitten paths (which is the compiled result)
   is also allowed:
 
       match ["foo", bar], via: :get do
-        conn.ok "hello world"
+        conn.reply "hello world"
       end
 
   """

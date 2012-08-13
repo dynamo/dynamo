@@ -14,7 +14,7 @@ defmodule Dynamo.Router.Callbacks do
   * `[do: block]` - a chunk of code to be executed as callback. The block
     has access to the connection as `conn`.
 
-  Callbacks receive the connection as argument and must return the update
+  Callbacks receive the connection as argument and must return the updated
   connection (if any change happens).
 
   Note that callbacks are invoked regardless if there was a match or
@@ -34,6 +34,8 @@ defmodule Dynamo.Router.Callbacks do
         get ...
       end
 
+  Notice that, if a prepare callbacks replies, redirects or anything,
+  the stack aborts and the connection is returned.
   """
 
   defexception InvalidCallbackError, kind: nil, callback: nil, actual: nil do
