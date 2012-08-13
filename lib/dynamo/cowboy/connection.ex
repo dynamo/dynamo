@@ -124,6 +124,30 @@ defmodule Dynamo.Cowboy.Connection do
     end
   end
 
+  defmacrop _resp_body(conn) do
+    quote do
+      elem(unquote(conn), 12)
+    end
+  end
+
+  defmacrop _resp_body(conn, value) do
+    quote do
+      setelem(unquote(conn), 12, unquote(value))
+    end
+  end
+
+  defmacrop _state(conn) do
+    quote do
+      elem(unquote(conn), 13)
+    end
+  end
+
+  defmacrop _state(conn, value) do
+    quote do
+      setelem(unquote(conn), 13, unquote(value))
+    end
+  end
+
   ## Request API
 
   @doc """
@@ -214,26 +238,53 @@ defmodule Dynamo.Cowboy.Connection do
   ## Response API
 
   @doc """
-  Returns the response status code, nil if the response was not yet sent.
+  Returns the response status if one was set.
   """
   def status(conn) do
     _status(conn)
   end
 
   @doc """
-  Replies to the client with the given status and body.
+  Returns the response body if one was set.
   """
-  def reply(status, body, conn) do
+  def resp_body(conn) do
+    _resp_body(conn)
+  end
+
+  @doc """
+  Sets a response to the given status and body. The
+  response will only be sent when `send` is called.
+
+  After calling this function, the state changes to `:configured`,
+  both `status` and `resp_body` are set.
+  """
+  def resp(status, body, conn) when is_integer(status) do
+    _state(_status(_resp_body(conn, body), status), :configured)
+  end
+
+  @doc """
+  A shortcut to `conn.send(conn.status, conn.body)`.
+  """
+  def send(conn) do
+    send(_status(conn), _resp_body(conn), conn)
+  end
+
+  @doc """
+  Sends to the client the given status and body.
+  An updated connection is returned with `:sent` state,
+  the given status and response body set to nil.
+  """
+  def send(status, body, conn) when is_integer(status) do
     req = Enum.reduce _resp_cookies(conn), _request(conn), write_cookie(&1, &2)
     { :ok, req } = R.reply(status, Dict.to_list(_resp_headers(conn)), body, req)
-    _status(_request(conn, req), status)
+    _state(_status(_resp_body(_request(conn, req), nil), status), :sent)
   end
 
   @doc """
   Returns true if a reply was already sent back to the client.
   """
-  def replied?(conn) do
-    _status(conn) != nil
+  def state(conn) do
+    _state(conn)
   end
 
   ## Headers
@@ -377,7 +428,7 @@ defmodule Dynamo.Cowboy.Connection do
   """
   def new(req) do
     { segments, req } = R.path(req)
-    { __MODULE__, req, segments, [], nil, nil, nil, Binary.Dict.new, [], [], nil }
+    { __MODULE__, req, segments, [], nil, nil, nil, Binary.Dict.new, [], [], nil, nil, :blank }
   end
 
   @doc """

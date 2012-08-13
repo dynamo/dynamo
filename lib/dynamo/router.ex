@@ -11,7 +11,7 @@ defmodule Dynamo.Router do
         use Dynamo.Router
 
         get "hello" do
-          conn.reply 200, "world"
+          conn.send 200, "world"
         end
       end
 

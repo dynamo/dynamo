@@ -15,6 +15,9 @@ defmodule Dynamo.Cowboy.Handler do
     conn = app.service(Dynamo.Cowboy.Connection.new(req))
 
     if is_record(conn, Dynamo.Cowboy.Connection) do
+      if conn.state == :configured do
+        conn = conn.send
+      end
       { :ok, conn.cowboy_request, app }
     else
       raise "Expected service to return a Dynamo.Cowboy.Response, got #{inspect conn}"

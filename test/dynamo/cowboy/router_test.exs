@@ -7,11 +7,11 @@ defmodule Dynamo.Cowboy.RouterTest do
     use Dynamo.Router
 
     get "/foo/bar" do
-      conn.reply(200, "Hello World!")
+      conn.send(200, "Hello World!")
     end
 
     get "/mounted" do
-      conn.reply(200, conn.path_info)
+      conn.send(200, conn.path_info)
     end
 
     forward "/baz", to: __MODULE__

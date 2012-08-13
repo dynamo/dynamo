@@ -16,7 +16,7 @@ defmodule Dynamo.Cowboy.ConnectionTest do
     apply __MODULE__, function, [conn]
   rescue
     exception ->
-      conn.reply(500, exception.message <> "\n" <> Exception.formatted_stacktrace)
+      conn.send(500, exception.message <> "\n" <> Exception.formatted_stacktrace)
   end
 
   # Request API
@@ -132,7 +132,7 @@ defmodule Dynamo.Cowboy.ConnectionTest do
     assert conn.resp_cookies == [{ "foo", "bar", path: "/hello" }]
 
     conn = conn.set_cookie(:bar, :baz, http_only: false)
-    conn.reply(200, "Hello")
+    conn.send(200, "Hello")
   end
 
   def req_resp_cookies(conn) do
@@ -146,7 +146,7 @@ defmodule Dynamo.Cowboy.ConnectionTest do
 
     conn = conn.delete_cookie(:foo)
     assert conn.cookies["foo"] == nil
-    conn.reply(200, "Hello")
+    conn.send(200, "Hello")
   end
 
   test :req_cookies do
@@ -223,7 +223,7 @@ defmodule Dynamo.Cowboy.ConnectionTest do
     conn = conn.set_resp_header("X-Header", "Third")
     assert conn.resp_headers["X-Header"] == "Third"
 
-    conn.reply(200, "Hello")
+    conn.send(200, "Hello")
   end
 
   test :resp_headers do
@@ -236,18 +236,38 @@ defmodule Dynamo.Cowboy.ConnectionTest do
 
   ## Request Body API
 
-  def reply(conn) do
-    refute conn.replied?
-    assert conn.status == nil
+  def send(conn) do
+    assert conn.state == :blank
 
-    conn = conn.reply(200, "OK")
-    assert conn.replied?
+    conn = conn.send(201, "OK")
+    assert conn.state  == :sent
     assert conn.status == 200
+
     conn
   end
 
-  test :reply do
-    assert { 200, _, "OK" } = request :get, "/reply"
+  test :send do
+    assert { 201, _, "OK" } = request :get, "/send"
+  end
+
+  def resp(conn) do
+    assert conn.state == :blank
+
+    conn = conn.resp(201, "OK")
+    assert conn.state     == :configured
+    assert conn.status    == 201
+    assert conn.resp_body == "OK"
+
+    conn = conn.resp(302, "Redirected")
+    assert conn.state     == :configured
+    assert conn.status    == 302
+    assert conn.resp_body == "Redirected"
+
+    conn
+  end
+
+  test :resp do
+    assert { 302, _, "Redirected" } = request :get, "/resp"
   end
 
   ## Misc
