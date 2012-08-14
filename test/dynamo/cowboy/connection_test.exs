@@ -237,7 +237,7 @@ defmodule Dynamo.Cowboy.ConnectionTest do
   ## Request Body API
 
   def send(conn) do
-    assert conn.state == :blank
+    assert conn.state == :unset
 
     conn = conn.send(201, "OK")
     assert conn.state  == :sent
@@ -251,15 +251,15 @@ defmodule Dynamo.Cowboy.ConnectionTest do
   end
 
   def resp(conn) do
-    assert conn.state == :blank
+    assert conn.state == :unset
 
     conn = conn.resp(201, "OK")
-    assert conn.state     == :configured
+    assert conn.state     == :set
     assert conn.status    == 201
     assert conn.resp_body == "OK"
 
     conn = conn.resp(302, "Redirected")
-    assert conn.state     == :configured
+    assert conn.state     == :set
     assert conn.status    == 302
     assert conn.resp_body == "Redirected"
 

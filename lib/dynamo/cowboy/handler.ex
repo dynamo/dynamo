@@ -15,7 +15,7 @@ defmodule Dynamo.Cowboy.Handler do
     conn = app.service(Dynamo.Cowboy.Connection.new(req))
 
     if is_record(conn, Dynamo.Cowboy.Connection) do
-      if conn.state == :configured do
+      if conn.state == :set do
         conn = conn.send
       end
       { :ok, conn.cowboy_request, app }

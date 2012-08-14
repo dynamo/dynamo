@@ -255,11 +255,11 @@ defmodule Dynamo.Cowboy.Connection do
   Sets a response to the given status and body. The
   response will only be sent when `send` is called.
 
-  After calling this function, the state changes to `:configured`,
+  After calling this function, the state changes to `:set`,
   both `status` and `resp_body` are set.
   """
   def resp(status, body, conn) when is_integer(status) do
-    _state(_status(_resp_body(conn, body), status), :configured)
+    _state(_status(_resp_body(conn, body), status), :set)
   end
 
   @doc """
@@ -283,8 +283,8 @@ defmodule Dynamo.Cowboy.Connection do
   @doc """
   Returns the response state. It can be:
 
-  * `:blank` - the response was not configured yet
-  * `:configured` - the response was configured via `conn.resp`
+  * `:unset` - the response was not configured yet
+  * `:set` - the response was configured via `conn.resp`
   * `:chunked` - the response is being sent in chunks
   * `:sent` - the response was sent
 
@@ -434,7 +434,7 @@ defmodule Dynamo.Cowboy.Connection do
   """
   def new(req) do
     { segments, req } = R.path(req)
-    { __MODULE__, req, segments, [], nil, nil, nil, Binary.Dict.new, [], [], nil, nil, :blank }
+    { __MODULE__, req, segments, [], nil, nil, nil, Binary.Dict.new, [], [], nil, nil, :unset }
   end
 
   @doc """
