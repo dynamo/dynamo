@@ -62,17 +62,17 @@ defmodule Dynamo.Router.Callbacks do
   defmacro before_compile(module) do
     prepare  = Module.read_attribute(module, :__prepare_callbacks)
     finalize = Module.read_attribute(module, :__finalize_callbacks)
-    start    = quote do: conn
-    prepare  = Enum.reduce(prepare, start, compile_prepare(&1, &2))
-    finalize = Enum.reduce(finalize, start, compile_finalize(&1, &2))
+
+    code = Enum.reduce(finalize, quote(do: conn), compile_finalize(&1, &2))
+    code = quote do
+      conn = super(method, path, conn)
+      unquote(code)
+    end
+    code = Enum.reduce(prepare, code, compile_prepare(&1, &2))
 
     quote do
       defoverridable [dispatch: 3]
-
-      def dispatch(method, path, conn) do
-        conn = super(method, path, unquote(prepare))
-        unquote(finalize)
-      end
+      def dispatch(method, path, conn), do: unquote(code)
     end
   end
 
@@ -121,8 +121,10 @@ defmodule Dynamo.Router.Callbacks do
       _ ->
         quote do
           case unquote(atom).(conn) do
-            conn when is_tuple(conn) -> unquote(acc)
-            actual -> raise unquote(InvalidCallbackError), kind: :prepare, callback: unquote(atom), actual: actual
+            conn when is_tuple(conn) ->
+              if conn.state != :unset, do: conn, else: unquote(acc)
+            actual ->
+              raise unquote(InvalidCallbackError), kind: :prepare, callback: unquote(atom), actual: actual
           end
         end
     end
@@ -131,8 +133,10 @@ defmodule Dynamo.Router.Callbacks do
   defp compile_prepare({ mod, function } = c, acc) when is_atom(mod) or is_atom(function) do
     quote do
       case apply(unquote(mod), unquote(function), [conn]) do
-        conn when is_tuple(conn) -> unquote(acc)
-        actual -> raise unquote(InvalidCallbackError), kind: :prepare, callback: unquote(c), actual: actual
+        conn when is_tuple(conn) ->
+          if conn.state != :unset, do: conn, else: unquote(acc)
+        actual ->
+          raise unquote(InvalidCallbackError), kind: :prepare, callback: unquote(c), actual: actual
       end
     end
   end

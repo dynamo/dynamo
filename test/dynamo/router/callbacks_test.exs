@@ -3,7 +3,7 @@ Code.require_file "../../../test_helper", __FILE__
 defmodule Dynamo.Router.PrepareCallbacksTest do
   use ExUnit.Case, async: true
 
-  defrecord Mock, value: nil
+  defrecord Mock, value: nil, state: :unset
 
   defmodule SingleCallbacks do
     use Dynamo.Router
@@ -84,6 +84,22 @@ defmodule Dynamo.Router.PrepareCallbacksTest do
     assert_raise Dynamo.Router.Callbacks.InvalidCallbackError, fn ->
       InvalidCallbacks.dispatch(:GET, ["foo"], Mock.new)
     end
+  end
+
+  defmodule AbortingCallbacks do
+    use Dynamo.Router
+
+    prepare do
+      conn.state(:set).value(13)
+    end
+
+    get "/foo" do
+      raise "will never be invoked"
+    end
+  end
+
+  test "aborts when state is different than unset" do
+    assert AbortingCallbacks.dispatch(:GET, ["foo"], Mock.new).value == 13
   end
 end
 
