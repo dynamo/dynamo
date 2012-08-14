@@ -24,7 +24,7 @@ defmodule Dynamo.Router.PrepareCallbacksTest do
   end
 
   defmodule Bar do
-    def prepare(conn) do
+    def service(conn) do
       conn.value(3)
     end
 
@@ -127,7 +127,7 @@ defmodule Dynamo.Router.FinishCallbacksTest do
   end
 
   defmodule Bar do
-    def finalize(conn) do
+    def service(conn) do
       conn.update_value(&1 + 1)
     end
 

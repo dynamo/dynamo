@@ -132,7 +132,7 @@ defmodule Dynamo.Router.Callbacks do
   defp compile_prepare(atom, acc) when is_atom(atom) do
     case atom_to_binary(atom) do
       "Elixir-" <> _ ->
-        compile_prepare({ atom, :prepare }, acc)
+        compile_prepare({ atom, :service }, acc)
       _ ->
         quote do
           case unquote(atom).(conn) do
@@ -159,7 +159,7 @@ defmodule Dynamo.Router.Callbacks do
   defp compile_finalize(atom, acc) when is_atom(atom) do
     case atom_to_binary(atom) do
       "Elixir-" <> _ ->
-        compile_finalize({ atom, :finalize }, acc)
+        compile_finalize({ atom, :service }, acc)
       _ ->
         quote do
           case unquote(atom).(conn) do
