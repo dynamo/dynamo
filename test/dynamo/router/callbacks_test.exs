@@ -24,11 +24,18 @@ defmodule Dynamo.Router.PrepareCallbacksTest do
   end
 
   defmodule Bar do
+    def new do
+      # We are returning a tuple with three elements
+      # to ensure we are escaping the tuple contents
+      # with Macro.escape when generating the callback
+      { __MODULE__, 1, [] }
+    end
+
     def service(conn) do
       conn.value(3)
     end
 
-    def other(conn) do
+    def service(conn, { __MODULE__, 1, [] }) do
       conn.update_value(&1 * 2)
     end
   end
@@ -37,7 +44,7 @@ defmodule Dynamo.Router.PrepareCallbacksTest do
     use Dynamo.Router
 
     prepare Bar
-    prepare { Bar, :other }
+    prepare Bar.new
 
     get "/foo" do
       conn.value
@@ -131,7 +138,7 @@ defmodule Dynamo.Router.FinishCallbacksTest do
       conn.update_value(&1 + 1)
     end
 
-    def other(conn) do
+    def service(conn, { __MODULE__, :data }) do
       conn.update_value(&1 * 2)
     end
   end
@@ -140,7 +147,7 @@ defmodule Dynamo.Router.FinishCallbacksTest do
     use Dynamo.Router
 
     finalize Bar
-    finalize { Bar, :other }
+    finalize { Bar, :data }
 
     get "/foo" do
       conn.value(2)

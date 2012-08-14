@@ -8,8 +8,8 @@ defmodule Dynamo.Router.Callbacks do
   * `:function_name` - the atom denotes the function name to be invoked
     in the current module;
 
-  * `{ mod, function }` - the module and an atom representing the function
-    to be invoked;
+  * `module_or_tuple` - a module or a tuple where service will be invoked
+     passing the connection as argument;
 
   * `[do: block]` - a chunk of code to be executed as callback. The block
     has access to the connection as `conn`.
@@ -63,12 +63,18 @@ defmodule Dynamo.Router.Callbacks do
     prepare  = Module.read_attribute(module, :__prepare_callbacks)
     finalize = Module.read_attribute(module, :__finalize_callbacks)
 
-    code = Enum.reduce(finalize, quote(do: conn), compile_finalize(&1, &2))
+    code = Enum.reduce finalize, quote(do: conn), fn(callback, acc) ->
+      compile_callback(callback, acc, function(:compile_finalize, 3))
+    end
+
     code = quote do
       conn = super(method, path, conn)
       unquote(code)
     end
-    code = Enum.reduce(prepare, code, compile_prepare(&1, &2))
+
+    code = Enum.reduce prepare, code, fn(callback, acc) ->
+      compile_callback(callback, acc, function(:compile_prepare, 3))
+    end
 
     quote do
       defoverridable [dispatch: 3]
@@ -129,52 +135,40 @@ defmodule Dynamo.Router.Callbacks do
     end
   end
 
-  defp compile_prepare(atom, acc) when is_atom(atom) do
-    case atom_to_binary(atom) do
+  defp compile_callback(ref, acc, fun) when is_atom(ref) do
+    case atom_to_binary(ref) do
       "Elixir-" <> _ ->
-        compile_prepare({ atom, :service }, acc)
+        call = quote(do: unquote(ref).service(conn))
+        fun.(call, ref, acc)
       _ ->
-        quote do
-          case unquote(atom).(conn) do
-            conn when is_tuple(conn) ->
-              if conn.state != :unset, do: conn, else: unquote(acc)
-            actual ->
-              raise unquote(InvalidCallbackError), kind: :prepare, callback: unquote(atom), actual: actual
-          end
-        end
+        call = quote(do: unquote(ref).(conn))
+        fun.(call, ref, acc)
     end
   end
 
-  defp compile_prepare({ mod, function } = c, acc) when is_atom(mod) or is_atom(function) do
+  defp compile_callback(ref, acc, fun) when is_tuple(ref) do
+    ref  = Macro.escape(ref)
+    call = quote(do: unquote(ref).service(conn))
+    fun.(call, ref, acc)
+  end
+
+  defp compile_prepare(call, ref, acc) do
     quote do
-      case apply(unquote(mod), unquote(function), [conn]) do
+      case unquote(call) do
         conn when is_tuple(conn) ->
           if conn.state != :unset, do: conn, else: unquote(acc)
         actual ->
-          raise unquote(InvalidCallbackError), kind: :prepare, callback: unquote(c), actual: actual
+          raise unquote(InvalidCallbackError), kind: :prepare, callback: unquote(ref), actual: actual
       end
     end
   end
 
-  defp compile_finalize(atom, acc) when is_atom(atom) do
-    case atom_to_binary(atom) do
-      "Elixir-" <> _ ->
-        compile_finalize({ atom, :service }, acc)
-      _ ->
-        quote do
-          case unquote(atom).(conn) do
-            conn when is_tuple(conn) -> unquote(acc)
-            actual -> raise unquote(InvalidCallbackError), kind: :finalize, callback: unquote(atom), actual: actual
-          end
-        end
-    end
-  end
-
-  defp compile_finalize({ mod, function } = c, acc) when is_atom(mod) or is_atom(function) do
+  defp compile_finalize(call, ref, acc) do
     quote do
-      case apply(unquote(mod), unquote(function), [conn]) do
-            conn when is_tuple(conn) -> unquote(acc)
-        actual -> raise unquote(InvalidCallbackError), kind: :finalize, callback: unquote(c), actual: actual
+      case unquote(call) do
+        conn when is_tuple(conn) -> unquote(acc)
+        actual ->
+          raise unquote(InvalidCallbackError), kind: :finalize, callback: unquote(ref), actual: actual
       end
     end
   end
