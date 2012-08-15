@@ -283,8 +283,8 @@ defmodule Dynamo.Cowboy.ConnectionTest do
     assert conn.path == "/forward_to/foo/bar/baz"
     assert conn.path_segments == ["forward_to", "foo", "bar", "baz"]
 
-    assert conn.script_info == "/forward_to"
-    assert conn.script_info_segments == ["forward_to"]
+    assert conn.script_name == "/forward_to"
+    assert conn.script_name_segments == ["forward_to"]
 
     conn = conn.forward_to ["bar", "baz"], Bar
 
@@ -294,8 +294,8 @@ defmodule Dynamo.Cowboy.ConnectionTest do
     assert conn.path == "/forward_to/foo/bar/baz"
     assert conn.path_segments == ["forward_to", "foo", "bar", "baz"]
 
-    assert conn.script_info == "/forward_to/foo"
-    assert conn.script_info_segments == ["forward_to", "foo"]
+    assert conn.script_name == "/forward_to/foo"
+    assert conn.script_name_segments == ["forward_to", "foo"]
 
     conn
   end
