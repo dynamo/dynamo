@@ -28,6 +28,10 @@ defmodule Dynamo.Router.BaseTest do
   defmodule Sample1 do
     use Dynamo.Router
 
+    get "/" do
+      :root
+    end
+
     get "/1/bar" do
       1
     end
@@ -65,9 +69,25 @@ defmodule Dynamo.Router.BaseTest do
     forward "/10", to: Sample0
     forward ["11", "deep"], to: Sample0
 
+    get "/with_request" do
+      conn
+    end
+
     def not_found(_conn) do
       404
     end
+  end
+
+  defmodule RootSample do
+    use Dynamo.Router
+
+    forward "/", to: Sample1
+  end
+
+  def test_dispatch_root do
+    assert Sample1.dispatch(:GET, [], {}) == :root
+    assert RootSample.dispatch(:GET, [], Mock.new) == :root
+    assert RootSample.dispatch(:GET, ["8", "foo"], Mock.new) == 8
   end
 
   def test_dispatch_single_segment do
@@ -130,5 +150,9 @@ defmodule Dynamo.Router.BaseTest do
   def test_forwarding_to_another_endpoint_annotates_the_request do
     conn = Sample1.dispatch(:GET, ["10", "with_request"], Mock.new)
     assert conn.forward_to == { ["with_request"], Dynamo.Router.BaseTest.Sample0 }
+  end
+
+  def test_forwarding_on_root do
+    assert Sample1.dispatch(:GET, ["1","bar"], {}) == 1
   end
 end

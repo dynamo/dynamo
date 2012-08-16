@@ -17,11 +17,7 @@ defmodule Dynamo.Router.Utils do
   end
 
   def generate_match(spec) when is_binary(spec) do
-    generate_match binary_to_list(spec)
-  end
-
-  def generate_match(spec) do
-    generate_match raw_split(spec), []
+    generate_match list_split(spec), []
   end
 
   @doc """
@@ -40,11 +36,7 @@ defmodule Dynamo.Router.Utils do
   end
 
   def generate_forward(spec) when is_binary(spec) do
-    generate_forward binary_to_list(spec)
-  end
-
-  def generate_forward(spec) do
-    generate_match raw_split(spec) ++ ['*glob'], []
+    generate_match list_split(spec) ++ ['*glob'], []
   end
 
   @doc """
@@ -56,12 +48,8 @@ defmodule Dynamo.Router.Utils do
       split("/foo/bar") #=> ['foo', 'bar']
 
   """
-  def split(bin) when is_binary(bin) do
-    split binary_to_list(bin)
-  end
-
-  def split(t) do
-    lc segment inlist raw_split(t), do: list_to_binary(segment)
+  def split(bin) do
+    lc segment inlist Binary.split(bin, "/", global: true), segment != "", do: segment
   end
 
   ## Helpers
@@ -138,26 +126,8 @@ defmodule Dynamo.Router.Utils do
     { :literal, binary_from_buffer(buffer) }
   end
 
-  # Helpers for splitting the path.
-
-  defp raw_split([?/|t]) do
-    raw_split t, [], []
-  end
-
-  defp raw_split(t) do
-    raw_split t, [], []
-  end
-
-  defp raw_split(list, buffer, acc) when list == [] or list == [?/] do
-    Enum.reverse [Enum.reverse(buffer)|acc]
-  end
-
-  defp raw_split([?/|t], buffer, acc) do
-    raw_split t, [], [Enum.reverse(buffer)|acc]
-  end
-
-  defp raw_split([h|t], buffer, acc) do
-    raw_split t, [h|buffer], acc
+  defp list_split(bin) do
+    lc segment inlist Binary.split(bin, "/", global: true), segment != "", do: binary_to_list(segment)
   end
 
   defp binary_from_buffer(buffer) do

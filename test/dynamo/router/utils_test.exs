@@ -11,6 +11,11 @@ defmodule Dynamo.Router.UtilsTest do
     end
   end
 
+  def test_root do
+    assert R.split("/") == []
+    assert R.split("") == []
+  end
+
   def test_split_single_segment do
     assert R.split("/foo") == ["foo"]
     assert R.split("foo") == ["foo"]

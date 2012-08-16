@@ -355,6 +355,10 @@ defmodule Dynamo.Cowboy.Connection do
   *segments*. Both script_name/1 and path_segments/1 are updated.
   The segments given must be a suffix of the current path segments.
   """
+  def forward_to([], _target, conn) do
+    conn
+  end
+
   def forward_to(segments, _target,
       connection(path_info_segments: path, script_name_segments: script) = conn) do
     { prefix, ^segments } = Enum.split path, length(path) - length(segments)
