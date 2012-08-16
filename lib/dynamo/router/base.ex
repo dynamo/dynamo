@@ -24,7 +24,7 @@ defmodule Dynamo.Router.Base do
 
       @doc false
       def service(conn) do
-        dispatch(conn.method, conn.path_segments, conn)
+        dispatch(conn.method, conn.path_info_segments, conn)
       end
 
       @doc false
@@ -34,7 +34,7 @@ defmodule Dynamo.Router.Base do
 
       @doc false
       def not_found(conn) do
-        conn.send(404, "Not found")
+        conn.resp(404, "Not found")
       end
 
       @doc false
