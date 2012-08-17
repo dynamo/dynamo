@@ -241,7 +241,7 @@ defmodule Dynamo.Cowboy.ConnectionTest do
 
     conn = conn.send(201, "OK")
     assert conn.state  == :sent
-    assert conn.status == 200
+    assert conn.status == 201
 
     conn
   end

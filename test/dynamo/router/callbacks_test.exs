@@ -2,8 +2,7 @@ Code.require_file "../../../test_helper", __FILE__
 
 defmodule Dynamo.Router.PrepareCallbacksTest do
   use ExUnit.Case, async: true
-
-  defrecord Mock, value: nil, state: :unset
+  import Dynamo.Test.Helpers
 
   defmodule SingleCallbacks do
     use Dynamo.Router
@@ -11,16 +10,18 @@ defmodule Dynamo.Router.PrepareCallbacksTest do
     prepare :foo
 
     get "/foo" do
-      conn.value
+      conn.resp(200, "OK")
     end
 
     defp foo(conn) do
-      conn.value(3)
+      conn.assign(:value, 3)
     end
   end
 
   test "dispatch single callback" do
-    assert SingleCallbacks.dispatch(:GET, ["foo"], Mock.new) == 3
+    conn = process(SingleCallbacks, :GET, "/foo")
+    assert conn.assigns[:value] == 3
+    assert conn.status == 200
   end
 
   defmodule Bar do
@@ -32,11 +33,11 @@ defmodule Dynamo.Router.PrepareCallbacksTest do
     end
 
     def service(conn) do
-      conn.value(3)
+      conn.assign(:value, 3)
     end
 
     def service(conn, { __MODULE__, 1, [] }) do
-      conn.update_value(&1 * 2)
+      conn.assign(:value, conn.assigns[:value] * 2)
     end
   end
 
@@ -47,32 +48,36 @@ defmodule Dynamo.Router.PrepareCallbacksTest do
     prepare Bar.new
 
     get "/foo" do
-      conn.value
+      conn.resp(200, "OK")
     end
   end
 
   test "dispatch double callback" do
-    assert DoubleCallbacks.dispatch(:GET, ["foo"], Mock.new) == 6
+    conn = process(DoubleCallbacks, :GET, "/foo")
+    assert conn.assigns[:value] == 6
+    assert conn.status == 200
   end
 
   defmodule BlockCallbacks do
     use Dynamo.Router
 
     prepare do
-      conn.value(3)
+      conn.assign(:value, 3)
     end
 
     prepare do
-      conn.update_value(&1 * 2)
+      conn.assign(:value, conn.assigns[:value] * 2)
     end
 
     get "/foo" do
-      conn.value
+      conn.resp(200, "OK")
     end
   end
 
   test "dispatch block callback" do
-    assert BlockCallbacks.dispatch(:GET, ["foo"], Mock.new) == 6
+    conn = process(DoubleCallbacks, :GET, "/foo")
+    assert conn.assigns[:value] == 6
+    assert conn.status == 200
   end
 
   defmodule InvalidCallbacks do
@@ -83,13 +88,13 @@ defmodule Dynamo.Router.PrepareCallbacksTest do
     end
 
     get "/foo" do
-      conn.value
+      conn.resp(200, "OK")
     end
   end
 
   test "invalid dispatch callback" do
     assert_raise Dynamo.Router.Callbacks.InvalidCallbackError, fn ->
-      InvalidCallbacks.dispatch(:GET, ["foo"], Mock.new)
+      process(InvalidCallbacks, :GET, "/foo")
     end
   end
 
@@ -97,7 +102,7 @@ defmodule Dynamo.Router.PrepareCallbacksTest do
     use Dynamo.Router
 
     prepare do
-      conn.state(:set).value(13)
+      conn.resp(302, "Redirect")
     end
 
     get "/foo" do
@@ -106,14 +111,14 @@ defmodule Dynamo.Router.PrepareCallbacksTest do
   end
 
   test "aborts when state is different than unset" do
-    assert AbortingCallbacks.dispatch(:GET, ["foo"], Mock.new).value == 13
+    conn = process(AbortingCallbacks, :GET, "/foo")
+    assert conn.status == 302
   end
 end
 
 defmodule Dynamo.Router.FinishCallbacksTest do
   use ExUnit.Case, async: true
-
-  defrecord Mock, value: nil
+  import Dynamo.Test.Helpers
 
   defmodule SingleCallbacks do
     use Dynamo.Router
@@ -121,25 +126,26 @@ defmodule Dynamo.Router.FinishCallbacksTest do
     finalize :foo
 
     get "/foo" do
-      conn.value(3)
+      conn.assign(:value, 3)
     end
 
     defp foo(conn) do
-      conn.update_value(&1 * 2)
+      conn.assign(:value, conn.assigns[:value] * 2)
     end
   end
 
   test "dispatch single callback" do
-    assert SingleCallbacks.dispatch(:GET, ["foo"], Mock.new).value == 6
+    conn = process(SingleCallbacks, :GET, "/foo")
+    assert conn.assigns[:value] == 6
   end
 
   defmodule Bar do
     def service(conn) do
-      conn.update_value(&1 + 1)
+      conn.assign(:value, conn.assigns[:value] + 1)
     end
 
     def service(conn, { __MODULE__, :data }) do
-      conn.update_value(&1 * 2)
+      conn.assign(:value, conn.assigns[:value] * 2)
     end
   end
 
@@ -150,32 +156,34 @@ defmodule Dynamo.Router.FinishCallbacksTest do
     finalize { Bar, :data }
 
     get "/foo" do
-      conn.value(2)
+      conn.assign(:value, 2)
     end
   end
 
   test "dispatch double callback" do
-    assert DoubleCallbacks.dispatch(:GET, ["foo"], Mock.new).value == 6
+    conn = process(SingleCallbacks, :GET, "/foo")
+    assert conn.assigns[:value] == 6
   end
 
   defmodule BlockCallbacks do
     use Dynamo.Router
 
     finalize do
-      conn.update_value(&1 + 1)
+      conn.assign(:value, conn.assigns[:value] + 1)
     end
 
     finalize do
-      conn.update_value(&1 * 2)
+      conn.assign(:value, conn.assigns[:value] * 2)
     end
 
     get "/foo" do
-      conn.value(2)
+      conn.assign(:value, 2)
     end
   end
 
   test "dispatch block callback" do
-    assert BlockCallbacks.dispatch(:GET, ["foo"], Mock.new).value == 6
+    conn = process(SingleCallbacks, :GET, "/foo")
+    assert conn.assigns[:value] == 6
   end
 
   defmodule InvalidCallbacks do
@@ -186,13 +194,13 @@ defmodule Dynamo.Router.FinishCallbacksTest do
     end
 
     get "/foo" do
-      conn.value(2)
+      conn.assign(:value, 2)
     end
   end
 
   test "invalid dispatch callback" do
     assert_raise Dynamo.Router.Callbacks.InvalidCallbackError, fn ->
-      InvalidCallbacks.dispatch(:GET, ["foo"], Mock.new)
+      process(InvalidCallbacks, :GET, "/foo")
     end
   end
 end

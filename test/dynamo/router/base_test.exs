@@ -3,11 +3,7 @@ Code.require_file "../../../test_helper", __FILE__
 defmodule Dynamo.Router.BaseTest do
   use ExUnit.Case, async: true
 
-  defrecord Mock, forward_to: nil do
-    def forward_to(at, target, conn) do
-      conn.forward_to({ at, target })
-    end
-  end
+  import Dynamo.Test.Helpers
 
   defmodule Sample0 do
     use Dynamo.Router
@@ -18,10 +14,6 @@ defmodule Dynamo.Router.BaseTest do
 
     get "/nested/:arg" do
       arg
-    end
-
-    get "/with_request" do
-      conn
     end
   end
 
@@ -85,74 +77,72 @@ defmodule Dynamo.Router.BaseTest do
   end
 
   def test_dispatch_root do
-    assert Sample1.dispatch(:GET, [], {}) == :root
-    assert RootSample.dispatch(:GET, [], Mock.new) == :root
-    assert RootSample.dispatch(:GET, ["8", "foo"], Mock.new) == 8
+    assert process(Sample1, :GET, "/") == :root
+    assert process(RootSample, :GET, "/") == :root
+    assert process(RootSample, :GET, "/8/foo") == 8
   end
 
+  @app Sample1
+
   def test_dispatch_single_segment do
-    assert Sample1.dispatch(:GET, ["1","bar"], {}) == 1
+    assert get("/1/bar") == 1
   end
 
   def test_dispatch_dynamic_segment do
-    assert Sample1.dispatch(:GET, ["2","baz"], {}) == "baz"
+    assert get("/2/baz") == "baz"
   end
 
   def test_dispatch_dynamic_segment_with_prefix do
-    assert Sample1.dispatch(:GET, ["3","bar-baz"], {}) == "baz"
+    assert get("/3/bar-baz") == "baz"
   end
 
   def test_dispatch_glob_segment do
-    assert Sample1.dispatch(:GET, ["4", "baz", "baaz"], {}) == ["baz", "baaz"]
+    assert get("/4/baz/baaz") == ["baz", "baaz"]
   end
 
   def test_dispatch_glob_segment_with_prefix do
-    assert ["bar-baz", "baaz"] == Sample1.dispatch(:GET, ["5", "bar-baz", "baaz"], {})
+    assert get("/5/bar-baz/baaz") == ["bar-baz", "baaz"]
   end
 
   def test_dispatch_custom_route do
-    assert Sample1.dispatch(:GET, ["6", "foo"], {}) == 200
+    assert get("/6/foo") == 200
   end
 
   def test_dispatch_not_found do
-    assert Sample1.dispatch(:GET, ["100", "foo"], {}) == 404
+    assert get("/100/foo") == 404
   end
 
   def test_dispatch_with_guards do
-    assert Sample1.dispatch(:GET, ["7", "a"], {}) == "a"
-    assert Sample1.dispatch(:GET, ["7", "ab"], {}) == "ab"
-    assert Sample1.dispatch(:GET, ["7", "abc"], {}) == "abc"
-    assert Sample1.dispatch(:GET, ["7", "abcd"], {}) == 404
+    assert get("/7/a")    == "a"
+    assert get("/7/ab")   == "ab"
+    assert get("/7/abc")  == "abc"
+    assert get("/7/abcd") == 404
   end
 
   def test_dispatch_wrong_verb do
-    assert Sample1.dispatch(:POST, ["1","bar"], {}) == 404
+    assert post("/1/bar") == 404
   end
 
   def test_dispatch_any_verb do
-    assert Sample1.dispatch(:GET,  ["8", "foo"], {}) == 8
-    assert Sample1.dispatch(:PUT,  ["8", "foo"], {}) == 8
-    assert Sample1.dispatch(:POST, ["8", "foo"], {}) == 8
+    assert get("/8/foo") == 8
+    assert post("/8/foo") == 8
+    assert put("/8/foo") == 8
+    assert delete("/8/foo") == 8
   end
 
   def test_pointing_to_another_endpoint do
-    assert Sample1.dispatch(:PUT, ["9", "foo"], {}) == :from_sample_0
+    assert put("/9/foo") == :from_sample_0
   end
 
   def test_forwarding_to_another_endpoint do
-    assert Sample1.dispatch(:GET, ["10", "nested", "match"], Mock.new) == "match"
+    assert get("/10/nested/match") == "match"
   end
 
   def test_forwarding_to_another_endpoint_with_explicit_path do
-    assert Sample1.dispatch(:GET, ["11", "deep", "nested", "match"], Mock.new) == "match"
-  end
-
-  def test_forwarding_to_another_endpoint_annotates_the_request do
-    conn = Sample1.dispatch(:GET, ["10", "with_request"], Mock.new)
-    assert conn.forward_to == { ["with_request"], Dynamo.Router.BaseTest.Sample0 }
+    assert get("/11/deep/nested/match") == "match"
   end
 
   def test_forwarding_on_root do
-    assert Sample1.dispatch(:GET, ["1","bar"], {}) == 1
+    assert get("/1/bar") == 1
   end
 end
