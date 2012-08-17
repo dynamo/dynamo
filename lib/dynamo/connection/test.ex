@@ -1,4 +1,13 @@
-defmodule Dynamo.Test.Connection do
+defmodule Dynamo.Connection.Test do
+  @moduledoc """
+  A connection to be used in tests. It implements
+  the same API as the other connections implementations
+  and a couple extra helpers to be used in tests.
+
+  Check `Dynamo.Connection` for documentation on
+  the majotiry of the functions.
+  """
+
   @behaviour Dynamo.Connection
 
   Record.defmacros __ENV__, :connection,
@@ -13,6 +22,9 @@ defmodule Dynamo.Test.Connection do
   use Dynamo.Connection.Response
   use Dynamo.Connection.Assigns
 
+  @doc """
+  Initializes a connection to be used in tests.
+  """
   def new() do
     connection(
       path_info_segments: [],
@@ -80,6 +92,14 @@ defmodule Dynamo.Test.Connection do
 
   ## Test only API
 
+  @doc """
+  Resets the connection for a new request with the given
+  method and on the given path.
+
+  If the path contains a host, e.g `//example.com/foo`,
+  the Host request header is set to such value, otherwise
+  it defaults to `127.0.0.1`.
+  """
   def req(method, path, conn) do
     uri = URI.parse(path)
     segments = Dynamo.Router.Utils.split(uri.path)

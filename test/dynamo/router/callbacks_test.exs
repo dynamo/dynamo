@@ -2,7 +2,7 @@ Code.require_file "../../../test_helper", __FILE__
 
 defmodule Dynamo.Router.PrepareCallbacksTest do
   use ExUnit.Case, async: true
-  import Dynamo.Test.Helpers
+  import Dynamo.Router.TestHelpers
 
   defmodule SingleCallbacks do
     use Dynamo.Router
@@ -118,7 +118,7 @@ end
 
 defmodule Dynamo.Router.FinishCallbacksTest do
   use ExUnit.Case, async: true
-  import Dynamo.Test.Helpers
+  import Dynamo.Router.TestHelpers
 
   defmodule SingleCallbacks do
     use Dynamo.Router
@@ -126,7 +126,7 @@ defmodule Dynamo.Router.FinishCallbacksTest do
     finalize :foo
 
     get "/foo" do
-      conn.assign(:value, 3)
+      conn.assign(:value, 3).resp(200, "OK")
     end
 
     defp foo(conn) do
@@ -156,7 +156,7 @@ defmodule Dynamo.Router.FinishCallbacksTest do
     finalize { Bar, :data }
 
     get "/foo" do
-      conn.assign(:value, 2)
+      conn.assign(:value, 2).resp(200, "OK")
     end
   end
 
@@ -177,7 +177,7 @@ defmodule Dynamo.Router.FinishCallbacksTest do
     end
 
     get "/foo" do
-      conn.assign(:value, 2)
+      conn.assign(:value, 2).resp(200, "OK")
     end
   end
 

@@ -2,7 +2,7 @@ Code.require_file "../../../test_helper", __FILE__
 
 defmodule Dynamo.App.NotFoundTest do
   use ExUnit.Case, async: true
-  import Dynamo.Test.Helpers
+  import Dynamo.Router.TestHelpers
 
   defmodule Router do
     use Dynamo.Router

@@ -1,9 +1,9 @@
 Code.require_file "../../../test_helper", __FILE__
 
-defmodule Dynamo.Test.ConnectionTest do
+defmodule Dynamo.Connection.TestTest do
   use ExUnit.Case, async: true
 
-  alias Dynamo.Test.Connection, as: C
+  alias Dynamo.Connection.Test, as: C
 
   ## Request
 
