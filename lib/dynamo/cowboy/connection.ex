@@ -1,7 +1,13 @@
 defmodule Dynamo.Cowboy.Connection do
-  require :cowboy_http_req, as: R
+  @moduledoc """
+  A wrapper around Cowboy request structure.
+
+  Check `Dynamo.Connection` for documentation on
+  the majority of the functions.
+  """
 
   @behaviour Dynamo.Connection
+  require :cowboy_http_req, as: R
 
   Record.defmacros __ENV__, :connection,
     [ :req, :path_info_segments, :script_name_segments, :req_headers,
@@ -15,10 +21,7 @@ defmodule Dynamo.Cowboy.Connection do
   use Dynamo.Connection.Response
   use Dynamo.Connection.Assigns
 
-  @doc """
-  Builds a new Dynamo.Cowboy.Request based on
-  the original Cowboy request object.
-  """
+  @doc false
   def new(req) do
     { segments, req } = R.path(req)
 
@@ -33,48 +36,37 @@ defmodule Dynamo.Cowboy.Connection do
     )
   end
 
+  @doc """
+  Returns the underlying cowboy request. This is used
+  internally by Dynamo but may also be used by other
+  developers (with caution).
+  """
+  def cowboy_request(connection(req: req)) do
+    req
+  end
+
   ## Request API
 
-  @doc """
-  Returns the query string as a binary.
-  """
   def query_string(connection(req: req)) do
     { query_string, _ } = R.raw_qs req
     query_string
   end
 
-  @doc """
-  Returns the full path segments, as received by the web server.
-  """
   def path_segments(connection(req: req)) do
     { segments, _ } = R.path req
     segments
   end
 
-  @doc """
-  Returns the full path as a binary, as received by the web server.
-  """
   def path(connection(req: req)) do
     { binary, _ } = R.raw_path req
     binary
   end
 
-  @doc """
-  Returns the HTTP method as an atom.
-
-  ## Examples
-
-      request.method #=> :GET
-
-  """
   def method(connection(req: req)) do
     { verb, _ } = R.method req
     verb
   end
 
-  @doc """
-  Returns the HTTP version.
-  """
   def version(connection(req: req)) do
     { version, _ } = R.version req
     version
@@ -82,11 +74,6 @@ defmodule Dynamo.Cowboy.Connection do
 
   ## Response API
 
-  @doc """
-  Sends to the client the given status and body.
-  An updated connection is returned with `:sent` state,
-  the given status and response body set to nil.
-  """
   def send(status, body,
       connection(req: req, resp_headers: headers, resp_cookies: cookies) = conn) when is_integer(status) do
     req = Enum.reduce cookies, req, write_cookie(&1, &2)
@@ -102,11 +89,6 @@ defmodule Dynamo.Cowboy.Connection do
 
   ## Cookies
 
-  @doc """
-  Returns the cookies sent in the request as a `Binary.Dict`.
-  Cookies need to be explicitly fetched with `conn.fetch(:cookies)`
-  before using this function.
-  """
   def req_cookies(connection(req: req)) do
     { cookies, _ } = R.cookies req
     Binary.Dict.new(cookies)
@@ -114,19 +96,6 @@ defmodule Dynamo.Cowboy.Connection do
 
   ## Misc
 
-  @doc """
-  Returns the underlying cowboy request. This is used
-  internally by Dynamo but may also be used by other
-  developers (with caution).
-  """
-  def cowboy_request(connection(req: req)) do
-    req
-  end
-
-  @doc """
-  Responsible for fetching and caching aspects of the response.
-  The "fetchable" aspects are: headers, params, cookies and session.
-  """
   def fetch(:params, connection(req: req) = conn) do
     { query_string, req } = R.raw_qs req
     params = Dynamo.Connection.QueryParser.parse(query_string)

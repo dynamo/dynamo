@@ -5,7 +5,7 @@ defmodule Dynamo.Connection.Test do
   and a couple extra helpers to be used in tests.
 
   Check `Dynamo.Connection` for documentation on
-  the majotiry of the functions.
+  the majority of the functions.
   """
 
   @behaviour Dynamo.Connection

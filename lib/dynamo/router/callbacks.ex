@@ -47,12 +47,10 @@ defmodule Dynamo.Router.Callbacks do
 
   @doc false
   defmacro __using__(_) do
-    module = __CALLER__.module
-
-    Enum.each [:__prepare_callbacks, :__finalize_callbacks],
-      Module.register_attribute(module, &1, accumulate: true, persist: false)
-
     quote location: :keep do
+      Enum.each [:__prepare_callbacks, :__finalize_callbacks],
+        Module.register_attribute(__MODULE__, &1, accumulate: true, persist: false)
+
       @before_compile unquote(__MODULE__)
       import unquote(__MODULE__), only: [prepare: 1, finalize: 1, fetch: 1]
     end
