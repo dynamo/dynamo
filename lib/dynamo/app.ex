@@ -3,8 +3,8 @@ defmodule Dynamo.App do
   `Dynamo.App` is a module that helps you define your
   application behavior globally.
 
-  A `Dynamo.App` is also a `Dynamo.Router`, so you can
-  route and point to other endpoints easily.
+  A `Dynamo.App` can be used on top of a `Dynamo.Router`,
+  so you can route and point to other endpoints easily.
 
   ## Not found
 
@@ -30,7 +30,7 @@ defmodule Dynamo.App do
   @doc false
   defmacro __using__(_) do
     quote location: :keep do
-      use Dynamo.Router
+      @dynamo_app true
       use Dynamo.App.NotFound
     end
   end

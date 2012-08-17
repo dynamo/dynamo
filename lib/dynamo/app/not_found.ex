@@ -7,6 +7,15 @@ defmodule Dynamo.App.NotFound do
   @doc false
   defmacro __using__(_) do
     quote location: :keep do
+      @before_compile unquote(__MODULE__)
+    end
+  end
+
+  @doc false
+  defmacro before_compile(_) do
+    quote location: :keep do
+      defoverridable [service: 1]
+
       def service(conn) do
         conn = super
 
@@ -16,8 +25,6 @@ defmodule Dynamo.App.NotFound do
           conn
         end
       end
-
-      defoverridable [service: 1]
     end
   end
 end

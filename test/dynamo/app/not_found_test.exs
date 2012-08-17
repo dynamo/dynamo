@@ -13,14 +13,19 @@ defmodule Dynamo.App.NotFoundTest do
   end
 
   defmodule DefaultApp do
+    use Dynamo.Router
     use Dynamo.App
+
     forward "/", to: Router
   end
 
   defmodule App do
+    use Dynamo.Router
     use Dynamo.App
 
-    forward "/", to: Router
+    def service(conn) do
+      Router.service(conn)
+    end
 
     def not_found(conn) do
       conn.resp(302, "Other")
