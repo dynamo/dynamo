@@ -1,4 +1,6 @@
 defmodule Dynamo.Test.Connection do
+  @behaviour Dynamo.Connection
+
   Record.defmacros __ENV__, :connection,
     [ :method, :path_segments, :path_info_segments, :script_name_segments,
       :req_headers, :req_body, :params, :cookies, :resp_headers, :resp_cookies,
@@ -25,6 +27,10 @@ defmodule Dynamo.Test.Connection do
 
   def path_segments(connection(path_segments: path_segments)) do
     path_segments
+  end
+
+  def path(connection(path_segments: path_segments)) do
+    to_path path_segments
   end
 
   ## Response API

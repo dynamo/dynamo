@@ -1,6 +1,8 @@
 defmodule Dynamo.Cowboy.Connection do
   require :cowboy_http_req, as: R
 
+  @behaviour Dynamo.Connection
+
   Record.defmacros __ENV__, :connection,
     [ :req, :path_info_segments, :script_name_segments, :req_headers,
       :params, :cookies, :resp_headers, :resp_cookies, :assigns, :status,
