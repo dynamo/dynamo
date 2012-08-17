@@ -5,12 +5,60 @@ defmodule Dynamo.Test.ConnectionTest do
 
   alias Dynamo.Test.Connection, as: C
 
-  test :path_segments do
+  test :version do
+    assert conn(:GET, "/").version == { 1, 1 }
+  end
+
+  test :method do
+    assert conn(:GET, "/").method == :GET
+    assert conn(:POST, "/").method == :POST
+  end
+
+  test :path do
     assert conn(:GET, "/foo/bar").path_segments == ["foo", "bar"]
     assert conn(:GET, "/").path_segments == []
 
     assert conn(:GET, "/foo/bar").path == "/foo/bar"
     assert conn(:GET, "/").path == "/"
+  end
+
+  test :query_string do
+    assert conn(:GET, "/foo/bar").query_string == ""
+    assert conn(:GET, "/foo/bar?hello=world&foo=bar").query_string == "hello=world&foo=bar"
+  end
+
+  test :params do
+    conn = conn(:GET, "/foo/bar?hello=world&foo[name]=bar")
+
+    assert_raise Dynamo.Connection.UnfetchedError, fn ->
+      conn.params
+    end
+
+    params = conn.fetch(:params).params
+    assert params["hello"] == "world"
+    assert params["foo"]["name"] == "bar"
+  end
+
+  test :req_headers do
+    conn = conn(:GET, "/foo/bar")
+
+    assert_raise Dynamo.Connection.UnfetchedError, fn ->
+      conn.req_headers
+    end
+
+    conn = conn.set_req_header "X-Code", "123456"
+    assert conn.fetch(:headers).req_headers["X-Code"] == "123456"
+
+    conn = conn.delete_req_header "X-Code"
+    assert conn.fetch(:headers).req_headers["X-Code"] == nil
+  end
+
+  test :host do
+    conn = conn(:GET, "/foo/bar").fetch(:headers)
+    assert conn.req_headers["Host"] == "127.0.0.1"
+
+    conn = conn(:GET, "//example.com:3000/foo/bar").fetch(:headers)
+    assert conn.req_headers["Host"] == "example.com:3000"
   end
 
   ## Misc
