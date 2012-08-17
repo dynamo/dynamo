@@ -5,6 +5,8 @@ defmodule Dynamo.Test.ConnectionTest do
 
   alias Dynamo.Test.Connection, as: C
 
+  ## Request
+
   test :version do
     assert conn(:GET, "/").version == { 1, 1 }
   end
@@ -61,6 +63,8 @@ defmodule Dynamo.Test.ConnectionTest do
     assert conn.req_headers["Host"] == "example.com:3000"
   end
 
+  ## Cookies
+
   test :req_cookies do
     conn = conn(:GET, "/").req_cookies(foo: "bar", baz: "bat")
     assert conn.req_cookies["foo"] == "bar"
@@ -97,6 +101,17 @@ defmodule Dynamo.Test.ConnectionTest do
   end
 
   ## Misc
+
+  test :assigns do
+    conn  = conn(:GET, "/")
+    assert conn.assigns == []
+
+    conn = conn.assign :foo, "bar"
+    assert conn.assigns == [foo: "bar"]
+
+    conn = conn.assign :foo, "baz"
+    assert conn.assigns == [foo: "baz"]
+  end
 
   test :forward_to do
     conn = conn(:GET, "/forward_to/foo/bar/baz")

@@ -13,6 +13,7 @@ defmodule Dynamo.Cowboy.Connection do
   use Dynamo.Connection.Cookies
   use Dynamo.Connection.Request
   use Dynamo.Connection.Response
+  use Dynamo.Connection.Assigns
 
   @doc """
   Builds a new Dynamo.Cowboy.Request based on
@@ -109,22 +110,6 @@ defmodule Dynamo.Cowboy.Connection do
   def req_cookies(connection(req: req)) do
     { cookies, _ } = R.cookies req
     Binary.Dict.new(cookies)
-  end
-
-  ## Assigns
-
-  @doc """
-  Returns a keywords list with assigns set so far.
-  """
-  def assigns(connection(assigns: assigns)) do
-    assigns
-  end
-
-  @doc """
-  Sets a new assign with the given key and value.
-  """
-  def assign(key, value, connection(assigns: assigns) = conn) do
-    connection(conn, assigns: Keyword.put(assigns, key, value))
   end
 
   ## Misc

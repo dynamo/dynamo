@@ -11,6 +11,7 @@ defmodule Dynamo.Test.Connection do
   use Dynamo.Connection.Cookies
   use Dynamo.Connection.Request
   use Dynamo.Connection.Response
+  use Dynamo.Connection.Assigns
 
   def new() do
     connection(
