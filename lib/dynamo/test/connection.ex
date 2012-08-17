@@ -4,8 +4,8 @@ defmodule Dynamo.Test.Connection do
   Record.defmacros __ENV__, :connection,
     [ :method, :path_segments, :path_info_segments, :script_name_segments,
       :query_string, :raw_req_headers, :req_headers, :req_body, :params,
-      :cookies, :resp_headers, :resp_cookies, :assigns, :status, :resp_body,
-      :state ]
+      :resp_headers, :raw_cookies, :cookies, :resp_cookies, :assigns,
+      :status, :resp_body, :state ]
 
   use Dynamo.Connection.Paths
   use Dynamo.Connection.Cookies
@@ -46,6 +46,10 @@ defmodule Dynamo.Test.Connection do
     to_path path_segments
   end
 
+  def req_cookies(connection(raw_cookies: raw_cookies)) do
+    raw_cookies
+  end
+
   ## Response API
 
   def send(status, body, conn) do
@@ -69,6 +73,10 @@ defmodule Dynamo.Test.Connection do
     connection(conn, params: params)
   end
 
+  def fetch(:cookies, connection(raw_cookies: raw_cookies) = conn) do
+    connection(conn, cookies: raw_cookies)
+  end
+
   ## Test only API
 
   def req(method, path, conn) do
@@ -89,6 +97,13 @@ defmodule Dynamo.Test.Connection do
     else
       conn
     end
+  end
+
+  @doc """
+  Sets the cookies to be read by the request.
+  """
+  def req_cookies(cookies, conn) do
+    connection(conn, raw_cookies: Binary.Dict.new(cookies))
   end
 
   @doc """

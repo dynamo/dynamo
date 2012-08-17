@@ -61,6 +61,41 @@ defmodule Dynamo.Test.ConnectionTest do
     assert conn.req_headers["Host"] == "example.com:3000"
   end
 
+  test :req_cookies do
+    conn = conn(:GET, "/").req_cookies(foo: "bar", baz: "bat")
+    assert conn.req_cookies["foo"] == "bar"
+    assert conn.req_cookies["baz"] == "bat"
+    conn
+  end
+
+  test :cookies do
+    conn = conn(:GET, "/").req_cookies(foo: "bar", baz: "bat").fetch(:cookies)
+    assert conn.cookies["foo"] == "bar"
+    assert conn.cookies["baz"] == "bat"
+    conn
+  end
+
+  test :resp_cookies do
+    conn = conn(:GET, "/")
+    assert conn.resp_cookies == []
+
+    conn = conn.set_cookie(:foo, :bar, path: "/hello")
+    assert conn.resp_cookies == [{ "foo", "bar", path: "/hello" }]
+  end
+
+  test :req_resp_cookies do
+    conn = conn(:GET, "/").req_cookies(foo: "bar", baz: "bat").fetch(:cookies)
+    assert conn.cookies["foo"] == "bar"
+    assert conn.cookies["baz"] == "bat"
+
+    conn = conn.set_cookie(:foo, :new)
+    assert conn.cookies["foo"] == "new"
+    assert conn.cookies["baz"] == "bat"
+
+    conn = conn.delete_cookie(:foo)
+    assert conn.cookies["foo"] == nil
+  end
+
   ## Misc
 
   test :forward_to do
