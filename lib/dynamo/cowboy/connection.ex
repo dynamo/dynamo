@@ -12,6 +12,24 @@ defmodule Dynamo.Cowboy.Connection do
   use Dynamo.Connection.Request
   use Dynamo.Connection.Response
 
+  @doc """
+  Builds a new Dynamo.Cowboy.Request based on
+  the original Cowboy request object.
+  """
+  def new(req) do
+    { segments, req } = R.path(req)
+
+    connection(
+      req: req,
+      path_info_segments: segments,
+      script_name_segments: [],
+      resp_headers: Binary.Dict.new,
+      resp_cookies: [],
+      assigns: [],
+      state: :unset
+    )
+  end
+
   ## Request API
 
   @doc """
@@ -116,24 +134,6 @@ defmodule Dynamo.Cowboy.Connection do
   """
   def cowboy_request(connection(req: req)) do
     req
-  end
-
-  @doc """
-  Builds a new Dynamo.Cowboy.Request based on
-  the original Cowboy request object.
-  """
-  def new(req) do
-    { segments, req } = R.path(req)
-
-    connection(
-      req: req,
-      path_info_segments: segments,
-      script_name_segments: [],
-      resp_headers: Binary.Dict.new,
-      resp_cookies: [],
-      assigns: [],
-      state: :unset
-    )
   end
 
   @doc """
