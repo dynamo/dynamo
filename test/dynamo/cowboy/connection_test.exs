@@ -144,6 +144,9 @@ defmodule Dynamo.Cowboy.ConnectionTest do
     assert conn.cookies["foo"] == "new"
     assert conn.cookies["baz"] == "bat"
 
+    conn = conn.fetch(:cookies)
+    assert conn.cookies["foo"] == "new"
+
     conn = conn.delete_cookie(:foo)
     assert conn.cookies["foo"] == nil
     conn.send(200, "Hello")

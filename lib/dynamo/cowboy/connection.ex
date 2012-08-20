@@ -96,21 +96,26 @@ defmodule Dynamo.Cowboy.Connection do
 
   ## Misc
 
-  def fetch(:params, connection(req: req) = conn) do
+  def fetch(:params, connection(req: req, params: nil) = conn) do
     { query_string, req } = R.raw_qs req
     params = Dynamo.Connection.QueryParser.parse(query_string)
     { params, req } = Dynamo.Cowboy.BodyParser.parse(params, req)
     connection(conn, req: req, params: params)
   end
 
-  def fetch(:cookies, connection(req: req) = conn) do
+  def fetch(:cookies, connection(req: req, cookies: nil) = conn) do
     { cookies, req } = R.cookies req
     connection(conn, req: req, cookies: Binary.Dict.new(cookies))
   end
 
-  def fetch(:headers, connection(req: req) = conn) do
+  def fetch(:headers, connection(req: req, req_headers: nil) = conn) do
     { headers, req } = R.headers req
     connection(conn, req: req, req_headers: Binary.Dict.new(headers))
+  end
+
+  # The given aspect was already loaded.
+  def fetch(aspect, conn) when aspect in [:params, :cookies, :headers] do
+    conn
   end
 
   ## Helpers
