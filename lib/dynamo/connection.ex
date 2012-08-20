@@ -127,6 +127,13 @@ defmodule Dynamo.Connection do
   defcallback send(conn)
 
   @doc """
+  Sends the file at the given path. It is expected that the
+  given path exists and it points to a regular file. The
+  file is sent straight away.
+  """
+  defcallback sendfile(path, conn)
+
+  @doc """
   Returns the response state. It can be:
 
   * `:unset` - the response was not configured yet

@@ -73,6 +73,10 @@ defmodule Dynamo.Connection.Test do
     )
   end
 
+  def sendfile(path, conn) do
+    send(200, File.read!(path), conn)
+  end
+
   ## Misc
 
   def fetch(:headers, connection(raw_req_headers: raw_req_headers) = conn) do

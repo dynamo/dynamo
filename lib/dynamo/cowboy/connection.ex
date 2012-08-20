@@ -87,6 +87,12 @@ defmodule Dynamo.Cowboy.Connection do
     )
   end
 
+  def sendfile(path, connection(req: req) = conn) do
+    File.Stat[type: :regular, size: size] = File.stat!(path)
+    { :ok, :cowboy_tcp_transport, socket } = :cowboy_http_req.transport(req)
+    send(200, { size, fn -> :file.sendfile(path, socket) end }, conn)
+  end
+
   ## Cookies
 
   def req_cookies(connection(req: req)) do

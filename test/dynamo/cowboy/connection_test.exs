@@ -253,6 +253,25 @@ defmodule Dynamo.Cowboy.ConnectionTest do
     assert { 201, _, "OK" } = request :get, "/send"
   end
 
+  def sendfile(conn) do
+    file = File.expand_path("../../../fixtures/file.txt", __FILE__)
+    conn = conn.sendfile(file)
+    assert conn.state  == :sent
+    assert conn.status == 200
+    conn
+  end
+
+  def invalid_sendfile(conn) do
+    conn = conn.sendfile("unknown.file")
+  end
+
+  test :sendfile do
+    { 200, headers, "HELLO" } = request :get, "/sendfile"
+    assert List.keyfind(headers, "Content-Length", 1) == { "Content-Length", "5" }
+
+    assert { 500, _, _ } = request :get, "/invalid_sendfile"
+  end
+
   def resp(conn) do
     assert conn.state == :unset
 
