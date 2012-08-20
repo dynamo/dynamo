@@ -8,7 +8,9 @@ defmodule Dynamo.Mixfile do
   end
 
   def deps do
-    [ { :hackney, git: "https://github.com/benoitc/hackney.git", compile: "make" },
-      { :cowboy,  git: "https://github.com/josevalim/cowboy.git", branch: "master" } ]
+    [ { :mimetypes, git: "https://github.com/spawngrid/mimetypes.git" },
+      { :edown, git: "https://github.com/esl/edown.git" }, ## Hackney dependency
+      { :hackney, git: "https://github.com/benoitc/hackney.git" },
+      { :cowboy,  git: "https://github.com/josevalim/cowboy.git" } ]
   end
 end
