@@ -68,7 +68,18 @@ defmodule Dynamo.Router do
 
   @doc false
   defmacro __using__(_) do
-    quote location: :keep do
+    quote do
+      @dynamo_router true
+
+      if @dynamo_app do
+        raise "use Dynamo.App after Dynamo.Router"
+      end
+
+      @doc false
+      def dynamo_router? do
+        true
+      end
+
       use Dynamo.Router.Base
       use Dynamo.Router.Callbacks
     end

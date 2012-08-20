@@ -18,38 +18,27 @@ defmodule Dynamo.Router.Base do
 
   @doc false
   defmacro __using__(_) do
-    [ quote do
-        if @dynamo_app do
-          raise "use Dynamo.App after Dynamo.Router"
-        end
+    quote location: :keep do
+      @before_compile unquote(__MODULE__)
+      import unquote(__MODULE__), except: [before_compile: 1, __using__: 1]
 
-        @before_compile unquote(__MODULE__)
-        import unquote(__MODULE__), except: [before_compile: 1, __using__: 1]
-      end,
+      @doc false
+      def service(conn) do
+        dispatch(conn.method, conn.path_info_segments, conn)
+      end
 
-      quote location: :keep do
-        @doc false
-        def service(conn) do
-          dispatch(conn.method, conn.path_info_segments, conn)
-        end
+      @doc false
+      def dispatch(method, segments, conn) do
+        _dispatch(method, segments, conn)
+      end
 
-        @doc false
-        def dispatch(method, segments, conn) do
-          _dispatch(method, segments, conn)
-        end
+      @doc false
+      def not_found(conn) do
+        conn.resp(404, "Not found")
+      end
 
-        @doc false
-        def not_found(conn) do
-          conn.resp(404, "Not found")
-        end
-
-        @doc false
-        def dynamo_router? do
-          true
-        end
-
-        defoverridable [not_found: 1, service: 1, dispatch: 3]
-      end ]
+      defoverridable [not_found: 1, service: 1, dispatch: 3]
+    end
   end
 
   @doc false
@@ -136,7 +125,7 @@ defmodule Dynamo.Router.Base do
       quote do
         target = unquote(what)
         conn   = var!(conn).forward_to var!(glob), target
-        if function_exported?(target, :dynamo_router?, 0) and target.dynamo_router? do
+        if is_atom(target) and function_exported?(target, :dynamo_router?, 0) do
           target.dispatch(_verb, var!(glob), conn)
         else
           target.service(conn)

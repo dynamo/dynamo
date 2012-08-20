@@ -29,8 +29,14 @@ defmodule Dynamo.App do
 
   @doc false
   defmacro __using__(_) do
-    quote location: :keep do
+    quote do
       @dynamo_app true
+
+      @doc false
+      def dynamo_app? do
+        true
+      end
+
       use Dynamo.App.NotFound
     end
   end
