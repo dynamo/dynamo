@@ -33,7 +33,8 @@ defmodule Dynamo.Static do
     else
       path = File.join([root_path(root)|segments])
       if File.regular?(path) do
-        conn.sendfile(path)
+        mimes = :mimetypes.filename(path)
+        conn.set_resp_header("Content-Type", hd(mimes)).sendfile(path)
       else
         not_found(conn)
       end

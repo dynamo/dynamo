@@ -19,8 +19,9 @@ defmodule Dynamo.StaticTest do
 
   test "serves the file" do
     conn = get("/public/fixtures/file.txt")
-    assert conn.status    == 200
+    assert conn.status == 200
     assert conn.resp_body == "HELLO"
+    assert conn.resp_headers["Content-Type"] == "text/plain"
   end
 
   test "returns 404 for non existing files" do

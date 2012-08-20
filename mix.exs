@@ -13,4 +13,8 @@ defmodule Dynamo.Mixfile do
       { :hackney, git: "https://github.com/benoitc/hackney.git" },
       { :cowboy,  git: "https://github.com/josevalim/cowboy.git" } ]
   end
+
+  def application do
+    [applications: [:mimetypes]]
+  end
 end
