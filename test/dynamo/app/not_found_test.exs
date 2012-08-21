@@ -1,4 +1,4 @@
-Code.require_file "../../../test_helper", __FILE__
+Code.require_file "../../../test_helper.exs", __FILE__
 
 defmodule Dynamo.App.NotFoundTest do
   use ExUnit.Case, async: true

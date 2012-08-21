@@ -5,7 +5,7 @@ defmodule Dynamo.Reloader do
   Dynamo. The reloader works per-process, so
   each process which requires reloading semantics
   must be explicitly enabled with
-  `Dynamo.Reloader.enable`.  
+  `Dynamo.Reloader.enable`.
   """
 
   use GenServer.Behaviour
@@ -30,7 +30,18 @@ defmodule Dynamo.Reloader do
   end
 
   def load_missing(module) do
-    :gen_server.call(__MODULE__, { :load_missing, module })
+    path = Mix.Utils.underscore(module) <> ".ex"
+    dirs = :gen_server.call(__MODULE__, :paths)
+    dir  = Enum.find dirs, fn(dir) -> File.regular?(File.join(dir, path)) end
+
+    if dir do
+      file    = File.join(dir, path)
+      tuples  = Code.require_file(file) || []
+      modules = lc { mod, _ } inlist tuples, do: mod
+      :gen_server.cast(__MODULE__, { :loaded, file, modules })
+    end
+
+    :ok
   end
 
   def conditional_purge do
@@ -39,7 +50,8 @@ defmodule Dynamo.Reloader do
 
   ## Callbacks
 
-  defrecord Config, loaded_modules: [], paths: nil, updated_at: { { 1970, 1, 1 }, { 0, 0, 0 } }
+  defrecord Config, loaded_modules: [], loaded_files: [], paths: nil,
+    updated_at: { { 1970, 1, 1 }, { 0, 0, 0 } }
 
   @doc false
   def init(paths) do
@@ -47,25 +59,8 @@ defmodule Dynamo.Reloader do
   end
 
   @doc false
-  def handle_call({ :load_missing, module }, _from, config) do
-    Config[loaded_modules: loaded_modules, paths: paths] = config
-
-    new_config =
-      if List.member?(loaded_modules, module) do
-        config
-      else
-        path = Mix.Utils.underscore(module) <> ".ex"
-        dir  = Enum.find paths, fn(dir) -> File.regular?(File.join(dir, path)) end
-        if dir do
-          tuples  = Code.load_file(File.join(dir, path)) || []
-          modules = lc { mod, _ } inlist tuples, do: mod
-          config.prepend_loaded_modules(modules)
-        else
-          config
-        end
-      end
-
-    { :reply, :ok, new_config }
+  def handle_call(:paths, _from, Config[paths: paths] = config) do
+    { :reply, paths, config }
   end
 
   def handle_call(:conditional_purge, _from, Config[updated_at: updated_at] = config) do
@@ -75,7 +70,8 @@ defmodule Dynamo.Reloader do
       { :reply, :ok, config }
     else
       purge_all(config)
-      { :reply, :purged, config.loaded_modules([]).updated_at(last_modified) }
+      unload_all(config)
+      { :reply, :purged, config.loaded_modules([]).loaded_files([]).updated_at(last_modified) }
     end
   end
 
@@ -87,6 +83,15 @@ defmodule Dynamo.Reloader do
     super
   end
 
+  @doc false
+  def handle_cast({ :loaded, file, modules }, config) do
+    { :noreply, config.prepend_loaded_modules(modules).prepend_loaded_files([file]) }
+  end
+
+  def handle_cast(_arg, _config) do
+    super
+  end
+
   ## Helpers
 
   defp purge_all(config) do
@@ -94,6 +99,10 @@ defmodule Dynamo.Reloader do
       :code.purge(mod)
       :code.delete(mod)
     end
+  end
+
+  defp unload_all(config) do
+    Code.unload_files config.loaded_files
   end
 
   defp last_modified(Config[paths: paths, updated_at: updated_at]) do
