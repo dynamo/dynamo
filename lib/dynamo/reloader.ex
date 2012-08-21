@@ -10,25 +10,43 @@ defmodule Dynamo.Reloader do
 
   use GenServer.Behaviour
 
+  @doc """
+  Enables the reloader in the given process and returns
+  `:ok`. In case the reloader server is disabled, it works
+  as noop and returns `:error`.
+  """
   def enable do
     if Process.whereis(__MODULE__) do
       Process.put(:elixir_ensure_compiled, true)
       Process.flag(:error_handler, Dynamo.Reloader.ErrorHandler)
       :ok
     else
-      :disabled
+      :error
     end
   end
 
+  @doc """
+  Starts the `Dynamo.Reloader` server. Usually called
+  internally by Dynamo.
+  """
   def start_link(paths) do
     { :module, _ } = Code.ensure_loaded(Dynamo.Reloader.ErrorHandler)
     :gen_server.start({ :local, __MODULE__ }, __MODULE__, paths, [])
   end
 
+  @doc """
+  Stops the `Dynamo.Reloader` server.
+  """
   def stop do
     :gen_server.call(__MODULE__, :stop)
   end
 
+  @doc """
+  Tries to load the missing module. It returns `:ok` if a file
+  for the given module could be found and `:error` otherwise.
+  Note it does not actually ensure the module was loaded (only
+  that the related file was required).
+  """
   def load_missing(module) do
     path = Mix.Utils.underscore(module) <> ".ex"
     dirs = :gen_server.call(__MODULE__, :paths)
@@ -39,11 +57,17 @@ defmodule Dynamo.Reloader do
       tuples  = Code.require_file(file) || []
       modules = lc { mod, _ } inlist tuples, do: mod
       :gen_server.cast(__MODULE__, { :loaded, file, modules })
+      :ok
+    else
+      :notfound
     end
-
-    :ok
   end
 
+  @doc """
+  Checks if any of the `.ex` files in the registered paths
+  were updated and if so, purges all automatically compiled
+  and loaded modules, and "unrequire" the relevant files.
+  """
   def conditional_purge do
     :gen_server.call(__MODULE__, :conditional_purge)
   end
