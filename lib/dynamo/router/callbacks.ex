@@ -17,9 +17,6 @@ defmodule Dynamo.Router.Callbacks do
   Callbacks receive the connection as argument and must return the updated
   connection (if any change happens).
 
-  Note that callbacks are invoked regardless if there was a match or
-  not in the current module.
-
   ## Examples
 
       defmodule MyApp do
@@ -61,22 +58,17 @@ defmodule Dynamo.Router.Callbacks do
     prepare  = Module.read_attribute(module, :__prepare_callbacks)
     finalize = Module.read_attribute(module, :__finalize_callbacks)
 
-    code = Enum.reduce finalize, quote(do: conn), fn(callback, acc) ->
-      compile_callback(callback, acc, function(:compile_finalize, 3))
-    end
-
-    code = quote do
-      conn = super(method, path, conn)
-      unquote(code)
-    end
-
-    code = Enum.reduce prepare, code, fn(callback, acc) ->
+    prepare = Enum.reduce prepare, quote(do: { :ok, conn }), fn(callback, acc) ->
       compile_callback(callback, acc, function(:compile_prepare, 3))
     end
 
+    finalize = Enum.reduce finalize, quote(do: conn), fn(callback, acc) ->
+      compile_callback(callback, acc, function(:compile_finalize, 3))
+    end
+
     quote do
-      defoverridable [dispatch: 3]
-      def dispatch(method, path, conn), do: unquote(code)
+      defp run_prepare_callbacks(conn),  do: unquote(prepare)
+      defp run_finalize_callbacks(conn), do: unquote(finalize)
     end
   end
 
@@ -154,7 +146,7 @@ defmodule Dynamo.Router.Callbacks do
     quote do
       case unquote(call) do
         conn when is_tuple(conn) ->
-          if conn.state != :unset, do: conn, else: unquote(acc)
+          if conn.state != :unset, do: { :abort, conn }, else: unquote(acc)
         actual ->
           raise unquote(InvalidCallbackError), kind: :prepare, callback: unquote(ref), actual: actual
       end

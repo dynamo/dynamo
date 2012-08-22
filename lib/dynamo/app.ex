@@ -32,11 +32,6 @@ defmodule Dynamo.App do
     quote do
       @dynamo_app true
 
-      @doc false
-      def dynamo_app? do
-        true
-      end
-
       use Dynamo.Support.Once
 
       use_once Dynamo.App.Config

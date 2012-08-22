@@ -75,11 +75,6 @@ defmodule Dynamo.Router do
         raise "use Dynamo.App after Dynamo.Router"
       end
 
-      @doc false
-      def dynamo_router? do
-        true
-      end
-
       use Dynamo.Support.Once
 
       use_once Dynamo.Router.Base

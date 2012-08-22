@@ -28,23 +28,18 @@ defmodule Dynamo.Router.Base do
       end
 
       @doc false
-      def dispatch(method, segments, conn) do
-        _dispatch(method, segments, conn)
-      end
-
-      @doc false
       def not_found(conn) do
         conn.resp(404, "Not found")
       end
 
-      defoverridable [not_found: 1, service: 1, dispatch: 3]
+      defoverridable [not_found: 1, service: 1]
     end
   end
 
   @doc false
   defmacro before_compile(_) do
     quote do
-      def _dispatch(_, _, conn) do
+      def dispatch(_, _, conn) do
         not_found(conn)
       end
     end
@@ -125,11 +120,7 @@ defmodule Dynamo.Router.Base do
       quote do
         target = unquote(what)
         conn   = var!(conn).forward_to var!(glob), target
-        if is_atom(target) and function_exported?(target, :dynamo_router?, 0) do
-          target.dispatch(_verb, var!(glob), conn)
-        else
-          target.service(conn)
-        end
+        target.service(conn)
       end
 
     options = Keyword.put(options, :do, block)
@@ -196,7 +187,12 @@ defmodule Dynamo.Router.Base do
     ]
 
     quote do
-      def _dispatch(unquote_splicing(args)) when unquote(guards), do: unquote(contents)
+      def dispatch(unquote_splicing(args)) when unquote(guards) do
+        case run_prepare_callbacks(var!(conn)) do
+          { :ok, var!(conn) }    -> run_finalize_callbacks(unquote(contents))
+          { :abort, var!(conn) } -> var!(conn)
+        end
+      end
     end
   end
 
