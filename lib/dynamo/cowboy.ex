@@ -26,6 +26,7 @@ defmodule Dynamo.Cowboy do
     dispatch  = Keyword.get options, :dispatch, dispatch_for(app, handler)
     verbose   = Keyword.get options, :verbose, true
 
+    port    = to_i(port)
     options = Enum.reduce [:port, :acceptors, :handler, :verbose], options, Keyword.delete(&2, &1)
     options = Keyword.put options, :dispatch, dispatch
 
@@ -42,13 +43,10 @@ defmodule Dynamo.Cowboy do
     :cowboy.stop_listener(app)
   end
 
-  @doc """
-  Provides a Cowboy HTTP dispatcher based on the app
-  and the handler. A developer can provide his custom
-  handler in case he wants to customize the HTTP handling
-  mechanism.
-  """
-  def dispatch_for(app, handler) do
+  defp dispatch_for(app, handler) do
     [{ :_, [ {:_, handler, app } ] }]
   end
+
+  defp to_i(integer) when is_integer(integer), do: integer
+  defp to_i(binary)  when is_binary(binary), do: binary /> binary_to_list /> list_to_integer
 end

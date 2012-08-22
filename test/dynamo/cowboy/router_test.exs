@@ -18,7 +18,7 @@ defmodule Dynamo.Cowboy.RouterTest do
   end
 
   def setup_all do
-    Dynamo.Cowboy.run RouterApp, port: 8012, verbose: false
+    Dynamo.Cowboy.run RouterApp, port: "8012", verbose: false
   end
 
   def teardown_all do
