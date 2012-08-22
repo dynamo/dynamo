@@ -1,4 +1,4 @@
-defmodule Dynamo.Connection.Request do
+defmodule Dynamo.HTTP.Request do
   @moduledoc false
 
   @doc """
@@ -12,7 +12,7 @@ defmodule Dynamo.Connection.Request do
   defmacro __using__(_) do
     quote location: :keep do
       def params(connection(params: nil)) do
-        raise Dynamo.Connection.UnfetchedError, aspect: :params
+        raise Dynamo.HTTP.UnfetchedError, aspect: :params
       end
 
       def params(connection(params: params)) do
@@ -20,7 +20,7 @@ defmodule Dynamo.Connection.Request do
       end
 
       def req_headers(connection(req_headers: nil)) do
-        raise Dynamo.Connection.UnfetchedError, aspect: :req_headers
+        raise Dynamo.HTTP.UnfetchedError, aspect: :req_headers
       end
 
       def req_headers(connection(req_headers: req_headers)) do

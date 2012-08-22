@@ -1,4 +1,4 @@
-defmodule Dynamo.Connection do
+defmodule Dynamo.HTTP do
   defrecord File, body: nil, name: nil, content_type: nil, filename: nil do
     @moduledoc """
     Contains a file representation whenever there is a multipart

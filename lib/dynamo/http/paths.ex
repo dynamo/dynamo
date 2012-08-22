@@ -1,4 +1,4 @@
-defmodule Dynamo.Connection.Paths do
+defmodule Dynamo.HTTP.Paths do
   @moduledoc false
 
   @doc """

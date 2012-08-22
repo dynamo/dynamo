@@ -1,12 +1,12 @@
-defmodule Dynamo.Cowboy.Connection do
+defmodule Dynamo.Cowboy.HTTP do
   @moduledoc """
   A wrapper around Cowboy request structure.
 
-  Check `Dynamo.Connection` for documentation on
+  Check `Dynamo.HTTP` for documentation on
   the majority of the functions.
   """
 
-  @behaviour Dynamo.Connection
+  @behaviour Dynamo.HTTP
   require :cowboy_http_req, as: R
 
   Record.defmacros __ENV__, :connection,
@@ -15,11 +15,11 @@ defmodule Dynamo.Cowboy.Connection do
       # :method, :res_charset, :res_type, :session, :req_body,
       :resp_body, :state ]
 
-  use Dynamo.Connection.Paths
-  use Dynamo.Connection.Cookies
-  use Dynamo.Connection.Request
-  use Dynamo.Connection.Response
-  use Dynamo.Connection.Assigns
+  use Dynamo.HTTP.Paths
+  use Dynamo.HTTP.Cookies
+  use Dynamo.HTTP.Request
+  use Dynamo.HTTP.Response
+  use Dynamo.HTTP.Assigns
 
   @doc false
   def new(req) do
@@ -104,7 +104,7 @@ defmodule Dynamo.Cowboy.Connection do
 
   def fetch(:params, connection(req: req, params: nil) = conn) do
     { query_string, req } = R.raw_qs req
-    params = Dynamo.Connection.QueryParser.parse(query_string)
+    params = Dynamo.HTTP.QueryParser.parse(query_string)
     { params, req } = Dynamo.Cowboy.BodyParser.parse(params, req)
     connection(conn, req: req, params: params)
   end

@@ -18,7 +18,7 @@ defmodule Dynamo.Router.TestHelpers do
       end
 
   The connection used in such tests is the
-  `Dynamo.Connection.Test`. In case you want to
+  `Dynamo.HTTP.Test`. In case you want to
   test different apps, you can use the lower-level
   `process/3` function.
 
@@ -81,7 +81,7 @@ defmodule Dynamo.Router.TestHelpers do
   After access, it verifies the app returned a valid connection.
   """
   def process(app, method, path) do
-    conn = app.service Dynamo.Connection.Test.new.req(method, path)
+    conn = app.service Dynamo.HTTP.Test.new.req(method, path)
 
     if not is_tuple(conn) or not function_exported?(elem(conn, 1), :state, 1) do
       raise "#{inspect app}.service did not return a connection, got #{inspect conn}"

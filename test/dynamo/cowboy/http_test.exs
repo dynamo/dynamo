@@ -1,6 +1,6 @@
 Code.require_file "../../../test_helper.exs", __FILE__
 
-defmodule Dynamo.Cowboy.ConnectionTest do
+defmodule Dynamo.Cowboy.HTTPTest do
   use ExUnit.Case, async: true
 
   def setup_all do

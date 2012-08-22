@@ -1,4 +1,4 @@
-defmodule Dynamo.Connection.Assigns do
+defmodule Dynamo.HTTP.Assigns do
   @moduledoc false
 
   @doc """

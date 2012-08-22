@@ -12,9 +12,9 @@ defmodule Dynamo.Cowboy.Handler do
   end
 
   def handle(req, app) do
-    conn = app.service(Dynamo.Cowboy.Connection.new(req))
+    conn = app.service(Dynamo.Cowboy.HTTP.new(req))
 
-    if is_record(conn, Dynamo.Cowboy.Connection) do
+    if is_record(conn, Dynamo.Cowboy.HTTP) do
       if conn.state == :set do
         conn = conn.send
       end

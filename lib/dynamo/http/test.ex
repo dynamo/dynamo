@@ -1,14 +1,14 @@
-defmodule Dynamo.Connection.Test do
+defmodule Dynamo.HTTP.Test do
   @moduledoc """
   A connection to be used in tests. It implements
   the same API as the other connections implementations
   and a couple extra helpers to be used in tests.
 
-  Check `Dynamo.Connection` for documentation on
+  Check `Dynamo.HTTP` for documentation on
   the majority of the functions.
   """
 
-  @behaviour Dynamo.Connection
+  @behaviour Dynamo.HTTP
 
   Record.defmacros __ENV__, :connection,
     [ :method, :path_segments, :path_info_segments, :script_name_segments,
@@ -16,11 +16,11 @@ defmodule Dynamo.Connection.Test do
       :resp_headers, :raw_cookies, :cookies, :resp_cookies, :assigns,
       :status, :resp_body, :state ]
 
-  use Dynamo.Connection.Paths
-  use Dynamo.Connection.Cookies
-  use Dynamo.Connection.Request
-  use Dynamo.Connection.Response
-  use Dynamo.Connection.Assigns
+  use Dynamo.HTTP.Paths
+  use Dynamo.HTTP.Cookies
+  use Dynamo.HTTP.Request
+  use Dynamo.HTTP.Response
+  use Dynamo.HTTP.Assigns
 
   @doc """
   Initializes a connection to be used in tests.
@@ -86,7 +86,7 @@ defmodule Dynamo.Connection.Test do
   end
 
   def fetch(:params, connection(query_string: query_string) = conn) do
-    params = Dynamo.Connection.QueryParser.parse(query_string)
+    params = Dynamo.HTTP.QueryParser.parse(query_string)
     connection(conn, params: params)
   end
 

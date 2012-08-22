@@ -1,9 +1,9 @@
 Code.require_file "../../../test_helper.exs", __FILE__
 
-defmodule Dynamo.Connection.TestTest do
+defmodule Dynamo.HTTP.TestTest do
   use ExUnit.Case, async: true
 
-  alias Dynamo.Connection.Test, as: C
+  alias Dynamo.HTTP.Test, as: C
 
   ## Request
 
@@ -32,7 +32,7 @@ defmodule Dynamo.Connection.TestTest do
   test :params do
     conn = conn(:GET, "/foo/bar?hello=world&foo[name]=bar")
 
-    assert_raise Dynamo.Connection.UnfetchedError, fn ->
+    assert_raise Dynamo.HTTP.UnfetchedError, fn ->
       conn.params
     end
 
@@ -44,7 +44,7 @@ defmodule Dynamo.Connection.TestTest do
   test :req_headers do
     conn = conn(:GET, "/foo/bar")
 
-    assert_raise Dynamo.Connection.UnfetchedError, fn ->
+    assert_raise Dynamo.HTTP.UnfetchedError, fn ->
       conn.req_headers
     end
 

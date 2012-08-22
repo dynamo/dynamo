@@ -1,4 +1,4 @@
-defmodule Dynamo.Connection.Cookies do
+defmodule Dynamo.HTTP.Cookies do
   @moduledoc false
 
   @doc """
@@ -12,7 +12,7 @@ defmodule Dynamo.Connection.Cookies do
   defmacro __using__(_) do
     quote location: :keep do
       def cookies(connection(cookies: nil)) do
-        raise Dynamo.Connection.UnfetchedError, aspect: :cookies
+        raise Dynamo.HTTP.UnfetchedError, aspect: :cookies
       end
 
       def cookies(connection(cookies: cookies)) do
