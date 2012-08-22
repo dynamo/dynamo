@@ -39,6 +39,7 @@ defmodule Dynamo.App do
 
       use Dynamo.Support.Once
 
+      use_once Dynamo.App.Config
       use_once Dynamo.App.NotFound
     end
   end

@@ -8,6 +8,13 @@ defmodule Dynamo.App.NotFound do
   defmacro __using__(_) do
     quote location: :keep do
       @before_compile unquote(__MODULE__)
+
+      @doc false
+      def not_found(conn) do
+        conn.resp(404, "Not found")
+      end
+
+      defoverridable [not_found: 1]
     end
   end
 
