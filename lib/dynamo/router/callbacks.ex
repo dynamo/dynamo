@@ -38,7 +38,7 @@ defmodule Dynamo.Router.Callbacks do
   defexception InvalidCallbackError, kind: nil, callback: nil, actual: nil do
     def message(exception) do
       "expected #{exception.kind} callback #{inspect exception.callback} to return " <>
-        "connection, but got #{inspect exception.actual}"
+        "a HTTP connection, but got #{inspect exception.actual}"
     end
   end
 
