@@ -67,8 +67,11 @@ defmodule Dynamo.Router.Callbacks do
     end
 
     quote do
-      defp run_prepare_callbacks(conn),  do: unquote(prepare)
-      defp run_finalize_callbacks(conn), do: unquote(finalize)
+      @doc false
+      def run_prepare_callbacks(conn),  do: unquote(prepare)
+
+      @doc false
+      def run_finalize_callbacks(conn), do: unquote(finalize)
     end
   end
 
