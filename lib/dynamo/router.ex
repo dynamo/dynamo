@@ -80,8 +80,10 @@ defmodule Dynamo.Router do
         true
       end
 
-      use Dynamo.Router.Base
-      use Dynamo.Router.Callbacks
+      use Dynamo.Support.Once
+
+      use_once Dynamo.Router.Base
+      use_once Dynamo.Router.Callbacks
     end
   end
 end
