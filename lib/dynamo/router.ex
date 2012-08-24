@@ -75,7 +75,7 @@ defmodule Dynamo.Router do
         raise "use Dynamo.App after Dynamo.Router"
       end
 
-      use Dynamo.Support.Once
+      use Dynamo.Utils.Once
 
       use_once Dynamo.Router.Base
       use_once Dynamo.Router.Callbacks

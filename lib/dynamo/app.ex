@@ -47,7 +47,7 @@ defmodule Dynamo.App do
       @dynamo_app true
       @before_compile unquote(__MODULE__)
 
-      use Dynamo.Support.Once
+      use Dynamo.Utils.Once
 
       use_once Dynamo.App.Config
       use_once Dynamo.App.NotFound

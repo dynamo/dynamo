@@ -1,6 +1,6 @@
 Code.require_file "../../../test_helper.exs", __FILE__
 
-defmodule Dynamo.Support.Incrementer do
+defmodule Dynamo.Utils.Incrementer do
   defmacro __using__(_) do
     quote do
       @counter 2
@@ -8,19 +8,19 @@ defmodule Dynamo.Support.Incrementer do
   end
 end
 
-defmodule Dynamo.Support.OnceTest do
+defmodule Dynamo.Utils.OnceTest do
   use ExUnit.Case
 
   Module.register_attribute __MODULE__, :counter, accumulate: true
   @counter 1
 
-  use Dynamo.Support.Once
-  use_once Dynamo.Support.Incrementer
-  use_once Dynamo.Support.Incrementer
+  use Dynamo.Utils.Once
+  use_once Dynamo.Utils.Incrementer
+  use_once Dynamo.Utils.Incrementer
 
-  use Dynamo.Support.Once
-  use_once Dynamo.Support.Incrementer
-  use_once Dynamo.Support.Incrementer
+  use Dynamo.Utils.Once
+  use_once Dynamo.Utils.Incrementer
+  use_once Dynamo.Utils.Incrementer
 
   def snapshot do
     @counter

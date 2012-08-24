@@ -1,4 +1,4 @@
-defmodule Dynamo.Support.Once do
+defmodule Dynamo.Utils.Once do
   @moduledoc """
   A convenience that allows a module to be used
   just once via `use_once`.

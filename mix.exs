@@ -15,6 +15,6 @@ defmodule Dynamo.Mixfile do
   end
 
   def application do
-    [applications: [:mimetypes]]
+    [applications: [:crypto, :mimetypes]]
   end
 end
