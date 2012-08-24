@@ -31,8 +31,9 @@ defmodule Dynamo.App.ConfigTest do
   end
 
   test "sets and overrides config" do
-    assert App.config[:dynamo] == [public_root: :myapp, public_route: "/public"]
-    assert App.config[:linq]   == [adapter: :pg]
-    assert App.config[:other]  == nil
+    assert App.config[:dynamo][:public_root]  == :myapp
+    assert App.config[:dynamo][:public_route] == "/public"
+    assert App.config[:linq]                  == [adapter: :pg]
+    assert App.config[:other]                 == nil
   end
 end

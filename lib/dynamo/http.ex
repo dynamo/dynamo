@@ -42,6 +42,25 @@ defmodule Dynamo.HTTP do
   defcallback method(conn)
 
   @doc """
+  Returns the original HTTP method as an atom.
+  Sometimes a filter may change the method from
+  HEAD to GET or from POST to PUT, this function
+  returns the original method.
+
+  ## Examples
+
+      request.original_method #=> :GET
+
+  """
+  defcallback original_method(conn)
+
+  @doc """
+  Changes the request method to the given `method`,
+  storing the previous value in original_method.
+  """
+  defcallback method(method, conn)
+
+  @doc """
   Returns the HTTP version.
   """
   defcallback version(conn)

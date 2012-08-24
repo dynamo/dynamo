@@ -19,6 +19,20 @@ defmodule Dynamo.HTTP.Request do
         params
       end
 
+      def method(connection(method: method)) do
+        method
+      end
+
+      def original_method(connection(original_method: method)) do
+        method
+      end
+
+      def method(method, connection(method: original_method) = conn) do
+        connection(conn,
+          method: method,
+          original_method: original_method)
+      end
+
       def req_headers(connection(req_headers: nil)) do
         raise Dynamo.HTTP.UnfetchedError, aspect: :req_headers
       end

@@ -53,7 +53,9 @@ defmodule Dynamo.App do
       use_once Dynamo.App.NotFound
       use_once Dynamo.Router.Filters
 
-      config :dynamo, public_route: "/public"
+      config :dynamo,
+        public_route: "/public",
+        translate_head_to_get: true
     end
   end
 
@@ -63,6 +65,10 @@ defmodule Dynamo.App do
 
       if root = dynamo[:public_root] do
         filter Dynamo.Filters.Static.new(dynamo[:public_route], root)
+      end
+
+      if dynamo[:translate_head_to_get] do
+        filter Dynamo.Filters.Head
       end
     end
   end

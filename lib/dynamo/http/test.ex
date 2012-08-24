@@ -11,7 +11,7 @@ defmodule Dynamo.HTTP.Test do
   @behaviour Dynamo.HTTP
 
   Record.defmacros __ENV__, :connection,
-    [ :method, :path_segments, :path_info_segments, :script_name_segments,
+    [ :method, :original_method, :path_segments, :path_info_segments, :script_name_segments,
       :query_string, :raw_req_headers, :req_headers, :req_body, :params,
       :resp_headers, :raw_cookies, :cookies, :resp_cookies, :assigns,
       :status, :resp_body, :state ]
@@ -41,10 +41,6 @@ defmodule Dynamo.HTTP.Test do
 
   def version(_conn) do
     { 1, 1 }
-  end
-
-  def method(connection(method: method)) do
-    method
   end
 
   def query_string(connection(query_string: query_string)) do
@@ -115,7 +111,8 @@ defmodule Dynamo.HTTP.Test do
       script_name_segments: [],
       params: nil,
       req_headers: nil,
-      method: method)
+      method: method,
+      original_method: method)
 
     if uri.authority do
       conn.set_req_header "Host", uri.authority

@@ -12,7 +12,7 @@ defmodule Dynamo.Cowboy.HTTP do
   Record.defmacros __ENV__, :connection,
     [ :req, :path_info_segments, :script_name_segments, :req_headers,
       :params, :cookies, :resp_headers, :resp_cookies, :assigns, :status,
-      # :method, :res_charset, :res_type, :session, :req_body,
+      :method, :original_method, # :res_charset, :res_type, :session, :req_body,
       :resp_body, :state ]
 
   use Dynamo.HTTP.Paths
@@ -24,9 +24,12 @@ defmodule Dynamo.Cowboy.HTTP do
   @doc false
   def new(req) do
     { segments, req } = R.path(req)
+    { verb, req }     = R.method(req)
 
     connection(
       req: req,
+      original_method: verb,
+      method: verb,
       path_info_segments: segments,
       script_name_segments: [],
       resp_headers: Binary.Dict.new,
@@ -60,11 +63,6 @@ defmodule Dynamo.Cowboy.HTTP do
   def path(connection(req: req)) do
     { binary, _ } = R.raw_path req
     binary
-  end
-
-  def method(connection(req: req)) do
-    { verb, _ } = R.method req
-    verb
   end
 
   def version(connection(req: req)) do

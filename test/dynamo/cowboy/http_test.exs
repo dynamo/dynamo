@@ -30,6 +30,21 @@ defmodule Dynamo.Cowboy.HTTPTest do
     assert_success request :get, "/version"
   end
 
+  def method(conn) do
+    assert conn.method == :GET
+    assert conn.original_method == :GET
+
+    conn = conn.method(:POST)
+    assert conn.method == :POST
+    assert conn.original_method == :GET
+
+    conn
+  end
+
+  test :method do
+    assert_success request :get, "/method"
+  end
+
   def path_segments_0(conn) do
     assert conn.path_segments == ["path_segments_0"]
     conn

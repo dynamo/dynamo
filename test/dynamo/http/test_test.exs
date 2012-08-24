@@ -14,6 +14,14 @@ defmodule Dynamo.HTTP.TestTest do
   test :method do
     assert conn(:GET, "/").method == :GET
     assert conn(:POST, "/").method == :POST
+
+    conn = conn(:GET, "/")
+    assert conn.method == :GET
+    assert conn.original_method == :GET
+
+    conn = conn.method(:POST)
+    assert conn.method == :POST
+    assert conn.original_method == :GET
   end
 
   test :path do
