@@ -1,14 +1,17 @@
-Code.require_file "../../test_helper.exs", __FILE__
+Code.require_file "../../../test_helper.exs", __FILE__
 
-defmodule Dynamo.StaticTest do
+defmodule Dynamo.Filters.StaticTest do
   use ExUnit.Case, async: true
   import Dynamo.Router.TestHelpers
 
   defmodule StaticApp do
     use Dynamo.Router
-    use Dynamo.App
 
-    forward "/public", to: Dynamo.Static.new(root: File.expand_path("../..", __FILE__))
+    filter Dynamo.Filters.Static.new("/public", File.expand_path("../../..", __FILE__))
+
+    get "/public/fixtures/fallback" do
+      conn.send(200, "Fallback")
+    end
 
     def not_found(conn) do
       conn.send(404, "File not served")
@@ -22,6 +25,12 @@ defmodule Dynamo.StaticTest do
     assert conn.status == 200
     assert conn.resp_body == "HELLO"
     assert conn.resp_headers["Content-Type"] == "text/plain"
+  end
+
+  test "hits the fallback" do
+    conn = get("/public/fixtures/fallback")
+    assert conn.status == 200
+    assert conn.resp_body == "Fallback"
   end
 
   test "returns 404 for non existing files" do
