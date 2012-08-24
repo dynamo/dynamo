@@ -30,13 +30,6 @@ defmodule Dynamo.Router.Filters do
 
   """
 
-  defexception InvalidFilterError, filter: nil, actual: nil do
-    def message(exception) do
-      "expected filter #{inspect exception.filter} to return " <>
-        "a HTTP connection, but got #{inspect exception.actual}"
-    end
-  end
-
   @doc false
   defmacro __using__(_) do
     quote location: :keep do
@@ -54,7 +47,7 @@ defmodule Dynamo.Router.Filters do
     code = Enum.reduce(filters, code, compile_filter(&1, &2))
 
     quote do
-      defoverridable [service: 3]
+      defoverridable [service: 1]
       def service(conn), do: unquote(code)
     end
   end
@@ -84,12 +77,12 @@ defmodule Dynamo.Router.Filters do
             end
           function_exported?(mod, :prepare, 1 + extra)  ->
             quote do
-              conn = unquote(filter).service(conn)
+              conn = unquote(filter).prepare(conn)
               unquote(acc)
             end
           function_exported?(mod, :finalize, 1 + extra)  ->
             quote do
-              unquote(filter).service(unquote(acc))
+              unquote(filter).finalize(unquote(acc))
             end
           true ->
             raise "filter #{inspect filter} does not implement any of the required functions"

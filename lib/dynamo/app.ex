@@ -36,6 +36,7 @@ defmodule Dynamo.App do
 
       use_once Dynamo.App.Config
       use_once Dynamo.App.NotFound
+      use_once Dynamo.Router.Filters
     end
   end
 end
