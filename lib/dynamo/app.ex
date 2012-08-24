@@ -6,6 +6,20 @@ defmodule Dynamo.App do
   A `Dynamo.App` can be used on top of a `Dynamo.Router`,
   so you can route and point to other endpoints easily.
 
+  ## Configuration
+
+  Dynamo comes with a configuration API that allows a
+  developer to customize how dynamo works and custom
+  extensions.
+
+  For example, here is a snippet that configures Dynamo
+  to serve public assets from the :myapp application
+  everytime we have a request at `/public`:
+
+      config :dynamo,
+        public_root:  :myapp,
+        public_route: "/public"
+
   ## Not found
 
   Each `Dynamo.Router` has a `not_found` hook that is
@@ -31,12 +45,25 @@ defmodule Dynamo.App do
   defmacro __using__(_) do
     quote do
       @dynamo_app true
+      @before_compile unquote(__MODULE__)
 
       use Dynamo.Support.Once
 
       use_once Dynamo.App.Config
       use_once Dynamo.App.NotFound
       use_once Dynamo.Router.Filters
+
+      config :dynamo, public_route: "/public"
+    end
+  end
+
+  defmacro before_compile(_) do
+    quote do
+      dynamo = @config[:dynamo]
+
+      if root = dynamo[:public_root] do
+        filter Dynamo.Filters.Static.new(dynamo[:public_route], root)
+      end
     end
   end
 end
