@@ -72,6 +72,11 @@ defmodule Dynamo.Cowboy.HTTP do
 
   ## Response API
 
+  def send(_status, body,
+      connection(original_method: :HEAD)) when body != "" do
+    raise Dynamo.HTTP.InvalidSendOnHeadError
+  end
+
   def send(status, body,
       connection(req: req, resp_headers: headers, resp_cookies: cookies) = conn) when is_integer(status) do
     req = Enum.reduce cookies, req, write_cookie(&1, &2)

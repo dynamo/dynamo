@@ -119,6 +119,16 @@ defmodule Dynamo.HTTP.TestTest do
     assert conn.status == 201
   end
 
+  test :send_with_head do
+    conn = conn(:HEAD, "/")
+
+    assert_raise Dynamo.HTTP.InvalidSendOnHeadError, fn ->
+      conn.send(200, "HELLO")
+    end
+
+    conn.send(200, "")
+  end
+
   test :sendfile do
     file = File.expand_path("../../../fixtures/file.txt", __FILE__)
     conn = conn(:GET, "/").sendfile(file)

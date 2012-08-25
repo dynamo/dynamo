@@ -13,6 +13,8 @@ defmodule Dynamo.HTTP do
     end
   end
 
+  defexception InvalidSendOnHeadError, message: "Cannot send data because conn.original_method is HEAD"
+
   use Behaviour
 
   ## Request API

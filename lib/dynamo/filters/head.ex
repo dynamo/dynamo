@@ -8,9 +8,8 @@ defmodule Dynamo.Filters.Head do
     if conn.method == :HEAD do
       conn = fun.(conn.method(:GET))
       case conn.state do
-        :unset -> conn
-        :set   -> conn.resp(conn.status, "")
-        _      -> raise "Streamed from a HEAD request"
+        :set -> conn.resp(conn.status, "")
+        _    -> conn
       end
     else
       fun.(conn)

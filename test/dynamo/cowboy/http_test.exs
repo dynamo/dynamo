@@ -264,8 +264,17 @@ defmodule Dynamo.Cowboy.HTTPTest do
     conn
   end
 
+  def send_with_head(conn) do
+    assert_raise Dynamo.HTTP.InvalidSendOnHeadError, fn ->
+      conn.send(200, "HELLO")
+    end
+
+    conn.resp(201, "")
+  end
+
   test :send do
     assert { 201, _, "OK" } = request :get, "/send"
+    assert { 201, _, "" } = request :head, "/send_with_head"
   end
 
   def sendfile(conn) do

@@ -61,6 +61,10 @@ defmodule Dynamo.HTTP.Test do
 
   ## Response API
 
+  def send(_status, body, connection(original_method: :HEAD)) when body != "" do
+    raise Dynamo.HTTP.InvalidSendOnHeadError
+  end
+
   def send(status, body, conn) do
     connection(conn,
       state: :sent,
