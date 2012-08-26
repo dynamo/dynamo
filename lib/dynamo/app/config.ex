@@ -26,12 +26,22 @@ defmodule Dynamo.App.Config do
     end
   end
 
+  @doc """
+  Defines the application root.
+  """
+  defmacro root(path) do
+    quote do
+      @root unquote(path)
+    end
+  end
+
   @doc false
   defmacro __using__(_) do
     quote do
       @config []
+      @root File.expand_path("../..", __FILE__)
       @before_compile unquote(__MODULE__)
-      import Dynamo.App.Config, except: [before_compile: 1]
+      import Dynamo.App.Config, only: [endpoint: 1, config: 2, root: 1]
     end
   end
 
@@ -40,6 +50,10 @@ defmodule Dynamo.App.Config do
     quote do
       def config do
         @config
+      end
+
+      def root do
+        @root
       end
     end
   end

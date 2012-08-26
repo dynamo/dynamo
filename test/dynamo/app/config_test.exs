@@ -8,6 +8,7 @@ defmodule Dynamo.App.ConfigTest do
   defmodule App do
     use Dynamo.App
 
+    root File.expand_path("..", __FILE__)
     endpoint Dynamo.App.ConfigTest
 
     config :dynamo,
@@ -20,6 +21,11 @@ defmodule Dynamo.App.ConfigTest do
       public_root: :myapp
   end
 
+  defmodule DefaultApp do
+    use Dynamo.App
+    endpoint App
+  end
+
   def service(conn) do
     conn.assign(:done, :ok).resp(200, "OK")
   end
@@ -28,6 +34,11 @@ defmodule Dynamo.App.ConfigTest do
 
   test "defines an endpoint" do
     assert get("/").assigns[:done] == :ok
+  end
+
+  test "defines a root" do
+    assert App.root == File.expand_path("..", __FILE__)
+    assert DefaultApp.root == File.expand_path("../..", __FILE__)
   end
 
   test "sets and overrides config" do
