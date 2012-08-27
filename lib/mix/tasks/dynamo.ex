@@ -53,6 +53,10 @@ defmodule Mix.Tasks.Dynamo do
     create_file ".gitignore", gitignore_text
     create_file "mix.exs",    mixfile_template(assigns)
 
+    create_directory "app"
+    create_directory "app/routers"
+    create_file "app/routers/application_router.ex", app_router_template(assigns)
+
     create_directory "config"
     create_file "config/app.ex", config_app_template(assigns)
 
@@ -62,7 +66,7 @@ defmodule Mix.Tasks.Dynamo do
     create_file "config/environments/prod.ex", config_prod_template(assigns)
 
     create_directory "lib"
-    create_directory "priv"
+    create_directory "public"
   end
 
   defp check_project_name!(name) do
@@ -107,12 +111,20 @@ defmodule Mix.Tasks.Dynamo do
   end
   """
 
+  embed_template :app_router, """
+  defmodule ApplicationRouter do
+    get "/" do
+      conn.resp(200, "Hello world")
+    end
+  end
+  """
+
   embed_template :config_app, """
   defmodule <%= @mod %>.App do
     endpoint ApplicationRouter
 
     config :dynamo,
-      # Serve assets from <%= @app %> priv directory.
+      # Serve assets from <%= @app %> public directory.
       # Set to false to disable.
       public_root: :<%= @app %>
   end

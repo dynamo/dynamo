@@ -60,7 +60,11 @@ defmodule Dynamo.App do
         public_route: "/public",
         translate_head_to_get: true,
         compile_on_demand: false,
-        reload_modules: false
+        reload_modules: false,
+        source_paths: File.wildcard("app/*"),
+        view_paths: ["app/views"],
+        root: File.expand_path("../..", __FILE__),
+        handler: Dynamo.Cowboy
 
       defp register_dynamo_app do
         Dynamo.app(__MODULE__)
@@ -70,7 +74,7 @@ defmodule Dynamo.App do
 
   @doc false
   defmacro load_env(module) do
-    root = Module.read_attribute(module, :root)
+    root = Module.read_attribute(module, :config)[:dynamo][:root]
     if root && File.dir?("#{root}/config/environments") do
       file = "#{root}/config/environments/#{Dynamo.env}.ex"
       Code.string_to_ast! File.read!(file), file: file
@@ -88,6 +92,10 @@ defmodule Dynamo.App do
 
       if dynamo[:translate_head_to_get] do
         filter Dynamo.Filters.Head
+      end
+
+      if dynamo[:compile_on_demand] || dynamo[:reload_modules] do
+        filter Dynamo.Filters.Reloader.new(dynamo[:compile_on_demand], dynamo[:reload_modules])
       end
     end
   end

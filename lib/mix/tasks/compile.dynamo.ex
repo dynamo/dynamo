@@ -31,6 +31,8 @@ defmodule Mix.Tasks.Compile.Dynamo do
     { opts, _ } = OptionParser.parse(args, flags: [:force], aliases: [f: :file])
 
     project = Mix.project
+    Dynamo.start
+
     Code.require_file project[:dynamo_app] || "config/app.ex"
     app = Dynamo.app
 
@@ -42,7 +44,7 @@ defmodule Mix.Tasks.Compile.Dynamo do
   end
 
   defp eager_compilation(app, project, opts) do
-    source_paths = app.config[:lol] || [] ## TODO: READ THIS FROM APP
+    source_paths = Keyword.values(app.config[:dynamo][:source_paths])
     compile_path = project[:compile_path]  || "ebin"
     to_compile   = extract_files(source_paths, opts[:file])
 

@@ -12,7 +12,6 @@ defmodule Dynamo.Filters.Static do
   ## Examples
 
       defmodule MyApp do
-        use Dynamo.Router
         use Dynamo.App
 
         filter Dynamo.Filters.Static.new("/public", :my_app)
@@ -58,7 +57,7 @@ defmodule Dynamo.Filters.Static do
   end
 
   defp root_path(root) when is_atom(root) do
-    :code.priv_dir(root)
+    :code.lib_dir(root, :public)
   end
 
   defp root_path(root) when is_binary(root) do

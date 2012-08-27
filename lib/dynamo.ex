@@ -1,8 +1,28 @@
 defmodule Dynamo do
+  @doc """
+  Starts the Dynamo framework.
+  """
   def start do
     :application.start(:mimetypes)
     :application.start(:crypto)
     :application.start(:dynamo)
+  end
+
+  # This is private API until we figure out how the
+  # application is going to be booted. Booting an app
+  # requires:
+  #
+  # 1. Booting dynamo
+  # 2. Booting the app (reloader and stuff)
+  # 3. Booting the web app
+  #
+  # And we will probably want to start a supervisor
+  # chain somewhere down the road.
+  @doc false
+  def start_app(app) do
+    if app.config[:dynamo][:compile_on_demand] do
+      Dynamo.Reloader.start_link app.config[:dynamo][:source_paths]
+    end
   end
 
   @doc """

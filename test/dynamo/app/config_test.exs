@@ -8,12 +8,12 @@ defmodule Dynamo.App.ConfigTest do
   defmodule App do
     use Dynamo.App
 
-    root File.expand_path("../../../fixtures", __FILE__)
     endpoint Dynamo.App.ConfigTest
 
     config :dynamo,
       public_root:  :app,
-      public_route: "/public"
+      public_route: "/public",
+      root: File.expand_path("../../../fixtures", __FILE__)
 
     config :linq, adapter: :pg
 
@@ -41,8 +41,8 @@ defmodule Dynamo.App.ConfigTest do
   end
 
   test "defines a root" do
-    assert App.root == File.expand_path("../../../fixtures", __FILE__)
-    assert DefaultApp.root == File.expand_path("../..", __FILE__)
+    assert App.config[:dynamo][:root] == File.expand_path("../../../fixtures", __FILE__)
+    assert DefaultApp.config[:dynamo][:root] == File.expand_path("../..", __FILE__)
   end
 
   test "sets and overrides config" do

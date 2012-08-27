@@ -26,6 +26,16 @@ defmodule Dynamo.Reloader do
   end
 
   @doc """
+  Sames as enable/0 but raises if the server is not available.
+  """
+  def enable! do
+    case enable do
+      :error -> raise "cannot enable on demand compilation because reloader server is not available"
+      other  -> other
+    end
+  end
+
+  @doc """
   Starts the `Dynamo.Reloader` server. Usually called
   internally by Dynamo.
   """
