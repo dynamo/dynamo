@@ -47,14 +47,13 @@ defmodule Dynamo.App do
       @on_load :register_dynamo_app
       @dynamo_app true
       @before_compile { unquote(__MODULE__), :load_env }
+      @before_compile { unquote(__MODULE__), :apply_filters }
 
       use Dynamo.Utils.Once
 
       use_once Dynamo.App.Config
       use_once Dynamo.App.NotFound
       use_once Dynamo.Router.Filters
-
-      @before_compile { unquote(__MODULE__), :apply_filters }
 
       config :dynamo,
         public_route: "/public",

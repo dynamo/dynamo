@@ -19,8 +19,16 @@ defmodule Dynamo.Filters.Reloader do
 
   @doc false
   def prepare(conn, { __MODULE__, compile_on_demand, reload_modules }) do
-    if compile_on_demand, do: Dynamo.Reloader.enable!
-    if reload_modules,    do: Dynamo.Reloader.conditional_purge
+    if compile_on_demand do
+      Dynamo.Reloader.enable!
+    end
+
+    if reload_modules do
+      if Dynamo.Reloader.conditional_purge == :purged do
+        IO.puts "[Dynamo] Changes detected, reloading modules..."
+      end
+    end
+
     conn
   end
 end

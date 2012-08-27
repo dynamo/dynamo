@@ -17,6 +17,7 @@ defmodule Mix.Tasks.Server do
     app = Dynamo.app
 
     Dynamo.start_app(app)
-    app.handler.run app
+    app.config[:dynamo][:handler].run app
+    :timer.sleep(:infinity)
   end
 end

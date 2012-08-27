@@ -113,6 +113,8 @@ defmodule Mix.Tasks.Dynamo do
 
   embed_template :app_router, """
   defmodule ApplicationRouter do
+    use Dynamo.Router
+
     get "/" do
       conn.resp(200, "Hello world")
     end
@@ -121,6 +123,8 @@ defmodule Mix.Tasks.Dynamo do
 
   embed_template :config_app, """
   defmodule <%= @mod %>.App do
+    use Dynamo.App
+
     endpoint ApplicationRouter
 
     config :dynamo,
