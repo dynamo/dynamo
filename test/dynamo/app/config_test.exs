@@ -8,7 +8,7 @@ defmodule Dynamo.App.ConfigTest do
   defmodule App do
     use Dynamo.App
 
-    root File.expand_path("..", __FILE__)
+    root File.expand_path("../../../fixtures", __FILE__)
     endpoint Dynamo.App.ConfigTest
 
     config :dynamo,
@@ -21,10 +21,14 @@ defmodule Dynamo.App.ConfigTest do
       public_root: :myapp
   end
 
+  Dynamo.app(nil)
+
   defmodule DefaultApp do
     use Dynamo.App
     endpoint App
   end
+
+  Dynamo.app(nil)
 
   def service(conn) do
     conn.assign(:done, :ok).resp(200, "OK")
@@ -37,7 +41,7 @@ defmodule Dynamo.App.ConfigTest do
   end
 
   test "defines a root" do
-    assert App.root == File.expand_path("..", __FILE__)
+    assert App.root == File.expand_path("../../../fixtures", __FILE__)
     assert DefaultApp.root == File.expand_path("../..", __FILE__)
   end
 
@@ -46,5 +50,9 @@ defmodule Dynamo.App.ConfigTest do
     assert App.config[:dynamo][:public_route] == "/public"
     assert App.config[:linq]                  == [adapter: :pg]
     assert App.config[:other]                 == nil
+  end
+
+  test "gets config from environment" do
+    assert App.config[:from_dev][:other]  == "config"
   end
 end

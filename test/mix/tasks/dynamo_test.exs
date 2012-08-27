@@ -32,4 +32,17 @@ defmodule Mix.Tasks.DynamoTest do
       assert_received { :mix_shell, :info, ["* creating config/app.ex"] }
     end
   end
+
+  test "generates a dynamo app for development" do
+    in_tmp "my_app", fn ->
+      Mix.Tasks.Dynamo.run [".", "--dev"]
+
+      assert_file "mix.exs", fn(file) ->
+        assert file =~ %r(raw:)
+      end
+
+      assert_received { :mix_shell, :info, ["* creating mix.exs"] }
+      assert_received { :mix_shell, :info, ["* creating config/app.ex"] }
+    end
+  end
 end

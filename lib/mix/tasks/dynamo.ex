@@ -43,7 +43,7 @@ defmodule Mix.Tasks.Dynamo do
   defp do_generate(app, opts) do
     mod     = opts[:module] || camelize(app)
     dynamo  = if opts[:dev] do
-      %b(path: "#{File.expand_path("../../../..", __FILE__)}")
+      %b(raw: "#{File.expand_path("../../../..", __FILE__)}")
     else
       %b(git: "https://github.com/josevalim/dynamo.git")
     end

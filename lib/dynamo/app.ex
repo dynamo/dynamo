@@ -44,8 +44,9 @@ defmodule Dynamo.App do
   @doc false
   defmacro __using__(_) do
     quote do
+      @on_load :register_dynamo_app
       @dynamo_app true
-      @before_compile unquote(__MODULE__)
+      @before_compile { unquote(__MODULE__), :load_env }
 
       use Dynamo.Utils.Once
 
@@ -53,13 +54,31 @@ defmodule Dynamo.App do
       use_once Dynamo.App.NotFound
       use_once Dynamo.Router.Filters
 
+      @before_compile { unquote(__MODULE__), :apply_filters }
+
       config :dynamo,
         public_route: "/public",
-        translate_head_to_get: true
+        translate_head_to_get: true,
+        compile_on_demand: false,
+        reload_modules: false
+
+      defp register_dynamo_app do
+        Dynamo.app(__MODULE__)
+      end
     end
   end
 
-  defmacro before_compile(_) do
+  @doc false
+  defmacro load_env(module) do
+    root = Module.read_attribute(module, :root)
+    if root && File.dir?("#{root}/config/environments") do
+      file = "#{root}/config/environments/#{Dynamo.env}.ex"
+      Code.string_to_ast! File.read!(file), file: file
+    end
+  end
+
+  @doc false
+  defmacro apply_filters(_) do
     quote do
       dynamo = @config[:dynamo]
 
