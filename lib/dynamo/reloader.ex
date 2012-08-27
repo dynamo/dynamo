@@ -41,7 +41,7 @@ defmodule Dynamo.Reloader do
   """
   def start_link(paths) do
     { :module, _ } = Code.ensure_loaded(Dynamo.Reloader.ErrorHandler)
-    :gen_server.start({ :local, __MODULE__ }, __MODULE__, paths, [])
+    :gen_server.start({ :local, __MODULE__ }, __MODULE__, Enum.map(paths, File.expand_path(&1)), [])
   end
 
   @doc """

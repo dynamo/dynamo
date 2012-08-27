@@ -48,12 +48,24 @@ defmodule Dynamo.App do
       @dynamo_app true
       @before_compile { unquote(__MODULE__), :load_env }
       @before_compile { unquote(__MODULE__), :apply_filters }
+      @before_compile { unquote(__MODULE__), :apply_initializers }
+
+      if :code.is_loaded(__MODULE__) do
+        IO.puts "[ERROR] The dynamo application #{inspect __MODULE__} is already loaded. This may " <>
+          "happen because there is already a compiled app file at ebin. Please ensure your ebin " <>
+          "directory does not contain compiled app files with `mix clean`"
+        exit(1)
+      end
 
       use Dynamo.Utils.Once
 
       use_once Dynamo.App.Config
       use_once Dynamo.App.NotFound
       use_once Dynamo.Router.Filters
+
+      if Enum.any?(:application.loaded_applications, match?({ :mix, _, _ }, &1)) do
+        app = Mix.project[:app]
+      end
 
       config :dynamo,
         public_route: "/public",
@@ -63,7 +75,24 @@ defmodule Dynamo.App do
         source_paths: File.wildcard("app/*"),
         view_paths: ["app/views"],
         root: File.expand_path("../..", __FILE__),
-        handler: Dynamo.Cowboy
+        handler: Dynamo.Cowboy,
+        app: app
+
+      # The reloader needs to be the first initializer
+      initializer :start_dynamo_reloader do
+        dynamo = config[:dynamo]
+        if dynamo[:compile_on_demand] do
+          Dynamo.Reloader.start_link dynamo[:source_paths]
+          Dynamo.Reloader.enable!
+        end
+      end
+
+      # Then starts up the application
+      initializer :start_dynamo_app do
+        if app = config[:dynamo][:app] do
+          :application.start(app)
+        end
+      end
 
       defp register_dynamo_app do
         Dynamo.app(__MODULE__)
@@ -95,6 +124,21 @@ defmodule Dynamo.App do
 
       if dynamo[:compile_on_demand] || dynamo[:reload_modules] do
         filter Dynamo.Filters.Reloader.new(dynamo[:compile_on_demand], dynamo[:reload_modules])
+      end
+    end
+  end
+
+  @doc false
+  defmacro apply_initializers(_) do
+    quote do
+      initializer :ensure_endpoint_is_available do
+        if @endpoint && match?({ :error, _ }, Code.ensure_compiled(@endpoint)) do
+          if config[:dynamo][:compile_on_demand] do
+            raise "could not find endpoint #{inspect @endpoint}, please ensure it is available"
+          else
+            raise "could not find endpoint #{inspect @endpoint}, please ensure it was compiled"
+          end
+        end
       end
     end
   end

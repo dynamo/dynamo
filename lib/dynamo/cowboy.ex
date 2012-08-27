@@ -26,9 +26,10 @@ defmodule Dynamo.Cowboy do
     dispatch  = Keyword.get options, :dispatch, dispatch_for(app, handler)
     verbose   = Keyword.get options, :verbose, true
 
-    port    = to_i(port)
-    options = Enum.reduce [:port, :acceptors, :handler, :verbose], options, Keyword.delete(&2, &1)
-    options = Keyword.put options, :dispatch, dispatch
+    port      = to_i(port)
+    acceptors = to_i(acceptors)
+    options   = Enum.reduce [:port, :acceptors, :handler, :verbose], options, Keyword.delete(&2, &1)
+    options   = Keyword.put options, :dispatch, dispatch
 
     :cowboy.start_listener(app, acceptors,
       :cowboy_tcp_transport, [port: port],

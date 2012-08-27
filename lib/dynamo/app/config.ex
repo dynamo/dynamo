@@ -20,24 +20,45 @@ defmodule Dynamo.App.Config do
   """
   defmacro endpoint(endpoint) do
     quote do
+      @endpoint unquote(endpoint)
+
       def service(conn) do
-        unquote(endpoint).service(conn)
+        @endpoint.service(conn)
       end
+    end
+  end
+
+  @doc """
+  Defines an initializer that will be invoked when
+  the application starts.
+  """
+  defmacro initializer(name, [do: block]) do
+    quote do
+      name = :"__initializer_#{unquote(name)}"
+      @initializers { name, unquote(__CALLER__.line), [] }
+      defp name, [], [], do: unquote(block)
     end
   end
 
   @doc false
   defmacro __using__(_) do
     quote do
+      Module.register_attribute __MODULE__, :initializers, accumulate: true
       @config []
       @before_compile unquote(__MODULE__)
-      import Dynamo.App.Config, only: [endpoint: 1, config: 2]
+      import Dynamo.App.Config, only: [endpoint: 1, config: 2, initializer: 2]
     end
   end
 
   @doc false
-  defmacro before_compile(_mod) do
+  defmacro before_compile(mod) do
+    initializers = Module.read_attribute(mod, :initializers)
+
     quote do
+      def start do
+        unquote(Enum.reverse initializers)
+      end
+
       def config do
         @config
       end

@@ -19,6 +19,10 @@ defmodule Dynamo.App.ConfigTest do
 
     config :dynamo,
       public_root: :myapp
+
+    initializer :sample do
+      Process.put(__MODULE__, :sample)
+    end
   end
 
   Dynamo.app(nil)
@@ -35,6 +39,12 @@ defmodule Dynamo.App.ConfigTest do
   end
 
   @app App
+
+  test "defines a start which runs initializers" do
+    assert Process.get(App) == nil
+    App.start
+    assert Process.get(App) == :sample
+  end
 
   test "defines an endpoint" do
     assert get("/").assigns[:done] == :ok
