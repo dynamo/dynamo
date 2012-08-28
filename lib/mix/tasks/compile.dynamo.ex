@@ -41,9 +41,12 @@ defmodule Mix.Tasks.Compile.Dynamo do
     if app.config[:dynamo][:compile_on_demand] do
       :noop
     else
-      source_paths = app.config[:dynamo][:source_paths]
+      dynamo       = app.config[:dynamo]
+      root         = dynamo[:root]
+      source_paths = dynamo[:source_paths]
+
       unload_app(app)
-      eager_compilation(project, source_paths, opts)
+      eager_compilation(root, source_paths, opts)
     end
   end
 
@@ -53,7 +56,8 @@ defmodule Mix.Tasks.Compile.Dynamo do
     :code.delete(app)
   end
 
-  defp eager_compilation(project, source_paths, opts) do
+  defp eager_compilation(root, source_paths, opts) do
+    project      = Mix.project
     compile_path = project[:compile_path] || "ebin"
     app          = project[:dynamo_app] || "config/app.ex"
     to_compile   = [app|extract_files(source_paths, opts[:file])]
@@ -65,7 +69,7 @@ defmodule Mix.Tasks.Compile.Dynamo do
         Code.compiler_options(elixir_opts)
       end
 
-      compile_files List.uniq(to_compile), compile_path
+      compile_files List.uniq(to_compile), compile_path, root
       File.touch(compile_path)
     else
       :noop
@@ -82,10 +86,11 @@ defmodule Mix.Tasks.Compile.Dynamo do
     File.wildcard(pattern)
   end
 
-  defp compile_files(files, to) do
-    Kernel.ParallelCompiler.files_to_path files, to, fn(x) ->
-      Mix.shell.info "Compiled #{x}"
-      x
+  defp compile_files(files, to, root) do
+    Kernel.ParallelCompiler.files_to_path files, to, fn(original) ->
+      relative = :binary.replace original, root <> "/", ""
+      Mix.shell.info "Compiled #{relative}"
+      original
     end
   end
 end
