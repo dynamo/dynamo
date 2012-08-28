@@ -67,8 +67,8 @@ defmodule Dynamo.HTTP.TestTest do
     conn = conn(:GET, "/foo/bar").fetch(:headers)
     assert conn.req_headers["Host"] == "127.0.0.1"
 
-    conn = conn(:GET, "//example.com:3000/foo/bar").fetch(:headers)
-    assert conn.req_headers["Host"] == "example.com:3000"
+    conn = conn(:GET, "//example.com:4000/foo/bar").fetch(:headers)
+    assert conn.req_headers["Host"] == "example.com:4000"
   end
 
   ## Cookies
