@@ -53,14 +53,25 @@ defmodule Mix.Tasks.DynamoTest do
 
   test "generates and compiles an application" do
     in_tmp "my_compiled_app", fn ->
-      Mix.Tasks.Dynamo.run [".", "--dev"]
+      app_with_dynamo_deps_path
 
-      File.write! "mix.exs", Regex.replace(%r"deps: deps", File.read!("mix.exs"), %b(deps: deps, deps_path: "../../deps"))
+      ## Cannot boot production without compiling
+      output = System.cmd "MIXENV=prod mix server"
+      assert output =~ %r(could not find endpoint ApplicationRouter, please ensure it was compiled)
+
       output = System.cmd "MIXENV=prod mix compile"
-
       assert output =~ %r(Compiled app/routers/application_router.ex)
       assert output =~ %r(Compiled config/app.ex)
       assert output =~ %r(Generated my_compiled_app.app)
+
+      ## Cannot boot development after compiling
+      output = System.cmd "MIXENV=dev mix server"
+      assert output =~ %r(the dynamo application MyCompiledApp is already loaded)
     end
+  end
+
+  defp app_with_dynamo_deps_path do
+    Mix.Tasks.Dynamo.run [".", "--dev"]
+    File.write! "mix.exs", Regex.replace(%r"deps: deps", File.read!("mix.exs"), %b(deps: deps, deps_path: "../../deps"))
   end
 end

@@ -95,10 +95,9 @@ defmodule Dynamo.App do
       @before_compile { unquote(__MODULE__), :apply_initializers }
 
       if :code.is_loaded(__MODULE__) do
-        IO.puts "[ERROR] The dynamo application #{inspect __MODULE__} is already loaded. This may " <>
-          "happen because there is already a compiled app file at ebin. Please ensure your ebin " <>
-          "directory does not contain compiled app files with `mix clean`"
-        exit(1)
+        raise "the dynamo application #{inspect __MODULE__} is already loaded. This may " <>
+          "happen because there is already a compiled app file at ebin. Run `mix clean` " <>
+          "to ensure your ebin directory does not contain compiled app files"
       end
 
       use Dynamo.Utils.Once
