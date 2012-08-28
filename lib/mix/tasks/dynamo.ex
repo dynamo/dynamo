@@ -129,7 +129,7 @@ defmodule Mix.Tasks.Dynamo do
 
     # It is common to break your application in many
     # routers forwarding the requests between them
-    forward "/posts", to: PostsRouter
+    # forward "/posts", to: PostsRouter
 
     get "/" do
       conn.resp(200, "Hello world")
