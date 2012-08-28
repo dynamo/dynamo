@@ -5,6 +5,11 @@ defmodule Mix.Tasks.DynamoTest do
 
   import MixHelpers
 
+  test "prints version" do
+    Mix.Tasks.Dynamo.run ["-v"]
+    assert_received { :mix_shell, :info, ["Dynamo v" <> _] }
+  end
+
   test "generates a new dynamo app" do
     in_tmp "my_app", fn ->
       Mix.Tasks.Dynamo.run ["."]

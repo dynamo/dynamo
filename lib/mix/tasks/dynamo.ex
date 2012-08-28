@@ -11,12 +11,11 @@ defmodule Mix.Tasks.Dynamo do
   Creates a new Dynamo project.
   It expects the path of the project as argument.
 
-      mix new PATH [--app APP] [--module MODULE]
+      mix dynamo [-v] PATH [--app APP] [--module MODULE]
 
-  A project with the given path name will be created,
-  unless `--app` is given, allowing you to set the app
-  name or the `--module` is given configuring the module
-  name.
+  A project at the given PATH  will be created. The
+  application name and module name will be retrieved
+  from the path, unless `-app` or `--module` is given.
 
   ## Examples
 
@@ -26,7 +25,15 @@ defmodule Mix.Tasks.Dynamo do
 
       mix dynamo hello_world --app hello_world --module HelloWorld
 
+  Use -v to print mix version:
+
+      mix dynamo -v
+
   """
+  def run(["-v"]) do
+    Mix.shell.info "Dynamo v#{@version}"
+  end
+
   def run(argv) do
     { opts, argv } = OptionParser.parse(argv, flags: [:dev])
     case argv do
