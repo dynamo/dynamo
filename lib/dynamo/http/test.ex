@@ -14,7 +14,7 @@ defmodule Dynamo.HTTP.Test do
     [ :method, :original_method, :path_segments, :path_info_segments, :script_name_segments,
       :query_string, :raw_req_headers, :req_headers, :req_body, :params,
       :resp_headers, :raw_cookies, :cookies, :resp_cookies, :assigns,
-      :status, :resp_body, :state ]
+      :status, :resp_body, :state, :fetched ]
 
   use Dynamo.HTTP.Paths
   use Dynamo.HTTP.Cookies
@@ -33,6 +33,7 @@ defmodule Dynamo.HTTP.Test do
       resp_headers: Binary.Dict.new,
       resp_cookies: [],
       assigns: [],
+      fetched: [],
       state: :unset
     )
   end
@@ -79,19 +80,20 @@ defmodule Dynamo.HTTP.Test do
 
   ## Misc
 
-  def fetch(:headers, connection(raw_req_headers: raw_req_headers) = conn) do
+  def fetch(:headers, connection(raw_req_headers: raw_req_headers, fetched: fetched) = conn) do
     connection(conn,
+      fetched: [:headers|fetched],
       req_headers: raw_req_headers,
       raw_req_headers: Binary.Dict.new)
   end
 
-  def fetch(:params, connection(query_string: query_string) = conn) do
+  def fetch(:params, connection(query_string: query_string, fetched: fetched) = conn) do
     params = Dynamo.HTTP.QueryParser.parse(query_string)
-    connection(conn, params: params)
+    connection(conn, params: params, fetched: [:params|fetched])
   end
 
-  def fetch(:cookies, connection(raw_cookies: raw_cookies) = conn) do
-    connection(conn, cookies: raw_cookies)
+  def fetch(:cookies, connection(raw_cookies: raw_cookies, fetched: fetched) = conn) do
+    connection(conn, cookies: raw_cookies, fetched: [:cookies|fetched])
   end
 
   ## Test only API
@@ -123,6 +125,13 @@ defmodule Dynamo.HTTP.Test do
     else
       conn
     end
+  end
+
+  @doc """
+  Stores fetched aspects.
+  """
+  def fetched(connection(fetched: fetched)) do
+    fetched
   end
 
   @doc """

@@ -22,7 +22,6 @@ defmodule Dynamo.App.NotFoundTest do
   Dynamo.app(nil)
 
   defmodule App do
-    use Dynamo.Router
     use Dynamo.App
 
     def service(conn) do

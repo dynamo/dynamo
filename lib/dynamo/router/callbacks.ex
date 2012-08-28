@@ -49,7 +49,7 @@ defmodule Dynamo.Router.Callbacks do
         Module.register_attribute(__MODULE__, &1, accumulate: true, persist: false)
 
       @before_compile unquote(__MODULE__)
-      import unquote(__MODULE__), only: [prepare: 1, finalize: 1, fetch: 1]
+      import unquote(__MODULE__), only: [prepare: 1, finalize: 1]
     end
   end
 
@@ -66,7 +66,7 @@ defmodule Dynamo.Router.Callbacks do
       compile_callback(callback, acc, function(:compile_finalize, 3))
     end
 
-    quote do
+    quote location: :keep do
       @doc false
       def run_prepare_callbacks(conn),  do: unquote(prepare)
 
@@ -110,21 +110,6 @@ defmodule Dynamo.Router.Callbacks do
   defmacro finalize(spec) do
     quote do
       @__finalize_callbacks unquote(spec)
-    end
-  end
-
-  @doc """
-  A convenience that fetches an aspect of the connection.
-  Expects a list containing one or more of the following
-  values: headers, params, cookies and session.
-  """
-  defmacro fetch(aspects) do
-    quote do
-      prepare do
-        Enum.reduce(unquote(aspects), var!(conn), fn(aspect, acc) ->
-          acc.fetch(aspect)
-        end)
-      end
     end
   end
 

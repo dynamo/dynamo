@@ -46,7 +46,7 @@ defmodule Dynamo.Router.Filters do
     code = quote(do: super(conn))
     code = Enum.reduce(filters, code, compile_filter(&1, &2))
 
-    quote do
+    quote location: :keep do
       defoverridable [service: 1]
       def service(conn), do: unquote(code)
     end

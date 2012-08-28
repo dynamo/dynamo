@@ -204,27 +204,3 @@ defmodule Dynamo.Router.FinishCallbacksTest do
     end
   end
 end
-
-defmodule Dynamo.Router.FetchTest do
-  use ExUnit.Case, async: true
-
-  defrecord Mock, value: [], state: :unset do
-    def fetch(aspect, record) do
-      record.prepend_value([aspect])
-    end
-  end
-
-  defmodule ValidFetchTest do
-    use Dynamo.Router
-
-    fetch [:cookies, :session]
-
-    get "/foo" do
-      conn
-    end
-  end
-
-  test "fetch aspects of connection" do
-    assert ValidFetchTest.dispatch(:GET, ["foo"], Mock.new).value == [:session, :cookies]
-  end
-end

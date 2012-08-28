@@ -54,7 +54,7 @@ defmodule Dynamo.App.Config do
   defmacro before_compile(mod) do
     initializers = Module.read_attribute(mod, :initializers)
 
-    quote do
+    quote location: :keep do
       def start do
         unquote(Enum.reverse initializers)
       end
