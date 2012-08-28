@@ -21,12 +21,12 @@ defmodule Mix.Tasks.DynamoTest do
 
       assert_file "config/app.ex", fn(file) ->
         assert file =~ %r(endpoint ApplicationRouter)
-        assert file =~ %r(public_root: :my_app)
+        assert file =~ %r(otp_app: :my_app)
       end
 
-      assert_file "config/environments/dev.ex"
-      assert_file "config/environments/test.ex"
-      assert_file "config/environments/prod.ex"
+      assert_file "config/environments/dev.exs"
+      assert_file "config/environments/test.exs"
+      assert_file "config/environments/prod.exs"
 
       assert_received { :mix_shell, :info, ["* creating mix.exs"] }
       assert_received { :mix_shell, :info, ["* creating config/app.ex"] }

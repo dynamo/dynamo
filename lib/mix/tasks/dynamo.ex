@@ -61,9 +61,9 @@ defmodule Mix.Tasks.Dynamo do
     create_file "config/app.ex", config_app_template(assigns)
 
     create_directory "config/environments"
-    create_file "config/environments/dev.ex",  config_dev_template(assigns)
-    create_file "config/environments/test.ex", config_test_template(assigns)
-    create_file "config/environments/prod.ex", config_prod_template(assigns)
+    create_file "config/environments/dev.exs",  config_dev_template(assigns)
+    create_file "config/environments/test.exs", config_test_template(assigns)
+    create_file "config/environments/prod.exs", config_prod_template(assigns)
 
     create_directory "lib"
     create_directory "public"
@@ -122,15 +122,16 @@ defmodule Mix.Tasks.Dynamo do
   """
 
   embed_template :config_app, """
-  defmodule <%= @mod %>.App do
+  defmodule <%= @mod %> do
     use Dynamo.App
 
     endpoint ApplicationRouter
 
     config :dynamo,
-      # Serve assets from <%= @app %> public directory.
-      # Set to false to disable.
-      public_root: :<%= @app %>
+      # The OTP application associated to this app
+      otp_app: :<%= @app %>,
+      # The route from where public assets are served
+      public_route: "/public"
   end
   """
 

@@ -20,6 +20,18 @@ defmodule Dynamo.App do
         public_root:  :myapp,
         public_route: "/public"
 
+  The available `:dynamo` configurations are:
+
+  * `:public_route` - The route to trigger public assets serving
+  * `:translate_head_to_get` - Inserts a filter that translates head to get
+  * `:compile_on_demand` - Inserts a filter that compiles modules as they are needed
+  * `:reload_modules` - Reload modules after they are changed
+  * `:source_paths` - The paths to search when compiling modules on demand
+  * `:view_paths` - The paths to find views
+  * `:root` - The application root
+  * `:handler` - The handler used to serve web applications
+  * `:otp_app` - The otp application associated to this app
+
   ## Not found
 
   Each `Dynamo.Router` has a `not_found` hook that is
@@ -39,13 +51,45 @@ defmodule Dynamo.App do
         html conn, "404.eex"
       end
 
+  ## Initialization
+
+  Dynamo.App allows you to register initializers which are
+  invoked when the application starts. A Dynamo application
+  is initialized in three steps:
+
+  * The dynamo framework needs to be loaded via Dynamo.start
+  * The application needs to be loaded via APP.start
+  * A handler needs to be run to serve an application
+
+  The step 2 can be extended via initializers. For example:
+
+      defmodule MyApp do
+        use Dynamo.App
+
+        initializer :some_config do
+          # Connect to the database
+        end
+      end
+
+  By default, the application ships with 3 initializers:
+
+  * `:start_dynamo_reloader` - starts the code reloader, usually
+    used in development and test
+
+  * `:start_dynamo_app` - starts the Dynamo application registered as `otp_app`
+
+  * `:ensure_endpoint_is_available` - ensure the endpoint is available
+    and raises a meaningful error message if not
+
   """
 
   @doc false
   defmacro __using__(_) do
     quote do
-      @on_load :register_dynamo_app
       @dynamo_app true
+      @on_load :register_dynamo_app
+
+      @before_compile { unquote(__MODULE__), :normalize_options }
       @before_compile { unquote(__MODULE__), :load_env }
       @before_compile { unquote(__MODULE__), :apply_filters }
       @before_compile { unquote(__MODULE__), :apply_initializers }
@@ -63,20 +107,7 @@ defmodule Dynamo.App do
       use_once Dynamo.App.NotFound
       use_once Dynamo.Router.Filters
 
-      if Enum.any?(:application.loaded_applications, match?({ :mix, _, _ }, &1)) do
-        app = Mix.project[:app]
-      end
-
-      config :dynamo,
-        public_route: "/public",
-        translate_head_to_get: true,
-        compile_on_demand: false,
-        reload_modules: false,
-        source_paths: File.wildcard("app/*"),
-        view_paths: ["app/views"],
-        root: File.expand_path("../..", __FILE__),
-        handler: Dynamo.Cowboy,
-        app: app
+      config :dynamo, Dynamo.App.default_options(__FILE__)
 
       # The reloader needs to be the first initializer
       initializer :start_dynamo_reloader do
@@ -89,7 +120,7 @@ defmodule Dynamo.App do
 
       # Then starts up the application
       initializer :start_dynamo_app do
-        if app = config[:dynamo][:app] do
+        if app = config[:dynamo][:otp_app] do
           :application.start(app)
         end
       end
@@ -101,10 +132,70 @@ defmodule Dynamo.App do
   end
 
   @doc false
+  def default_options(file) do
+    [ public_route: "/public",
+      translate_head_to_get: true,
+      compile_on_demand: false,
+      reload_modules: false,
+      source_paths: ["app/*"],
+      view_paths: ["app/views"],
+      root: File.expand_path("../..", file),
+      handler: Dynamo.Cowboy ]
+  end
+
+  @doc false
+  def default_filters(mod) do
+    filters = []
+    dynamo  = Module.read_attribute(mod, :config)[:dynamo]
+
+    if dynamo[:compile_on_demand] || dynamo[:reload_modules] do
+      filters = [Dynamo.Filters.Reloader.new(dynamo[:compile_on_demand], dynamo[:reload_modules])|filters]
+    end
+
+    if dynamo[:translate_head_to_get] do
+      filters = [Dynamo.Filters.Head|filters]
+    end
+
+    public_route = dynamo[:public_route]
+    public_root  = case dynamo[:public_root] do
+      nil   -> dynamo[:otp_app]
+      other -> other
+    end
+
+    if public_root && public_route do
+      filters = [Dynamo.Filters.Static.new(public_route, public_root)|filters]
+    end
+
+    filters
+  end
+
+  @doc false
+  defmacro normalize_options(mod) do
+    dynamo = Module.read_attribute(mod, :config)[:dynamo]
+    root   = dynamo[:root]
+
+    source = dynamo[:source_paths]
+    source = Enum.reduce source, [], fn(path, acc) -> expand_paths(path, root) ++ acc end
+
+    view = dynamo[:view_paths]
+    view = Enum.reduce view, [], fn(path, acc) -> expand_paths(path, root) ++ acc end
+
+    quote do
+      config :dynamo,
+        view_paths: unquote(view),
+        source_paths: unquote(source)
+    end
+  end
+
+  defp expand_paths(path, root) do
+    path /> File.expand_path(root) /> File.wildcard
+  end
+
+  @doc false
   defmacro load_env(module) do
     root = Module.read_attribute(module, :config)[:dynamo][:root]
     if root && File.dir?("#{root}/config/environments") do
-      file = "#{root}/config/environments/#{Dynamo.env}.ex"
+      file = "#{root}/config/environments/#{Dynamo.env}.exs"
       Code.string_to_ast! File.read!(file), file: file
     end
   end
@@ -112,19 +203,9 @@ defmodule Dynamo.App do
   @doc false
   defmacro apply_filters(_) do
     quote do
-      dynamo = @config[:dynamo]
-
-      if root = dynamo[:public_root] do
-        filter Dynamo.Filters.Static.new(dynamo[:public_route], root)
-      end
-
-      if dynamo[:translate_head_to_get] do
-        filter Dynamo.Filters.Head
-      end
-
-      if dynamo[:compile_on_demand] || dynamo[:reload_modules] do
-        filter Dynamo.Filters.Reloader.new(dynamo[:compile_on_demand], dynamo[:reload_modules])
-      end
+      @filters Dynamo.App.default_filters(__MODULE__)
+      Enum.each @filters, filter(&1)
+      def filters, do: @filters
     end
   end
 

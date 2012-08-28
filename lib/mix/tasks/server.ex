@@ -6,6 +6,10 @@ defmodule Mix.Tasks.Server do
   @moduledoc """
   Runs a dynamo server.
 
+  If the application is set to `:compile_on_demand`, Dynamo
+  will compile the library and generate the app file. Otherwise,
+  the application needs to be compiled explicitly.
+
   ## Command line options
 
   * `:port` - the port to listen to

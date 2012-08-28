@@ -8,10 +8,27 @@ defmodule Dynamo.AppTest do
     use Dynamo.App
     endpoint Dynamo.AppTest
 
-    config :dynamo, public_root: File.expand_path("../../fixtures", __FILE__)
+    config :dynamo,
+      public_root: File.expand_path("../../fixtures", __FILE__),
+      public_route: "/public",
+      compile_on_demand: false,
+      reload_modules: false
   end
 
   Dynamo.app(nil)
+
+  defmodule ReloadApp do
+    use Dynamo.App
+    endpoint Dynamo.AppTest
+
+    config :dynamo,
+      public_root: false,
+      compile_on_demand: true,
+      reload_modules: true
+  end
+
+  Dynamo.app(nil)
+
   @app App
 
   test "cascades not found accesses" do
@@ -19,5 +36,22 @@ defmodule Dynamo.AppTest do
     assert conn.status == 200
     assert conn.resp_body == "HELLO"
     assert conn.resp_headers["Content-Type"] == "text/plain"
+  end
+
+  test "adds public filter" do
+    file = File.expand_path("../../fixtures", __FILE__)
+    assert Dynamo.Filters.Static.new("/public", file) in App.filters
+  end
+
+  test "does not add public filter if disabled" do
+    refute Enum.any? ReloadApp.filters, match?({ Dynamo.Filters.Static, _, _ }, &1)
+  end
+
+  test "adds reloader filter" do
+    assert Dynamo.Filters.Reloader.new(true, true) in ReloadApp.filters
+  end
+
+  test "does not add reloader filter if disabled" do
+    refute Enum.any? App.filters, match?({ Dynamo.Filters.Reloader, _, _ }, &1)
   end
 end

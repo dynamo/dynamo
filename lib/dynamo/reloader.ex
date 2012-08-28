@@ -37,11 +37,11 @@ defmodule Dynamo.Reloader do
 
   @doc """
   Starts the `Dynamo.Reloader` server. Usually called
-  internally by Dynamo.
+  internally by Dynamo. The given `paths` must be expanded.
   """
   def start_link(paths) do
     { :module, _ } = Code.ensure_loaded(Dynamo.Reloader.ErrorHandler)
-    :gen_server.start({ :local, __MODULE__ }, __MODULE__, Enum.map(paths, File.expand_path(&1)), [])
+    :gen_server.start({ :local, __MODULE__ }, __MODULE__, paths, [])
   end
 
   @doc """

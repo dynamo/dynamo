@@ -8,13 +8,12 @@ defmodule Mix.Tasks.Compile.Dynamo do
   A task to compile Dynamo source files.
 
   This tasks first loads the application specified by
-  `:dynamo_app` and then based on the environment configuration,
-  compiles the Elixir project or just configures the lazy load
-  setup.
+  `:dynamo_app` and then based on the value of `:compile_on_demand`,
+  compiles the Elixir project or just compiles on demand.
 
   ## Configuration
 
-  * `:dynamo_app` - the dynamo app to load
+  * `:dynamo_app` - the dynamo app to load, defaults to "config/app.ex"
 
         [dynamo_app: "config/other.ex"]
 
@@ -32,11 +31,12 @@ defmodule Mix.Tasks.Compile.Dynamo do
     project = Mix.project
 
     Dynamo.start
-    app = Dynamo.app
 
-    unless app do
+    unless Dynamo.app do
       Code.require_file project[:dynamo_app] || "config/app.ex"
     end
+
+    app = Dynamo.app
 
     if app.config[:dynamo][:compile_on_demand] do
       :noop
