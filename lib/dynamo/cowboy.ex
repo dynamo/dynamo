@@ -20,7 +20,7 @@ defmodule Dynamo.Cowboy do
   def run(app, options // []) do
     :application.start(:cowboy)
 
-    port      = Keyword.get options, :port, 3000
+    port      = Keyword.get options, :port, 4000
     acceptors = Keyword.get options, :acceptors, 100
     handler   = Keyword.get options, :handler, Dynamo.Cowboy.Handler
     dispatch  = Keyword.get options, :dispatch, dispatch_for(app, handler)
