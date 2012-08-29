@@ -22,12 +22,11 @@ defmodule Mix.Tasks.Compile.Dynamo do
 
   ## Command line options
 
-  * `-f`, `--file` - compiles only the given file / pattern;
   * `--force` - forces compilation regardless of mod times;
 
   """
   def run(args) do
-    { opts, _ } = OptionParser.parse(args, flags: [:force], aliases: [f: :file])
+    { opts, files } = OptionParser.parse(args, flags: [:force])
 
     Dynamo.start
 
@@ -45,7 +44,7 @@ defmodule Mix.Tasks.Compile.Dynamo do
       source_paths = dynamo[:source_paths] ++ dynamo[:view_paths]
 
       unload_app(app)
-      eager_compilation(app, root, source_paths, opts)
+      eager_compilation(app, root, source_paths, opts, files)
     end
   end
 
@@ -55,15 +54,15 @@ defmodule Mix.Tasks.Compile.Dynamo do
     :code.delete(app)
   end
 
-  defp eager_compilation(app, root, source_paths, opts) do
+  defp eager_compilation(app, root, source_paths, opts, files) do
     project      = Mix.project
     compile_path = project[:compile_path]
     compile_exts = project[:compile_exts]
     app_beam     = File.join(compile_path, atom_to_binary(app) <> ".beam")
     app_file     = project[:dynamo_app] || "config/app.ex"
 
-    to_compile = [app_file|extract_files(source_paths, opts[:file], [:ex])]
-    to_watch   = [app_file|extract_files(source_paths, opts[:file], compile_exts)]
+    to_compile = [app_file|extract_files(source_paths, files, [:ex])]
+    to_watch   = [app_file|extract_files(source_paths, files, compile_exts)]
 
     if opts[:force] or Mix.Utils.stale?(to_watch, [compile_path, app_beam]) do
       File.mkdir_p!(compile_path)
@@ -79,15 +78,17 @@ defmodule Mix.Tasks.Compile.Dynamo do
     end
   end
 
-  defp extract_files(paths, nil, exts) do
+  defp extract_files(paths, [], exts) do
     exts = Enum.join(exts, ",")
     List.concat(lc path inlist paths do
       File.wildcard("#{path}/**/*.{#{exts}}")
     end)
   end
 
-  defp extract_files(_, pattern, _) do
-    File.wildcard(pattern)
+  defp extract_files(paths, files, exts) do
+    paths = extract_files(paths, [], exts)
+    files = Enum.map files, File.expand_path(&1)
+    Enum.filter files, List.member?(paths, &1)
   end
 
   defp compile_files(files, to, root) do
