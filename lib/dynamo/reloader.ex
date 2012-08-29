@@ -58,18 +58,23 @@ defmodule Dynamo.Reloader do
   that the related file was required).
   """
   def load_missing(module) do
-    path = Mix.Utils.underscore(module) <> ".ex"
-    dirs = :gen_server.call(__MODULE__, :paths)
-    dir  = Enum.find dirs, fn(dir) -> File.regular?(File.join(dir, path)) end
+    case atom_to_binary(module) do
+      "Elixir-" <> _ ->
+        path = Mix.Utils.underscore(module) <> ".ex"
+        dirs = :gen_server.call(__MODULE__, :paths)
+        dir  = Enum.find dirs, fn(dir) -> File.regular?(File.join(dir, path)) end
 
-    if dir do
-      file    = File.join(dir, path)
-      tuples  = Code.require_file(file) || []
-      modules = lc { mod, _ } inlist tuples, do: mod
-      :gen_server.cast(__MODULE__, { :loaded, file, modules })
-      :ok
-    else
-      :notfound
+        if dir do
+          file    = File.join(dir, path)
+          tuples  = Code.require_file(file) || []
+          modules = lc { mod, _ } inlist tuples, do: mod
+          :gen_server.cast(__MODULE__, { :loaded, file, modules })
+          :ok
+        else
+          :notfound
+        end
+      _ ->
+        :notfound
     end
   end
 

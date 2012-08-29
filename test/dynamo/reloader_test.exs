@@ -29,4 +29,8 @@ defmodule Dynamo.ReloaderTest do
     refute :code.is_loaded(Foo)
     assert Foo.foo == 1
   end
+
+  test "does not search for erlang modules" do
+    assert Dynamo.Reloader.load_missing(:cowboy) == :notfound
+  end
 end
