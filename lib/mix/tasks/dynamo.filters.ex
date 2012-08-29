@@ -1,7 +1,7 @@
 defmodule Mix.Tasks.Dynamo.Filters do
   use Mix.Task
 
-  @shortdoc "Prints all application filters"
+  @shortdoc "Print all application filters"
 
   @moduledoc """
   Prints all application filters

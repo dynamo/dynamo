@@ -5,7 +5,7 @@ defmodule Mix.Tasks.Dynamo do
   import Mix.Utils, only: [camelize: 1, underscore: 1]
 
   @version Dynamo.Mixfile.project[:version]
-  @shortdoc "Creates a new Dynamo project"
+  @shortdoc "Create a new Dynamo project"
 
   @moduledoc """
   Creates a new Dynamo project.

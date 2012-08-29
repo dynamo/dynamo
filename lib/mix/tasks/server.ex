@@ -1,7 +1,7 @@
 defmodule Mix.Tasks.Server do
   use Mix.Task
 
-  @shortdoc "Runs a Dynamo server"
+  @shortdoc "Run a Dynamo app in a web server"
 
   @moduledoc """
   Runs a dynamo server.

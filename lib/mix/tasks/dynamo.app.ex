@@ -2,7 +2,7 @@ defmodule Mix.Tasks.Dynamo.App do
   use Mix.Task
 
   @moduledoc """
-  An internal task that loads and starts up the Dynamo app.  
+  An internal task that loads and starts up the Dynamo app.
   It can be used as dependency by other tasks.
   """
   def run(args) do
