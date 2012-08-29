@@ -28,12 +28,11 @@ defmodule Mix.Tasks.Compile.Dynamo do
   """
   def run(args) do
     { opts, _ } = OptionParser.parse(args, flags: [:force], aliases: [f: :file])
-    project = Mix.project
 
     Dynamo.start
 
     unless Dynamo.app do
-      Code.require_file project[:dynamo_app] || "config/app.ex"
+      Code.require_file Mix.project[:dynamo_app] || "config/app.ex"
     end
 
     app = Dynamo.app
@@ -46,7 +45,7 @@ defmodule Mix.Tasks.Compile.Dynamo do
       source_paths = dynamo[:source_paths]
 
       unload_app(app)
-      eager_compilation(root, source_paths, opts)
+      eager_compilation(app, root, source_paths, opts)
     end
   end
 
@@ -56,13 +55,14 @@ defmodule Mix.Tasks.Compile.Dynamo do
     :code.delete(app)
   end
 
-  defp eager_compilation(root, source_paths, opts) do
+  defp eager_compilation(app, root, source_paths, opts) do
     project      = Mix.project
     compile_path = project[:compile_path] || "ebin"
+    app_beam     = File.join(compile_path, atom_to_binary(app) <> ".beam")
     app          = project[:dynamo_app] || "config/app.ex"
     to_compile   = [app|extract_files(source_paths, opts[:file])]
 
-    if opts[:force] or Mix.Utils.stale?(to_compile, [compile_path]) do
+    if opts[:force] or Mix.Utils.stale?(to_compile, [compile_path, app_beam]) do
       File.mkdir_p!(compile_path)
 
       if elixir_opts = project[:elixirc_options] do
@@ -70,7 +70,7 @@ defmodule Mix.Tasks.Compile.Dynamo do
       end
 
       compile_files List.uniq(to_compile), compile_path, root
-      File.touch(compile_path)
+      :ok
     else
       :noop
     end

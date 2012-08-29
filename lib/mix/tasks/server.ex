@@ -6,30 +6,26 @@ defmodule Mix.Tasks.Server do
   @moduledoc """
   Runs a dynamo server.
 
+  In order to know how the application behaves, this task
+  needs to load the file dynamo app usually at `config/app.ex`.
+  In production, this file is already compiled, so the loading
+  step can be explicitly skipped by passing --app as an option.
+
   If the application is set to `:compile_on_demand`, Dynamo
-  will compile the library and generate the app file. Otherwise,
-  the application needs to be compiled explicitly.
+  will compile everything on demand, otherwise, the application
+  needs to be compiled explicitly.
 
   ## Command line options
 
-  * `:port` - the port to listen to
-  * `:acceptors` - the number of acceptors
+  * `--app` - the name of the application to load
+  * `-p`, `--port` - the port to listen to
+  * `--acceptors` - the number of acceptors
 
   """
   def run(args) do
     { opts, _ } = OptionParser.parse(args, aliases: [p: :port])
-
-    project = Mix.project
-    Dynamo.start
-
-    Code.require_file project[:dynamo_app] || "config/app.ex"
+    Mix.Task.run "dynamo.app", args
     app = Dynamo.app
-
-    if app.config[:dynamo][:compile_on_demand] do
-      Mix.Task.run "compile"
-    end
-
-    app.start
     app.config[:dynamo][:handler].run app, opts
     :timer.sleep(:infinity)
   end
