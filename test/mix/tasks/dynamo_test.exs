@@ -74,7 +74,7 @@ defmodule Mix.Tasks.DynamoTest do
     in_tmp "my_filters_app", fn ->
       app_with_dynamo_deps_path
 
-      output = System.cmd "mix dynamo.filters"
+      output = System.cmd "mix do deps.get, dynamo.filters"
       assert output =~ %r(filter Dynamo.Filters.Head)
       assert output =~ %r(filter \{Dynamo.Filters.Reloader,true,true\})
       assert output =~ %r(MyFiltersApp.service/1)
@@ -85,8 +85,22 @@ defmodule Mix.Tasks.DynamoTest do
     end
   end
 
+  test "missing dependencies" do
+    in_tmp "missing_deps", fn ->
+      Mix.Tasks.Dynamo.run [".", "--dev"]
+      error = %r(Some dependencies are out of date, please run `mix deps.get` to proceed)
+
+      output = System.cmd "mix server"
+      assert output =~ error
+
+      output = System.cmd "MIX_ENV=prod mix server"
+      assert output =~ error
+    end
+  end
+
   defp app_with_dynamo_deps_path do
     Mix.Tasks.Dynamo.run [".", "--dev"]
+    File.cp! "../../mix.lock", "mix.lock"
     File.write! "mix.exs", Regex.replace(%r"deps: deps", File.read!("mix.exs"), %b(deps: deps, deps_path: "../../deps"))
   end
 end
