@@ -42,7 +42,7 @@ defmodule Mix.Tasks.Compile.Dynamo do
     else
       dynamo       = app.config[:dynamo]
       root         = dynamo[:root]
-      source_paths = dynamo[:source_paths]
+      source_paths = dynamo[:source_paths] ++ dynamo[:view_paths]
 
       unload_app(app)
       eager_compilation(app, root, source_paths, opts)
@@ -57,12 +57,15 @@ defmodule Mix.Tasks.Compile.Dynamo do
 
   defp eager_compilation(app, root, source_paths, opts) do
     project      = Mix.project
-    compile_path = project[:compile_path] || "ebin"
+    compile_path = project[:compile_path]
+    compile_exts = project[:compile_exts]
     app_beam     = File.join(compile_path, atom_to_binary(app) <> ".beam")
-    app          = project[:dynamo_app] || "config/app.ex"
-    to_compile   = [app|extract_files(source_paths, opts[:file])]
+    app_file     = project[:dynamo_app] || "config/app.ex"
 
-    if opts[:force] or Mix.Utils.stale?(to_compile, [compile_path, app_beam]) do
+    to_compile = [app_file|extract_files(source_paths, opts[:file], [:ex])]
+    to_watch   = [app_file|extract_files(source_paths, opts[:file], compile_exts)]
+
+    if opts[:force] or Mix.Utils.stale?(to_watch, [compile_path, app_beam]) do
       File.mkdir_p!(compile_path)
 
       if elixir_opts = project[:elixirc_options] do
@@ -76,13 +79,14 @@ defmodule Mix.Tasks.Compile.Dynamo do
     end
   end
 
-  defp extract_files(paths, nil) do
+  defp extract_files(paths, nil, exts) do
+    exts = Enum.join(exts, ",")
     List.concat(lc path inlist paths do
-      File.wildcard("#{path}/**/*.ex")
+      File.wildcard("#{path}/**/*.{#{exts}}")
     end)
   end
 
-  defp extract_files(_, pattern) do
+  defp extract_files(_, pattern, _) do
     File.wildcard(pattern)
   end
 
