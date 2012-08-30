@@ -40,7 +40,7 @@ defmodule Dynamo.AppTest do
 
   test "adds public filter" do
     file = File.expand_path("../../fixtures", __FILE__)
-    assert Dynamo.Filters.Static.new("/public", file) in App.filters
+    assert Enum.first(App.filters) == Dynamo.Filters.Static.new("/public", file)
   end
 
   test "does not add public filter if disabled" do

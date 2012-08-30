@@ -23,7 +23,6 @@ defmodule Dynamo.App do
   The available `:dynamo` configurations are:
 
   * `:public_route` - The route to trigger public assets serving
-  * `:translate_head_to_get` - Inserts a filter that translates head to get
   * `:compile_on_demand` - Inserts a filter that compiles modules as they are needed
   * `:reload_modules` - Reload modules after they are changed
   * `:source_paths` - The paths to search when compiling modules on demand
@@ -106,6 +105,8 @@ defmodule Dynamo.App do
       use_once Dynamo.App.NotFound
       use_once Dynamo.Router.Filters
 
+      filter Dynamo.Filters.Head
+
       config :dynamo, Dynamo.App.default_options(__FILE__)
 
       # The reloader needs to be the first initializer
@@ -133,7 +134,6 @@ defmodule Dynamo.App do
   @doc false
   def default_options(file) do
     [ public_route: "/public",
-      translate_head_to_get: true,
       compile_on_demand: false,
       reload_modules: false,
       source_paths: ["app/*"],
@@ -143,17 +143,9 @@ defmodule Dynamo.App do
   end
 
   @doc false
-  def default_filters(mod) do
+  def config_filters(mod) do
     filters = []
     dynamo  = Module.read_attribute(mod, :config)[:dynamo]
-
-    if dynamo[:compile_on_demand] || dynamo[:reload_modules] do
-      filters = [Dynamo.Filters.Reloader.new(dynamo[:compile_on_demand], dynamo[:reload_modules])|filters]
-    end
-
-    if dynamo[:translate_head_to_get] do
-      filters = [Dynamo.Filters.Head|filters]
-    end
 
     public_route = dynamo[:public_route]
     public_root  = case dynamo[:public_root] do
@@ -163,6 +155,10 @@ defmodule Dynamo.App do
 
     if public_root && public_route do
       filters = [Dynamo.Filters.Static.new(public_route, public_root)|filters]
+    end
+
+    if dynamo[:compile_on_demand] || dynamo[:reload_modules] do
+      filters = [Dynamo.Filters.Reloader.new(dynamo[:compile_on_demand], dynamo[:reload_modules])|filters]
     end
 
     filters
@@ -202,9 +198,9 @@ defmodule Dynamo.App do
   @doc false
   defmacro apply_filters(_) do
     quote do
-      @filters Dynamo.App.default_filters(__MODULE__)
-      Enum.each @filters, filter(&1)
-      def filters, do: @filters
+      Enum.each Dynamo.App.config_filters(__MODULE__), prepend_filter(&1)
+      @__reverse_filters Enum.reverse @__filters
+      def filters, do: @__reverse_filters
     end
   end
 

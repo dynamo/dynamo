@@ -33,9 +33,9 @@ defmodule Dynamo.Router.Filters do
   @doc false
   defmacro __using__(_) do
     quote location: :keep do
-      Module.register_attribute(__MODULE__, :__filters, accumulate: true, persist: false)
+      @__filters []
       @before_compile unquote(__MODULE__)
-      import unquote(__MODULE__), only: [filter: 1]
+      import unquote(__MODULE__), only: [filter: 1, prepend_filter: 1, delete_filter: 1]
     end
   end
 
@@ -57,8 +57,42 @@ defmodule Dynamo.Router.Filters do
   """
   defmacro filter(spec) do
     quote do
-      @__filters unquote(spec)
+      @__filters [unquote(spec)|@__filters]
     end
+  end
+
+  @doc """
+  Prepends a filter to the filter chain.
+  """
+  defmacro prepend_filter(spec) do
+    quote do
+      @__filters @__filters ++ [unquote(spec)]
+    end
+  end
+
+  @doc """
+  Deletes a filter from the filter chain.
+  """
+  defmacro delete_filter(atom) do
+    quote do
+      atom = unquote(atom)
+      @__filters Enum.filter(@__filters, fn(f) -> not unquote(__MODULE__).match?(atom, f) end)
+    end
+  end
+
+  @doc """
+  Matches a filter against the other
+  """
+  def match?(atom, filter) when is_atom(atom) and is_tuple(filter) do
+    elem(filter, 1) == atom
+  end
+
+  def match?(atom, atom) when is_atom(atom) do
+    true
+  end
+
+  def match?(_, _) do
+    false
   end
 
   ## Helpers

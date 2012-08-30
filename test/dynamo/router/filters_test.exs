@@ -67,4 +67,27 @@ defmodule Dynamo.Router.FiltersTest do
     assert conn.assigns[:value] == 6
     assert conn.status == 200
   end
+
+  defmodule PrependFilter do
+    def prepare(conn) do
+      conn.assign(:value, :not_used)
+    end
+  end
+
+  defmodule ChainApp do
+    use Dynamo.Router
+
+    filter PrepareFilter
+    prepend_filter PrependFilter
+
+    get "/foo" do
+      conn.resp(200, "OK")
+    end
+  end
+
+  test "prepend filter" do
+    conn = process(ChainApp, :GET, "/foo")
+    assert conn.assigns[:value] == 3
+    assert conn.status == 200
+  end
 end
