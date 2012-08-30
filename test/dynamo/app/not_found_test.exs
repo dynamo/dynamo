@@ -13,15 +13,15 @@ defmodule Dynamo.App.NotFoundTest do
   end
 
   defmodule DefaultApp do
+    @dynamo_registration false
     use Dynamo.Router
     use Dynamo.App
 
     forward "/", to: Router
   end
 
-  Dynamo.app(nil)
-
   defmodule App do
+    @dynamo_registration false
     use Dynamo.App
 
     def service(conn) do
@@ -32,8 +32,6 @@ defmodule Dynamo.App.NotFoundTest do
       conn.resp(302, "Other")
     end
   end
-
-  Dynamo.app(nil)
 
   test "cascades not found accesses" do
     assert process(DefaultApp, :GET, "/").status == 404

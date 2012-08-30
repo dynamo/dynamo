@@ -6,6 +6,7 @@ defmodule Dynamo.App.ConfigTest do
   import Dynamo.Router.TestHelpers
 
   defmodule App do
+    @dynamo_registration false
     use Dynamo.App
 
     endpoint Dynamo.App.ConfigTest
@@ -25,14 +26,11 @@ defmodule Dynamo.App.ConfigTest do
     end
   end
 
-  Dynamo.app(nil)
-
   defmodule DefaultApp do
+    @dynamo_registration false
     use Dynamo.App
     endpoint App
   end
-
-  Dynamo.app(nil)
 
   def service(conn) do
     conn.assign(:done, :ok).resp(200, "OK")

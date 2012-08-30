@@ -5,6 +5,7 @@ defmodule Dynamo.AppTest do
   import Dynamo.Router.TestHelpers
 
   defmodule App do
+    @dynamo_registration false
     use Dynamo.App
     endpoint Dynamo.AppTest
 
@@ -15,9 +16,8 @@ defmodule Dynamo.AppTest do
       reload_modules: false
   end
 
-  Dynamo.app(nil)
-
   defmodule ReloadApp do
+    @dynamo_registration false
     use Dynamo.App
     endpoint Dynamo.AppTest
 
@@ -26,8 +26,6 @@ defmodule Dynamo.AppTest do
       compile_on_demand: true,
       reload_modules: true
   end
-
-  Dynamo.app(nil)
 
   @app App
 

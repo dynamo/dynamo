@@ -86,7 +86,6 @@ defmodule Dynamo.App do
   defmacro __using__(_) do
     quote do
       @dynamo_app true
-      @on_load :register_dynamo_app
 
       @before_compile { unquote(__MODULE__), :normalize_options }
       @before_compile { unquote(__MODULE__), :load_env }
@@ -125,8 +124,12 @@ defmodule Dynamo.App do
         end
       end
 
-      defp register_dynamo_app do
-        Dynamo.app(__MODULE__)
+      if @dynamo_registration != false do
+        @on_load :register_dynamo_app
+
+        defp register_dynamo_app do
+          Dynamo.app(__MODULE__)
+        end
       end
     end
   end
@@ -197,7 +200,7 @@ defmodule Dynamo.App do
 
   @doc false
   defmacro apply_filters(_) do
-    quote do
+    quote location: :keep do
       Enum.each Dynamo.App.config_filters(__MODULE__), prepend_filter(&1)
       @__reverse_filters Enum.reverse @__filters
       def filters, do: @__reverse_filters
@@ -206,7 +209,7 @@ defmodule Dynamo.App do
 
   @doc false
   defmacro apply_initializers(_) do
-    quote do
+    quote location: :keep do
       initializer :ensure_endpoint_is_available do
         if @endpoint && match?({ :error, _ }, Code.ensure_compiled(@endpoint)) do
           if config[:dynamo][:compile_on_demand] do
