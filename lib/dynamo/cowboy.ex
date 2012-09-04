@@ -24,20 +24,16 @@ defmodule Dynamo.Cowboy do
     acceptors = Keyword.get options, :acceptors, 100
     handler   = Keyword.get options, :handler, Dynamo.Cowboy.Handler
     dispatch  = Keyword.get options, :dispatch, dispatch_for(app, handler)
-    verbose   = Keyword.get options, :verbose, true
 
     port      = to_i(port)
     acceptors = to_i(acceptors)
-    options   = Enum.reduce [:port, :acceptors, :handler, :verbose], options, Keyword.delete(&2, &1)
+    options   = Enum.reduce [:port, :acceptors, :handler], options, Keyword.delete(&2, &1)
     options   = Keyword.put options, :dispatch, dispatch
 
     :cowboy.start_listener(app, acceptors,
       :cowboy_tcp_transport, [port: port],
       :cowboy_http_protocol, options
     )
-
-    if verbose, do:
-      IO.puts "Running #{inspect app} on port #{port} with Cowboy"
   end
 
   def shutdown(app) do

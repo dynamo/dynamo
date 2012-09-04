@@ -64,7 +64,12 @@ defmodule Mix.Tasks.DynamoTest do
       assert output =~ %r(Compiled config/app.ex)
       assert output =~ %r(Generated my_compiled_app.app)
 
-      ## Cannot boot development after compiling
+      # Can recompile after changes
+      File.touch!("app/routers/application_router.ex", { { 2030, 1, 1 }, { 0, 0, 0 } })
+      output = System.cmd "MIX_ENV=prod mix compile"
+      assert output =~ %r(Generated my_compiled_app.app)
+
+      # Cannot boot development after compiling
       output = System.cmd "MIX_ENV=dev mix server"
       assert output =~ %r(the dynamo application MyCompiledApp is already loaded)
     end
@@ -74,11 +79,17 @@ defmodule Mix.Tasks.DynamoTest do
     in_tmp "my_filters_app", fn ->
       app_with_dynamo_deps_path
 
-      output = System.cmd "mix do deps.get, dynamo.filters"
+      output = System.cmd "mix dynamo.filters"
       assert output =~ %r(filter Dynamo.Filters.Head)
       assert output =~ %r(filter \{Dynamo.Filters.Reloader,true,true\})
       assert output =~ %r(MyFiltersApp.service/1)
 
+      # Check it works with first compilation in prod
+      output = System.cmd "MIX_ENV=prod mix do compile, dynamo.filters"
+      refute output =~ %r(Dynamo.Filters.Reloader)
+      assert output =~ %r(MyFiltersApp.service/1)
+
+      # Check that noop compile also works
       output = System.cmd "MIX_ENV=prod mix do compile, dynamo.filters"
       refute output =~ %r(Dynamo.Filters.Reloader)
       assert output =~ %r(MyFiltersApp.service/1)

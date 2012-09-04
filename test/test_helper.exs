@@ -1,4 +1,6 @@
 Mix.start
+
+Mix.env(:dev)
 Mix.shell(Mix.Shell.Process)
 
 Dynamo.start

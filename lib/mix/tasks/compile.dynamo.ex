@@ -27,24 +27,18 @@ defmodule Mix.Tasks.Compile.Dynamo do
   """
   def run(args) do
     { opts, files } = OptionParser.parse(args, flags: [:force])
-
     Dynamo.start
 
-    unless Dynamo.app do
-      Code.require_file Mix.project[:dynamo_app] || "config/app.ex"
-    end
-
-    app = Dynamo.app
+    # If something already loaded Dynamo.app, there is no
+    # need for us to do it again. The compile task always
+    # loads a Dynamo.app, but the app is not started.
+    unless Dynamo.app, do: Code.require_file Mix.project[:dynamo_app] || "config/app.ex"
+    app = Dynamo.app || raise "Dynamo.app is not available"
 
     if app.config[:dynamo][:compile_on_demand] do
       :noop
     else
-      dynamo       = app.config[:dynamo]
-      root         = dynamo[:root]
-      source_paths = dynamo[:source_paths] ++ dynamo[:view_paths]
-
-      unload_app(app)
-      eager_compilation(app, root, source_paths, opts, files)
+      eager_compilation(app, files, opts)
     end
   end
 
@@ -54,24 +48,30 @@ defmodule Mix.Tasks.Compile.Dynamo do
     :code.delete(app)
   end
 
-  defp eager_compilation(app, root, source_paths, opts, files) do
-    project      = Mix.project
+  defp eager_compilation(app, files, opts) do
+    project = Mix.project
+    dynamo  = app.config[:dynamo]
+
     compile_path = project[:compile_path]
     compile_exts = project[:compile_exts]
-    app_beam     = File.join(compile_path, atom_to_binary(app) <> ".beam")
-    app_file     = project[:dynamo_app] || "config/app.ex"
+    source_paths = dynamo[:source_paths] ++ dynamo[:view_paths]
+
+    app_file = project[:dynamo_app] || "config/app.ex"
+    app_beam = File.join(compile_path, atom_to_binary(app) <> ".beam")
 
     to_compile = [app_file|extract_files(source_paths, files, [:ex])]
     to_watch   = [app_file|extract_files(source_paths, files, compile_exts)]
+    targets    = [app_beam, compile_path]
 
-    if opts[:force] or Mix.Utils.stale?(to_watch, [compile_path, app_beam]) do
+    if opts[:force] or Mix.Utils.stale?(to_watch, targets) do
+      unload_app(app)
       File.mkdir_p!(compile_path)
 
       if elixir_opts = project[:elixirc_options] do
         Code.compiler_options(elixir_opts)
       end
 
-      compile_files List.uniq(to_compile), compile_path, root
+      compile_files List.uniq(to_compile), compile_path, dynamo[:root]
       :ok
     else
       :noop
