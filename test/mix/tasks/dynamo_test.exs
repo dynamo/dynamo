@@ -100,6 +100,15 @@ defmodule Mix.Tasks.DynamoTest do
     end
   end
 
+  test "runs application code" do
+    in_tmp "my_run_app", fn ->
+      app_with_dynamo_deps_path
+
+      output = System.cmd %b{mix run "IO.inspect ApplicationRouter.__info__(:self)"}
+      assert output =~ %r(ApplicationRouter)
+    end
+  end
+
   test "missing dependencies" do
     in_tmp "missing_deps", fn ->
       Mix.Tasks.Dynamo.run [".", "--dev"]
