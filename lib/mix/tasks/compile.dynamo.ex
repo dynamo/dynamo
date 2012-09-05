@@ -29,11 +29,12 @@ defmodule Mix.Tasks.Compile.Dynamo do
     { opts, files } = OptionParser.parse(args, flags: [:force])
     Dynamo.start
 
-    # If something already loaded Dynamo.app, there is no
-    # need for us to do it again. The compile task always
-    # loads a Dynamo.app, but the app is not started.
-    unless Dynamo.app, do: Code.require_file Mix.project[:dynamo_app] || "config/app.ex"
-    app = Dynamo.app || raise "Dynamo.app is not available"
+    # Load the dynamo app but don't start it.
+    # We reenable the task so it can be called
+    # down the road and the app finally started.
+    Mix.Task.run "dynamo.app", ["--no-start"]
+    Mix.Task.reenable "dynamo.app"
+    app = Dynamo.app
 
     if app.config[:dynamo][:compile_on_demand] do
       :noop
@@ -57,10 +58,11 @@ defmodule Mix.Tasks.Compile.Dynamo do
     source_paths = dynamo[:source_paths] ++ dynamo[:view_paths]
 
     app_file = project[:dynamo_app] || "config/app.ex"
+    env_file = "config/environments/#{Mix.env}.exs"
     app_beam = File.join(compile_path, atom_to_binary(app) <> ".beam")
 
     to_compile = [app_file|extract_files(source_paths, files, [:ex])]
-    to_watch   = [app_file|extract_files(source_paths, files, compile_exts)]
+    to_watch   = [app_file, env_file|extract_files(source_paths, files, compile_exts)]
     targets    = [app_beam, compile_path]
 
     if opts[:force] or Mix.Utils.stale?(to_watch, targets) do
@@ -71,7 +73,10 @@ defmodule Mix.Tasks.Compile.Dynamo do
         Code.compiler_options(elixir_opts)
       end
 
-      compile_files List.uniq(to_compile), compile_path, dynamo[:root]
+      Mix.Dynamo.lock_snapshot fn ->
+        compile_files List.uniq(to_compile), compile_path, dynamo[:root]
+      end
+
       :ok
     else
       :noop

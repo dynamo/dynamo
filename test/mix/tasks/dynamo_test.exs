@@ -67,11 +67,15 @@ defmodule Mix.Tasks.DynamoTest do
       # Can recompile after changes
       File.touch!("app/routers/application_router.ex", { { 2030, 1, 1 }, { 0, 0, 0 } })
       output = System.cmd "MIX_ENV=prod mix compile"
-      assert output =~ %r(Generated my_compiled_app.app)
+      assert output =~ %r(Compiled app/routers/application_router.ex)
 
       # Cannot boot development after compiling
-      output = System.cmd "MIX_ENV=dev mix server"
-      assert output =~ %r(the dynamo application MyCompiledApp is already loaded)
+      output = System.cmd "MIX_ENV=dev mix compile"
+      assert output =~ %r(the dynamo application MyCompiledApp was compiled and locked for environment)
+
+      # Unless we clean it
+      output = System.cmd "MIX_ENV=dev mix do clean, compile"
+      assert output =~ %r(Generated my_compiled_app.app)
     end
   end
 

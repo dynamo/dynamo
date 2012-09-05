@@ -11,17 +11,42 @@ defmodule Mix.Tasks.Dynamo.App do
 
     app =
       cond do
-        Dynamo.app -> Dynamo.app
-        opts[:app] -> load_app_from_opts(opts[:app])
-        true       -> load_app_from_file
+        Dynamo.app ->
+          Dynamo.app
+        opts[:app] ->
+          load_app_from_opts(opts[:app])
+        lock = Mix.Dynamo.read_lock ->
+          load_app_from_lock(lock)
+        true ->
+          load_app_from_file
       end
 
-    app.start
+    unless opts[:no_start], do: app.start
+    app
+  end
+
+  defp load_app_from_lock([env, app|_]) do
+    app = binary_to_atom(app)
+
+    unless env == atom_to_binary(Mix.env) do
+      raise Mix.Error, message: %b(the dynamo application #{inspect app} was compiled ) <>
+        %b(and locked for environment "#{env}" and you are trying to run it in "#{Mix.env}". ) <>
+        %b(You can remove the lock and compiled artifacts with `mix clean`.)
+    end
+
+    unless Code.ensure_loaded?(app) do
+      raise Mix.Error, message: "Expected app #{inspect app} in env.lock file to be available, but it is not"
+    end
+
     app
   end
 
   defp load_app_from_opts(app) do
-    Module.concat([app])
+    app = Module.concat([app])
+    unless Code.ensure_loaded?(app) do
+      raise Mix.Error, message: "Expected given --app #{inspect app} to be available, but it is not"
+    end
+    app
   end
 
   defp load_app_from_file do
