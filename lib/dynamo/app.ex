@@ -95,7 +95,6 @@ defmodule Dynamo.App do
       use Dynamo.Utils.Once
 
       use_once Dynamo.App.Config
-      use_once Dynamo.App.NotFound
       use_once Dynamo.Router.Filters
 
       filter Dynamo.Filters.Head
@@ -205,7 +204,7 @@ defmodule Dynamo.App do
   defmacro apply_initializers(_) do
     quote location: :keep do
       initializer :ensure_endpoint_is_available do
-        if @endpoint && match?({ :error, _ }, Code.ensure_compiled(@endpoint)) do
+        if @endpoint && not Code.ensure_compiled?(@endpoint) do
           if config[:dynamo][:compile_on_demand] do
             raise "could not find endpoint #{inspect @endpoint}, please ensure it is available"
           else

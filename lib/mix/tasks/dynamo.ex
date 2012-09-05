@@ -101,6 +101,7 @@ defmodule Mix.Tasks.Dynamo do
     def project do
       [ app: :<%= @app %>,
         version: "0.0.1",
+        prepare_task: "dynamo.app",
         compilers: [:elixir, :dynamo, :app],
         deps: deps ]
     end
