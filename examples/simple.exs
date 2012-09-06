@@ -14,6 +14,4 @@ end
 Code.prepend_path("deps/cowboy/ebin")
 
 Dynamo.start(:prod)
-Dynamo.Cowboy.run MyApp.start, port: 3030
-
-IO.puts "Running MyApp on port 3030"
+MyApp.start.run port: 3030

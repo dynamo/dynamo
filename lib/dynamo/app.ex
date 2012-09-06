@@ -95,6 +95,7 @@ defmodule Dynamo.App do
       use Dynamo.Utils.Once
 
       use_once Dynamo.App.Config
+      use_once Dynamo.App.Runner
       use_once Dynamo.Router.Filters
 
       filter Dynamo.Filters.Head
@@ -135,8 +136,7 @@ defmodule Dynamo.App do
       reload_modules: false,
       source_paths: ["app/*"],
       view_paths: ["app/views"],
-      root: File.expand_path("../..", file),
-      handler: Dynamo.Cowboy ]
+      root: File.expand_path("../..", file) ]
   end
 
   @doc false

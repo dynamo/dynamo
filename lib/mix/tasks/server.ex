@@ -26,14 +26,9 @@ defmodule Mix.Tasks.Server do
     { opts, _ } = OptionParser.parse(args, aliases: [p: :port])
     Mix.Task.run "dynamo.app"
 
-    app     = Dynamo.app
-    opts    = Keyword.merge [port: 4000], opts
-    handler = app.config[:dynamo][:handler]
+    opts = Keyword.merge [port: 4000], opts
+    Dynamo.app.run opts
 
-    IO.puts "Running #{inspect app} on port #{opts[:port]} " <>
-      "with #{List.last Module.split(handler)} on #{Mix.env}"
-
-    handler.run app, opts
     :timer.sleep(:infinity)
   end
 end

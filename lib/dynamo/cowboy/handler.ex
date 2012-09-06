@@ -20,7 +20,7 @@ defmodule Dynamo.Cowboy.Handler do
       end
       { :ok, conn.cowboy_request, app }
     else
-      raise "Expected service to return a Dynamo.Cowboy.Response, got #{inspect conn}"
+      raise "Expected service to return a Dynamo.Cowboy.HTTP, got #{inspect conn}"
     end
   end
 

@@ -9,7 +9,6 @@ defmodule Dynamo.Cowboy do
 
   * :port - the port to run the server
   * :acceptors - the number of acceptors for the listener
-  * :handler - the Cowboy handler to be used
   * :dispatch - the Cowboy HTTP Dispatch info to be used
 
   ## Example
@@ -20,19 +19,20 @@ defmodule Dynamo.Cowboy do
   def run(app, options // []) do
     :application.start(:cowboy)
 
-    port      = Keyword.get options, :port, 4000
-    acceptors = Keyword.get options, :acceptors, 100
-    handler   = Keyword.get options, :handler, Dynamo.Cowboy.Handler
-    dispatch  = Keyword.get options, :dispatch, dispatch_for(app, handler)
+    port      = options[:port]      || 4000
+    acceptors = options[:acceptors] || 100
+    dispatch  = options[:dispatch]  || dispatch_for(app)
 
     port      = to_i(port)
     acceptors = to_i(acceptors)
-    options   = Enum.reduce [:port, :acceptors, :handler], options, Keyword.delete(&2, &1)
-    options   = Keyword.put options, :dispatch, dispatch
+
+    unless options[:verbose] == false do
+      IO.puts "Running #{inspect app} at localhost:#{port} with Cowboy on #{Dynamo.env}"
+    end
 
     :cowboy.start_listener(app, acceptors,
       :cowboy_tcp_transport, [port: port],
-      :cowboy_http_protocol, options
+      :cowboy_http_protocol, [dispatch: dispatch]
     )
   end
 
@@ -40,8 +40,8 @@ defmodule Dynamo.Cowboy do
     :cowboy.stop_listener(app)
   end
 
-  defp dispatch_for(app, handler) do
-    [{ :_, [ {:_, handler, app } ] }]
+  defp dispatch_for(app) do
+    [{ :_, [ {:_, Dynamo.Cowboy.Handler, app } ] }]
   end
 
   defp to_i(integer) when is_integer(integer), do: integer
