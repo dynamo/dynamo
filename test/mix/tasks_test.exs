@@ -57,8 +57,29 @@ defmodule Mix.TasksTest do
     in_tmp "my_run_app", fn ->
       app_with_dynamo_deps_path
 
-      output = System.cmd %b{mix run "IO.inspect ApplicationRouter.__info__(:self)"}
-      assert output =~ %r(ApplicationRouter)
+      output = System.cmd %b{mix run "IO.inspect HelloRouter.__info__(:self)"}
+      assert output =~ %r(HelloRouter)
+    end
+  end
+
+  test "tests application code" do
+    in_tmp "my_test_app", fn ->
+      app_with_dynamo_deps_path
+
+      File.write! "test/routers/hello_router_test.exs", """
+      Code.require_file "../../test_helper.exs", __FILE__
+
+      defmodule HelloRouterTest do
+        use ExUnit.Case
+
+        test "hello router is autoloaded" do
+          assert HelloRouter.__info__(:self)
+        end
+      end
+      """
+
+      output = System.cmd %b{mix test}
+      assert output =~ %r(3 tests, 0 failures)
     end
   end
 
@@ -78,6 +99,14 @@ defmodule Mix.TasksTest do
   defp app_with_dynamo_deps_path do
     Mix.Tasks.Dynamo.run [".", "--dev"]
     File.cp! "../../mix.lock", "mix.lock"
-    File.write! "mix.exs", Regex.replace(%r"deps: deps", File.read!("mix.exs"), %b(deps: deps, deps_path: "../../deps"))
+
+    File.write! "mix.exs",
+      Regex.replace(%r"deps: deps", File.read!("mix.exs"), %b(deps: deps, deps_path: "../../deps"))
+
+    File.write! "app/routers/hello_router.ex", """
+    defmodule HelloRouter do
+      use Dynamo.Router
+    end
+    """
   end
 end
