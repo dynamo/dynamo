@@ -57,6 +57,7 @@ defmodule Dynamo.App.Config do
     quote location: :keep do
       def start do
         unquote(Enum.reverse initializers)
+        __MODULE__
       end
 
       def config do

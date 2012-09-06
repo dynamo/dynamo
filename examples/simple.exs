@@ -4,6 +4,7 @@
 
 defmodule MyApp do
   use Dynamo.Router
+  use Dynamo.App
 
   get "/foo/bar" do
     conn.resp(200, "Hello World!")
@@ -11,4 +12,8 @@ defmodule MyApp do
 end
 
 Code.prepend_path("deps/cowboy/ebin")
-Dynamo.Cowboy.run MyApp
+
+Dynamo.start
+Dynamo.Cowboy.run MyApp.start, port: 3030
+
+IO.puts "Running MyApp on port 3030"

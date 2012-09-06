@@ -31,25 +31,6 @@ defmodule Dynamo.App do
   * `:handler` - The handler used to serve web applications
   * `:otp_app` - The otp application associated to this app
 
-  ## Not found
-
-  Each `Dynamo.Router` has a `not_found` hook that is
-  invoked whenever a route does not match. However, if
-  a developer wants to consistently customize how a 404
-  page looks like, he shouldn't need to customize each
-  `Dynamo.Router` in his application. That's when
-  `Dynamo.App` comes in.
-
-  By default, a `Dynamo.Router` sets the response status
-  to 404 whenever a route doesn't match. `Dynamo.App` then
-  intercepts all not sent responses with status 404 and
-  invokes its own `not_found` function, which can then be
-  customized by the developer, for example:
-
-      def not_found(conn) do
-        html conn, "404.eex"
-      end
-
   ## Initialization
 
   Dynamo.App allows you to register initializers which are
