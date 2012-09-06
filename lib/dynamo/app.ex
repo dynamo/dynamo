@@ -107,6 +107,7 @@ defmodule Dynamo.App do
         if dynamo[:compile_on_demand] do
           Dynamo.Reloader.start_link dynamo[:source_paths]
           Dynamo.Reloader.enable!
+          IEx.preload.after_spawn(fn -> Dynamo.Reloader.enable! end)
         end
       end
 
