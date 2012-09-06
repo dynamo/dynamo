@@ -7,7 +7,7 @@ defmodule Mix.Tasks.Dynamo.App do
   """
   def run(args) do
     { opts, _ } = OptionParser.parse(args)
-    Dynamo.start
+    Dynamo.start(Mix.env)
 
     app =
       cond do

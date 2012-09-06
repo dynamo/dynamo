@@ -74,6 +74,15 @@ defmodule Mix.Tasks.Dynamo do
 
     create_directory "lib"
     create_directory "public"
+
+    create_directory "test"
+    create_file "test/test_helper.exs", test_helper_template(assigns)
+
+    create_directory "test/features"
+    create_file "test/features/home_test.exs", test_features_text
+
+    create_directory "test/routers"
+    create_file "test/routers/application_router_test.exs", test_routers_text
   end
 
   defp check_project_name!(name) do
@@ -180,5 +189,54 @@ defmodule Mix.Tasks.Dynamo do
     # On production, modules are compiled up-front.
     compile_on_demand: false,
     reload_modules: false
+  """
+
+  embed_text :test_features, """
+  Code.require_file "../../test_helper.exs", __FILE__
+
+  # Feature tests goes through the Dynamo.app
+  # and are meant to test the full stack.
+  defmodule HomeTest do
+    use ExUnit.Case
+    use Dynamo.HTTP.Case
+
+    test "returns OK" do
+      conn = get("/")
+      assert conn.status == 200
+    end
+  end
+  """
+
+  embed_text :test_routers, """
+  Code.require_file "../../test_helper.exs", __FILE__
+
+  defmodule ApplicationRouterTest do
+    use ExUnit.Case
+    use Dynamo.HTTP.Case
+
+    # Sometimes it may be convenient to test a specific
+    # aspect of a router in isolation. For such, we just
+    # need to set the @app to the router under test.
+    @app ApplicationRouter
+
+    test "returns OK" do
+      conn = get("/")
+      assert conn.status == 200
+    end
+  end
+  """
+
+  embed_template :test_helper, """
+  unless Dynamo.app do
+    Dynamo.start(:test)
+    <%= @mod %>.start
+  end
+
+  ExUnit.start
+
+  # Enable reloading in each ExUnit process
+  ExUnit.after_spawn fn ->
+    Dynamo.Reloader.enable
+  end
   """
 end

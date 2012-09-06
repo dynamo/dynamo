@@ -27,7 +27,7 @@ defmodule Mix.Tasks.Compile.Dynamo do
   """
   def run(args) do
     { opts, files } = OptionParser.parse(args, flags: [:force])
-    Dynamo.start
+    Dynamo.start(Mix.env)
 
     # Load the dynamo app but don't start it.
     # We reenable the task so it can be called

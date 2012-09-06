@@ -2,10 +2,11 @@ defmodule Dynamo do
   @doc """
   Starts the Dynamo framework.
   """
-  def start do
+  def start(env) when is_atom(env) do
     :application.start(:mimetypes)
     :application.start(:crypto)
     :application.start(:dynamo)
+    :application.set_env(:dynamo, :env, env)
   end
 
   @doc """
@@ -35,10 +36,10 @@ defmodule Dynamo do
   end
 
   @doc """
-  Reads the current environment. It is the same
-  as Mix.env
+  Reads the current environment.
   """
   def env do
-    Mix.env
+    { :ok, env } = :application.get_env(:dynamo, :env)
+    env
   end
 end
