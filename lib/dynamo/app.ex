@@ -23,7 +23,7 @@ defmodule Dynamo.App do
   The available `:dynamo` configurations are:
 
   * `:public_route` - The route to trigger public assets serving
-  * `:compile_on_demand` - Inserts a filter that compiles modules as they are needed
+  * `:compile_on_demand` - Compiles modules as they are needed
   * `:reload_modules` - Reload modules after they are changed
   * `:source_paths` - The paths to search when compiling modules on demand
   * `:view_paths` - The paths to find views
@@ -31,9 +31,28 @@ defmodule Dynamo.App do
   * `:handler` - The handler used to serve web applications
   * `:otp_app` - The otp application associated to this app
 
+  ## Filters
+
+  A `Dynamo.App` also contains a set of filters that are meant
+  to be used throughout your whole application. Some of these
+  filters are added based on your configuration option. The
+  filters included by default and when they are included are:
+
+  * `Dynamo.Filters.Static` - when a public_route and public_root are set,
+     we add this filter to serve static assets;
+  * `Dynamo.Filters.Reloader` - when `:compile_on_demand` or `:reload_modules`
+    configs are set to true, allowing code to be compiled and reloaded on demand;
+  * `Dynamo.Filters.Head` - converts HEAD requests to GET;
+
+  Filters can be added and removed using `filter` and `remove_filter`
+  macros. You can get the list of application filters using:
+  `mix dynamo.filters`.
+
+  For more information, check `Dynamo.Router.Filters` docs.
+
   ## Initialization
 
-  Dynamo.App allows you to register initializers which are
+  `Dynamo.App` allows you to register initializers which are
   invoked when the application starts. A Dynamo application
   is initialized in three steps:
 

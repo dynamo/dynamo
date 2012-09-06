@@ -4,7 +4,7 @@ defmodule Dynamo.Router.Fetch do
 
   ## Examples
 
-      defmodule App do
+      defmodule MyRouter do
         use Dynamo.Router
         fetch [:params, :cookies]
       end

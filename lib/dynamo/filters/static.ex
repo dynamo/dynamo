@@ -1,13 +1,13 @@
 defmodule Dynamo.Filters.Static do
   @moduledoc """
   A Dynamo filter capable of serving static assets.
+
   It must be initialized passing the root option,
   which may be a directory of an atom representing
   an application to use the root directory.
 
-  This application is usually forwarded to and **sets**
-  the response to 404 in case the required file cannot
-  be found.
+  If an assets cannot be found, it simply forwards
+  the request to the underlying application.
 
   ## Examples
 
