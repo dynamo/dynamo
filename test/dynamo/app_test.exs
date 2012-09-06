@@ -2,7 +2,7 @@ Code.require_file "../../test_helper.exs", __FILE__
 
 defmodule Dynamo.AppTest do
   use ExUnit.Case, async: true
-  import Dynamo.Router.TestHelpers
+  use Dynamo.HTTP.Case
 
   defmodule App do
     @dynamo_registration false

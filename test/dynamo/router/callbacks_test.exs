@@ -2,7 +2,7 @@ Code.require_file "../../../test_helper.exs", __FILE__
 
 defmodule Dynamo.Router.PrepareCallbacksTest do
   use ExUnit.Case, async: true
-  import Dynamo.Router.TestHelpers
+  use Dynamo.HTTP.Case
 
   defmodule SingleCallbacks do
     use Dynamo.Router
@@ -118,7 +118,7 @@ end
 
 defmodule Dynamo.Router.FinishCallbacksTest do
   use ExUnit.Case, async: true
-  import Dynamo.Router.TestHelpers
+  use Dynamo.HTTP.Case
 
   defmodule SingleCallbacks do
     use Dynamo.Router
