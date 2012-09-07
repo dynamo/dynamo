@@ -43,6 +43,7 @@ defmodule Dynamo.View.Handler do
 end
 
 defmodule Dynamo.View.EEXHandler do
+  @moduledoc false
   @behaviour Dynamo.View.Handler
 
   def compile(Dynamo.View.Template[source: source, identifier: identifier]) do

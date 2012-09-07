@@ -1,15 +1,17 @@
 Code.require_file "../../test_helper.exs", __FILE__
 
 defmodule Dynamo.ViewTest do
-  use ExUnit.Case, async: true
+  use ExUnit.Case
 
-  @view_paths [Dynamo.View.PathFinder.new(File.expand_path("../../fixtures/views", __FILE__))]
+  @fixture_path File.expand_path("../../fixtures/views", __FILE__)
+  @path_finder  Dynamo.View.PathFinder.new(@fixture_path)
+  @view_paths   [@path_finder]
 
-  def setup(_) do
+  def setup_all do
     Dynamo.View.Renderer.start_link
   end
 
-  def teardown(_) do
+  def teardown_all do
     Dynamo.View.Renderer.stop
   end
 
@@ -34,6 +36,19 @@ defmodule Dynamo.ViewTest do
     after
       File.touch!(template, :erlang.universaltime)
     end
+  end
+
+  test "compiles a module with the given templates" do
+    Dynamo.View.compile_module(CompileTest.Sample0, @path_finder.all)
+
+    path     = File.join(@fixture_path, "hello.html.eex")
+    template = CompileTest.Sample0.find "hello.html"
+
+    assert Dynamo.View.Template[identifier: ^path, key: "hello.html",
+      handler: "eex", format: "html", ref: { CompileTest.Sample0, _ }] = template
+
+    { mod, fun } = template.ref
+    assert apply(mod, fun, [[]]) == "HELLO!"
   end
 
   defp render(query) do
