@@ -22,6 +22,13 @@ defmodule Dynamo.View.Renderer do
   end
 
   @doc """
+  Clear compiled templates cache.
+  """
+  def clear do
+    :gen_server.cast(__MODULE__, :clear)
+  end
+
+  @doc """
   This function is responsible for rendering the templates.
   It supports both pre-compiled and on demand compilation.
 
@@ -50,11 +57,7 @@ defmodule Dynamo.View.Renderer do
   def handle_call({ :get_cached, identifier, updated_at }, _from, dict) do
     case Dict.get(dict, identifier) do
       { module, cached } when updated_at > cached ->
-        spawn fn ->
-          :code.purge(module)
-          :code.delete(module)
-        end
-
+        spawn fn -> purge_module(module) end
         { :reply, nil, Dict.delete(dict, identifier) }
       { module, _ } ->
         { :reply, module, dict }
@@ -71,11 +74,24 @@ defmodule Dynamo.View.Renderer do
     end
   end
 
-  def handle_call(:stop, _from, state) do
-    { :stop, :normal, :ok, state }
+  def handle_call(:stop, _from, dict) do
+    { :stop, :normal, :ok, dict }
   end
 
-  def handle_call(_arg, _from, _config) do
+  def handle_call(_arg, _from, _dict) do
+    super
+  end
+
+  def handle_cast(:clear, dict) do
+    spawn fn ->
+      Enum.each dict, fn({ _, { module, _ } }) ->
+        purge_module(module)
+      end
+    end
+    { :noreply, Binary.Dict.new }
+  end
+
+  def handle_cast(_arg, _dict) do
     super
   end
 
@@ -92,6 +108,11 @@ defmodule Dynamo.View.Renderer do
 
   defp raise_too_busy(Template[identifier: identifier]) do
     raise "Compiling template #{inspect identifier} exceeded the max number of attempts #{@max_attemps}. What gives?"
+  end
+
+  defp purge_module(module) do
+    :code.purge(module)
+    :code.delete(module)
   end
 
   defp generate_module(source, identifier, attempts) when attempts < @max_attemps do

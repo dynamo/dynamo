@@ -52,6 +52,13 @@ defmodule Dynamo.Reloader do
   end
 
   @doc """
+  Register a callback that is invoked every time modules are purged.
+  """
+  def on_purge(fun) when is_function(fun) do
+    :gen_server.cast(__MODULE__, { :on_purge, fun })
+  end
+
+  @doc """
   Tries to load the missing module. It returns `:ok` if a file
   for the given module could be found and `:error` otherwise.
   Note it does not actually ensure the module was loaded (only
@@ -84,13 +91,18 @@ defmodule Dynamo.Reloader do
   and loaded modules, and "unrequire" the relevant files.
   """
   def conditional_purge do
-    :gen_server.call(__MODULE__, :conditional_purge)
+    case :gen_server.call(__MODULE__, :conditional_purge) do
+      :ok -> :ok
+      { :purged, callbacks } ->
+        lc callback inlist callbacks, do: callback.()
+        :purged
+    end
   end
 
   ## Callbacks
 
   defrecord Config, loaded_modules: [], loaded_files: [], paths: nil,
-    updated_at: { { 1970, 1, 1 }, { 0, 0, 0 } }
+    updated_at: { { 1970, 1, 1 }, { 0, 0, 0 } }, on_purge: []
 
   @doc false
   def init(paths) do
@@ -110,7 +122,8 @@ defmodule Dynamo.Reloader do
     else
       purge_all(config)
       unload_all(config)
-      { :reply, :purged, config.loaded_modules([]).loaded_files([]).updated_at(last_modified) }
+      { :reply, { :purged, Enum.reverse(config.on_purge) },
+        config.loaded_modules([]).loaded_files([]).updated_at(last_modified) }
     end
   end
 
@@ -125,6 +138,10 @@ defmodule Dynamo.Reloader do
   @doc false
   def handle_cast({ :loaded, file, modules }, config) do
     { :noreply, config.prepend_loaded_modules(modules).prepend_loaded_files([file]) }
+  end
+
+  def handle_cast({ :on_purge, fun }, config) do
+    { :noreply, config.prepend_on_purge([fun]) }
   end
 
   def handle_cast(_arg, _config) do

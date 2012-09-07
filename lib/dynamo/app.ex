@@ -85,12 +85,14 @@ defmodule Dynamo.App do
   @doc false
   defmacro __using__(_) do
     quote do
+      require Dynamo.App
       @dynamo_app true
 
+      @before_compile { unquote(__MODULE__), :load_env_file }
       @before_compile { unquote(__MODULE__), :normalize_options }
-      @before_compile { unquote(__MODULE__), :load_env }
-      @before_compile { unquote(__MODULE__), :apply_filters }
-      @before_compile { unquote(__MODULE__), :apply_initializers }
+      @before_compile { unquote(__MODULE__), :define_filters }
+      @before_compile { unquote(__MODULE__), :define_view_paths }
+      @before_compile { unquote(__MODULE__), :define_finishers }
 
       use Dynamo.Utils.Once
 
@@ -100,24 +102,8 @@ defmodule Dynamo.App do
 
       filter Dynamo.Filters.Head
 
-      config :dynamo, Dynamo.App.default_options(__FILE__)
-
-      # The reloader needs to be the first initializer
-      initializer :start_dynamo_reloader do
-        dynamo = config[:dynamo]
-        if dynamo[:compile_on_demand] do
-          Dynamo.Reloader.start_link dynamo[:source_paths]
-          Dynamo.Reloader.enable!
-          IEx.preload.after_spawn(fn -> Dynamo.Reloader.enable! end)
-        end
-      end
-
-      # Then starts up the application
-      initializer :start_dynamo_app do
-        if app = config[:dynamo][:otp_app] do
-          :application.start(app)
-        end
-      end
+      config :dynamo, Dynamo.App.default_options(__ENV__)
+      Dynamo.App.default_initializers
 
       if @dynamo_registration != false do
         @on_load :register_dynamo_app
@@ -130,17 +116,89 @@ defmodule Dynamo.App do
   end
 
   @doc false
-  def default_options(file) do
+  def default_options(env) do
     [ public_route: "/public",
       compile_on_demand: false,
       reload_modules: false,
       source_paths: ["app/*"],
       view_paths: ["app/views"],
-      root: File.expand_path("../..", file) ]
+      compiled_view_paths: env.module.CompiledViews,
+      root: File.expand_path("../..", env.file) ]
   end
 
   @doc false
-  def config_filters(mod) do
+  defmacro default_initializers do
+    quote location: :keep do
+      initializer :start_dynamo_reloader do
+        dynamo = config[:dynamo]
+        if dynamo[:compile_on_demand] do
+          Dynamo.Reloader.start_link dynamo[:source_paths]
+          Dynamo.Reloader.enable!
+          IEx.preload.after_spawn(fn -> Dynamo.Reloader.enable! end)
+        end
+      end
+
+      initializer :start_dynamo_app do
+        if app = config[:dynamo][:otp_app] do
+          :application.start(app)
+        end
+      end
+    end
+  end
+
+  @doc false
+  defmacro normalize_options(mod) do
+    dynamo = Module.read_attribute(mod, :config)[:dynamo]
+    root   = dynamo[:root]
+
+    source = dynamo[:source_paths]
+    source = Enum.reduce source, [], fn(path, acc) -> expand_paths(path, root) ++ acc end
+
+    view = dynamo[:view_paths]
+    view = Enum.reduce view, [], fn(path, acc) -> expand_paths(path, root) ++ acc end
+
+    # Remove views that eventually end up on source
+    source = source -- view
+
+    # Now convert all view paths to Dynamo.View.Finders
+    view = lc path inlist view do
+      if is_binary(path) do
+        Dynamo.View.PathFinder.new(path)
+      else
+        path
+      end
+    end
+
+    quote do
+      config :dynamo,
+        view_paths: unquote(view),
+        source_paths: unquote(source)
+    end
+  end
+
+  defp expand_paths(path, root) do
+    path /> File.expand_path(root) /> File.wildcard
+  end
+
+  @doc false
+  defmacro load_env_file(module) do
+    root = Module.read_attribute(module, :config)[:dynamo][:root]
+    if root && File.dir?("#{root}/config/environments") do
+      file = "#{root}/config/environments/#{Dynamo.env}.exs"
+      Code.string_to_ast! File.read!(file), file: file
+    end
+  end
+
+  @doc false
+  defmacro define_filters(_) do
+    quote location: :keep do
+      Enum.each Dynamo.App.default_filters(__MODULE__), prepend_filter(&1)
+      def :filters, [], [], do: Macro.escape(Enum.reverse(@__filters))
+    end
+  end
+
+  @doc false
+  def default_filters(mod) do
     filters = []
     dynamo  = Module.read_attribute(mod, :config)[:dynamo]
 
@@ -166,49 +224,53 @@ defmodule Dynamo.App do
   end
 
   @doc false
-  defmacro normalize_options(mod) do
-    dynamo = Module.read_attribute(mod, :config)[:dynamo]
-    root   = dynamo[:root]
+  defmacro define_view_paths(module) do
+    dynamo     = Module.read_attribute(module, :config)[:dynamo]
+    view_paths = dynamo[:view_paths]
 
-    source = dynamo[:source_paths]
-    source = Enum.reduce source, [], fn(path, acc) -> expand_paths(path, root) ++ acc end
+    { compiled, runtime } =
+      if dynamo[:compile_on_demand] do
+        { [], view_paths }
+      else
+        Enum.partition(view_paths, fn(path) -> path.compilable? end)
+      end
 
-    view = dynamo[:view_paths]
-    view = Enum.reduce view, [], fn(path, acc) -> expand_paths(path, root) ++ acc end
+    compiled_initializer =
+      if compiled != [] do
+        view_paths = [dynamo[:compiled_view_paths]|runtime]
 
-    # Remove views that eventually end up on source
-    source = source -- view
+        quote location: :keep do
+          initializer :ensure_compiled_view_paths_is_available do
+            module = Enum.first(view_paths)
+            unless Code.ensure_loaded?(module) do
+              raise "could not find compiled view paths module #{inspect module}"
+            end
+          end
+        end
+      end
 
-    quote do
-      config :dynamo,
-        view_paths: unquote(view),
-        source_paths: unquote(source)
-    end
-  end
+    renderer_initializer =
+      if runtime != [] do
+        quote location: :keep do
+          initializer :boot_view_renderer_server do
+            Dynamo.View.Renderer.start_link
 
-  defp expand_paths(path, root) do
-    path /> File.expand_path(root) /> File.wildcard
-  end
+            if config[:dynamo][:compile_on_demand] do
+              Dynamo.Reloader.on_purge(fn -> Dynamo.View.Renderer.clear end)
+            end
+          end
+        end
+      end
 
-  @doc false
-  defmacro load_env(module) do
-    root = Module.read_attribute(module, :config)[:dynamo][:root]
-    if root && File.dir?("#{root}/config/environments") do
-      file = "#{root}/config/environments/#{Dynamo.env}.exs"
-      Code.string_to_ast! File.read!(file), file: file
-    end
-  end
-
-  @doc false
-  defmacro apply_filters(_) do
     quote location: :keep do
-      Enum.each Dynamo.App.config_filters(__MODULE__), prepend_filter(&1)
-      def :filters, [], [], do: Macro.escape(Enum.reverse(@__filters))
+      def view_paths, do: unquote(Macro.escape(view_paths))
+      unquote(compiled_initializer)
+      unquote(renderer_initializer)
     end
   end
 
   @doc false
-  defmacro apply_initializers(_) do
+  defmacro define_finishers(_) do
     quote location: :keep do
       initializer :ensure_endpoint_is_available do
         if @endpoint && not Code.ensure_compiled?(@endpoint) do

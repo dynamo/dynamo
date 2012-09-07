@@ -6,31 +6,17 @@ defmodule Dynamo.App.ConfigTest do
 
   defmodule App do
     @dynamo_registration false
-    use Dynamo.App
+    use Dynamo.App.Config
 
     endpoint Dynamo.App.ConfigTest
 
-    config :dynamo,
-      public_root:  :app,
-      public_route: "/public",
-      root: File.expand_path("../../../fixtures", __FILE__),
-      view_paths: ["foo"],
-      source_path: ["foo"]
-
-    config :linq, adapter: :pg
-
-    config :dynamo,
-      public_root: :myapp
+    config :dynamo, public_root:  :app
+    config :linq,   adapter: :pg
+    config :dynamo, public_root: :myapp
 
     initializer :sample do
       Process.put(__MODULE__, :sample)
     end
-  end
-
-  defmodule DefaultApp do
-    @dynamo_registration false
-    use Dynamo.App
-    endpoint App
   end
 
   def service(conn) do
@@ -49,23 +35,9 @@ defmodule Dynamo.App.ConfigTest do
     assert get("/").assigns[:done] == :ok
   end
 
-  test "defines a root" do
-    assert App.config[:dynamo][:root] == File.expand_path("../../../fixtures", __FILE__)
-    assert DefaultApp.config[:dynamo][:root] == File.expand_path("../..", __FILE__)
-  end
-
   test "sets and overrides config" do
     assert App.config[:dynamo][:public_root]  == :myapp
-    assert App.config[:dynamo][:public_route] == "/public"
     assert App.config[:linq]                  == [adapter: :pg]
     assert App.config[:other]                 == nil
-  end
-
-  test "gets config from environment" do
-    assert App.config[:from_dev][:other]  == "config"
-  end
-
-  test "removes views from source paths" do
-    assert App.config[:dynamo][:source_paths] == []
   end
 end

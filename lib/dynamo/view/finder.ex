@@ -14,6 +14,11 @@ defmodule Dynamo.View.Finder do
   defcallback new(info)
 
   @doc """
+  Returns true it provides compiled templates.
+  """
+  defcallback compilable?(self)
+
+  @doc """
   Returns all templates for this finder.
 
   This is used for eager template
@@ -39,6 +44,10 @@ defmodule Dynamo.View.PathFinder do
 
   def new(root) do
     { __MODULE__, File.expand_path(root) }
+  end
+
+  def compilable?(_) do
+    true
   end
 
   def all({ __MODULE__, root }) do

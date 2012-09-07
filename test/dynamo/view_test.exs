@@ -7,11 +7,11 @@ defmodule Dynamo.ViewTest do
   @path_finder  Dynamo.View.PathFinder.new(@fixture_path)
   @view_paths   [@path_finder]
 
-  def setup_all do
+  def setup(_) do
     Dynamo.View.Renderer.start_link
   end
 
-  def teardown_all do
+  def teardown(_) do
     Dynamo.View.Renderer.stop
   end
 
@@ -36,6 +36,19 @@ defmodule Dynamo.ViewTest do
     after
       File.touch!(template, :erlang.universaltime)
     end
+  end
+
+  test "uses cached template unless it is cleared" do
+    module = render "module.html"
+    assert "Elixir-" <> _ = module
+
+    cached = render "module.html"
+    assert module == cached
+
+    Dynamo.View.Renderer.clear
+
+    not_cached = render "module.html"
+    assert module != not_cached
   end
 
   test "compiles a module with the given templates" do

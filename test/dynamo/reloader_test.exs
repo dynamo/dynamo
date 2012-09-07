@@ -19,13 +19,26 @@ defmodule Dynamo.ReloaderTest do
   test "automatically loads code" do
     refute :code.is_loaded(Foo)
 
+    # Compilation on demand works
     assert Foo.foo == 1
     assert Foo.Bar.bar == 2
 
+    # Check clean slate before purging
+    assert Process.get(:purge_callback) == nil
+
+    # Prepare a callback
+    Dynamo.Reloader.on_purge(fn -> Process.put(:purge_callback, :ok) end)
+
+    # Update file
     File.touch!("#{fixture_path}/foo.ex")
 
-    Dynamo.Reloader.conditional_purge
+    # Purge it!
+    assert Dynamo.Reloader.conditional_purge == :purged
 
+    # Check state changed
+    assert Process.get(:purge_callback) == :ok
+
+    # It was purged!
     refute :code.is_loaded(Foo)
     assert Foo.foo == 1
   end

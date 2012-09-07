@@ -12,8 +12,11 @@ defmodule Dynamo.AppTest do
     config :dynamo,
       public_root: File.expand_path("../../fixtures/public", __FILE__),
       public_route: "/public",
+      root: File.expand_path("../../fixtures", __FILE__),
       compile_on_demand: false,
-      reload_modules: false
+      reload_modules: false,
+      source_paths: [File.expand_path("../../fixtures/*", __FILE__)],
+      view_paths: [File.expand_path("../../fixtures/views", __FILE__)]
   end
 
   defmodule ReloadApp do
@@ -24,17 +27,27 @@ defmodule Dynamo.AppTest do
     config :dynamo,
       public_root: false,
       compile_on_demand: true,
-      reload_modules: true
+      reload_modules: true,
+      view_paths: [File.expand_path("../../fixtures/views", __FILE__)]
   end
 
-  @app App
+  ## Config
 
-  test "cascades not found accesses" do
-    conn = get("/public/file.txt")
-    assert conn.status == 200
-    assert conn.resp_body == "HELLO"
-    assert conn.resp_headers["Content-Type"] == "text/plain"
+  test "defines a root" do
+    assert App.config[:dynamo][:root] == File.expand_path("../../fixtures", __FILE__)
+    assert ReloadApp.config[:dynamo][:root] == File.expand_path("../..", __FILE__)
   end
+
+  test "gets config from environment" do
+    assert App.config[:from_dev][:other] == "config"
+  end
+
+  test "removes views from source paths" do
+    view_path = File.expand_path("../../fixtures/views", __FILE__)
+    refute view_path in App.config[:dynamo][:source_paths]
+  end
+
+  ## Filters
 
   test "adds public filter" do
     file = File.expand_path("../../fixtures/public", __FILE__)
@@ -51,5 +64,13 @@ defmodule Dynamo.AppTest do
 
   test "does not add reloader filter if disabled" do
     refute Enum.any? App.filters, match?({ Dynamo.Filters.Reloader, _, _ }, &1)
+  end
+
+  ## View paths
+
+  test "defines view paths" do
+    assert App.view_paths == [Dynamo.AppTest.App.CompiledViews]
+    views = File.expand_path("../../fixtures/views", __FILE__)
+    assert ReloadApp.view_paths == [Dynamo.View.PathFinder.new(views)]
   end
 end
