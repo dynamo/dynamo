@@ -9,7 +9,7 @@ defmodule Dynamo.View.PathFinderTest do
   test "finds available template" do
     path = File.join(@view_path, "hello.html.eex")
 
-    assert Dynamo.View.Template[identifier: ^path,
+    assert Dynamo.View.Template[identifier: ^path, key: "hello.html",
       handler: "eex", format: "html"] = @finder.find "hello.html"
   end
 

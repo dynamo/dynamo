@@ -44,6 +44,7 @@ defmodule Dynamo.View.PathFinder do
 
     if tmpl do
       Dynamo.View.Template[
+        key: template,
         updated_at: File.stat!(tmpl).mtime,
         identifier: tmpl,
         handler: extname(tmpl),
