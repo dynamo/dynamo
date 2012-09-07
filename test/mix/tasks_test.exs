@@ -8,7 +8,7 @@ defmodule Mix.TasksTest do
     in_tmp "my_compiled_app", fn ->
       app_with_dynamo_deps_path
 
-      ## Cannot boot production without compiling
+      # Cannot boot production without compiling
       output = System.cmd "MIX_ENV=prod mix server"
       assert output =~ %r(could not find endpoint ApplicationRouter, please ensure it was compiled)
 
@@ -16,6 +16,10 @@ defmodule Mix.TasksTest do
       assert output =~ %r(Compiled app/routers/application_router.ex)
       assert output =~ %r(Compiled config/app.ex)
       assert output =~ %r(Generated my_compiled_app.app)
+
+      # Views are also compiled
+      assert output =~ %r(Generated MyCompiledApp.CompiledViews)
+      assert File.regular?("ebin/Elixir-MyCompiledApp-CompiledViews.beam")
 
       # Can recompile after changes
       File.touch!("app/routers/application_router.ex", { { 2030, 1, 1 }, { 0, 0, 0 } })
@@ -57,7 +61,10 @@ defmodule Mix.TasksTest do
     in_tmp "my_run_app", fn ->
       app_with_dynamo_deps_path
 
-      output = System.cmd %b{mix run "IO.inspect HelloRouter.__info__(:self)"}
+      output = System.cmd %b{mix run "Dynamo.app.start; IO.inspect HelloRouter.__info__(:self)"}
+      assert output =~ %r(HelloRouter)
+
+      output = System.cmd %b{MIX_ENV=prod mix do compile, run "Dynamo.app.start; IO.inspect HelloRouter.__info__(:self)"}
       assert output =~ %r(HelloRouter)
     end
   end

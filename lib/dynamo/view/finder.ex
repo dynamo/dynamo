@@ -14,19 +14,12 @@ defmodule Dynamo.View.Finder do
   defcallback new(info)
 
   @doc """
-  Returns true it provides compiled templates.
+  Returns true if templates can be eager
+  compiled. If so, the behaviour also needs
+  to implement a `all(self)` function that
+  returns all templates hold by the finder.
   """
-  defcallback compilable?(self)
-
-  @doc """
-  Returns all templates for this finder.
-
-  This is used for eager template
-  compilation in production. In case
-  eager compilation is not supported,
-  it should simply return nil.
-  """
-  defcallback all(self)
+  defcallback eager?(self)
 
   @doc """
   Attempts to find a template given by
@@ -36,6 +29,13 @@ defmodule Dynamo.View.Finder do
   nil in case a template can't be found.
   """
   defcallback find(query, self)
+
+  @doc """
+  Returns a filesystem path to be watched
+  if this finder maps to somewhere in the
+  filesystem. Returns nil otherwise.
+  """
+  defcallback to_path(self)
 end
 
 defmodule Dynamo.View.PathFinder do
@@ -46,7 +46,7 @@ defmodule Dynamo.View.PathFinder do
     { __MODULE__, File.expand_path(root) }
   end
 
-  def compilable?(_) do
+  def eager?(_) do
     true
   end
 
@@ -61,6 +61,10 @@ defmodule Dynamo.View.PathFinder do
     query = File.join(root, key <> ".*")
     path  = Enum.first File.wildcard(query)
     if path, do: build(key, path)
+  end
+
+  def to_path({ __MODULE__, path }) do
+    path
   end
 
   defp build(key, path) do

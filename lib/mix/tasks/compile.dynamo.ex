@@ -39,7 +39,7 @@ defmodule Mix.Tasks.Compile.Dynamo do
     if app.config[:dynamo][:compile_on_demand] do
       :noop
     else
-      eager_compilation(app, files, opts)
+      do_compile(app, files, opts)
     end
   end
 
@@ -49,13 +49,14 @@ defmodule Mix.Tasks.Compile.Dynamo do
     :code.delete(app)
   end
 
-  defp eager_compilation(app, files, opts) do
+  defp do_compile(app, files, opts) do
     project = Mix.project
     dynamo  = app.config[:dynamo]
 
     compile_path = project[:compile_path]
     compile_exts = project[:compile_exts]
-    source_paths = dynamo[:source_paths] ++ dynamo[:view_paths]
+    view_paths   = dynamo[:view_paths]
+    source_paths = dynamo[:source_paths] ++ extract_views(view_paths)
 
     app_file = project[:dynamo_app] || "config/app.ex"
     env_file = "config/environments/#{Mix.env}.exs"
@@ -75,6 +76,7 @@ defmodule Mix.Tasks.Compile.Dynamo do
 
       Mix.Dynamo.lock_snapshot fn ->
         compile_files List.uniq(to_compile), compile_path, dynamo[:root]
+        compile_views dynamo[:compiled_view_paths], view_paths, compile_path
       end
 
       :ok
@@ -96,11 +98,26 @@ defmodule Mix.Tasks.Compile.Dynamo do
     Enum.filter files, List.member?(paths, &1)
   end
 
+  defp extract_views(view_paths) do
+    lc view_path inlist view_paths, path = view_path.to_path, do: path
+  end
+
   defp compile_files(files, to, root) do
     Kernel.ParallelCompiler.files_to_path files, to, fn(original) ->
       relative = :binary.replace original, root <> "/", ""
       Mix.shell.info "Compiled #{relative}"
       original
     end
+  end
+
+  defp compile_views(name, view_paths, compile_path) do
+    templates = lc view_path inlist view_paths,
+                   view_path.eager?,
+                   template inlist view_path.all, do: template
+
+    binary = Dynamo.View.compile_module(name, templates)
+    File.write! File.join(compile_path, "#{name}.beam"), binary
+
+    Mix.shell.info "Generated #{inspect name}"
   end
 end

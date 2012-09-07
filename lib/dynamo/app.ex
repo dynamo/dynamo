@@ -28,7 +28,6 @@ defmodule Dynamo.App do
   * `:source_paths` - The paths to search when compiling modules on demand
   * `:view_paths` - The paths to find views
   * `:root` - The application root
-  * `:handler` - The handler used to serve web applications
   * `:otp_app` - The otp application associated to this app
 
   ## Filters
@@ -91,8 +90,8 @@ defmodule Dynamo.App do
       @before_compile { unquote(__MODULE__), :load_env_file }
       @before_compile { unquote(__MODULE__), :normalize_options }
       @before_compile { unquote(__MODULE__), :define_filters }
-      @before_compile { unquote(__MODULE__), :define_view_paths }
       @before_compile { unquote(__MODULE__), :define_finishers }
+      @before_compile { unquote(__MODULE__), :define_view_paths }
 
       use Dynamo.Utils.Once
 
@@ -232,16 +231,17 @@ defmodule Dynamo.App do
       if dynamo[:compile_on_demand] do
         { [], view_paths }
       else
-        Enum.partition(view_paths, fn(path) -> path.compilable? end)
+        Enum.partition(view_paths, fn(path) -> path.eager? end)
       end
 
     compiled_initializer =
       if compiled != [] do
-        view_paths = [dynamo[:compiled_view_paths]|runtime]
+        module     = dynamo[:compiled_view_paths]
+        view_paths = [module|runtime]
 
         quote location: :keep do
           initializer :ensure_compiled_view_paths_is_available do
-            module = Enum.first(view_paths)
+            module = unquote(module)
             unless Code.ensure_loaded?(module) do
               raise "could not find compiled view paths module #{inspect module}"
             end

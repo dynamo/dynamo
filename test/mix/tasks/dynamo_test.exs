@@ -29,6 +29,9 @@ defmodule Mix.Tasks.DynamoTest do
         assert file =~ %r(otp_app: :my_app)
       end
 
+      assert_file "app/routers/application_router.ex"
+      assert_file "app/views/hello.html.eex"
+
       assert_file "config/environments/dev.exs"
       assert_file "config/environments/test.exs"
       assert_file "config/environments/prod.exs"
