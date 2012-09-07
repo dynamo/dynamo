@@ -158,6 +158,10 @@ defmodule Dynamo.App do
       filters = [Dynamo.Filters.Reloader.new(dynamo[:compile_on_demand], dynamo[:reload_modules])|filters]
     end
 
+    if dynamo[:reload_modules] && !dynamo[:compile_on_demand] do
+      raise "Cannot have reload_modules set to true and compile_on_demand set to false"
+    end
+
     filters
   end
 
@@ -196,8 +200,7 @@ defmodule Dynamo.App do
   defmacro apply_filters(_) do
     quote location: :keep do
       Enum.each Dynamo.App.config_filters(__MODULE__), prepend_filter(&1)
-      @__reverse_filters Enum.reverse @__filters
-      def filters, do: @__reverse_filters
+      def :filters, [], [], do: Macro.escape(Enum.reverse(@__filters))
     end
   end
 

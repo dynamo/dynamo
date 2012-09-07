@@ -5,6 +5,14 @@ defmodule Dynamo.ViewsTest do
 
   @view_paths [Dynamo.Views.PathFinder.new(File.expand_path("../../fixtures/views", __FILE__))]
 
+  def setup(_) do
+    Dynamo.Views.Renderer.start_link
+  end
+
+  def teardown(_) do
+    Dynamo.Views.Renderer.stop
+  end
+
   test "renders a template" do
     body = Dynamo.Views.render "hello.html", @view_paths, []
     assert body == "HELLO!"
