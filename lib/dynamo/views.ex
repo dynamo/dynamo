@@ -7,17 +7,17 @@ defmodule Dynamo.Views do
     end
   end
 
-  def render(query, view_paths, assigns) do
-    template = Enum.find_value(view_paths, fn(x) -> x.find(query) end)
-    check_template(template, query, view_paths)
+  @doc """
+  Finds the given template in any of the views paths.
+  """
+  def find(query, view_paths) do
+    Enum.find_value(view_paths, fn(x) -> x.find(query) end)
+  end
+
+  @doc """
+  Renders the given template with the given assigns.
+  """
+  def render(template, assigns) do
     Dynamo.Views.Renderer.render(template, Keyword.put(assigns, :template, template))
-  end
-
-  defp check_template(nil, query, view_paths) do
-    raise Dynamo.Views.TemplateNotFound, query: query, view_paths: view_paths
-  end
-
-  defp check_template(_, _, _) do
-    :ok
   end
 end

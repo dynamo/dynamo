@@ -14,7 +14,25 @@ defmodule Dynamo.ViewsTest do
   end
 
   test "renders a template" do
-    body = Dynamo.Views.render "hello.html", @view_paths, []
+    body = render "hello.html"
     assert body == "HELLO!"
+  end
+
+  test "uses cached template unless it changes" do
+    module = render "module.html"
+    assert "Elixir-" <> _ = module
+
+    cached = render "module.html"
+    assert module == cached
+
+    template = File.expand_path("../../fixtures/views/module.html.eex", __FILE__)
+    File.touch!(template, { { 2030, 1, 1 }, { 0, 0, 0 } })
+
+    not_cached = render "module.html"
+    assert module != not_cached
+  end
+
+  defp render(query) do
+    Dynamo.Views.render Dynamo.Views.find(query, @view_paths), []
   end
 end
