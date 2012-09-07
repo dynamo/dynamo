@@ -1,16 +1,16 @@
 Code.require_file "../../test_helper.exs", __FILE__
 
-defmodule Dynamo.ViewsTest do
+defmodule Dynamo.ViewTest do
   use ExUnit.Case, async: true
 
-  @view_paths [Dynamo.Views.PathFinder.new(File.expand_path("../../fixtures/views", __FILE__))]
+  @view_paths [Dynamo.View.PathFinder.new(File.expand_path("../../fixtures/views", __FILE__))]
 
   def setup(_) do
-    Dynamo.Views.Renderer.start_link
+    Dynamo.View.Renderer.start_link
   end
 
   def teardown(_) do
-    Dynamo.Views.Renderer.stop
+    Dynamo.View.Renderer.stop
   end
 
   test "renders a template" do
@@ -26,13 +26,17 @@ defmodule Dynamo.ViewsTest do
     assert module == cached
 
     template = File.expand_path("../../fixtures/views/module.html.eex", __FILE__)
-    File.touch!(template, { { 2030, 1, 1 }, { 0, 0, 0 } })
 
-    not_cached = render "module.html"
-    assert module != not_cached
+    try do
+      File.touch!(template, { { 2030, 1, 1 }, { 0, 0, 0 } })
+      not_cached = render "module.html"
+      assert module != not_cached
+    after
+      File.touch!(template, :erlang.universaltime)
+    end
   end
 
   defp render(query) do
-    Dynamo.Views.render Dynamo.Views.find(query, @view_paths), []
+    Dynamo.View.render Dynamo.View.find(query, @view_paths), []
   end
 end

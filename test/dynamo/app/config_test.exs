@@ -13,7 +13,9 @@ defmodule Dynamo.App.ConfigTest do
     config :dynamo,
       public_root:  :app,
       public_route: "/public",
-      root: File.expand_path("../../../fixtures", __FILE__)
+      root: File.expand_path("../../../fixtures", __FILE__),
+      view_paths: ["foo"],
+      source_path: ["foo"]
 
     config :linq, adapter: :pg
 
@@ -61,5 +63,9 @@ defmodule Dynamo.App.ConfigTest do
 
   test "gets config from environment" do
     assert App.config[:from_dev][:other]  == "config"
+  end
+
+  test "removes views from source paths" do
+    assert App.config[:dynamo][:source_paths] == []
   end
 end

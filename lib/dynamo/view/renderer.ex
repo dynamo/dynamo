@@ -1,13 +1,13 @@
-defmodule Dynamo.Views.Renderer do
+defmodule Dynamo.View.Renderer do
   @moduledoc false
   @slots 1_000_000
   @max_attempts 1_000
 
   use GenServer.Behaviour
-  alias Dynamo.Views.Template, as: Template
+  alias Dynamo.View.Template, as: Template
 
   @doc """
-  Starts the `Dynamo.Views.Renderer` server.
+  Starts the `Dynamo.View.Renderer` server.
   Usually called internally by Dynamo.
   """
   def start_link do
@@ -15,7 +15,7 @@ defmodule Dynamo.Views.Renderer do
   end
 
   @doc """
-  Stops the `Dynamo.Views.Renderer` server.
+  Stops the `Dynamo.View.Renderer` server.
   """
   def stop do
     :gen_server.call(__MODULE__, :stop)
@@ -86,7 +86,7 @@ defmodule Dynamo.Views.Renderer do
   end
 
   defp compile(Template[handler: handler, identifier: identifier, updated_at: updated_at] = template) do
-    compiled = get_handler(handler).compile(template)
+    compiled = Dynamo.View.Handler.get!(handler).compile(template)
     :gen_server.call(__MODULE__, { :register, identifier, updated_at, compiled })
   end
 
@@ -94,14 +94,9 @@ defmodule Dynamo.Views.Renderer do
     raise "Compiling template #{inspect identifier} exceeded the max number of attempts #{@max_attemps}. What gives?"
   end
 
-  # TODO: Remove hardcoded handler.
-  defp get_handler("eex") do
-    Dynamo.Views.EEXHandler
-  end
-
   defp generate_module(source, identifier, attempts) when attempts < @max_attemps do
     random = :random.uniform(@slots)
-    module = Module.concat(Dynamo.Views, "Template#{random}")
+    module = Module.concat(Dynamo.View, "Template#{random}")
 
     if :code.is_loaded(module) do
       generate_module(source, identifier, attempts + 1)

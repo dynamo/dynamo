@@ -1,4 +1,4 @@
-defmodule Dynamo.Views do
+defmodule Dynamo.View do
   defrecord Template, identifier: nil, format: nil, handler: nil, source: nil, ref: nil, updated_at: nil
 
   defexception TemplateNotFound, query: nil, view_paths: nil do
@@ -18,6 +18,6 @@ defmodule Dynamo.Views do
   Renders the given template with the given assigns.
   """
   def render(template, assigns) do
-    Dynamo.Views.Renderer.render(template, Keyword.put(assigns, :template, template))
+    Dynamo.View.Renderer.render(template, Keyword.put(assigns, :template, template))
   end
 end

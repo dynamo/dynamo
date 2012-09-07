@@ -176,6 +176,9 @@ defmodule Dynamo.App do
     view = dynamo[:view_paths]
     view = Enum.reduce view, [], fn(path, acc) -> expand_paths(path, root) ++ acc end
 
+    # Remove views that eventually end up on source
+    source = source -- view
+
     quote do
       config :dynamo,
         view_paths: unquote(view),
