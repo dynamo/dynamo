@@ -10,7 +10,7 @@ defmodule Dynamo.AppTest do
     endpoint Dynamo.AppTest
 
     config :dynamo,
-      public_root: File.expand_path("../../fixtures", __FILE__),
+      public_root: File.expand_path("../../fixtures/public", __FILE__),
       public_route: "/public",
       compile_on_demand: false,
       reload_modules: false
@@ -37,7 +37,7 @@ defmodule Dynamo.AppTest do
   end
 
   test "adds public filter" do
-    file = File.expand_path("../../fixtures", __FILE__)
+    file = File.expand_path("../../fixtures/public", __FILE__)
     assert Enum.first(App.filters) == Dynamo.Filters.Static.new("/public", file)
   end
 

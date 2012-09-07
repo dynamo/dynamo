@@ -21,7 +21,7 @@ defmodule Dynamo.Filters.StaticTest do
   @app StaticApp
 
   test "serves the file" do
-    conn = get("/public/fixtures/file.txt")
+    conn = get("/public/fixtures/public/file.txt")
     assert conn.status == 200
     assert conn.resp_body == "HELLO"
     assert conn.resp_headers["Content-Type"] == "text/plain"
@@ -46,7 +46,7 @@ defmodule Dynamo.Filters.StaticTest do
   end
 
   test "returns 404 for unsecure paths" do
-    conn = get("/public/fixtures/../fixtures/file.txt")
+    conn = get("/public/fixtures/../fixtures/public/file.txt")
     assert conn.status    == 404
     assert conn.resp_body == "File not served"
   end

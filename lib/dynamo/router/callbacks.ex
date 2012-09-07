@@ -83,7 +83,7 @@ defmodule Dynamo.Router.Callbacks do
       name   = :"__prepare_callback_#{length(@__prepare_callbacks)}"
       args   = quote do: [var!(conn)]
       guards = quote do: [is_tuple(var!(conn))]
-      defp name, args, guards, do: unquote(block)
+      defp name, args, guards, do: unquote(Macro.escape block)
       @__prepare_callbacks name
     end
   end
@@ -102,7 +102,7 @@ defmodule Dynamo.Router.Callbacks do
       name   = :"__finalize_callback_#{length(@__finalize_callbacks)}"
       args   = quote do: [var!(conn)]
       guards = quote do: [is_tuple(var!(conn))]
-      defp name, args, guards, do: unquote(block)
+      defp name, args, guards, do: unquote(Macro.escape block)
       @__finalize_callbacks name
     end
   end

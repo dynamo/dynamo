@@ -36,7 +36,7 @@ defmodule Dynamo.App.Config do
     quote do
       name = :"__initializer_#{unquote(name)}"
       @initializers { name, unquote(__CALLER__.line), [] }
-      defp name, [], [], do: unquote(block)
+      defp name, [], [], do: unquote(Macro.escape block)
     end
   end
 
