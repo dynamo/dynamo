@@ -35,15 +35,17 @@ defmodule Dynamo.View.Renderer do
   The on demand mode needs to be explicitly enabled
   by calling start_link/0.
   """
-  def render(Template[ref: { mod, fun }], assigns) do
-    apply mod, fun, [assigns]
+  def render(Template[ref: { mod, fun }, handler: handler], locals, assigns) do
+    handler.render(mod, fun, locals, assigns)
   end
 
-  def render(template, assigns) do
+  def render(Template[handler: handler] = template, locals, assigns) do
     module =
-      get_cached(template) || compile(template) || raise_too_busy(template)
+      get_cached(template) ||
+      compile(template, Keyword.keys(locals)) ||
+      raise_too_busy(template)
 
-    module.render(assigns)
+    handler.render(module, :render, locals, assigns)
   end
 
   ## Callbacks
@@ -66,8 +68,8 @@ defmodule Dynamo.View.Renderer do
     end
   end
 
-  def handle_call({ :register, identifier, updated_at, compiled }, _from, dict) do
-    if module = generate_module(compiled, identifier, 0) do
+  def handle_call({ :register, identifier, updated_at, args, source }, _from, dict) do
+    if module = generate_module(args, source, identifier, 0) do
       { :reply, module, Dict.put(dict, identifier, { module, updated_at }) }
     else
       { :reply, nil, dict }
@@ -101,9 +103,9 @@ defmodule Dynamo.View.Renderer do
     :gen_server.call(__MODULE__, { :get_cached, identifier, updated_at })
   end
 
-  defp compile(Template[handler: handler, identifier: identifier, updated_at: updated_at] = template) do
-    compiled = Dynamo.View.Handler.get!(handler).compile(template)
-    :gen_server.call(__MODULE__, { :register, identifier, updated_at, compiled })
+  defp compile(Template[handler: handler, identifier: identifier, updated_at: updated_at] = template, locals) do
+    { args, source } = handler.compile(template, locals)
+    :gen_server.call(__MODULE__, { :register, identifier, updated_at, args, source })
   end
 
   defp raise_too_busy(Template[identifier: identifier]) do
@@ -115,21 +117,15 @@ defmodule Dynamo.View.Renderer do
     :code.delete(module)
   end
 
-  defp generate_module(source, identifier, attempts) when attempts < @max_attemps do
+  defp generate_module(args, source, identifier, attempts) when attempts < @max_attemps do
     random = :random.uniform(@slots)
     module = Module.concat(Dynamo.View, "Template#{random}")
 
     if :code.is_loaded(module) do
-      generate_module(source, identifier, attempts + 1)
+      generate_module(args, source, identifier, attempts + 1)
     else
-      source = quote hygiene: false do
-        _ = assigns
-        unquote(source)
-      end
-
       defmodule module do
         @file identifier
-        args = quote hygiene: false, do: [assigns]
         def :render, args, [], do: source
       end
 
@@ -137,7 +133,7 @@ defmodule Dynamo.View.Renderer do
     end
   end
 
-  defp generate_module(_, _, _) do
+  defp generate_module(_, _, _, _) do
     nil
   end
 end

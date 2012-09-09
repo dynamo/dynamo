@@ -72,7 +72,7 @@ defmodule Dynamo.View.PathFinder do
       key: key,
       updated_at: File.stat!(path).mtime,
       identifier: path,
-      handler: extname(path),
+      handler: Dynamo.View.Handler.get!(extname(path)),
       format: extname(File.rootname(path)),
       source: File.read!(path)
     ]

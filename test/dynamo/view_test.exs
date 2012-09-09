@@ -52,19 +52,19 @@ defmodule Dynamo.ViewTest do
   end
 
   test "compiles a module with the given templates" do
-    Dynamo.View.compile_module(CompileTest.Sample0, @path_finder.all)
+    Dynamo.View.compile_module(CompileTest.Sample0, @path_finder.all, [])
 
     path     = File.join(@fixture_path, "hello.html.eex")
     template = CompileTest.Sample0.find "hello.html"
 
     assert Dynamo.View.Template[identifier: ^path, key: "hello.html",
-      handler: "eex", format: "html", ref: { CompileTest.Sample0, _ }] = template
+      handler: Dynamo.View.EEXHandler, format: "html", ref: { CompileTest.Sample0, _ }] = template
 
     { mod, fun } = template.ref
     assert apply(mod, fun, [[]]) == "HELLO!"
   end
 
   defp render(query) do
-    Dynamo.View.render Dynamo.View.find(query, @view_paths), []
+    Dynamo.View.render Dynamo.View.find(query, @view_paths), [], []
   end
 end

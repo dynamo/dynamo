@@ -10,7 +10,7 @@ defmodule Dynamo.View.PathFinderTest do
     path = File.join(@fixture_path, "hello.html.eex")
 
     assert Dynamo.View.Template[identifier: ^path, key: "hello.html",
-      handler: "eex", format: "html"] = @path_finder.find "hello.html"
+      handler: Dynamo.View.EEXHandler, format: "html"] = @path_finder.find "hello.html"
   end
 
   test "returns all templates" do
