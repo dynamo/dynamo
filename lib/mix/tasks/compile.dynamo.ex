@@ -58,8 +58,9 @@ defmodule Mix.Tasks.Compile.Dynamo do
     view_paths   = dynamo[:view_paths]
     source_paths = dynamo[:source_paths] ++ extract_views(view_paths)
 
-    to_compile = extract_files(source_paths, files, [:ex])
-    to_watch   = extract_files(source_paths, files, compile_exts)
+    files      = Enum.map files, File.expand_path(&1)
+    to_compile = Mix.Utils.extract_files(source_paths, files, [:ex])
+    to_watch   = Mix.Utils.extract_files(source_paths, files, compile_exts)
     targets    = [compile_path]
 
     if opts[:force] or Mix.Dynamo.stale_app?(app) or Mix.Utils.stale?(to_watch, targets) do
@@ -80,19 +81,6 @@ defmodule Mix.Tasks.Compile.Dynamo do
       app.start
       :noop
     end
-  end
-
-  defp extract_files(paths, [], exts) do
-    exts = Enum.join(exts, ",")
-    List.concat(lc path inlist paths do
-      File.wildcard("#{path}/**/*.{#{exts}}")
-    end)
-  end
-
-  defp extract_files(paths, files, exts) do
-    paths = extract_files(paths, [], exts)
-    files = Enum.map files, File.expand_path(&1)
-    Enum.filter files, List.member?(paths, &1)
   end
 
   defp extract_views(view_paths) do
