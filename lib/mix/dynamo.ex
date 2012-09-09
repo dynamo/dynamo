@@ -2,6 +2,24 @@ defmodule Mix.Dynamo do
   @moduledoc false
 
   @doc """
+  Returns the app file location.
+  """
+  def app_file do
+    Mix.project[:dynamo_app] || "config/app.ex"
+  end
+
+  @doc """
+  Check if the app beam file is stale compared to the app file,
+  env files and the mix file.
+  """
+  def stale_app?(app) do
+    mix_file = Mix.Utils.source(Mix.Project.current)
+    env_file = "config/environments/#{Dynamo.env}.exs"
+    app_beam = File.join(Mix.project[:compile_path], "#{app}.beam")
+    Mix.Utils.stale?([app_file(), mix_file, env_file], [app_beam])
+  end
+
+  @doc """
   Returns the lock path.
   """
   def lock_path do

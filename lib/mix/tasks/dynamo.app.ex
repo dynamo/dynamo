@@ -6,7 +6,7 @@ defmodule Mix.Tasks.Dynamo.App do
   It is usually used as dependency by other tasks.
   """
   def run(args) do
-    { opts, _ } = OptionParser.parse(args, flags: [:compile])
+    { opts, _ } = OptionParser.parse(args)
     mixfile     = Mix.Utils.source(Mix.Project.current)
     Dynamo.start(Mix.env, File.dirname(mixfile))
 
@@ -17,7 +17,7 @@ defmodule Mix.Tasks.Dynamo.App do
         opts[:app] ->
           load_app_from_opts(opts[:app])
         lock = Mix.Dynamo.read_lock ->
-          load_app_from_lock(lock, opts[:compile])
+          load_app_from_lock(lock, opts)
         true ->
           load_app_from_file
       end
@@ -26,7 +26,7 @@ defmodule Mix.Tasks.Dynamo.App do
     app
   end
 
-  defp load_app_from_lock([env, app|_], _compile) do
+  defp load_app_from_lock([env, app|_], opts) do
     app = binary_to_atom(app)
 
     unless env == atom_to_binary(Mix.env) do
@@ -35,11 +35,14 @@ defmodule Mix.Tasks.Dynamo.App do
         %b(You can remove the lock and compiled artifacts with `mix clean`.)
     end
 
-    unless Code.ensure_loaded?(app) do
-      raise Mix.Error, message: "Expected app #{inspect app} in env.lock file to be available, but it is not"
+    cond do
+      opts[:no_stale] && Mix.Dynamo.stale_app?(app) ->
+        load_app_from_file
+      not Code.ensure_loaded?(app) ->
+        raise Mix.Error, message: "Expected app #{inspect app} in env.lock file to be available, but it is not"
+      true ->
+        app
     end
-
-    app
   end
 
   defp load_app_from_opts(app) do
@@ -51,7 +54,7 @@ defmodule Mix.Tasks.Dynamo.App do
   end
 
   defp load_app_from_file do
-    Code.require_file Mix.project[:dynamo_app] || "config/app.ex"
+    Code.require_file Mix.Dynamo.app_file
     app = Dynamo.app || raise "Dynamo.app is not available"
 
     if app.config[:dynamo][:compile_on_demand] do

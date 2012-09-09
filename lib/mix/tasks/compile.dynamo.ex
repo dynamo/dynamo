@@ -29,13 +29,13 @@ defmodule Mix.Tasks.Compile.Dynamo do
     { opts, files } = OptionParser.parse(args, flags: [:force])
 
     # Load the dynamo app but don't start it.
-    # We reenable the task so it can be called
-    # down the road and the app finally started.
-    Mix.Task.run "dynamo.app", ["--no-start"]
-    Mix.Task.reenable "dynamo.app"
+    # We will start it just before compilation
+    # or manually.
+    Mix.Task.run "dynamo.app", ["--no-start", "--no-stale"]
     app = Dynamo.app
 
     if app.config[:dynamo][:compile_on_demand] do
+      app.start
       :noop
     else
       do_compile(app, files, opts)
@@ -58,17 +58,11 @@ defmodule Mix.Tasks.Compile.Dynamo do
     view_paths   = dynamo[:view_paths]
     source_paths = dynamo[:source_paths] ++ extract_views(view_paths)
 
-    mix_file = Mix.Utils.source(Mix.Project.current)
-    app_file = project[:dynamo_app] || "config/app.ex"
-    env_file = "config/environments/#{Mix.env}.exs"
-    app_beam = File.join(compile_path, atom_to_binary(app) <> ".beam")
+    to_compile = extract_files(source_paths, files, [:ex])
+    to_watch   = extract_files(source_paths, files, compile_exts)
+    targets    = [compile_path]
 
-    to_compile = [app_file | extract_files(source_paths, files, [:ex])]
-    to_watch   = [app_file, env_file, mix_file | extract_files(source_paths, files, compile_exts)]
-    targets    = [app_beam, compile_path]
-
-    if opts[:force] or Mix.Utils.stale?(to_watch, targets) do
-      unload_app(app)
+    if opts[:force] or Mix.Dynamo.stale_app?(app) or Mix.Utils.stale?(to_watch, targets) do
       File.mkdir_p!(compile_path)
 
       if elixir_opts = project[:elixirc_options] do
@@ -76,12 +70,14 @@ defmodule Mix.Tasks.Compile.Dynamo do
       end
 
       Mix.Dynamo.lock_snapshot fn ->
+        compile_app   app, compile_path, root
         compile_files List.uniq(to_compile), compile_path, root
         compile_views dynamo[:compiled_view_paths], view_paths, compile_path
       end
 
       :ok
     else
+      app.start
       :noop
     end
   end
@@ -101,6 +97,12 @@ defmodule Mix.Tasks.Compile.Dynamo do
 
   defp extract_views(view_paths) do
     lc view_path inlist view_paths, path = view_path.to_path, do: path
+  end
+
+  defp compile_app(app, compile_path, root) do
+    unload_app(app)
+    compile_files [Mix.Dynamo.app_file], compile_path, root
+    Dynamo.app.start
   end
 
   defp compile_files(files, to, root) do

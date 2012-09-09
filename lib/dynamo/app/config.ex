@@ -63,6 +63,10 @@ defmodule Dynamo.App.Config do
       def config do
         @config
       end
+
+      def endpoint do
+        @endpoint
+      end
     end
   end
 end

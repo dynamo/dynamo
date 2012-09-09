@@ -75,8 +75,8 @@ defmodule Dynamo.App do
 
   * `:start_dynamo_app` - starts the Dynamo application registered as `otp_app`
 
-  * `:ensure_endpoint_is_available` - ensure the endpoint is available
-    and raises a meaningful error message if not
+  * `:start_dynamo_renderer` - starts dynamo renderer if there
+    are templates to be compiled on demand
 
   """
 
@@ -89,7 +89,6 @@ defmodule Dynamo.App do
       @before_compile { unquote(__MODULE__), :load_env_file }
       @before_compile { unquote(__MODULE__), :normalize_options }
       @before_compile { unquote(__MODULE__), :define_filters }
-      @before_compile { unquote(__MODULE__), :define_finishers }
       @before_compile { unquote(__MODULE__), :define_view_paths }
 
       use Dynamo.Utils.Once
@@ -232,25 +231,15 @@ defmodule Dynamo.App do
         Enum.partition(view_paths, fn(path) -> path.eager? end)
       end
 
-    compiled_initializer =
-      if compiled != [] do
-        module     = dynamo[:compiled_view_paths]
-        view_paths = [module|runtime]
-
-        quote location: :keep do
-          initializer :ensure_compiled_view_paths_is_available do
-            module = unquote(module)
-            unless Code.ensure_loaded?(module) do
-              raise "could not find compiled view paths module #{inspect module}"
-            end
-          end
-        end
-      end
+    if compiled != [] do
+      module     = dynamo[:compiled_view_paths]
+      view_paths = [module|runtime]
+    end
 
     renderer_initializer =
       if runtime != [] do
         quote location: :keep do
-          initializer :boot_view_renderer_server do
+          initializer :start_dynamo_renderer do
             Dynamo.View.Renderer.start_link
 
             if config[:dynamo][:compile_on_demand] do
@@ -262,23 +251,7 @@ defmodule Dynamo.App do
 
     quote location: :keep do
       def view_paths, do: unquote(Macro.escape(view_paths))
-      unquote(compiled_initializer)
       unquote(renderer_initializer)
-    end
-  end
-
-  @doc false
-  defmacro define_finishers(_) do
-    quote location: :keep do
-      initializer :ensure_endpoint_is_available do
-        if @endpoint && not Code.ensure_compiled?(@endpoint) do
-          if config[:dynamo][:compile_on_demand] do
-            raise "could not find endpoint #{inspect @endpoint}, please ensure it is available"
-          else
-            raise "could not find endpoint #{inspect @endpoint}, please ensure it was compiled"
-          end
-        end
-      end
     end
   end
 end

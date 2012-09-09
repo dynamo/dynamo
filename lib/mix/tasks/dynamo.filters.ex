@@ -8,12 +8,13 @@ defmodule Mix.Tasks.Dynamo.Filters do
   """
   def run(args) do
     Mix.Task.run "dynamo.app", args
+    app   = Dynamo.app
     shell = Mix.shell
 
-    Enum.each Dynamo.app.filters, fn(filter) ->
+    Enum.each app.filters, fn(filter) ->
       shell.info "filter #{inspect filter}"
     end
 
-    shell.info "#{inspect Dynamo.app}.service/1"
+    shell.info "#{inspect app.endpoint || app}.service/1"
   end
 end

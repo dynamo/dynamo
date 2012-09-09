@@ -26,8 +26,19 @@ defmodule Mix.Tasks.Server do
     { opts, _ } = OptionParser.parse(args, aliases: [p: :port])
     Mix.Task.run "dynamo.app"
 
+    app = Dynamo.app
+    endpoint = app.endpoint
+
+    if endpoint && not Code.ensure_compiled?(endpoint) do
+      if app.config[:dynamo][:compile_on_demand] do
+        raise "could not find endpoint #{inspect endpoint}, please ensure it is available"
+      else
+        raise "could not find endpoint #{inspect endpoint}, please ensure it was compiled"
+      end
+    end
+
     opts = Keyword.merge [port: 4000], opts
-    Dynamo.app.run opts
+    app.run opts
 
     :timer.sleep(:infinity)
   end
