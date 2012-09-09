@@ -235,7 +235,7 @@ defmodule Mix.Tasks.Dynamo do
 
   embed_template :test_helper, """
   unless Dynamo.app do
-    Dynamo.start(:test)
+    Dynamo.start(:test, File.expand_path("../..", __FILE__))
     <%= @mod %>.start
   end
 

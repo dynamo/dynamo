@@ -13,5 +13,5 @@ end
 
 Code.prepend_path("deps/cowboy/ebin")
 
-Dynamo.start(:prod)
+Dynamo.start(:prod, __FILE__)
 MyApp.start.run port: 3030

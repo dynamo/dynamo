@@ -6,8 +6,9 @@ defmodule Mix.Tasks.Dynamo.App do
   It is usually used as dependency by other tasks.
   """
   def run(args) do
-    { opts, _ } = OptionParser.parse(args)
-    Dynamo.start(Mix.env)
+    { opts, _ } = OptionParser.parse(args, flags: [:compile])
+    mixfile     = Mix.Utils.source(Mix.Project.current)
+    Dynamo.start(Mix.env, File.dirname(mixfile))
 
     app =
       cond do
@@ -16,7 +17,7 @@ defmodule Mix.Tasks.Dynamo.App do
         opts[:app] ->
           load_app_from_opts(opts[:app])
         lock = Mix.Dynamo.read_lock ->
-          load_app_from_lock(lock)
+          load_app_from_lock(lock, opts[:compile])
         true ->
           load_app_from_file
       end
@@ -25,7 +26,7 @@ defmodule Mix.Tasks.Dynamo.App do
     app
   end
 
-  defp load_app_from_lock([env, app|_]) do
+  defp load_app_from_lock([env, app|_], _compile) do
     app = binary_to_atom(app)
 
     unless env == atom_to_binary(Mix.env) do

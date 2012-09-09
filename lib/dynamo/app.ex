@@ -27,7 +27,6 @@ defmodule Dynamo.App do
   * `:reload_modules` - Reload modules after they are changed
   * `:source_paths` - The paths to search when compiling modules on demand
   * `:view_paths` - The paths to find views
-  * `:root` - The application root
   * `:otp_app` - The otp application associated to this app
 
   ## Filters
@@ -121,8 +120,7 @@ defmodule Dynamo.App do
       reload_modules: false,
       source_paths: ["app/*"],
       view_paths: ["app/views"],
-      compiled_view_paths: env.module.CompiledViews,
-      root: File.expand_path("../..", env.file) ]
+      compiled_view_paths: env.module.CompiledViews ]
   end
 
   @doc false
@@ -148,7 +146,7 @@ defmodule Dynamo.App do
   @doc false
   defmacro normalize_options(mod) do
     dynamo = Module.read_attribute(mod, :config)[:dynamo]
-    root   = dynamo[:root]
+    root   = Dynamo.root
 
     source = dynamo[:source_paths]
     source = Enum.reduce source, [], fn(path, acc) -> expand_paths(path, root) ++ acc end
@@ -180,9 +178,9 @@ defmodule Dynamo.App do
   end
 
   @doc false
-  defmacro load_env_file(module) do
-    root = Module.read_attribute(module, :config)[:dynamo][:root]
-    if root && File.dir?("#{root}/config/environments") do
+  defmacro load_env_file(_) do
+    root = Dynamo.root
+    if File.dir?("#{root}/config/environments") do
       file = "#{root}/config/environments/#{Dynamo.env}.exs"
       Code.string_to_ast! File.read!(file), file: file
     end

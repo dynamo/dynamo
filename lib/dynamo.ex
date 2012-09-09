@@ -2,11 +2,12 @@ defmodule Dynamo do
   @doc """
   Starts the Dynamo framework.
   """
-  def start(env) when is_atom(env) do
+  def start(env, root) when is_atom(env) and is_binary(root) do
     :application.start(:mimetypes)
     :application.start(:crypto)
     :application.start(:dynamo)
     :application.set_env(:dynamo, :env, env)
+    :application.set_env(:dynamo, :root, root)
   end
 
   @doc """
@@ -41,5 +42,13 @@ defmodule Dynamo do
   def env do
     { :ok, env } = :application.get_env(:dynamo, :env)
     env
+  end
+
+  @doc """
+  Reads Dynamo root.
+  """
+  def root do
+    { :ok, root } = :application.get_env(:dynamo, :root)
+    root
   end
 end

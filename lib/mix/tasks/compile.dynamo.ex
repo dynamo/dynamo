@@ -27,7 +27,6 @@ defmodule Mix.Tasks.Compile.Dynamo do
   """
   def run(args) do
     { opts, files } = OptionParser.parse(args, flags: [:force])
-    Dynamo.start(Mix.env)
 
     # Load the dynamo app but don't start it.
     # We reenable the task so it can be called
@@ -50,6 +49,7 @@ defmodule Mix.Tasks.Compile.Dynamo do
   end
 
   defp do_compile(app, files, opts) do
+    root    = Dynamo.root
     project = Mix.project
     dynamo  = app.config[:dynamo]
 
@@ -58,12 +58,13 @@ defmodule Mix.Tasks.Compile.Dynamo do
     view_paths   = dynamo[:view_paths]
     source_paths = dynamo[:source_paths] ++ extract_views(view_paths)
 
+    mix_file = Mix.Utils.source(Mix.Project.current)
     app_file = project[:dynamo_app] || "config/app.ex"
     env_file = "config/environments/#{Mix.env}.exs"
     app_beam = File.join(compile_path, atom_to_binary(app) <> ".beam")
 
-    to_compile = [app_file|extract_files(source_paths, files, [:ex])]
-    to_watch   = [app_file, env_file|extract_files(source_paths, files, compile_exts)]
+    to_compile = [app_file | extract_files(source_paths, files, [:ex])]
+    to_watch   = [app_file, env_file, mix_file | extract_files(source_paths, files, compile_exts)]
     targets    = [app_beam, compile_path]
 
     if opts[:force] or Mix.Utils.stale?(to_watch, targets) do
@@ -75,7 +76,7 @@ defmodule Mix.Tasks.Compile.Dynamo do
       end
 
       Mix.Dynamo.lock_snapshot fn ->
-        compile_files List.uniq(to_compile), compile_path, dynamo[:root]
+        compile_files List.uniq(to_compile), compile_path, root
         compile_views dynamo[:compiled_view_paths], view_paths, compile_path
       end
 

@@ -3,7 +3,7 @@ Mix.start
 Mix.env(:dev)
 Mix.shell(Mix.Shell.Process)
 
-Dynamo.start(:dev)
+Dynamo.start(:dev, __FILE__)
 ExUnit.start
 
 defmodule MixHelpers do

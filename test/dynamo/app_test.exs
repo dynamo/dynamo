@@ -12,7 +12,6 @@ defmodule Dynamo.AppTest do
     config :dynamo,
       public_root: File.expand_path("../../fixtures/public", __FILE__),
       public_route: "/public",
-      root: File.expand_path("../../fixtures", __FILE__),
       compile_on_demand: false,
       reload_modules: false,
       source_paths: [File.expand_path("../../fixtures/*", __FILE__)],
@@ -33,13 +32,21 @@ defmodule Dynamo.AppTest do
 
   ## Config
 
-  test "defines a root" do
-    assert App.config[:dynamo][:root] == File.expand_path("../../fixtures", __FILE__)
-    assert ReloadApp.config[:dynamo][:root] == File.expand_path("../..", __FILE__)
-  end
-
   test "gets config from environment" do
-    assert App.config[:from_dev][:other] == "config"
+    root = Dynamo.root
+    Dynamo.start(:dev, File.expand_path("../../fixtures", __FILE__))
+
+    try do
+      defmodule Env do
+        @dynamo_registration false
+        use Dynamo.App
+        endpoint Dynamo.AppTest
+      end
+
+      assert Env.config[:from_dev][:other] == "config"
+    after
+      Dynamo.start(:dev, root)
+    end
   end
 
   test "removes views from source paths" do
