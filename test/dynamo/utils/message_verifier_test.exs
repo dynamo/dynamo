@@ -6,7 +6,7 @@ defmodule Dynamo.Utils.MessageVerifierTest do
   alias Dynamo.Utils.MessageVerifier, as: MV
 
   test "generates a signed message" do
-    [content, encoded] = Binary.split MV.generate(:hello, "secret"), "--"
+    [content, encoded] = String.split MV.generate(:hello, "secret"), "--"
     assert content /> :base64.decode /> binary_to_term == :hello
     assert size(encoded) == 40
   end
@@ -22,7 +22,7 @@ defmodule Dynamo.Utils.MessageVerifierTest do
   end
 
   test "does not verify a tampered message" do
-    [_, encoded] = Binary.split MV.generate(:hello, "secret"), "--"
+    [_, encoded] = String.split MV.generate(:hello, "secret"), "--"
     content = :bye /> term_to_binary /> :base64.encode
     assert MV.verify(content <> "--" <> encoded, "secret") == :error
   end

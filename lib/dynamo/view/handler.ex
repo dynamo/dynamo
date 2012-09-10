@@ -38,12 +38,12 @@ defmodule Dynamo.View.Handler do
     end
   end
 
-  defp upcase(<<h, t | :binary>>) when h in ?a..?z do
-    <<h - 32, upcase(t) | :binary>>
+  defp upcase(<<h, t :: binary>>) when h in ?a..?z do
+    <<h - 32, upcase(t) :: binary>>
   end
 
-  defp upcase(<<h, t | :binary>>) do
-    <<h, upcase(t) | :binary>>
+  defp upcase(<<h, t :: binary>>) do
+    <<h, upcase(t) :: binary>>
   end
 
   defp upcase(<<>>) do

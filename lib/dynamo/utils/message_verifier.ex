@@ -12,7 +12,7 @@ defmodule Dynamo.Utils.MessageVerifier do
   Decodes and verifies the encoded binary was not tampared with.
   """
   def verify(encoded, secret) do
-    case Binary.split(encoded, "--") do
+    case String.split(encoded, "--") do
       [content, digest] when content != "" and digest != "" ->
         if secure_compare(digest(secret, content), digest) do
           { :ok, content /> :base64.decode /> binary_to_term }
@@ -33,7 +33,7 @@ defmodule Dynamo.Utils.MessageVerifier do
   end
 
   defp digest(secret, data) do
-    <<mac | 160 - :integer>> = :crypto.sha_mac(secret, data)
+    <<mac :: [integer, size(160)]>> = :crypto.sha_mac(secret, data)
     :erlang.integer_to_list(mac, 16) /> list_to_binary
   end
 
@@ -49,11 +49,11 @@ defmodule Dynamo.Utils.MessageVerifier do
     end
   end
 
-  defp compare_each(<<h, left | :binary>>, <<h, right | :binary>>, acc) do
+  defp compare_each(<<h, left :: binary>>, <<h, right :: binary>>, acc) do
     compare_each(left, right, acc)
   end
 
-  defp compare_each(<<_, left | :binary>>, <<_, right | :binary>>, _acc) do
+  defp compare_each(<<_, left :: binary>>, <<_, right :: binary>>, _acc) do
     compare_each(left, right, false)
   end
 

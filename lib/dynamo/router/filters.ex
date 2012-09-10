@@ -84,7 +84,7 @@ defmodule Dynamo.Router.Filters do
   Matches a filter against the other
   """
   def match?(atom, filter) when is_atom(atom) and is_tuple(filter) do
-    elem(filter, 1) == atom
+    elem(filter, 0) == atom
   end
 
   def match?(atom, atom) when is_atom(atom) do
@@ -130,7 +130,7 @@ defmodule Dynamo.Router.Filters do
     { h, 0 }
   end
 
-  defp extract_module_and_arity(h) when is_tuple(h) and is_atom(elem(h, 1)) do
-    { elem(h, 1), 1 }
+  defp extract_module_and_arity(h) when is_tuple(h) and is_atom(elem(h, 0)) do
+    { elem(h, 0), 1 }
   end
 end

@@ -101,7 +101,7 @@ defmodule Dynamo.HTTP.Case do
   def process(app, method, path) do
     conn = app.service Dynamo.HTTP.Test.new.req(method, path)
 
-    if not is_tuple(conn) or not function_exported?(elem(conn, 1), :state, 1) do
+    if not is_tuple(conn) or not function_exported?(elem(conn, 0), :state, 1) do
       raise "#{inspect app}.service did not return a connection, got #{inspect conn}"
     end
 

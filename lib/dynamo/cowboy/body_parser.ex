@@ -41,17 +41,17 @@ defmodule Dynamo.Cowboy.BodyParser do
   end
 
   defp multipart_entry(headers, body, acc) do
-    case List.keyfind(headers, "Content-Disposition", 1) do
+    case List.keyfind(headers, "Content-Disposition", 0) do
       { _, value } ->
-        [_|parts] = Binary.split(value, ";", global: true)
+        [_|parts] = String.split(value, ";", global: true)
         parts     = lc part inlist parts, do: to_multipart_kv(part)
 
-        case List.keyfind(parts, "name", 1) do
+        case List.keyfind(parts, "name", 0) do
           { "name", name } ->
             entry =
-              case List.keyfind(parts, "filename", 1) do
+              case List.keyfind(parts, "filename", 0) do
                 { "filename", filename } ->
-                  { _, type } = List.keyfind(headers, :"Content-Type", 1) || { :"Content-Type", nil }
+                  { _, type } = List.keyfind(headers, :"Content-Type", 0) || { :"Content-Type", nil }
                   { name, Dynamo.HTTP.File.new(name: name, filename: filename, content_type: type, body: body) }
                 _ ->
                   { name, body }
@@ -65,13 +65,13 @@ defmodule Dynamo.Cowboy.BodyParser do
   end
 
   defp to_multipart_kv(binary) do
-    case Binary.split(binary, "=") do
+    case String.split(binary, "=") do
       [h]   -> { trim(h), nil }
       [h,t] -> { trim(h), strip_quotes(t) }
     end
   end
 
-  defp strip_quotes(<<?", remaining | :binary>>) do
+  defp strip_quotes(<<?", remaining :: binary>>) do
     binary_part(remaining, 0, size(remaining) - 1)
   end
 
@@ -79,6 +79,6 @@ defmodule Dynamo.Cowboy.BodyParser do
     other
   end
 
-  defp trim(<<?\s, rest | :binary>>),   do: trim(rest)
+  defp trim(<<?\s, rest :: binary>>),   do: trim(rest)
   defp trim(rest) when is_binary(rest), do: rest
 end

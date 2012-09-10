@@ -32,7 +32,7 @@ defmodule Dynamo.HTTP.Cookies do
           cookies = Dict.put(cookies, key, value)
         end
 
-        resp_cookies = List.keydelete(resp_cookies, key, 1)
+        resp_cookies = List.keydelete(resp_cookies, key, 0)
         connection(conn, cookies: cookies, resp_cookies: [{ key, value, opts }|resp_cookies])
       end
 
@@ -46,7 +46,7 @@ defmodule Dynamo.HTTP.Cookies do
           cookies = Dict.delete(cookies, key)
         end
 
-        resp_cookies = List.keydelete(resp_cookies, key, 1)
+        resp_cookies = List.keydelete(resp_cookies, key, 0)
         connection(conn, cookies: cookies, resp_cookies: [{ key, "", opts }|resp_cookies])
       end
     end

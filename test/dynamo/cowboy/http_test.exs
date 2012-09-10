@@ -177,10 +177,10 @@ defmodule Dynamo.Cowboy.HTTPTest do
     assert_success response
 
     { _, headers, _ } = response
-    assert List.keyfind(headers, "Set-Cookie", 1) == { "Set-Cookie", "foo=bar; Version=1; Path=/hello; HttpOnly" }
+    assert List.keyfind(headers, "Set-Cookie", 0) == { "Set-Cookie", "foo=bar; Version=1; Path=/hello; HttpOnly" }
 
-    headers = List.keydelete(headers, "Set-Cookie", 1)
-    assert List.keyfind(headers, "Set-Cookie", 1) == { "Set-Cookie","bar=baz; Version=1" }
+    headers = List.keydelete(headers, "Set-Cookie", 0)
+    assert List.keyfind(headers, "Set-Cookie", 0) == { "Set-Cookie","bar=baz; Version=1" }
   end
 
   test :req_resp_cookies do
@@ -188,11 +188,11 @@ defmodule Dynamo.Cowboy.HTTPTest do
     assert_success response
 
     { _, headers, _ } = response
-    { "Set-Cookie", contents } = List.keyfind(headers, "Set-Cookie", 1)
+    { "Set-Cookie", contents } = List.keyfind(headers, "Set-Cookie", 0)
     assert contents =~ %r"foo=; Version=1; Expires=Thu, 01 Jan 1970 \d\d:\d\d:\d\d GMT; Max-Age=0; HttpOnly"
 
-    headers = List.keydelete(headers, "Set-Cookie", 1)
-    assert List.keyfind(headers, "Set-Cookie", 1) == nil
+    headers = List.keydelete(headers, "Set-Cookie", 0)
+    assert List.keyfind(headers, "Set-Cookie", 0) == nil
   end
 
   ## Assigns
@@ -249,7 +249,7 @@ defmodule Dynamo.Cowboy.HTTPTest do
     assert_success response
 
     { _, headers, _ } = response
-    assert List.keyfind(headers, "X-Header", 1) == { "X-Header", "Third" }
+    assert List.keyfind(headers, "X-Header", 0) == { "X-Header", "Third" }
   end
 
   ## Request Body API
@@ -291,7 +291,7 @@ defmodule Dynamo.Cowboy.HTTPTest do
 
   test :sendfile do
     { 200, headers, "HELLO" } = request :get, "/sendfile"
-    assert List.keyfind(headers, "Content-Length", 1) == { "Content-Length", "5" }
+    assert List.keyfind(headers, "Content-Length", 0) == { "Content-Length", "5" }
 
     assert { 500, _, _ } = request :get, "/invalid_sendfile"
   end

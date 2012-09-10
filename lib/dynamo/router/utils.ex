@@ -49,7 +49,7 @@ defmodule Dynamo.Router.Utils do
 
   """
   def split(bin) do
-    lc segment inlist Binary.split(bin, "/", global: true), segment != "", do: segment
+    lc segment inlist String.split(bin, "/", global: true), segment != "", do: segment
   end
 
   ## Helpers
@@ -127,7 +127,7 @@ defmodule Dynamo.Router.Utils do
   end
 
   defp list_split(bin) do
-    lc segment inlist Binary.split(bin, "/", global: true), segment != "", do: binary_to_list(segment)
+    lc segment inlist String.split(bin, "/", global: true), segment != "", do: binary_to_list(segment)
   end
 
   defp binary_from_buffer(buffer) do
