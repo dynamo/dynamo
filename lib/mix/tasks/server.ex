@@ -33,7 +33,8 @@ defmodule Mix.Tasks.Server do
       if app.config[:dynamo][:compile_on_demand] do
         raise "could not find endpoint #{inspect endpoint}, please ensure it is available"
       else
-        raise "could not find endpoint #{inspect endpoint}, please ensure it was compiled"
+        raise "could not find endpoint #{inspect endpoint}, please ensure it was compiled " <>
+          "by running: MIX_ENV=#{Dynamo.env} mix compile"
       end
     end
 
