@@ -40,7 +40,7 @@ defmodule Dynamo.View do
   given by `name`. It returns the module binary,
   """
   def compile_module(name, templates, locals) do
-    { _, binary, _ } =
+    { _, binary } =
       defmodule name do
         Enum.reduce templates, 0, fn(template, i) ->
           template = template.ref({ name, :"template_#{i}" })
