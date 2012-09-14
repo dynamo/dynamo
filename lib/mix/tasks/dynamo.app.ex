@@ -60,7 +60,7 @@ defmodule Mix.Tasks.Dynamo.App do
     if app.config[:dynamo][:compile_on_demand] do
       Mix.Task.run "compile"
     else
-      Mix.Task.run "deps.check"
+      Mix.Task.run "loadpaths"
     end
 
     app
