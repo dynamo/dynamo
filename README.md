@@ -2,15 +2,15 @@ Run, dynamo, run!
 
 ## Adventure mode!
 
-If you are felling adventurous, run a Dynamo app in few steps:
+If you are felling adventurous, create a Dynamo app in few steps:
 
 1) Ensure you are on Elixir master;
 
 2) Clone this repository and go to its directory;
 
-3) `mix test`
+3) Get Dynamo dependencies and run tests with: `MIX_ENV=test mix do deps.get, test`
 
-4) `mix dynamo path/to/your/app`
+4) Create a project: `mix dynamo path/to/your/app`
 
 Congratulations! You created your first Dynamo app! Let's run it:
 
