@@ -1,5 +1,5 @@
 language: erlang
-script: "git clone https://github.com/elixir-lang/elixir.git && cd elixir && make compile && export PATH=$PATH:`pwd`/bin && cd .. && mix do deps.get, test"
+script: "git clone https://github.com/elixir-lang/elixir.git && cd elixir && make compile && export PATH=$PATH:`pwd`/bin && cd .. && MIX_ENV=test mix do deps.get, test"
 notifications:
   recipients:
     - jose.valim@plataformatec.com.br
