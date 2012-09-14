@@ -7,13 +7,13 @@ defmodule Dynamo.Router.Filters do
   While callbacks are executed only if a route match, filters are always
   executed. Callbacks also abort in case a response is set, while filters
   do not halt their execution. In other words, filters are a more low-level
-  mechanism, with no conveniences compared to callbacks.
+  mechanism, with less conveniences compared to callbacks.
 
-  There is also a difference about ordering. While filters are invoked in
-  the order they are declared, regardless of their behavior, callbacks
+  There is also a difference regarding ordering. While filters are invoked
+  in the order they are declared, regardless of their behaviour, callbacks
   always execute prepare callbacks first, followed by the finalize ones.
 
-  ## Examples
+  ## Usage
 
       defmodule MyApp do
         use Dynamo.Router
@@ -27,6 +27,34 @@ defmodule Dynamo.Router.Filters do
   * `prepare/1`  - the filter will be executed before invoking service
   * `service/2`  - the filter will be executed with the service function as argument
   * `finalize/1` - the filter will be executed after invoking the service
+
+  ## Examples
+
+  A filter that adds a Chrome Frame header to the response:
+
+    defmodule ChromeFrameFilter do
+      def prepare(conn) do
+        conn.set_resp_header("X-UA-Compatible", "chrome=1")
+      end
+    end
+
+  Notice the filter receives a `conn` as argument and must return an
+  updated `conn`. A finalize filter works similarly.
+
+  A service filter receives and must return a `conn`, but it also 
+  receives a function which should be invoked in order to continue
+  the request. Here is a filter that sets the content type to json
+  and converts the response body to valid json:
+
+      defmodule JSONFilter do
+        def service(conn, fun) do
+          conn = conn.set_resp_header("Content-Type", "application/json")
+          conn = fun.(conn)
+          conn.resp(conn.status, to_json(conn.resp_body))
+        end
+  
+        def to_json(data), do: ...
+      end
 
   """
 
