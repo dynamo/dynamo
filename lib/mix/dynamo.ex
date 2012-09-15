@@ -13,7 +13,7 @@ defmodule Mix.Dynamo do
   env files and the mix file.
   """
   def stale_app?(app) do
-    mix_file = Mix.Utils.source(Mix.Project.current)
+    mix_file = Mix.Utils.source(Mix.Project.get!)
     env_file = "config/environments/#{Dynamo.env}.exs"
     app_beam = File.join(Mix.project[:compile_path], "#{app}.beam")
     Mix.Utils.stale?([app_file(), mix_file, env_file], [app_beam])

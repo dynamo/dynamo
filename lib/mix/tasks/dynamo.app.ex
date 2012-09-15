@@ -7,7 +7,7 @@ defmodule Mix.Tasks.Dynamo.App do
   """
   def run(args) do
     { opts, _ } = OptionParser.parse(args)
-    mixfile     = Mix.Utils.source(Mix.Project.current)
+    mixfile     = Mix.Utils.source(Mix.Project.get!)
     Dynamo.start(Mix.env, File.dirname(mixfile))
 
     app =

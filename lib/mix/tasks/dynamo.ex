@@ -52,7 +52,7 @@ defmodule Mix.Tasks.Dynamo do
     dynamo  = if opts[:dev] do
       %b(raw: "#{File.expand_path("../../../..", __FILE__)}")
     else
-      %b(git: "https://github.com/josevalim/dynamo.git")
+      %b(github: "josevalim/dynamo")
     end
     assigns = [app: app, mod: mod, dynamo: dynamo, version: @version]
 
@@ -124,8 +124,7 @@ defmodule Mix.Tasks.Dynamo do
     end
 
     defp deps do
-      [ { :mimetypes, git: "https://github.com/spawngrid/mimetypes.git" },
-        { :cowboy, "0.6.1", git: "https://github.com/josevalim/cowboy.git" },
+      [ { :cowboy, "0.6.1", github: "josevalim/cowboy" },
         { :dynamo, "<%= @version %>", <%= @dynamo %> } ]
     end
   end

@@ -10,14 +10,14 @@ defmodule Dynamo.Mixfile do
   end
 
   def deps do
-    [ { :mimetypes, git: "https://github.com/spawngrid/mimetypes.git" },
-      { :cowboy,  git: "https://github.com/josevalim/cowboy.git" } ]
+    [ { :mimetypes, github: "spawngrid/mimetypes" },
+      { :cowboy,    github: "josevalim/cowboy" } ]
   end
 
   def test_deps do
     deps ++
-      [ { :edown, git: "https://github.com/esl/edown.git" }, ## Hackney dependency
-        { :hackney, git: "https://github.com/benoitc/hackney.git" } ]
+      [ { :edown,   github: "esl/edown" }, ## Hackney dependency
+        { :hackney, github: "benoitc/hackney" } ]
   end
 
   def application do
