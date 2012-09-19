@@ -166,6 +166,10 @@ defmodule Mix.Tasks.Dynamo do
       # The route from where public assets are served
       # You can turn off static assets by setting it to false
       public_route: "/public"
+
+    initializer :start_otp_app do
+      :application.start config[:dynamo][:otp_app]
+    end
   end
   """
 

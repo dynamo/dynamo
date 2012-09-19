@@ -133,12 +133,6 @@ defmodule Dynamo.App do
           IEx.preload.after_spawn(fn -> Dynamo.Reloader.enable! end)
         end
       end
-
-      initializer :start_dynamo_app do
-        if app = config[:dynamo][:otp_app] do
-          :application.start(app)
-        end
-      end
     end
   end
 
