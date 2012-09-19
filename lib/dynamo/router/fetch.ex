@@ -21,7 +21,7 @@ defmodule Dynamo.Router.Fetch do
 
   @doc false
   defmacro before_compile(module) do
-    fetch = Module.read_attribute(module, :__fetch)
+    fetch = Module.get_attribute(module, :__fetch)
 
     if fetch do
       code = Enum.reduce fetch, quote(do: conn), fn(x, acc) ->

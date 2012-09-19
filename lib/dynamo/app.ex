@@ -138,7 +138,7 @@ defmodule Dynamo.App do
 
   @doc false
   defmacro normalize_options(mod) do
-    dynamo = Module.read_attribute(mod, :config)[:dynamo]
+    dynamo = Module.get_attribute(mod, :config)[:dynamo]
     root   = Dynamo.root
 
     source = dynamo[:source_paths]
@@ -190,7 +190,7 @@ defmodule Dynamo.App do
   @doc false
   def default_filters(mod) do
     filters = []
-    dynamo  = Module.read_attribute(mod, :config)[:dynamo]
+    dynamo  = Module.get_attribute(mod, :config)[:dynamo]
 
     public_route = dynamo[:public_route]
     public_root  = case dynamo[:public_root] do
@@ -215,7 +215,7 @@ defmodule Dynamo.App do
 
   @doc false
   defmacro define_view_paths(module) do
-    dynamo     = Module.read_attribute(module, :config)[:dynamo]
+    dynamo     = Module.get_attribute(module, :config)[:dynamo]
     view_paths = dynamo[:view_paths]
 
     { compiled, runtime } =

@@ -52,7 +52,7 @@ defmodule Dynamo.App.Config do
 
   @doc false
   defmacro before_compile(mod) do
-    initializers = Module.read_attribute(mod, :initializers)
+    initializers = Module.get_attribute(mod, :initializers)
 
     quote location: :keep do
       def start do

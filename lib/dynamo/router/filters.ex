@@ -69,7 +69,7 @@ defmodule Dynamo.Router.Filters do
 
   @doc false
   defmacro before_compile(module) do
-    filters = Module.read_attribute(module, :__filters)
+    filters = Module.get_attribute(module, :__filters)
 
     code = quote(do: super(conn))
     code = Enum.reduce(filters, code, compile_filter(&1, &2))

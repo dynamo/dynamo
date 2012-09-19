@@ -55,8 +55,8 @@ defmodule Dynamo.Router.Callbacks do
 
   @doc false
   defmacro before_compile(module) do
-    prepare  = Module.read_attribute(module, :__prepare_callbacks)
-    finalize = Module.read_attribute(module, :__finalize_callbacks)
+    prepare  = Module.get_attribute(module, :__prepare_callbacks)
+    finalize = Module.get_attribute(module, :__finalize_callbacks)
 
     prepare = Enum.reduce prepare, quote(do: { :ok, conn }), fn(callback, acc) ->
       compile_callback(callback, acc, function(:compile_prepare, 3))
