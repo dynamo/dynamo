@@ -17,6 +17,7 @@ defmodule Dynamo.Cowboy do
 
   """
   def run(app, options // []) do
+    :application.start(:ranch)  
     :application.start(:cowboy)
 
     port      = options[:port]      || 4000
@@ -30,10 +31,7 @@ defmodule Dynamo.Cowboy do
       IO.puts "Running #{inspect app} at localhost:#{port} with Cowboy on #{Dynamo.env}"
     end
 
-    :cowboy.start_listener(app, acceptors,
-      :cowboy_tcp_transport, [port: port],
-      :cowboy_http_protocol, [dispatch: dispatch]
-    )
+    :cowboy.start_http(app, acceptors, [port: port], [dispatch: dispatch])
   end
 
   def shutdown(app) do

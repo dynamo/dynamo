@@ -7,7 +7,7 @@ defmodule Dynamo.Cowboy.HTTP do
   """
 
   @behaviour Dynamo.HTTP
-  require :cowboy_http_req, as: R
+  require :cowboy_req, as: R
 
   Record.defmacros __ENV__, :connection,
     [ :req, :path_info_segments, :script_name_segments, :req_headers,
@@ -23,8 +23,11 @@ defmodule Dynamo.Cowboy.HTTP do
 
   @doc false
   def new(req) do
-    { segments, req } = R.path(req)
     { verb, req }     = R.method(req)
+
+    { binary, _ } = R.path req
+    { segments, _, _} = :cowboy_dispatcher.split_path(binary, 
+                         fn(bin) -> :cowboy_http.urldecode(bin, :crash) end)
 
     connection(
       req: req,
@@ -51,17 +54,19 @@ defmodule Dynamo.Cowboy.HTTP do
   ## Request API
 
   def query_string(connection(req: req)) do
-    { query_string, _ } = R.raw_qs req
+    { query_string, _ } = R.qs req
     query_string
   end
 
   def path_segments(connection(req: req)) do
-    { segments, _ } = R.path req
+    { binary, _ } = R.path req
+    { segments, _, _} = :cowboy_dispatcher.split_path(binary, 
+                         fn(bin) -> :cowboy_http.urldecode(bin, :crash) end)
     segments
   end
 
   def path(connection(req: req)) do
-    { binary, _ } = R.raw_path req
+    { binary, _ } = R.path req
     binary
   end
 
@@ -73,7 +78,7 @@ defmodule Dynamo.Cowboy.HTTP do
   ## Response API
 
   def send(_status, body,
-      connection(original_method: :HEAD)) when body != "" do
+      connection(original_method: "HEAD")) when body != "" do
     raise Dynamo.HTTP.InvalidSendOnHeadError
   end
 
@@ -92,7 +97,7 @@ defmodule Dynamo.Cowboy.HTTP do
 
   def sendfile(path, connection(req: req) = conn) do
     File.Stat[type: :regular, size: size] = File.stat!(path)
-    { :ok, :cowboy_tcp_transport, socket } = :cowboy_http_req.transport(req)
+    { :ok, :ranch_tcp, socket } = R.transport(req)
     send(200, { size, fn -> :file.sendfile(path, socket) end }, conn)
   end
 
@@ -106,7 +111,7 @@ defmodule Dynamo.Cowboy.HTTP do
   ## Misc
 
   def fetch(:params, connection(req: req, params: nil) = conn) do
-    { query_string, req } = R.raw_qs req
+    { query_string, req } = R.qs req
     params = Dynamo.HTTP.QueryParser.parse(query_string)
     { params, req } = Dynamo.Cowboy.BodyParser.parse(params, req)
     connection(conn, req: req, params: params)
@@ -131,7 +136,6 @@ defmodule Dynamo.Cowboy.HTTP do
 
   defp write_cookie({ key, value, opts }, req) do
     opts = Keyword.update(opts, :http_only, true, fn(x) -> x end)
-    { :ok, req } = R.set_resp_cookie(key, value, opts, req)
-    req
+    R.set_resp_cookie(key, value, opts, req)
   end
 end

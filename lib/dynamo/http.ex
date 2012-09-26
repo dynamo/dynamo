@@ -38,7 +38,7 @@ defmodule Dynamo.HTTP do
 
   ## Examples
 
-      conn.method #=> :GET
+      conn.method #=> "GET"
 
   """
   defcallback method(conn)
@@ -51,7 +51,7 @@ defmodule Dynamo.HTTP do
 
   ## Examples
 
-      conn.original_method #=> :GET
+      conn.original_method #=> "GET"
 
   """
   defcallback original_method(conn)
