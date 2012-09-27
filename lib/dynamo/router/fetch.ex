@@ -15,12 +15,12 @@ defmodule Dynamo.Router.Fetch do
   defmacro __using__(_) do
     quote location: :keep do
       @before_compile unquote(__MODULE__)
-      import unquote(__MODULE__), only: [fetch: 1]
+      import unquote(__MODULE__)
     end
   end
 
   @doc false
-  defmacro before_compile(module) do
+  defmacro __before_compile__(module) do
     fetch = Module.get_attribute(module, :__fetch)
 
     if fetch do

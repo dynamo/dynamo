@@ -20,7 +20,7 @@ defmodule Dynamo.Router.Base do
   defmacro __using__(_) do
     quote location: :keep do
       @before_compile unquote(__MODULE__)
-      import unquote(__MODULE__), except: [before_compile: 1, __using__: 1]
+      import unquote(__MODULE__)
 
       @doc false
       def service(conn) do
@@ -37,7 +37,7 @@ defmodule Dynamo.Router.Base do
   end
 
   @doc false
-  defmacro before_compile(_) do
+  defmacro __before_compile__(_) do
     quote do
       def dispatch(_, _, conn) do
         not_found(conn)

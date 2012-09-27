@@ -46,12 +46,12 @@ defmodule Dynamo.App.Config do
       Module.register_attribute __MODULE__, :initializers, accumulate: true
       @config []
       @before_compile unquote(__MODULE__)
-      import Dynamo.App.Config, only: [endpoint: 1, config: 2, initializer: 2]
+      import Dynamo.App.Config
     end
   end
 
   @doc false
-  defmacro before_compile(mod) do
+  defmacro __before_compile__(mod) do
     initializers = Module.get_attribute(mod, :initializers)
 
     quote location: :keep do

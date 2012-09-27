@@ -68,7 +68,7 @@ defmodule Dynamo.Router.Filters do
   end
 
   @doc false
-  defmacro before_compile(module) do
+  defmacro __before_compile__(module) do
     filters = Module.get_attribute(module, :__filters)
 
     code = quote(do: super(conn))

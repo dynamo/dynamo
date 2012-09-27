@@ -49,12 +49,12 @@ defmodule Dynamo.Router.Callbacks do
         Module.register_attribute(__MODULE__, &1, accumulate: true, persist: false)
 
       @before_compile unquote(__MODULE__)
-      import unquote(__MODULE__), only: [prepare: 1, finalize: 1]
+      import unquote(__MODULE__)
     end
   end
 
   @doc false
-  defmacro before_compile(module) do
+  defmacro __before_compile__(module) do
     prepare  = Module.get_attribute(module, :__prepare_callbacks)
     finalize = Module.get_attribute(module, :__finalize_callbacks)
 
