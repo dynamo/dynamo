@@ -31,12 +31,12 @@ defmodule Dynamo.Cowboy.HTTPTest do
   end
 
   def method(conn) do
-    assert conn.method == :GET
-    assert conn.original_method == :GET
+    assert conn.method == "GET"
+    assert conn.original_method == "GET"
 
-    conn = conn.method(:POST)
-    assert conn.method == :POST
-    assert conn.original_method == :GET
+    conn = conn.method("POST")
+    assert conn.method == "POST"
+    assert conn.original_method == "GET"
 
     conn
   end
@@ -181,6 +181,7 @@ defmodule Dynamo.Cowboy.HTTPTest do
 
     headers = List.keydelete(headers, "Set-Cookie", 0)
     assert List.keyfind(headers, "Set-Cookie", 0) == { "Set-Cookie","bar=baz; Version=1" }
+    # FIXME: Will fail until https://github.com/extend/cowboy/pull/247 is merged in
   end
 
   test :req_resp_cookies do
@@ -217,8 +218,8 @@ defmodule Dynamo.Cowboy.HTTPTest do
 
   def req_headers(conn) do
     conn = conn.fetch(:headers)
-    assert conn.req_headers["Host"] == "127.0.0.1:8011"
-    assert conn.req_headers["X-Special"] == "foo"
+    assert conn.req_headers["host"] == "127.0.0.1:8011"
+    assert conn.req_headers["x-special"] == "foo"
     conn
   end
 
@@ -291,7 +292,7 @@ defmodule Dynamo.Cowboy.HTTPTest do
 
   test :sendfile do
     { 200, headers, "HELLO" } = request :get, "/sendfile"
-    assert List.keyfind(headers, "Content-Length", 0) == { "Content-Length", "5" }
+    assert List.keyfind(headers, "content-length", 0) == { "content-length", "5" }
 
     assert { 500, _, _ } = request :get, "/invalid_sendfile"
   end

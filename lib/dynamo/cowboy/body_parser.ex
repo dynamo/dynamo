@@ -1,10 +1,10 @@
 defmodule Dynamo.Cowboy.BodyParser do
-  require :cowboy_http_req, as: R
+  require :cowboy_req, as: R
 
   @moduledoc false
 
   def parse(dict, req) do
-    { type, req } = R.parse_header(:"Content-Type", req)
+    { :ok, type, req } = R.parse_header("content-type", req)
     parse_body(type, dict, req)
   end
 
@@ -27,11 +27,11 @@ defmodule Dynamo.Cowboy.BodyParser do
     { acc, req }
   end
 
-  defp parse_multipart({ { :headers, headers }, req }, nil, nil, acc) do
+  defp parse_multipart({ :headers, headers, req }, nil, nil, acc) do
     parse_multipart(R.multipart_data(req), headers, "", acc)
   end
 
-  defp parse_multipart({ { :body, tail }, req }, headers, body, acc) do
+  defp parse_multipart({ :body, tail, req }, headers, body, acc) do
     parse_multipart(R.multipart_data(req), headers, body <> tail, acc)
   end
 
@@ -41,7 +41,7 @@ defmodule Dynamo.Cowboy.BodyParser do
   end
 
   defp multipart_entry(headers, body, acc) do
-    case List.keyfind(headers, "Content-Disposition", 0) do
+    case List.keyfind(headers, "content-disposition", 0) do
       { _, value } ->
         [_|parts] = String.split(value, ";", global: true)
         parts     = lc part inlist parts, do: to_multipart_kv(part)
@@ -51,7 +51,7 @@ defmodule Dynamo.Cowboy.BodyParser do
             entry =
               case List.keyfind(parts, "filename", 0) do
                 { "filename", filename } ->
-                  { _, type } = List.keyfind(headers, :"Content-Type", 0) || { :"Content-Type", nil }
+                  { _, type } = List.keyfind(headers, "content-type", 0) || { "content-type", nil }
                   { name, Dynamo.HTTP.File.new(name: name, filename: filename, content_type: type, body: body) }
                 _ ->
                   { name, body }
