@@ -62,7 +62,7 @@ defmodule Dynamo.HTTP.Test do
 
   ## Response API
 
-  def send(_status, body, connection(original_method: :HEAD)) when body != "" do
+  def send(_status, body, connection(original_method: "HEAD")) when body != "" do
     raise Dynamo.HTTP.InvalidSendOnHeadError
   end
 
@@ -107,8 +107,9 @@ defmodule Dynamo.HTTP.Test do
   it defaults to `127.0.0.1`.
   """
   def req(method, path, conn) do
-    uri = URI.parse(path)
+    uri      = URI.parse(path)
     segments = Dynamo.Router.Utils.split(uri.path)
+    method   = Dynamo.Router.Utils.normalize_verb(method)
 
     conn = connection(conn,
       query_string: uri.query || "",

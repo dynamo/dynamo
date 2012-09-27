@@ -27,7 +27,7 @@ defmodule Dynamo.HTTP.Request do
         method
       end
 
-      def method(method, connection(method: original_method) = conn) do
+      def method(method, connection(method: original_method) = conn) when is_binary(method) do
         connection(conn,
           method: method,
           original_method: original_method)

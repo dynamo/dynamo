@@ -4,6 +4,13 @@ defmodule Dynamo.Router.Utils do
   @moduledoc false
 
   @doc """
+  Convert a given verb to its connection representation.
+  """
+  def normalize_verb(verb) do
+    String.upcase(to_binary(verb))
+  end
+
+  @doc """
   Generates a representation that will only match routes
   according to the given `spec`.
 

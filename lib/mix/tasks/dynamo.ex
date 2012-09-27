@@ -58,6 +58,7 @@ defmodule Mix.Tasks.Dynamo do
 
     create_file "README.md",  readme_template(assigns)
     create_file ".gitignore", gitignore_text
+    create_file "mix.lock",   mixlock_text
     create_file "mix.exs",    mixfile_template(assigns)
 
     create_directory "app"
@@ -130,6 +131,8 @@ defmodule Mix.Tasks.Dynamo do
     end
   end
   """
+
+  embed_text :mixlock, from_file("../../../../mix.lock")
 
   embed_template :app_router, """
   defmodule ApplicationRouter do

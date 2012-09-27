@@ -14,7 +14,7 @@ defmodule Dynamo.Filters.HeadTest do
     end
 
     post "/hello" do
-      conn.resp(201, atom_to_binary(conn.method))
+      conn.resp(201, conn.method)
     end
   end
 

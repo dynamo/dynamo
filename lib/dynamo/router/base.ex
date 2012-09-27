@@ -24,7 +24,6 @@ defmodule Dynamo.Router.Base do
 
       @doc false
       def service(conn) do
-        if is_binary(conn.method), do: conn = conn.method(binary_to_atom(conn.method))
         dispatch(conn.method, conn.path_info_segments, conn)
       end
 
@@ -206,7 +205,7 @@ defmodule Dynamo.Router.Base do
   defp convert_verbs(raw) do
     [h|t] =
       Enum.map raw, fn(verb) ->
-        verb = list_to_atom(:string.to_upper(atom_to_list(verb)))
+        verb = Dynamo.Router.Utils.normalize_verb(verb)
         quote do
           _verb == unquote(verb)
         end

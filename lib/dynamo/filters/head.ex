@@ -5,8 +5,8 @@ defmodule Dynamo.Filters.Head do
   `conn.original_method` will return :HEAD.
   """
   def service(conn, fun) do
-    if conn.method == :HEAD do
-      conn = fun.(conn.method(:GET))
+    if conn.method == "HEAD" do
+      conn = fun.(conn.method("GET"))
       case conn.state do
         :set -> conn.resp(conn.status, "")
         _    -> conn
