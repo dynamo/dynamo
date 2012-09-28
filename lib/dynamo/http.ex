@@ -17,6 +17,22 @@ defmodule Dynamo.HTTP do
 
   use Behaviour
 
+  @moduledoc """
+  This module defines the API implemented by the http
+  connection, as in Dynamo.Cowboy.HTTP and Dynamo.HTTP.Test.
+
+  Notice that Dynamo.HTTP connections uses the record
+  notation. So although the documentation says `params(conn)`,
+  the function should be invoked as `conn.params()` and
+  Elixir automatically moves the conn to the last argument.
+
+  It is also important to remind that, as in all Elixir
+  structures, a connection is immutable. So if you are using
+  `conn.set_resp_header("X-API", "123456")` to set a response
+  header, a new connection will be returned with the new header
+  set. The original `conn` is not going to be modified.
+  """
+
   ## Request API
 
   @doc """
@@ -29,12 +45,13 @@ defmodule Dynamo.HTTP do
   @doc """
   Returns the request headers as `Binary.Dict`. Note that duplicated
   entries are removed. The headers need to be explicitly fetched with
-  `conn.fetch(:headers)` before using this function.
+  `conn.fetch(:headers)` before using this function. Headers keys are
+  all downcased.
   """
   defcallback req_headers(conn)
 
   @doc """
-  Returns the HTTP method as an atom.
+  Returns the HTTP method as a binary.
 
   ## Examples
 
@@ -44,7 +61,7 @@ defmodule Dynamo.HTTP do
   defcallback method(conn)
 
   @doc """
-  Returns the original HTTP method as an atom.
+  Returns the original HTTP method as a binary.
   Sometimes a filter may change the method from
   HEAD to GET or from POST to PUT, this function
   returns the original method.
@@ -142,6 +159,30 @@ defmodule Dynamo.HTTP do
   Sets the response body and changes the state to `:set`.
   """
   defcallback resp_body(body, conn)
+
+  @doc """
+  Gets the response charset.
+  Defaults to "utf-8".
+  """
+  defcallback resp_charset(conn)
+
+  @doc """
+  Sets the response charset. The charset
+  is just added to the response if
+  `resp_content_type` is also set.
+  """
+  defcallback resp_charset(charset, conn)
+
+  @doc """
+  Gets the response content-type.
+  """
+  defcallback resp_content_type(conn)
+
+  @doc """
+  Sets the response content-type.
+  This is sent as a header when the response is set.
+  """
+  defcallback resp_content_type(content_type, conn)
 
   @doc """
   Sets a response to the given status and body. The

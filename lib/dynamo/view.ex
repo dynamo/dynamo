@@ -24,6 +24,10 @@ defmodule Dynamo.View do
   @doc """
   Finds the given template in any of the views paths.
   """
+  def find(query, _view_paths) when is_record(query, Template) do
+    query
+  end
+
   def find(query, view_paths) do
     Enum.find_value(view_paths, fn(x) -> x.find(query) end)
   end

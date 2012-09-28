@@ -13,8 +13,8 @@ defmodule Dynamo.HTTP.Test do
   Record.defmacros __ENV__, :connection,
     [ :method, :original_method, :path_segments, :path_info_segments, :script_name_segments,
       :query_string, :raw_req_headers, :req_headers, :req_body, :params,
-      :resp_headers, :raw_cookies, :cookies, :resp_cookies, :assigns,
-      :status, :resp_body, :state, :fetched ]
+      :resp_headers, :raw_cookies, :cookies, :resp_cookies, :assigns, :before_send,
+      :resp_content_type, :resp_charset, :status, :resp_body, :state, :fetched ]
 
   use Dynamo.HTTP.Paths
   use Dynamo.HTTP.Cookies
@@ -29,11 +29,13 @@ defmodule Dynamo.HTTP.Test do
     connection(
       path_info_segments: [],
       script_name_segments: [],
-      raw_req_headers: Binary.Dict.new([ { "Host", "127.0.0.1" } ]),
+      raw_req_headers: Binary.Dict.new([ { "host", "127.0.0.1" } ]),
       resp_headers: Binary.Dict.new,
       resp_cookies: [],
       assigns: [],
       fetched: [],
+      resp_charset: "utf-8",
+      before_send: default_before_send,
       state: :unset
     )
   end
@@ -67,7 +69,7 @@ defmodule Dynamo.HTTP.Test do
   end
 
   def send(status, body, conn) do
-    connection(conn,
+    connection(run_before_send(conn),
       state: :sent,
       status: status,
       resp_body: body
@@ -122,7 +124,7 @@ defmodule Dynamo.HTTP.Test do
       original_method: method)
 
     if uri.authority do
-      conn.set_req_header "Host", uri.authority
+      conn.set_req_header "host", uri.authority
     else
       conn
     end
@@ -147,13 +149,13 @@ defmodule Dynamo.HTTP.Test do
   Both `key` and `value` are converted to binary.
   """
   def set_req_header(key, value, connection(raw_req_headers: raw_req_headers) = conn) do
-    connection(conn, raw_req_headers: Dict.put(raw_req_headers, key, to_binary(value)))
+    connection(conn, raw_req_headers: Dict.put(raw_req_headers, String.downcase(key), to_binary(value)))
   end
 
   @doc """
   Deletes a request header.
   """
   def delete_req_header(key, connection(raw_req_headers: raw_req_headers) = conn) do
-    connection(conn, raw_req_headers: Dict.delete(raw_req_headers, key))
+    connection(conn, raw_req_headers: Dict.delete(raw_req_headers, String.downcase(key)))
   end
 end

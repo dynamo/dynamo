@@ -200,11 +200,13 @@ defmodule Dynamo.App do
     end
 
     if static_root && static_route do
-      filters = [Dynamo.Filters.Static.new(static_route, static_root)|filters]
+      static  = Dynamo.Filters.Static.new(static_route, static_root)
+      filters = [static|filters]
     end
 
     if dynamo[:compile_on_demand] || dynamo[:reload_modules] do
-      filters = [Dynamo.Filters.Reloader.new(dynamo[:compile_on_demand], dynamo[:reload_modules])|filters]
+      reloader = Dynamo.Filters.Reloader.new(dynamo[:compile_on_demand], dynamo[:reload_modules])
+      filters  = [reloader|filters]
     end
 
     if dynamo[:reload_modules] && !dynamo[:compile_on_demand] do

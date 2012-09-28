@@ -10,7 +10,7 @@ defmodule Dynamo.HTTP.Paths do
 
   """
   defmacro __using__(_) do
-    quote location: :keep do 
+    quote location: :keep do
       def path_info_segments(connection(path_info_segments: segments)) do
         segments
       end

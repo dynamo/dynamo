@@ -220,27 +220,28 @@ defmodule Dynamo.Cowboy.HTTPTest do
     conn = conn.fetch(:headers)
     assert conn.req_headers["host"] == "127.0.0.1:8011"
     assert conn.req_headers["x-special"] == "foo"
+    assert conn.req_headers["x-upcase"] == "bar"
     conn
   end
 
   test :req_headers do
-    assert_success request :get, "/req_headers", [{ "X-Special", "foo" }]
+    assert_success request :get, "/req_headers", [{ "X-Special", "foo" }, { "X-Upcase", "bar" }]
   end
 
   def resp_headers(conn) do
     assert conn.resp_headers == Binary.Dict.new
 
-    conn = conn.set_resp_header("X-Header", "First")
-    assert conn.resp_headers["X-Header"] == "First"
+    conn = conn.set_resp_header("x-header", "First")
+    assert conn.resp_headers["x-header"] == "First"
 
-    conn = conn.set_resp_header("X-Header", "Second")
-    assert conn.resp_headers["X-Header"] == "Second"
+    conn = conn.set_resp_header("x-header", "Second")
+    assert conn.resp_headers["x-header"] == "Second"
 
-    conn = conn.delete_resp_header("X-Header")
-    assert conn.resp_headers["X-Header"] == nil
+    conn = conn.delete_resp_header("x-header")
+    assert conn.resp_headers["x-header"] == nil
 
-    conn = conn.set_resp_header("X-Header", "Third")
-    assert conn.resp_headers["X-Header"] == "Third"
+    conn = conn.set_resp_header("x-header", "Third")
+    assert conn.resp_headers["x-header"] == "Third"
 
     conn.send(200, "Hello")
   end
@@ -250,8 +251,36 @@ defmodule Dynamo.Cowboy.HTTPTest do
     assert_success response
 
     { _, headers, _ } = response
-    assert List.keyfind(headers, "X-Header", 0) == { "X-Header", "Third" }
+    assert List.keyfind(headers, "x-header", 0) == { "x-header", "Third" }
   end
+
+  def no_content_type_and_charset(conn) do
+    conn.send(200, "Hello")
+  end
+
+  def resp_content_type_and_charset(conn) do
+    assert conn.resp_charset == "utf-8"
+
+    conn = conn.resp_content_type("application/json")
+    assert conn.resp_content_type == "application/json"
+
+    conn.send(200, "Hello")
+  end
+
+  test :resp_content_type_and_charset do
+    response = request :get, "/no_content_type_and_charset"
+    assert_success response
+
+    { _, headers, _ } = response
+    assert List.keyfind(headers, "content-type", 0) == nil
+
+    response = request :get, "/resp_content_type_and_charset"
+    assert_success response
+
+    { _, headers, _ } = response
+    assert List.keyfind(headers, "content-type", 0) == { "content-type", "application/json; charset=utf-8" }
+  end
+
 
   ## Request Body API
 

@@ -57,18 +57,18 @@ defmodule Dynamo.HTTP.TestTest do
     end
 
     conn = conn.set_req_header "X-Code", "123456"
-    assert conn.fetch(:headers).req_headers["X-Code"] == "123456"
+    assert conn.fetch(:headers).req_headers["x-code"] == "123456"
 
     conn = conn.delete_req_header "X-Code"
-    assert conn.fetch(:headers).req_headers["X-Code"] == nil
+    assert conn.fetch(:headers).req_headers["x-code"] == nil
   end
 
   test :host do
     conn = conn(:GET, "/foo/bar").fetch(:headers)
-    assert conn.req_headers["Host"] == "127.0.0.1"
+    assert conn.req_headers["host"] == "127.0.0.1"
 
     conn = conn(:GET, "//example.com:4000/foo/bar").fetch(:headers)
-    assert conn.req_headers["Host"] == "example.com:4000"
+    assert conn.req_headers["host"] == "example.com:4000"
   end
 
   ## Cookies
@@ -169,6 +169,14 @@ defmodule Dynamo.HTTP.TestTest do
     assert conn.state     == :set
     assert conn.status    == 302
     assert conn.resp_body == "Redirected"
+  end
+
+  test :resp_content_type_and_charset do
+    conn = conn(:GET, "/").send(200, "OK")
+    assert conn.resp_headers["content-type"] == nil
+
+    conn = conn(:GET, "/").resp_content_type("application/json").send(200, "OK")
+    assert conn.resp_headers["content-type"] == "application/json; charset=utf-8"
   end
 
   ## Misc

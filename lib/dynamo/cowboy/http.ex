@@ -12,8 +12,8 @@ defmodule Dynamo.Cowboy.HTTP do
   Record.defmacros __ENV__, :connection,
     [ :req, :path_info_segments, :script_name_segments, :req_headers,
       :params, :cookies, :resp_headers, :resp_cookies, :assigns, :status,
-      :method, :original_method, # :res_charset, :res_type, :session, :req_body,
-      :resp_body, :state ]
+      :method, :original_method, :resp_content_type, :resp_charset, # :session, :req_body
+      :resp_body, :state, :before_send ]
 
   use Dynamo.HTTP.Paths
   use Dynamo.HTTP.Cookies
@@ -23,10 +23,10 @@ defmodule Dynamo.Cowboy.HTTP do
 
   @doc false
   def new(req) do
-    { verb, req }     = R.method(req)
-
+    { verb, req } = R.method req
     { binary, _ } = R.path req
-    { segments, _, _} = :cowboy_dispatcher.split_path(binary, 
+
+    { segments, _, _} = :cowboy_dispatcher.split_path(binary,
                          fn(bin) -> :cowboy_http.urldecode(bin, :crash) end)
 
     connection(
@@ -38,6 +38,8 @@ defmodule Dynamo.Cowboy.HTTP do
       resp_headers: Binary.Dict.new,
       resp_cookies: [],
       assigns: [],
+      resp_charset: "utf-8",
+      before_send: default_before_send,
       state: :unset
     )
   end
@@ -60,7 +62,7 @@ defmodule Dynamo.Cowboy.HTTP do
 
   def path_segments(connection(req: req)) do
     { binary, _ } = R.path req
-    { segments, _, _} = :cowboy_dispatcher.split_path(binary, 
+    { segments, _, _} = :cowboy_dispatcher.split_path(binary,
                          fn(bin) -> :cowboy_http.urldecode(bin, :crash) end)
     segments
   end
@@ -82,9 +84,11 @@ defmodule Dynamo.Cowboy.HTTP do
     raise Dynamo.HTTP.InvalidSendOnHeadError
   end
 
-  def send(status, body,
-      connection(req: req, resp_headers: headers, resp_cookies: cookies) = conn) when is_integer(status) do
-    req = Enum.reduce cookies, req, write_cookie(&1, &2)
+  def send(status, body, conn) when is_integer(status) do
+    conn = run_before_send(conn)
+    connection(resp_headers: headers, resp_cookies: cookies, req: req) = conn
+
+    req  = Enum.reduce cookies, req, write_cookie(&1, &2)
     { :ok, req } = R.reply(status, Dict.to_list(headers), body, req)
 
     connection(conn,
