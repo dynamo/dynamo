@@ -10,9 +10,9 @@ defmodule Dynamo.App.ConfigTest do
 
     endpoint Dynamo.App.ConfigTest
 
-    config :dynamo, public_root:  :app
+    config :dynamo, static_root:  :app
     config :linq,   adapter: :pg
-    config :dynamo, public_root: :myapp
+    config :dynamo, static_root: :myapp
 
     initializer :sample do
       Process.put(__MODULE__, :sample)
@@ -36,7 +36,7 @@ defmodule Dynamo.App.ConfigTest do
   end
 
   test "sets and overrides config" do
-    assert App.config[:dynamo][:public_root]  == :myapp
+    assert App.config[:dynamo][:static_root]  == :myapp
     assert App.config[:linq]                  == [adapter: :pg]
     assert App.config[:other]                 == nil
   end

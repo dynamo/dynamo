@@ -10,8 +10,8 @@ defmodule Dynamo.AppTest do
     endpoint Dynamo.AppTest
 
     config :dynamo,
-      public_root: File.expand_path("../../fixtures/public", __FILE__),
-      public_route: "/public",
+      static_root: File.expand_path("../../fixtures/public", __FILE__),
+      static_route: "/public",
       compile_on_demand: false,
       reload_modules: false,
       source_paths: [File.expand_path("../../fixtures/*", __FILE__)],
@@ -24,7 +24,7 @@ defmodule Dynamo.AppTest do
     endpoint Dynamo.AppTest
 
     config :dynamo,
-      public_root: false,
+      static_root: false,
       compile_on_demand: true,
       reload_modules: true,
       view_paths: [File.expand_path("../../fixtures/views", __FILE__)]

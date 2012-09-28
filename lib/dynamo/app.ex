@@ -14,15 +14,16 @@ defmodule Dynamo.App do
 
   For example, here is a snippet that configures Dynamo
   to serve public assets from the :myapp application
-  everytime we have a request at `/public`:
+  everytime we have a request at `/static`:
 
       config :dynamo,
-        public_root:  :myapp,
-        public_route: "/public"
+        static_root:  :myapp,
+        static_route: "/static"
 
   The available `:dynamo` configurations are:
 
-  * `:public_route` - The route to trigger public assets serving
+  * `:static_route` - The route to serve static assets
+  * `:static_root` - The location static assets are defined
   * `:compile_on_demand` - Compiles modules as they are needed
   * `:reload_modules` - Reload modules after they are changed
   * `:source_paths` - The paths to search when compiling modules on demand
@@ -36,7 +37,7 @@ defmodule Dynamo.App do
   filters are added based on your configuration option. The
   filters included by default and when they are included are:
 
-  * `Dynamo.Filters.Static` - when a public_route and public_root are set,
+  * `Dynamo.Filters.Static` - when a static_route and static_root are set,
      we add this filter to serve static assets;
   * `Dynamo.Filters.Reloader` - when `:compile_on_demand` or `:reload_modules`
     configs are set to true, allowing code to be compiled and reloaded on demand;
@@ -114,7 +115,7 @@ defmodule Dynamo.App do
 
   @doc false
   def default_options(env) do
-    [ public_route: "/public",
+    [ static_route: "/static",
       compile_on_demand: false,
       reload_modules: false,
       source_paths: ["app/*"],
@@ -192,14 +193,14 @@ defmodule Dynamo.App do
     filters = []
     dynamo  = Module.get_attribute(mod, :config)[:dynamo]
 
-    public_route = dynamo[:public_route]
-    public_root  = case dynamo[:public_root] do
+    static_route = dynamo[:static_route]
+    static_root  = case dynamo[:static_root] do
       nil   -> dynamo[:otp_app]
       other -> other
     end
 
-    if public_root && public_route do
-      filters = [Dynamo.Filters.Static.new(public_route, public_root)|filters]
+    if static_root && static_route do
+      filters = [Dynamo.Filters.Static.new(static_route, static_root)|filters]
     end
 
     if dynamo[:compile_on_demand] || dynamo[:reload_modules] do
