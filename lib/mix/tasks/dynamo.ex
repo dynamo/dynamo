@@ -126,8 +126,8 @@ defmodule Mix.Tasks.Dynamo do
     end
 
     defp deps do
-      [ { :cowboy, %r(.*), github: "extend/cowboy" },
-        { :ranch, %r(.*), github: "extend/ranch" },
+      [ { :ranch, %r(.*), github: "extend/ranch" },
+        { :cowboy, %r(.*), github: "extend/cowboy" },
         { :dynamo, "<%= @version %>", <%= @dynamo %> } ]
     end
   end
