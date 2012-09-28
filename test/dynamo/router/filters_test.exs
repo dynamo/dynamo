@@ -90,4 +90,29 @@ defmodule Dynamo.Router.FiltersTest do
     assert conn.assigns[:value] == 3
     assert conn.status == 200
   end
+
+  defmodule ParamFilter do
+    def prepare(conn) do
+      value = conn.params["value"]
+      conn.assign(:value, value)
+    end
+  end
+
+  defmodule ParamsApp do
+    use Dynamo.Router
+
+    fetch [ :params ]
+
+    filter ParamFilter
+
+    get "/foo" do
+      conn.resp(200, "OK")
+    end
+  end
+
+  test "fetch before filter" do
+    conn = process(ParamsApp, :GET, "/foo?value=bar")
+    assert conn.assigns[:value] == "bar"
+    assert conn.status == 200
+  end
 end
