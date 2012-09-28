@@ -129,9 +129,19 @@ defmodule Dynamo.HTTP do
   defcallback status(conn)
 
   @doc """
+  Sets the response status and changes the state to `:set`.
+  """
+  defcallback status(status, conn)
+
+  @doc """
   Returns the response body if one was set.
   """
   defcallback resp_body(conn)
+
+  @doc """
+  Sets the response body and changes the state to `:set`.
+  """
+  defcallback resp_body(body, conn)
 
   @doc """
   Sets a response to the given status and body. The

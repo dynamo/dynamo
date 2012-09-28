@@ -16,8 +16,16 @@ defmodule Dynamo.HTTP.Response do
         status
       end
 
+      def status(status, conn) when is_integer(status) do
+        connection(conn, status: status, state: :set)
+      end
+
       def resp_body(connection(resp_body: resp_body)) do
         resp_body
+      end
+
+      def resp_body(body, conn) do
+        connection(conn, resp_body: body, state: :set)
       end
 
       def resp(status, body, conn) when is_integer(status) do
