@@ -15,7 +15,7 @@ defmodule Dynamo.Router.FetchTest do
     end
 
     get "/foo" do
-      conn.resp(200, "OK")
+      conn.resp_body("OK")
     end
   end
 

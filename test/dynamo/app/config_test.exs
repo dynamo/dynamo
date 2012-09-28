@@ -20,7 +20,7 @@ defmodule Dynamo.App.ConfigTest do
   end
 
   def service(conn) do
-    conn.assign(:done, :ok).resp(200, "OK")
+    conn.assign(:done, :ok).resp_body("OK")
   end
 
   @app App

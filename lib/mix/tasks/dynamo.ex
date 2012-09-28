@@ -149,7 +149,7 @@ defmodule Mix.Tasks.Dynamo do
     # forward "/posts", to: PostsRouter
 
     get "/" do
-      conn.resp(200, "Hello world")
+      conn.resp_body("Hello world")
     end
   end
   """

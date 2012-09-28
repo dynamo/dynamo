@@ -7,7 +7,7 @@ defmodule MyApp do
   use Dynamo.App
 
   get "/foo/bar" do
-    conn.resp(200, "Hello World!")
+    conn.resp_body("Hello World!")
   end
 end
 

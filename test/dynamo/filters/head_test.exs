@@ -10,11 +10,11 @@ defmodule Dynamo.Filters.HeadTest do
     filter Dynamo.Filters.Head
 
     get "/hello" do
-      conn.resp(200, "WILL BE IGNORED")
+      conn.resp_body("WILL BE IGNORED")
     end
 
     post "/hello" do
-      conn.resp(201, conn.method)
+      conn.status(201).resp_body(conn.method)
     end
   end
 

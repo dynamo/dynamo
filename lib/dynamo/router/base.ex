@@ -29,7 +29,7 @@ defmodule Dynamo.Router.Base do
 
       @doc false
       def not_found(conn) do
-        conn.resp(404, "Not found")
+        conn.status(404).resp_body("Not found")
       end
 
       defoverridable [not_found: 1, service: 1]

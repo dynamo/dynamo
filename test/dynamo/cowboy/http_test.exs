@@ -299,12 +299,12 @@ defmodule Dynamo.Cowboy.HTTPTest do
       conn.send(200, "HELLO")
     end
 
-    conn.resp(201, "")
+    conn.status(201)
   end
 
   test :send do
     assert { 201, _, "OK" } = request :get, "/send"
-    assert { 201, _, "" } = request :head, "/send_with_head"
+    assert { 201, _, "" }   = request :head, "/send_with_head"
   end
 
   def sendfile(conn) do
@@ -324,26 +324,6 @@ defmodule Dynamo.Cowboy.HTTPTest do
     assert List.keyfind(headers, "content-length", 0) == { "content-length", "5" }
 
     assert { 500, _, _ } = request :get, "/invalid_sendfile"
-  end
-
-  def resp(conn) do
-    assert conn.state == :unset
-
-    conn = conn.resp(201, "OK")
-    assert conn.state     == :set
-    assert conn.status    == 201
-    assert conn.resp_body == "OK"
-
-    conn = conn.resp(302, "Redirected")
-    assert conn.state     == :set
-    assert conn.status    == 302
-    assert conn.resp_body == "Redirected"
-
-    conn
-  end
-
-  test :resp do
-    assert { 302, _, "Redirected" } = request :get, "/resp"
   end
 
   ## Misc

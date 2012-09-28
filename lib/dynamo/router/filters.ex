@@ -50,7 +50,7 @@ defmodule Dynamo.Router.Filters do
         def service(conn, fun) do
           conn = conn.set_resp_header("Content-Type", "application/json")
           conn = fun.(conn)
-          conn.resp(conn.status, to_json(conn.resp_body))
+          conn.resp_body(to_json(conn.resp_body))
         end
   
         def to_json(data), do: ...

@@ -156,21 +156,6 @@ defmodule Dynamo.HTTP.TestTest do
     assert conn.resp_body == "OK"
   end
 
-  test :resp do
-    conn = conn(:GET, "/")
-    assert conn.state == :unset
-
-    conn = conn.resp(201, "OK")
-    assert conn.state     == :set
-    assert conn.status    == 201
-    assert conn.resp_body == "OK"
-
-    conn = conn.resp(302, "Redirected")
-    assert conn.state     == :set
-    assert conn.status    == 302
-    assert conn.resp_body == "Redirected"
-  end
-
   test :resp_content_type_and_charset do
     conn = conn(:GET, "/").send(200, "OK")
     assert conn.resp_headers["content-type"] == nil

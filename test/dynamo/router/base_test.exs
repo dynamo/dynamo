@@ -9,7 +9,7 @@ defmodule Dynamo.Router.BaseTest do
     use Dynamo.Router
 
     get "/nested/:arg" do
-      conn.resp(200, "OK").assign :value, arg
+      conn.resp_body("OK").assign :value, arg
     end
   end
 
@@ -17,39 +17,39 @@ defmodule Dynamo.Router.BaseTest do
     use Dynamo.Router
 
     get "/" do
-      conn.resp(200, "OK").assign :value, :root
+      conn.resp_body("OK").assign :value, :root
     end
 
     get "/1/bar" do
-      conn.resp(200, "OK").assign :value, 1
+      conn.resp_body("OK").assign :value, 1
     end
 
     get "/2/:bar" do
-      conn.resp(200, "OK").assign :value, bar
+      conn.resp_body("OK").assign :value, bar
     end
 
     get "/3/bar-:bar" do
-      conn.resp(200, "OK").assign :value, bar
+      conn.resp_body("OK").assign :value, bar
     end
 
     get "/4/*bar" do
-      conn.resp(200, "OK").assign :value, bar
+      conn.resp_body("OK").assign :value, bar
     end
 
     get "/5/bar-*bar" do
-      conn.resp(200, "OK").assign :value, bar
+      conn.resp_body("OK").assign :value, bar
     end
 
     get ["6", "foo"] do
-      conn.resp(200, "OK").assign :value, 200
+      conn.resp_body("OK").assign :value, 200
     end
 
     get "/7/:foo" when size(foo) <= 3 do
-      conn.resp(200, "OK").assign :value, foo
+      conn.resp_body("OK").assign :value, foo
     end
 
     match "/8/foo" do
-      conn.resp(200, "OK").assign :value, 8
+      conn.resp_body("OK").assign :value, 8
     end
 
     put "/9/foo", to: Sample0
@@ -58,7 +58,7 @@ defmodule Dynamo.Router.BaseTest do
     forward ["11", "deep"], to: Sample0
 
     def not_found(conn) do
-      conn.resp(404, "OOPS")
+      conn.status(404).resp_body("OOPS")
     end
   end
 

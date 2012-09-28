@@ -10,7 +10,7 @@ defmodule Dynamo.Router.PrepareCallbacksTest do
     prepare :foo
 
     get "/foo" do
-      conn.resp(200, "OK")
+      conn.resp_body("OK")
     end
 
     defp foo(conn) do
@@ -48,7 +48,7 @@ defmodule Dynamo.Router.PrepareCallbacksTest do
     prepare Bar.new
 
     get "/foo" do
-      conn.resp(200, "OK")
+      conn.resp_body("OK")
     end
   end
 
@@ -70,7 +70,7 @@ defmodule Dynamo.Router.PrepareCallbacksTest do
     end
 
     get "/foo" do
-      conn.resp(200, "OK")
+      conn.resp_body("OK")
     end
   end
 
@@ -88,7 +88,7 @@ defmodule Dynamo.Router.PrepareCallbacksTest do
     end
 
     get "/foo" do
-      conn.resp(200, "OK")
+      conn.resp_body("OK")
     end
   end
 
@@ -102,7 +102,7 @@ defmodule Dynamo.Router.PrepareCallbacksTest do
     use Dynamo.Router
 
     prepare do
-      conn.resp(302, "Redirect")
+      conn.status(302).resp_body("Redirect")
     end
 
     get "/foo" do
@@ -126,7 +126,7 @@ defmodule Dynamo.Router.FinishCallbacksTest do
     finalize :foo
 
     get "/foo" do
-      conn.assign(:value, 3).resp(200, "OK")
+      conn.assign(:value, 3).resp_body("OK")
     end
 
     defp foo(conn) do
@@ -156,7 +156,7 @@ defmodule Dynamo.Router.FinishCallbacksTest do
     finalize { Bar, :data }
 
     get "/foo" do
-      conn.assign(:value, 2).resp(200, "OK")
+      conn.assign(:value, 2).resp_body("OK")
     end
   end
 
@@ -177,7 +177,7 @@ defmodule Dynamo.Router.FinishCallbacksTest do
     end
 
     get "/foo" do
-      conn.assign(:value, 2).resp(200, "OK")
+      conn.assign(:value, 2).resp_body("OK")
     end
   end
 

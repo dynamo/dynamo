@@ -185,15 +185,6 @@ defmodule Dynamo.HTTP do
   defcallback resp_content_type(content_type, conn)
 
   @doc """
-  Sets a response to the given status and body. The
-  response will only be sent when `send` is called.
-
-  After calling this function, the state changes to `:set`,
-  both `status` and `resp_body` are set.
-  """
-  defcallback resp(status, body, conn)
-
-  @doc """
   A shortcut to `conn.send(conn.status, conn.resp_body)`.
   """
   defcallback send(conn)
@@ -209,7 +200,7 @@ defmodule Dynamo.HTTP do
   Returns the response state. It can be:
 
   * `:unset` - the response was not configured yet
-  * `:set` - the response was configured via `conn.resp`
+  * `:set` - the response was set via `conn.resp_body` or `conn.status`
   * `:chunked` - the response is being sent in chunks
   * `:sent` - the response was sent
 

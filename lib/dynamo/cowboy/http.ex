@@ -6,7 +6,6 @@ defmodule Dynamo.Cowboy.HTTP do
   the majority of the functions.
   """
 
-  @behaviour Dynamo.HTTP
   require :cowboy_req, as: R
 
   Record.defmacros __ENV__, :connection,
@@ -15,11 +14,7 @@ defmodule Dynamo.Cowboy.HTTP do
       :method, :original_method, :resp_content_type, :resp_charset, # :session, :req_body
       :resp_body, :state, :before_send ]
 
-  use Dynamo.HTTP.Paths
-  use Dynamo.HTTP.Cookies
-  use Dynamo.HTTP.Request
-  use Dynamo.HTTP.Response
-  use Dynamo.HTTP.Assigns
+  use Dynamo.HTTP.Behaviour
 
   @doc false
   def new(req) do
@@ -39,6 +34,7 @@ defmodule Dynamo.Cowboy.HTTP do
       resp_cookies: [],
       assigns: [],
       resp_charset: "utf-8",
+      resp_body: "",
       before_send: default_before_send,
       state: :unset
     )
@@ -84,7 +80,7 @@ defmodule Dynamo.Cowboy.HTTP do
     raise Dynamo.HTTP.InvalidSendOnHeadError
   end
 
-  def send(status, body, conn) when is_integer(status) do
+  def send(status, body, conn) when is_integer(status) and (is_binary(body) or is_tuple(body)) do
     conn = run_before_send(conn)
     connection(resp_headers: headers, resp_cookies: cookies, req: req) = conn
 

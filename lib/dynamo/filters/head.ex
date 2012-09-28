@@ -8,7 +8,7 @@ defmodule Dynamo.Filters.Head do
     if conn.method == "HEAD" do
       conn = fun.(conn.method("GET"))
       case conn.state do
-        :set -> conn.resp(conn.status, "")
+        :set -> conn.resp_body("")
         _    -> conn
       end
     else

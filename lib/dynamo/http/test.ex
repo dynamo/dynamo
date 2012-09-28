@@ -8,19 +8,13 @@ defmodule Dynamo.HTTP.Test do
   the majority of the functions.
   """
 
-  @behaviour Dynamo.HTTP
-
   Record.defmacros __ENV__, :connection,
     [ :method, :original_method, :path_segments, :path_info_segments, :script_name_segments,
       :query_string, :raw_req_headers, :req_headers, :req_body, :params,
       :resp_headers, :raw_cookies, :cookies, :resp_cookies, :assigns, :before_send,
       :resp_content_type, :resp_charset, :status, :resp_body, :state, :fetched ]
 
-  use Dynamo.HTTP.Paths
-  use Dynamo.HTTP.Cookies
-  use Dynamo.HTTP.Request
-  use Dynamo.HTTP.Response
-  use Dynamo.HTTP.Assigns
+  use Dynamo.HTTP.Behaviour
 
   @doc """
   Initializes a connection to be used in tests.
@@ -35,6 +29,7 @@ defmodule Dynamo.HTTP.Test do
       assigns: [],
       fetched: [],
       resp_charset: "utf-8",
+      resp_body: "",
       before_send: default_before_send,
       state: :unset
     )
@@ -68,7 +63,7 @@ defmodule Dynamo.HTTP.Test do
     raise Dynamo.HTTP.InvalidSendOnHeadError
   end
 
-  def send(status, body, conn) do
+  def send(status, body, conn) when is_integer(status) and is_binary(body) do
     connection(run_before_send(conn),
       state: :sent,
       status: status,
