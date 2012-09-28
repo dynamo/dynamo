@@ -77,7 +77,8 @@ defmodule Mix.Tasks.Dynamo do
     create_file "config/environments/prod.exs", config_prod_template(assigns)
 
     create_directory "lib"
-    create_directory "public"
+    create_directory "priv"
+    create_directory "priv/static"
 
     create_directory "test"
     create_file "test/test_helper.exs", test_helper_template(assigns)
