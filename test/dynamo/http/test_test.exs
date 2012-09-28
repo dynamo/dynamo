@@ -138,6 +138,24 @@ defmodule Dynamo.HTTP.TestTest do
     conn
   end
 
+  test :status do
+    conn = conn(:GET, "/")
+    assert conn.state == :unset
+
+    conn = conn.status(201)
+    assert conn.state  == :set
+    assert conn.status == 201
+  end
+
+  test :resp_body do
+    conn = conn(:GET, "/")
+    assert conn.state == :unset
+
+    conn = conn.resp_body("OK")
+    assert conn.state     == :set
+    assert conn.resp_body == "OK"
+  end
+
   test :resp do
     conn = conn(:GET, "/")
     assert conn.state == :unset
