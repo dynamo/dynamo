@@ -2,6 +2,9 @@
 #
 #   elixir -pa ebin --no-halt examples/simple.exs
 #
+Code.prepend_path("deps/ranch/ebin")
+Code.prepend_path("deps/cowboy/ebin")
+
 Dynamo.start(:prod, __FILE__)
 
 defmodule MyApp do
@@ -15,8 +18,5 @@ defmodule MyApp do
     conn.resp_body("Hello World!")
   end
 end
-
-Code.prepend_path("deps/ranch/ebin")
-Code.prepend_path("deps/cowboy/ebin")
 
 MyApp.start.run port: 3030
