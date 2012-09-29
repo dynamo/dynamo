@@ -19,10 +19,9 @@ defmodule Dynamo.Cowboy.HTTP do
   @doc false
   def new(req) do
     { verb, req } = R.method req
-    { binary, _ } = R.path req
+    { path, _ } = R.path req
 
-    { segments, _, _} = :cowboy_dispatcher.split_path(binary,
-                         fn(bin) -> :cowboy_http.urldecode(bin, :crash) end)
+    segments = split_path(path)
 
     connection(
       req: req,
@@ -57,10 +56,8 @@ defmodule Dynamo.Cowboy.HTTP do
   end
 
   def path_segments(connection(req: req)) do
-    { binary, _ } = R.path req
-    { segments, _, _} = :cowboy_dispatcher.split_path(binary,
-                         fn(bin) -> :cowboy_http.urldecode(bin, :crash) end)
-    segments
+    { path, _ } = R.path req
+    split_path path
   end
 
   def path(connection(req: req)) do
@@ -138,6 +135,13 @@ defmodule Dynamo.Cowboy.HTTP do
   end
 
   ## Helpers
+
+  defp split_path(path) do
+    case :binary.split(path, "/", [:global, :trim]) do
+      [""|segments] -> segments
+      segments -> segments
+    end
+  end
 
   defp write_cookie({ key, value, opts }, req) do
     opts = Keyword.update(opts, :http_only, true, fn(x) -> x end)
