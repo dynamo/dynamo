@@ -1,9 +1,35 @@
-defmodule Dynamo.HTTP.Cookies do
-  
+defmodule Dynamo.HTTP.Utils do
+  @moduledoc """
+  Convenience functions for working with HTTP
+  connections, like date conversions, cookies, etc.
+  """
 
+  @doc """
+  Receives a datetime in universal time and
+  converts it to rfc2822.
+  """
+  def rfc2822({ { year, month, day } = date, { hour, minute, second } }) do
+    weekday_name  = weekday_name(:calendar.day_of_the_week(date))
+    month_name    = month_name(month)
+    padded_day    = pad(day)
+    padded_hour   = pad(hour)
+    padded_minute = pad(minute)
+    padded_second = pad(second)
+    binary_year   = integer_to_binary(year)
+
+    weekday_name <> ", " <> padded_day <>
+      "-" <> month_name <> "-" <> binary_year <>
+      " " <> padded_hour <> ":" <> padded_minute <>
+      ":" <> padded_second <> " GMT"
+  end
+
+  @doc """
+  Receives a cookie key, value, options and returns
+  a cookie header.
+  """
   def cookie_header(key, value, options // []) do
-    key = URI.encode(key)
-    value = URI.encode(value)
+    key    = URI.encode(key)
+    value  = URI.encode(value)
     header = "#{key}=#{value}"
 
     if path = options[:path] do
@@ -31,23 +57,16 @@ defmodule Dynamo.HTTP.Cookies do
     header
   end
 
-  defp rfc2822({ { year, month, day } = date, { hour, minute, second } }) do
-    weekday = weekday_name(:calendar.day_of_the_week(date))
-    month_name = month_name(month)
-    padded_day = pad(day)
-    padded_hour = pad(hour)
-    padded_minute = pad(minute)
-    padded_second = pad(second)
-
-    "#{weekday}, #{padded_day}-#{month_name}-#{year} #{padded_hour}:#{padded_minute}:#{padded_second} GMT"
-  end
-
-  defp pad(number) when number in 1..9 do
-    "0#{number}"
+  defp pad(number) when number in 0..9 do
+    << ?0, ?0 + number >>
   end
 
   defp pad(number) do
-    to_binary(number)
+    integer_to_binary(number)
+  end
+
+  defp integer_to_binary(number) do
+    number /> integer_to_list /> list_to_binary
   end
 
   defp weekday_name(1), do: "Mon"
@@ -70,9 +89,6 @@ defmodule Dynamo.HTTP.Cookies do
   defp month_name(10), do: "Oct"
   defp month_name(11), do: "Nov"
   defp month_name(12), do: "Dec"
-
-  
-
 
   defp add_seconds(time, seconds_to_add) do
     time_seconds = :calendar.datetime_to_gregorian_seconds(time)
