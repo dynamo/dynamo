@@ -11,7 +11,7 @@ defmodule Dynamo.Cowboy.HTTP do
   Record.defmacros __ENV__, :connection,
     [ :req, :path_info_segments, :script_name_segments, :req_headers,
       :params, :cookies, :resp_headers, :resp_cookies, :assigns, :status,
-      :method, :original_method, :resp_content_type, :resp_charset, # :session, :req_body
+      :method, :original_method, :resp_content_type, :resp_charset, :req_body, # :session, :req_body
       :resp_body, :state, :before_send ]
 
   use Dynamo.HTTP.Behaviour
@@ -110,6 +110,11 @@ defmodule Dynamo.Cowboy.HTTP do
 
   ## Misc
 
+  def fetch(:body, connection(req: req, req_body: nil) = conn) do
+    { :ok, body, req } = R.body req
+    connection(conn, req: req, req_body: body)
+  end
+
   def fetch(:params, connection(req: req, params: nil) = conn) do
     { query_string, req } = R.qs req
     params = Dynamo.HTTP.QueryParser.parse(query_string)
@@ -128,7 +133,7 @@ defmodule Dynamo.Cowboy.HTTP do
   end
 
   # The given aspect was already loaded.
-  def fetch(aspect, conn) when aspect in [:params, :cookies, :headers] do
+  def fetch(aspect, conn) when aspect in [:params, :cookies, :headers, :body] do
     conn
   end
 

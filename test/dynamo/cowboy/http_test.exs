@@ -90,6 +90,16 @@ defmodule Dynamo.Cowboy.HTTPTest do
     assert_success request :get, "/query_string_1"
   end
 
+  def req_body(conn) do
+    conn = conn.fetch(:body)
+    assert conn.req_body == "foobar"
+    conn
+  end
+
+  test :req_body do
+    assert_success request :post, "/req_body", [{ "Content-Type", "application/x-foobar" }], "foobar"
+  end
+
   def params_0(conn) do
     conn = conn.fetch(:params)
     assert conn.params[:hello]   == "world"
@@ -281,8 +291,7 @@ defmodule Dynamo.Cowboy.HTTPTest do
     assert List.keyfind(headers, "content-type", 0) == { "content-type", "application/json; charset=utf-8" }
   end
 
-
-  ## Request Body API
+  ## Response API
 
   def send(conn) do
     assert conn.state == :unset

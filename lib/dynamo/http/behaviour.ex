@@ -66,6 +66,14 @@ defmodule Dynamo.HTTP.Behaviour do
         req_headers
       end
 
+      def req_body(connection(req_body: nil)) do
+        raise Dynamo.HTTP.UnfetchedError, aspect: :req_body
+      end
+
+      def req_body(connection(req_body: req_body)) do
+        req_body
+      end
+
       ## Cookies
       ## TODO: Move this out
 

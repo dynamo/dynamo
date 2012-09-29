@@ -71,6 +71,16 @@ defmodule Dynamo.HTTP.TestTest do
     assert conn.req_headers["host"] == "example.com:4000"
   end
 
+  test :req_body do
+    conn = conn(:POST, "/foo/bar", "foobar")
+
+    assert_raise Dynamo.HTTP.UnfetchedError, fn ->
+      conn.req_body
+    end
+
+    assert conn.fetch(:body).req_body == "foobar"
+  end
+
   ## Cookies
 
   test :req_cookies do
@@ -209,7 +219,7 @@ defmodule Dynamo.HTTP.TestTest do
     conn
   end
 
-  defp conn(verb, path) do
-    C.new.req(verb, path)
+  defp conn(verb, path, body // "") do
+    C.new.req(verb, path, body)
   end
 end

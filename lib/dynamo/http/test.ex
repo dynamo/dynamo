@@ -10,7 +10,7 @@ defmodule Dynamo.HTTP.Test do
 
   Record.defmacros __ENV__, :connection,
     [ :method, :original_method, :path_segments, :path_info_segments, :script_name_segments,
-      :query_string, :raw_req_headers, :req_headers, :req_body, :params,
+      :query_string, :raw_req_headers, :req_headers, :raw_req_body, :req_body, :params,
       :resp_headers, :raw_cookies, :cookies, :resp_cookies, :assigns, :before_send,
       :resp_content_type, :resp_charset, :status, :resp_body, :state, :fetched ]
 
@@ -93,6 +93,10 @@ defmodule Dynamo.HTTP.Test do
     connection(conn, cookies: raw_cookies, fetched: [:cookies|fetched])
   end
 
+  def fetch(:body, connection(raw_req_body: req_body, fetched: fetched) = conn) do
+    connection(conn, req_body: req_body, fetched: [:body|fetched])
+  end
+
   ## Test only API
 
   @doc """
@@ -103,7 +107,7 @@ defmodule Dynamo.HTTP.Test do
   the Host request header is set to such value, otherwise
   it defaults to `127.0.0.1`.
   """
-  def req(method, path, conn) do
+  def req(method, path, body // "", conn) do
     uri      = URI.parse(path)
     segments = Dynamo.Router.Utils.split(uri.path)
     method   = Dynamo.Router.Utils.normalize_verb(method)
@@ -116,6 +120,7 @@ defmodule Dynamo.HTTP.Test do
       params: nil,
       req_headers: nil,
       method: method,
+      raw_req_body: body,
       original_method: method)
 
     if uri.authority do

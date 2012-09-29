@@ -51,6 +51,11 @@ defmodule Dynamo.HTTP do
   defcallback req_headers(conn)
 
   @doc """
+  Returns the request body as a binary.
+  """
+  defcallback req_body(conn)
+
+  @doc """
   Returns the HTTP method as a binary.
 
   ## Examples
