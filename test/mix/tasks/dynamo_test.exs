@@ -30,7 +30,7 @@ defmodule Mix.Tasks.DynamoTest do
       end
 
       assert_file "app/routers/application_router.ex"
-      assert_file "app/views/hello.html.eex"
+      assert_file "app/views/index.html.eex"
 
       assert_file "config/environments/dev.exs"
       assert_file "config/environments/test.exs"

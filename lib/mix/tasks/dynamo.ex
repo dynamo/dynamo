@@ -66,7 +66,7 @@ defmodule Mix.Tasks.Dynamo do
     create_file "app/routers/application_router.ex", app_router_template(assigns)
 
     create_directory "app/views"
-    create_file "app/views/hello.html.eex", app_view_template(assigns)
+    create_file "app/views/index.html.eex", app_view_template(assigns)
 
     create_directory "config"
     create_file "config/app.ex", config_app_template(assigns)
@@ -149,13 +149,27 @@ defmodule Mix.Tasks.Dynamo do
     # forward "/posts", to: PostsRouter
 
     get "/" do
-      conn.resp_body("Hello world")
+      conn = conn.assign(:title, "Welcome to Dynamo!")
+      render conn, "index.html"
     end
   end
   """
 
   embed_template :app_view, """
-  HELLO!
+  <!DOCTYPE HTML>
+  <html>
+  <head>
+    <title><%= @title %></title>
+  </head>
+  <body>
+    <h3>Welcome to Dynamo!</h3>
+    <ol>
+      <li>Change this view at <code>app/views/index.html.eex</code></li>
+      <li>Add new routes at <code>app/routers/application_router.ex</code></li>
+      <li>Deploy to production with <code>MIX_ENV=prod mix do compile, server</li>
+    </ol>
+  </body>
+  </html>
   """
 
   embed_template :config_app, """
