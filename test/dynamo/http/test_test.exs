@@ -140,7 +140,7 @@ defmodule Dynamo.HTTP.TestTest do
   end
 
   test :sendfile do
-    file = File.expand_path("../../../fixtures/public/file.txt", __FILE__)
+    file = File.expand_path("../../../fixtures/static/file.txt", __FILE__)
     conn = conn(:GET, "/").sendfile(file)
     assert conn.state     == :sent
     assert conn.status    == 200

@@ -100,6 +100,8 @@ defmodule Dynamo.Router do
       use_once Dynamo.Router.Callbacks
       use_once Dynamo.Router.Filters
       use_once Dynamo.Router.Fetch
+
+      import Dynamo.Router.Rendering
     end
   end
 end

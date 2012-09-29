@@ -7,14 +7,6 @@ defmodule Dynamo.ViewTest do
   @path_finder  Dynamo.View.PathFinder.new(@fixture_path)
   @view_paths   [@path_finder]
 
-  def setup(_) do
-    Dynamo.View.Renderer.start_link
-  end
-
-  def teardown(_) do
-    Dynamo.View.Renderer.stop
-  end
-
   test "renders a template" do
     body = render "hello.html"
     assert body == "HELLO!"
@@ -52,19 +44,19 @@ defmodule Dynamo.ViewTest do
   end
 
   test "compiles a module with the given templates" do
-    Dynamo.View.compile_module(CompileTest.Sample0, @path_finder.all, [])
+    Dynamo.View.compile_module(CompileTest.CompiledViews, @path_finder.all, [:conn])
 
     path     = File.join(@fixture_path, "hello.html.eex")
-    template = CompileTest.Sample0.find "hello.html"
+    template = CompileTest.CompiledViews.find "hello.html"
 
     assert Dynamo.View.Template[identifier: ^path, key: "hello.html",
-      handler: Dynamo.View.EEXHandler, format: "html", ref: { CompileTest.Sample0, _ }] = template
+      handler: Dynamo.View.EEXHandler, format: "html", ref: { CompileTest.CompiledViews, _ }] = template
 
     { mod, fun } = template.ref
-    assert apply(mod, fun, [[]]) == "HELLO!"
+    assert apply(mod, fun, [[], nil]) == "HELLO!"
   end
 
   defp render(query) do
-    Dynamo.View.render Dynamo.View.find(query, @view_paths), [], []
+    Dynamo.View.render Dynamo.View.find(query, @view_paths), [conn: nil], []
   end
 end

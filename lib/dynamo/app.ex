@@ -116,7 +116,7 @@ defmodule Dynamo.App do
   @doc false
   def default_options(env) do
     [ static_route: "/static",
-      compile_on_demand: false,
+      compile_on_demand: true,
       reload_modules: false,
       source_paths: ["app/*"],
       view_paths: ["app/views"],

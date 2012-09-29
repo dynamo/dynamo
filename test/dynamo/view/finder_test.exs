@@ -15,7 +15,7 @@ defmodule Dynamo.View.PathFinderTest do
 
   test "returns all templates" do
     all = @path_finder.all
-    assert length(all) == 2
+    assert length(all) == 3
     assert Enum.find all, fn(t) -> t.key == "hello.html"  end
     assert Enum.find all, fn(t) -> t.key == "module.html" end
   end
