@@ -30,7 +30,7 @@ defmodule Dynamo.HTTP.Test do
       fetched: [],
       resp_charset: "utf-8",
       resp_body: "",
-      before_send: default_before_send,
+      before_send: Dynamo.HTTP.default_before_send,
       state: :unset
     )
   end

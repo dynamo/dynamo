@@ -34,7 +34,7 @@ defmodule Dynamo.Cowboy.HTTP do
       assigns: [],
       resp_charset: "utf-8",
       resp_body: "",
-      before_send: default_before_send,
+      before_send: Dynamo.HTTP.default_before_send,
       state: :unset
     )
   end
@@ -79,9 +79,7 @@ defmodule Dynamo.Cowboy.HTTP do
 
   def send(status, body, conn) when is_integer(status) and (is_binary(body) or is_tuple(body)) do
     conn = run_before_send(conn)
-    connection(resp_headers: headers, resp_cookies: cookies, req: req) = conn
-
-    req  = Enum.reduce cookies, req, write_cookie(&1, &2)
+    connection(resp_headers: headers, req: req) = conn
     { :ok, req } = R.reply(status, Dict.to_list(headers), body, req)
 
     connection(conn,
@@ -141,10 +139,5 @@ defmodule Dynamo.Cowboy.HTTP do
       [""|segments] -> segments
       segments -> segments
     end
-  end
-
-  defp write_cookie({ key, value, opts }, req) do
-    opts = Keyword.update(opts, :http_only, true, fn(x) -> x end)
-    R.set_resp_cookie(key, value, opts, req)
   end
 end

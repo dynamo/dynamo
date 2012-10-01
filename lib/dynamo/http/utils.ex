@@ -5,25 +5,6 @@ defmodule Dynamo.HTTP.Utils do
   """
 
   @doc """
-  Receives a datetime in universal time and
-  converts it to rfc2822.
-  """
-  def rfc2822({ { year, month, day } = date, { hour, minute, second } }) do
-    weekday_name  = weekday_name(:calendar.day_of_the_week(date))
-    month_name    = month_name(month)
-    padded_day    = pad(day)
-    padded_hour   = pad(hour)
-    padded_minute = pad(minute)
-    padded_second = pad(second)
-    binary_year   = integer_to_binary(year)
-
-    weekday_name <> ", " <> padded_day <>
-      "-" <> month_name <> "-" <> binary_year <>
-      " " <> padded_hour <> ":" <> padded_minute <>
-      ":" <> padded_second <> " GMT"
-  end
-
-  @doc """
   Receives a cookie key, value, options and returns
   a cookie header.
   """
@@ -43,7 +24,7 @@ defmodule Dynamo.HTTP.Utils do
     if max_age = options[:max_age] do
       time = options[:universal_time] || :calendar.universal_time
       time = add_seconds(time, max_age)
-      header = header <> "; expires=#{rfc2822(time)}"
+      header = header <> "; expires=" <> rfc2822(time) <> "; max-age=" <> integer_to_binary(max_age)
     end
 
     if options[:secure] do
@@ -67,6 +48,21 @@ defmodule Dynamo.HTTP.Utils do
 
   defp integer_to_binary(number) do
     number /> integer_to_list /> list_to_binary
+  end
+
+  defp rfc2822({ { year, month, day } = date, { hour, minute, second } }) do
+    weekday_name  = weekday_name(:calendar.day_of_the_week(date))
+    month_name    = month_name(month)
+    padded_day    = pad(day)
+    padded_hour   = pad(hour)
+    padded_minute = pad(minute)
+    padded_second = pad(second)
+    binary_year   = integer_to_binary(year)
+
+    weekday_name <> ", " <> padded_day <>
+      " " <> month_name <> " " <> binary_year <>
+      " " <> padded_hour <> ":" <> padded_minute <>
+      ":" <> padded_second <> " GMT"
   end
 
   defp weekday_name(1), do: "Mon"

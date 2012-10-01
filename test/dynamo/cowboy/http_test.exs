@@ -200,7 +200,7 @@ defmodule Dynamo.Cowboy.HTTPTest do
 
     { _, headers, _ } = response
     { "Set-Cookie", contents } = List.keyfind(headers, "Set-Cookie", 0)
-    assert contents =~ %r"foo=; Version=1; Expires=Thu, 01 Jan 1970 \d\d:\d\d:\d\d GMT; Max-Age=0; HttpOnly"
+    assert contents =~ %r"foo=; expires=Thu, 01 Jan 1970 12:00:00 GMT; max-age=0; HttpOnly"
 
     headers = List.keydelete(headers, "Set-Cookie", 0)
     assert List.keyfind(headers, "Set-Cookie", 0) == nil

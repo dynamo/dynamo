@@ -5,7 +5,7 @@ defmodule Dynamo.HTTP.Behaviour do
   to be defined with the following keys - defaults:
 
   * assigns - an empty list
-  * before_send - a call to `default_before_send`
+  * before_send - a call to `Dynamo.HTTP.default_before_send`
   * method - the current request method
   * original_method - `nil`
   * state - `:unset`
@@ -19,6 +19,8 @@ defmodule Dynamo.HTTP.Behaviour do
   * script_name_segments - an empty list
 
   """
+
+  @doc false
   defmacro __using__(_) do
 
     quote location: :keep do
@@ -75,7 +77,6 @@ defmodule Dynamo.HTTP.Behaviour do
       end
 
       ## Cookies
-      ## TODO: Move this out
 
       def cookies(connection(cookies: nil)) do
         raise Dynamo.HTTP.UnfetchedError, aspect: :cookies
@@ -106,7 +107,7 @@ defmodule Dynamo.HTTP.Behaviour do
           connection(cookies: cookies, resp_cookies: resp_cookies) = conn) do
         key  = to_binary(key)
         unix = { { 1970, 1, 1 }, { 12, 0, 0 } }
-        opts = Keyword.merge(opts, max_age: 0, local_time: unix)
+        opts = Keyword.merge(opts, max_age: 0, universal_time: unix)
 
         if cookies do
           cookies = Dict.delete(cookies, key)
@@ -218,21 +219,6 @@ defmodule Dynamo.HTTP.Behaviour do
 
       defp run_before_send(connection(before_send: before_send) = conn) do
         Enum.reduce Enum.reverse(before_send), conn, fn(fun, c) -> fun.(c) end
-      end
-
-      defp default_before_send do
-        [ set_resp_content_type_header(&1) ]
-      end
-
-      defp set_resp_content_type_header(conn) do
-        if content_type = conn.resp_content_type do
-          if charset = conn.resp_charset do
-            content_type = content_type <> "; charset=" <> charset
-          end
-          conn.set_resp_header("content-type", content_type)
-        else
-          conn
-        end
       end
     end
 

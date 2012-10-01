@@ -15,8 +15,6 @@ defmodule Dynamo.HTTP do
 
   defexception InvalidSendOnHeadError, message: "Cannot send data because conn.original_method is HEAD"
 
-  use Behaviour
-
   @moduledoc """
   This module defines the API implemented by the http
   connection, as in Dynamo.Cowboy.HTTP and Dynamo.HTTP.Test.
@@ -32,6 +30,35 @@ defmodule Dynamo.HTTP do
   header, a new connection will be returned with the new header
   set. The original `conn` is not going to be modified.
   """
+
+  @doc """
+  Default values for before send callbacks.
+  It contains callbacks to set content type,
+  configure cookies and session.
+  """
+  def default_before_send do
+    [ set_resp_cookies(&1),
+      set_resp_content_type_header(&1) ]
+  end
+
+  defp set_resp_content_type_header(conn) do
+    if content_type = conn.resp_content_type do
+      if charset = conn.resp_charset do
+        content_type = content_type <> "; charset=" <> charset
+      end
+      conn.set_resp_header("content-type", content_type)
+    else
+      conn
+    end
+  end
+
+  defp set_resp_cookies(conn) do
+    Enum.reduce conn.resp_cookies, conn, fn({ key, value, opts }, acc) ->
+      acc.set_resp_header("Set-Cookie", Dynamo.HTTP.Utils.cookie_header(key, value, opts))
+    end
+  end
+
+  use Behaviour
 
   ## Request API
 
@@ -255,8 +282,7 @@ defmodule Dynamo.HTTP do
   ## Options
 
   * `max_age` - The cookie max-age in seconds. In order to support
-    older IE versions, setting `max_age` also sets the Expires, which
-    the developer may customize by passing `local_time`;
+    older IE versions, setting `max_age` also sets the Expires header;
 
   * `secure` - Marks the cookie as secure;
 
