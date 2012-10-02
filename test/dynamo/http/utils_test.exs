@@ -43,6 +43,6 @@ defmodule Dynamo.HTTP.UtilsTest do
   test "supports max_age" do
     start  = { { 2012, 9, 29 }, { 15, 32, 10 } }
     header = Utils.cookie_header("foo", "bar", max_age: 60, universal_time: start)
-    assert header == "foo=bar; expires=Sat, 29-Sep-2012 15:33:10 GMT; max-age=60; HttpOnly"
+    assert header == "foo=bar; expires=Sat, 29 Sep 2012 15:33:10 GMT; max-age=60; HttpOnly"
   end
 end

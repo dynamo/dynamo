@@ -1,8 +1,12 @@
 language: erlang
-script: "git clone https://github.com/elixir-lang/elixir.git && cd elixir && make compile && export PATH=$PATH:`pwd`/bin && cd .. && MIX_ENV=test mix do deps.get, test"
 notifications:
   recipients:
     - jose.valim@plataformatec.com.br
 otp_release:
+  - R15B02
   - R15B01
-  - R15B
+before_install:
+  - git clone https://github.com/elixir-lang/elixir
+  - cd elixir && make && cd ..
+before_script: "export PATH=`pwd`/elixir/bin:$PATH"
+script: "MIX_ENV=test mix do deps.get, test"
