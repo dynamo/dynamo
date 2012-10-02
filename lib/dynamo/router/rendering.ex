@@ -4,6 +4,13 @@ defmodule Dynamo.Router.Rendering do
   and similar functions.
   """
 
+  @doc false
+  defmacro __using__(_) do
+    quote do
+      import unquote(__MODULE__)
+    end
+  end
+
   @doc """
   Renders a template and assigns its contents
   to the given `conn`. The template content type,
