@@ -72,8 +72,15 @@ defmodule Dynamo.Reloader do
         dir  = Enum.find dirs, fn(dir) -> File.regular?(File.join(dir, path)) end
 
         if dir do
-          file    = File.join(dir, path)
-          tuples  = Code.require_file(file) || []
+          file   = File.join(dir, path)
+          tuples =
+            try do
+              Code.require_file(file) || []
+            catch
+              kind, reason ->
+                Code.unload_files [file]
+                apply(:erlang, kind, [reason])
+            end
           modules = lc { mod, _ } inlist tuples, do: mod
           :gen_server.cast(__MODULE__, { :loaded, file, modules })
           :ok
