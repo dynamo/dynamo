@@ -9,15 +9,11 @@ defmodule Dynamo.Router.Rendering do
   to the given `conn`. The template content type,
   if available, is also set in the `conn`.
 
-  By default, render will use the view paths
-  defined in `Dynamo.app` but they can be customized
-  by passing `:view_paths`.
-
   Raises Dynamo.View.TemplateNotFound if the given
   template can't be found.
   """
-  def render(conn, template, opts // []) do
-    view_paths = opts[:view_paths] || Dynamo.app.view_paths
+  def render(conn, template) do
+    view_paths = Dynamo.app.view_paths
     template   = Dynamo.View.find(template, view_paths)
 
     unless template do

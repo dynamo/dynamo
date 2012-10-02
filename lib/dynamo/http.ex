@@ -305,7 +305,8 @@ defmodule Dynamo.HTTP do
 
   @doc """
   Responsible for fetching and caching aspects of the response.
-  The "fetchable" aspects are: headers, params, cookies and session.
+  The "fetchable" aspects are: headers, params, cookies, body
+  and session.
   """
   defcallback fetch(aspect, conn)
 
