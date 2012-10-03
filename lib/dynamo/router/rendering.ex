@@ -62,11 +62,13 @@ defmodule Dynamo.Router.Rendering do
     locals  = [conn: conn]
     assigns = Keyword.merge(conn.assigns, assigns)
     layout  = assigns[:layout]
-    body    = Dynamo.View.render(template, locals, assigns)
+
+    { [conn], body } = Dynamo.View.render(template, locals, assigns)
 
     if layout do
       template = Dynamo.View.find!("layouts/" <> layout, view_paths)
-      body     = Dynamo.View.render(template, locals, Keyword.put(assigns, :yield, body))
+      assigns  = Keyword.put(assigns, :yield, body)
+      { [conn], body } = Dynamo.View.render(template, locals, assigns)
     end
 
     conn.resp_body(body)

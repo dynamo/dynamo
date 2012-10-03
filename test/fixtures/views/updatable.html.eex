@@ -1,0 +1,3 @@
+UPDATE
+<% conn = conn.assign(:template, :eex) %>
+CONN

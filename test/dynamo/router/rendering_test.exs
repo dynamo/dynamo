@@ -58,6 +58,12 @@ defmodule Dynamo.Router.RenderingTest do
     assert conn.resp_content_type == "text/html"
   end
 
+  test "returns the updated connection" do
+    conn = get("/updatable.html")
+    assert conn.resp_body == "UPDATE\n\nCONN"
+    assert conn.assigns[:template] == :eex
+  end
+
   test "works with layouts" do
     conn = get("/with_layout")
     assert conn.resp_body == "<html>\nHELLO!\n</html>"

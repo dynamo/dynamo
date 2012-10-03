@@ -30,24 +30,12 @@ defmodule Dynamo.View.Handler do
   Get the template handler for the given extension.
   """
   def get!(extension) do
-    module = Module.concat(Dynamo.View, upcase(extension) <> "Handler")
+    module = Module.concat(Dynamo.View, String.upcase(extension) <> "Handler")
     if Code.ensure_loaded?(module) do
       module
     else
       raise "Could not find handler for #{extension}"
     end
-  end
-
-  defp upcase(<<h, t :: binary>>) when h in ?a..?z do
-    <<h - 32, upcase(t) :: binary>>
-  end
-
-  defp upcase(<<h, t :: binary>>) do
-    <<h, upcase(t) :: binary>>
-  end
-
-  defp upcase(<<>>) do
-    <<>>
   end
 end
 
@@ -56,13 +44,15 @@ defmodule Dynamo.View.EEXHandler do
   @behaviour Dynamo.View.Handler
 
   def compile(Dynamo.View.Template[source: source, identifier: identifier], locals) do
-    locals = [:assigns|locals]
-    match  = match(locals)
+    vars   = vars(locals)
+    args   = [{ :assigns, 0, nil }|vars]
+    match  = match(args)
     source = EEx.compile_string(source, file: identifier)
 
-    { args(locals), quote do
+    { args, quote do
       __block__ unquote(match)
-      unquote(source)
+      body = unquote(source)
+      { unquote(vars), body }
     end }
   end
 
@@ -70,11 +60,11 @@ defmodule Dynamo.View.EEXHandler do
     apply module, function, [assigns|Keyword.values(locals)]
   end
 
-  defp args(locals) do
+  defp vars(locals) do
     lc name inlist locals, do: { name, 0, nil }
   end
 
   defp match(locals) do
-    lc name inlist locals, do: { :=, 0, [{ :_, 0, nil }, { name, 0 , nil }] }
+    lc var inlist locals, do: { :=, 0, [{ :_, 0, nil }, var] }
   end
 end

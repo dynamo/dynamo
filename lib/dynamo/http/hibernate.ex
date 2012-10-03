@@ -1,10 +1,16 @@
 defmodule Dynamo.HTTP.Hibernate do
-  @assign :__timer_ref
-
   @moduledoc """
   Conveniences that allows a connection to hibernate or
   sleep a given amount or an unlimited amount of time.
+  Such conveniences are useful when a connection needs
+  to be kept open (because of long polling, websockets
+  or streaming) but you don't want to keep the current
+  erlang process active all times and sleeping through
+  small intervals or hibernating through long intervals
+  is convenient.
   """
+
+  @assign :__timer_ref
 
   @doc """
   Hibernates the current process until a message is received.

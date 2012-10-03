@@ -53,10 +53,12 @@ defmodule Dynamo.ViewTest do
       handler: Dynamo.View.EEXHandler, format: "html", ref: { CompileTest.CompiledViews, _ }] = template
 
     { mod, fun } = template.ref
-    assert apply(mod, fun, [[], nil]) == "HELLO!"
+    assert apply(mod, fun, [[], nil]) == { [nil], "HELLO!" }
   end
 
   defp render(query) do
-    Dynamo.View.render Dynamo.View.find(query, @view_paths), [conn: nil], []
+    { [nil], body } =
+      Dynamo.View.render Dynamo.View.find(query, @view_paths), [conn: nil], []
+    body
   end
 end
