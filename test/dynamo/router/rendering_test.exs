@@ -11,6 +11,10 @@ defmodule Dynamo.Router.RenderingTest do
       render conn.resp_content_type("application/json"), "hello.html"
     end
 
+    get "/with_layout" do
+      render conn, "hello.html", layout: "application.html"
+    end
+
     get "/:template" do
       render conn.assign(:hello, "world"), template
     end
@@ -51,6 +55,12 @@ defmodule Dynamo.Router.RenderingTest do
   test "works with assigns" do
     conn = get("/assigns.html")
     assert conn.resp_body == "world"
+    assert conn.resp_content_type == "text/html"
+  end
+
+  test "works with layouts" do
+    conn = get("/with_layout")
+    assert conn.resp_body == "<html>\nHELLO!\n</html>"
     assert conn.resp_content_type == "text/html"
   end
 

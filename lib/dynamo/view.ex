@@ -33,6 +33,16 @@ defmodule Dynamo.View do
   end
 
   @doc """
+  Finds the given template in any of the view paths,
+  raises `Dynamo.View.TemplateNotfound` if a template
+  cannot be found.
+  """
+  def find!(query, view_paths) do
+    find(query, view_paths) ||
+      raise Dynamo.View.TemplateNotFound, query: query, view_paths: view_paths
+  end
+
+  @doc """
   Renders the given template with the given assigns.
   """
   def render(template, locals, assigns) do
