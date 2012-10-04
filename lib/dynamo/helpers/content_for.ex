@@ -11,12 +11,12 @@ defmodule Dynamo.Helpers.ContentFor do
       <html>
       <head>
         <title>
-          <%= yield(:title) %>
+          <%= content_for(:title) %>
         </title>
       </head>
       <body>
-        <%= yield(:template) %>
-        <%= yield(:footer) || "Default footer" %>
+        <%= content_for(:template) %>
+        <%= content_for(:footer) || "Default footer" %>
       </body>
       </html>
 
@@ -27,7 +27,7 @@ defmodule Dynamo.Helpers.ContentFor do
       <% end %>
 
       Template body.
-      This is returned by yield :template.
+      This is returned by content_for :template.
 
       <% content_for :footer, "Template footer" %>
 
@@ -35,14 +35,14 @@ defmodule Dynamo.Helpers.ContentFor do
   the template is first rendered, collecting the
   `content_for` chunks used and then finally assigning
   the whole template to a `:template` chunk. The layout
-  can latter retrieve any chunk by calling yield.
+  can later retrieve any chunk by calling `content_for(key)`.
   """
 
   @key :__contents__
 
   @doc """
   Stores the given `value` under the given `key`. This value
-  can later be retrieved by calling `yield`.
+  can later be retrieved by calling `content_for(key)`.
 
   ## Implementation details
 
@@ -59,11 +59,11 @@ defmodule Dynamo.Helpers.ContentFor do
   end
 
   @doc """
-  Yields the given key. If the stored value is a function,
-  it is automatically invoked, otherwise returns the raw
-  value.
+  Gets the content for the given key. If the stored value
+  is a function, it is automatically invoked, otherwise
+  returns the raw value.
   """
-  defmacro yield(key) do
+  defmacro content_for(key) do
     quote hygiene: false do
       unquote(__MODULE__).get_content(conn, unquote(key))
     end
