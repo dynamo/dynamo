@@ -10,7 +10,7 @@ defmodule Dynamo.HTTP.Hibernate do
   is convenient.
   """
 
-  @assign :__timer_ref
+  @key :__timeref__
 
   @doc """
   Hibernates the current process until a message is received.
@@ -70,7 +70,7 @@ defmodule Dynamo.HTTP.Hibernate do
 
   @doc false
   def __loop__(conn, on_wake_up, on_timeout) do
-    ref = conn.assigns[@assign]
+    ref = conn.assigns[@key]
     receive do
       { :timeout, ^ref, __MODULE__ } ->
         on_timeout.(conn)
@@ -82,12 +82,12 @@ defmodule Dynamo.HTTP.Hibernate do
   end
 
   defp clear_timeout(conn) do
-    ref = conn.assigns[@assign]
+    ref = conn.assigns[@key]
     ref && :erlang.cancel_timer(ref)
   end
 
   defp set_timeout(conn, timeout) do
     ref = :erlang.start_timer(timeout, self(), __MODULE__)
-    conn.assign(@assign, ref)
+    conn.assign(@key, ref)
   end
 end

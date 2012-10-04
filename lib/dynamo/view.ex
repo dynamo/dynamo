@@ -54,28 +54,42 @@ defmodule Dynamo.View do
   given by `name`. It returns the module binary,
   """
   def compile_module(name, templates, locals, prelude) do
-    { :module, _, binary, _ } =
-      defmodule name do
-        Module.eval_quoted __ENV__, prelude.()
-
-        Enum.reduce templates, 0, fn(template, i) ->
-          template = template.ref({ name, :"template_#{i}" })
-          def :find, [template.key], [], do: Macro.escape(template)
-          i + 1
+    { finders, _ } =
+      Enum.map_reduce templates, 0, fn(template, i) ->
+        template = template.ref({ name, :"template_#{i}" })
+        finder   = quote do
+          def find(unquote(template.key)) do
+            unquote(Macro.escape(template))
+          end
         end
+        { finder, i + 1 }
+      end
+
+    { templates, _ } =
+      Enum.map_reduce templates, 0, fn(template, i) ->
+        { args, source } = template.handler.compile(template, locals)
+        template =
+          quote do
+            @file unquote(template.identifier)
+            def unquote(:"template_#{i}")(unquote_splicing(args)) do
+              unquote(source)
+            end
+          end
+        { template, i + 1 }
+      end
+
+    contents =
+      quote do
+        unquote(prelude.())
+        unquote(templates)
+        unquote(finders)
 
         def find(_) do
           nil
         end
-
-        Enum.reduce templates, 0, fn(template, i) ->
-          { args, source } = template.handler.compile(template, locals)
-          @file template.identifier
-          def :"template_#{i}", args, [], do: source
-          i + 1
-        end
       end
 
+    { :module, _, binary, _ } = Module.create(name, contents, __ENV__)
     binary
   end
 end

@@ -70,7 +70,7 @@ defmodule Dynamo.App.Base do
       """
       def views do
         quote do
-          use Dynamo.View.Helpers
+          use Dynamo.Helpers
         end
       end
 

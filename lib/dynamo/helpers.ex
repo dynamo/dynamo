@@ -1,4 +1,4 @@
-defmodule Dynamo.View.Helpers do
+defmodule Dynamo.Helpers do
   @moduledoc """
   A simple module that aggregates all common views
   functionality in Dynamo.
@@ -6,6 +6,8 @@ defmodule Dynamo.View.Helpers do
 
   @doc false
   defmacro __using__(_) do
-    
+    quote do
+      import Dynamo.Helpers.ContentFor
+    end
   end
 end

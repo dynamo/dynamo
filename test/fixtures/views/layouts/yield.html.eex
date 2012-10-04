@@ -1,0 +1,9 @@
+<html>
+<head>
+  <title><%= yield(:title) %></title>
+</head>
+<body>
+  <%= yield(:intro) || "This is the intro" %>
+  <%= yield(:template) %>
+  <%= yield(:footer) %>
+</html>

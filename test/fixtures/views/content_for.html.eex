@@ -1,0 +1,5 @@
+<% content_for :title, fn -> %>
+  My Title
+<% end %>
+Template body
+<% content_for :footer, "My footer" %>

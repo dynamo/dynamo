@@ -188,7 +188,7 @@ defmodule Mix.Tasks.Dynamo do
 
     # Default functionality available in views
     views do
-      use Dynamo.View.Helpers
+      use Dynamo.Helpers
     end
 
     initializer :start_otp_app do

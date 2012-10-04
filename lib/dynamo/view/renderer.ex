@@ -125,12 +125,15 @@ defmodule Dynamo.View.Renderer do
     if :code.is_loaded(module) do
       generate_module(args, source, identifier, prelude, attempts + 1)
     else
-      defmodule module do
-        Module.eval_quoted __ENV__, prelude.()
-        @file identifier
-        def :render, args, [], do: source
+      contents = quote do
+        unquote(prelude.())
+        @file unquote(identifier)
+        def render(unquote_splicing(args)) do
+          unquote(source)
+        end
       end
 
+      Module.create(module, contents, __ENV__)
       module
     end
   end

@@ -12,7 +12,7 @@ defmodule Dynamo.Router.RenderingTest do
     end
 
     get "/with_layout" do
-      render conn, "hello.html", layout: "application.html"
+      render conn, "content_for.html", layout: "yield.html"
     end
 
     get "/:template" do
@@ -66,7 +66,22 @@ defmodule Dynamo.Router.RenderingTest do
 
   test "works with layouts" do
     conn = get("/with_layout")
-    assert conn.resp_body == "<html>\nHELLO!\n</html>"
+    assert conn.resp_body == """
+    <html>
+    <head>
+      <title>
+      My Title
+    </title>
+    </head>
+    <body>
+      This is the intro
+      
+    Template body
+    
+    
+      My footer
+    </html>
+    """
     assert conn.resp_content_type == "text/html"
   end
 

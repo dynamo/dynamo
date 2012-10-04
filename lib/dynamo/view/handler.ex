@@ -34,7 +34,7 @@ defmodule Dynamo.View.Handler do
     if Code.ensure_loaded?(module) do
       module
     else
-      raise "Could not find handler for #{extension}"
+      raise "Could not find handler for extension #{extension}"
     end
   end
 end
