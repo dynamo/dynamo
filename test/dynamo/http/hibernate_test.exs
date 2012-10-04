@@ -35,31 +35,31 @@ defmodule Dynamo.HTTP.HibernateTest do
     assert_timeout
   end
 
-  test "sleeps and invokes wake up callback" do
+  test "awaits and invokes wake up callback" do
     conn = conn(:GET, "/").assign(:parent, self())
 
     pid = spawn_link fn ->
-      sleep conn, on_wake_up(&1, &2)
+      await conn, on_wake_up(&1, &2)
     end
 
     assert await_wake_up(pid)
   end
 
-  test "sleeps with timeout and invokes wake up callback" do
+  test "awaits with timeout and invokes wake up callback" do
     conn = conn(:GET, "/").assign(:parent, self())
 
     pid = spawn_link fn ->
-      sleep conn, 10_000, on_wake_up(&1, &2), on_timeout(&1)
+      await conn, 10_000, on_wake_up(&1, &2), on_timeout(&1)
     end
 
     assert await_wake_up(pid)
   end
 
-  test "sleeps with timeout and invokes time out callback" do
+  test "awaits with timeout and invokes time out callback" do
     conn = conn(:GET, "/").assign(:parent, self())
 
     spawn_link fn ->
-      sleep conn, 10, on_wake_up(&1, &2), on_timeout(&1)
+      await conn, 10, on_wake_up(&1, &2), on_timeout(&1)
     end
 
     assert_timeout

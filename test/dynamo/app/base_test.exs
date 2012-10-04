@@ -6,7 +6,7 @@ defmodule Dynamo.App.BaseTest do
 
   defmodule App do
     @dynamo_registration false
-    use Dynamo.App.Config
+    use Dynamo.App.Base
 
     endpoint Dynamo.App.BaseTest
 

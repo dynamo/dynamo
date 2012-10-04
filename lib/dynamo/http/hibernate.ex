@@ -1,11 +1,11 @@
 defmodule Dynamo.HTTP.Hibernate do
   @moduledoc """
   Conveniences that allows a connection to hibernate or
-  sleep a given amount or an unlimited amount of time.
+  wait a given amount or an unlimited amount of time.
   Such conveniences are useful when a connection needs
   to be kept open (because of long polling, websockets
   or streaming) but you don't want to keep the current
-  erlang process active all times and sleeping through
+  erlang process active all times and waiting through
   small intervals or hibernating through long intervals
   is convenient.
   """
@@ -36,7 +36,7 @@ defmodule Dynamo.HTTP.Hibernate do
   For more information on hibernation, check:
   http://www.erlang.org/doc/man/erlang.html#hibernate-3
   """
-  def hibernate(conn, timeout, on_wake_up, on_timeout) when is_integer(timeout) and
+  def hibernate(conn, timeout, on_wake_up, on_timeout // fn(conn) -> conn end) when is_integer(timeout) and
       is_function(on_wake_up, 2) and is_function(on_timeout, 1) do
     clear_timeout(conn)
     conn = set_timeout(conn, timeout)
@@ -48,7 +48,7 @@ defmodule Dynamo.HTTP.Hibernate do
   The `on_wake_up` callback is invoked with the `conn` and the
   received message on wake up.
   """
-  def sleep(conn, on_wake_up) when is_function(on_wake_up, 2) do
+  def await(conn, on_wake_up) when is_function(on_wake_up, 2) do
     clear_timeout(conn)
     __loop__(conn, on_wake_up, :no_timeout_callback)
   end
@@ -61,7 +61,7 @@ defmodule Dynamo.HTTP.Hibernate do
   received message on wake up. A `on_timeout` callback is
   invoked when it times out.
   """
-  def sleep(conn, timeout, on_wake_up, on_timeout) when is_integer(timeout) and
+  def await(conn, timeout, on_wake_up, on_timeout // fn(conn) -> conn end) when is_integer(timeout) and
       is_function(on_wake_up, 2) and is_function(on_timeout, 1) do
     clear_timeout(conn)
     conn = set_timeout(conn, timeout)

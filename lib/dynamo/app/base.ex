@@ -57,7 +57,7 @@ defmodule Dynamo.App.Base do
   @doc false
   defmacro __using__(_) do
     quote do
-      import Dynamo.App.Config
+      import Dynamo.App.Base
 
       @config []
       @before_compile unquote(__MODULE__)
