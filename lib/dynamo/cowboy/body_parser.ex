@@ -43,7 +43,7 @@ defmodule Dynamo.Cowboy.BodyParser do
   defp multipart_entry(headers, body, acc) do
     case List.keyfind(headers, "content-disposition", 0) do
       { _, value } ->
-        [_|parts] = String.split(value, ";", global: true)
+        [_|parts] = String.split(value, ";")
         parts     = lc part inlist parts, do: to_multipart_kv(part)
 
         case List.keyfind(parts, "name", 0) do
@@ -65,7 +65,7 @@ defmodule Dynamo.Cowboy.BodyParser do
   end
 
   defp to_multipart_kv(binary) do
-    case String.split(binary, "=") do
+    case String.split(binary, "=", global: false) do
       [h]   -> { trim(h), nil }
       [h,t] -> { trim(h), strip_quotes(t) }
     end

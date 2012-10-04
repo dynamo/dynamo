@@ -12,7 +12,7 @@ defmodule Dynamo.Utils.MessageVerifier do
   Decodes and verifies the encoded binary was not tampared with.
   """
   def verify(encoded, secret) do
-    case String.split(encoded, "--") do
+    case String.split(encoded, "--", global: false) do
       [content, digest] when content != "" and digest != "" ->
         if secure_compare(digest(secret, content), digest) do
           { :ok, content /> :base64.decode /> binary_to_term }

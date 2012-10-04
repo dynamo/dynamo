@@ -47,7 +47,8 @@ defmodule Dynamo.Helpers.ContentFor do
   ## Implementation details
 
   Whenever `content_for` is called, the contents are stored
-  in `conn`, which is then reassigned. The decision to make
+  in `conn`, which is then reassigned. The connection is passed
+  transparently to `content_for` via a macro. The decision to make
   this transparent is because different templates implementations
   may use other mechanisms to pass the data around, which does
   not require mangling with the connection.

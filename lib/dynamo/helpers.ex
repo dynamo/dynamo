@@ -8,6 +8,7 @@ defmodule Dynamo.Helpers do
   defmacro __using__(_) do
     quote do
       import Dynamo.Helpers.ContentFor
+      import Dynamo.Helpers.Rendering
     end
   end
 end

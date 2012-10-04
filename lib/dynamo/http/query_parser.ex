@@ -56,7 +56,7 @@ defmodule Dynamo.HTTP.QueryParser do
       #
       case Regex.run(%r"^([^\[]+)\[(.*)\]$", key) do
         [_all, key, subpart] ->
-          [key|String.split(subpart, "][", global: true)]
+          [key|String.split(subpart, "][")]
         _ ->
           [key]
       end

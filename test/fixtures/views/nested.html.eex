@@ -1,0 +1,2 @@
+NESTED
+<%= render "content_for.html" %>

@@ -15,6 +15,10 @@ defmodule Dynamo.Router.RenderingTest do
       render conn, "content_for.html", layout: "yield.html"
     end
 
+    get "/with_nested" do
+      render conn, "nested.html", layout: "yield.html"
+    end
+
     get "/:template" do
       render conn.assign(:hello, "world"), template
     end
@@ -66,28 +70,49 @@ defmodule Dynamo.Router.RenderingTest do
 
   test "works with layouts" do
     conn = get("/with_layout")
-    assert conn.resp_body == """
+    assert strip_lines(conn.resp_body) == """
     <html>
     <head>
-      <title>
-      My Title
+    <title>
+    My Title
     </title>
     </head>
     <body>
-      This is the intro
-      
+    This is the intro
     Template body
-    
-    
-      My footer
+    My footer
     </html>
     """
     assert conn.resp_content_type == "text/html"
   end
 
+  test "works with nested rendering and layouts" do
+    conn = get("/with_nested")
+    assert strip_lines(conn.resp_body) == """
+    <html>
+    <head>
+    <title>
+    My Title
+    </title>
+    </head>
+    <body>
+    This is the intro
+    NESTED
+    Template body
+    My footer
+    </html>
+    """
+    assert conn.resp_content_type == "text/html"
+  end
+
+
   test "raises on invalid template" do
     assert_raise Dynamo.View.TemplateNotFound, fn ->
       get("/unknown.html")
     end
+  end
+
+  defp strip_lines(body) do
+    Regex.replace %r"\n+\s*", body, "\n"
   end
 end
