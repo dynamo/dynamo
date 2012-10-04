@@ -41,11 +41,47 @@ defmodule Dynamo.View.Renderer do
 
   def render(Template[handler: handler] = template, locals, assigns, prelude) do
     module =
-      get_cached(template) ||
-      compile(template, Keyword.keys(locals), prelude) ||
-      raise_too_busy(template)
+      case get_module(template) do
+        { :ok, mod } ->
+          mod
+        { :reserved, mod } ->
+          compile(mod, template, Keyword.keys(locals), prelude)
+        :unavailable ->
+          raise_too_busy(template)
+      end
 
     handler.render(module, :render, locals, assigns)
+  end
+
+  ## Helpers
+
+  defp get_module(Template[identifier: identifier, updated_at: updated_at]) do
+    :gen_server.call(__MODULE__, { :get_module, identifier, updated_at })
+  end
+
+  defp put_module(module, Template[identifier: identifier, updated_at: updated_at]) do
+    :gen_server.cast(__MODULE__, { :put_module, module, identifier, updated_at })
+  end
+
+  defp compile(module, template, locals, prelude) do
+    Template[handler: handler, identifier: identifier] = template
+    { args, source } = handler.compile(template, locals)
+
+    contents = quote do
+      unquote(prelude.())
+      @file unquote(identifier)
+      def render(unquote_splicing(args)) do
+        unquote(source)
+      end
+    end
+
+    Module.create(module, contents, __ENV__)
+    put_module(module, template)
+    module
+  end
+
+  defp raise_too_busy(Template[identifier: identifier]) do
+    raise "Compiling template #{inspect identifier} exceeded the max number of attempts #{@max_attemps}. What gives?"
   end
 
   ## Callbacks
@@ -56,23 +92,15 @@ defmodule Dynamo.View.Renderer do
   end
 
   @doc false
-  def handle_call({ :get_cached, identifier, updated_at }, _from, dict) do
+  def handle_call({ :get_module, identifier, updated_at }, _from, dict) do
     case Dict.get(dict, identifier) do
       { module, cached } when updated_at > cached ->
         spawn fn -> purge_module(module) end
-        { :reply, nil, Dict.delete(dict, identifier) }
+        { :reply, generate_suggestion(0), Dict.delete(dict, identifier) }
       { module, _ } ->
-        { :reply, module, dict }
+        { :reply, { :ok, module }, dict }
       nil ->
-        { :reply, nil, dict }
-    end
-  end
-
-  def handle_call({ :register, identifier, updated_at, args, source, prelude }, _from, dict) do
-    if module = generate_module(args, source, identifier, prelude, 0) do
-      { :reply, module, Dict.put(dict, identifier, { module, updated_at }) }
-    else
-      { :reply, nil, dict }
+        { :reply, generate_suggestion(0), dict }
     end
   end
 
@@ -93,52 +121,33 @@ defmodule Dynamo.View.Renderer do
     { :noreply, Binary.Dict.new }
   end
 
+  def handle_cast({ :put_module, module, identifier, updated_at }, dict) do
+    { :noreply, Dict.put(dict, identifier, { module, updated_at }) }
+  end
+
   def handle_cast(_arg, _dict) do
     super
   end
 
-  ## Helpers
-
-  defp get_cached(Template[identifier: identifier, updated_at: updated_at]) do
-    :gen_server.call(__MODULE__, { :get_cached, identifier, updated_at })
-  end
-
-  defp compile(template, locals, prelude) do
-    Template[handler: handler, identifier: identifier, updated_at: updated_at] = template
-    { args, source } = handler.compile(template, locals)
-    :gen_server.call(__MODULE__, { :register, identifier, updated_at, args, source, prelude })
-  end
-
-  defp raise_too_busy(Template[identifier: identifier]) do
-    raise "Compiling template #{inspect identifier} exceeded the max number of attempts #{@max_attemps}. What gives?"
-  end
+  ## Server Helpers
 
   defp purge_module(module) do
     :code.purge(module)
     :code.delete(module)
   end
 
-  defp generate_module(args, source, identifier, prelude, attempts) when attempts < @max_attemps do
+  defp generate_suggestion(attempts) when attempts < @max_attemps do
     random = :random.uniform(@slots)
     module = Module.concat(Dynamo.View, "Template#{random}")
 
     if :code.is_loaded(module) do
-      generate_module(args, source, identifier, prelude, attempts + 1)
+      generate_suggestion(attempts + 1)
     else
-      contents = quote do
-        unquote(prelude.())
-        @file unquote(identifier)
-        def render(unquote_splicing(args)) do
-          unquote(source)
-        end
-      end
-
-      Module.create(module, contents, __ENV__)
-      module
+      { :reserved, module }
     end
   end
 
-  defp generate_module(_, _, _, _, _) do
-    nil
+  defp generate_suggestion(_) do
+    :unavailable
   end
 end
