@@ -36,7 +36,7 @@ defmodule Dynamo.HTTP.Hibernate do
   For more information on hibernation, check:
   http://www.erlang.org/doc/man/erlang.html#hibernate-3
   """
-  def hibernate(conn, timeout, on_wake_up, on_timeout // fn(conn) -> conn end) when is_integer(timeout) and
+  def hibernate(conn, timeout, on_wake_up, on_timeout) when is_integer(timeout) and
       is_function(on_wake_up, 2) and is_function(on_timeout, 1) do
     clear_timeout(conn)
     conn = set_timeout(conn, timeout)
@@ -61,7 +61,7 @@ defmodule Dynamo.HTTP.Hibernate do
   received message on wake up. A `on_timeout` callback is
   invoked when it times out.
   """
-  def await(conn, timeout, on_wake_up, on_timeout // fn(conn) -> conn end) when is_integer(timeout) and
+  def await(conn, timeout, on_wake_up, on_timeout) when is_integer(timeout) and
       is_function(on_wake_up, 2) and is_function(on_timeout, 1) do
     clear_timeout(conn)
     conn = set_timeout(conn, timeout)
