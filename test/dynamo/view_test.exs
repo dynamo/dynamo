@@ -44,7 +44,7 @@ defmodule Dynamo.ViewTest do
   end
 
   test "compiles a module with the given templates" do
-    Dynamo.View.compile_module(CompileTest.CompiledViews, @path_finder.all, [:conn])
+    Dynamo.View.compile_module(CompileTest.CompiledViews, @path_finder.all, [:conn], fn -> nil end)
 
     path     = File.join(@fixture_path, "hello.html.eex")
     template = CompileTest.CompiledViews.find "hello.html"
@@ -58,7 +58,7 @@ defmodule Dynamo.ViewTest do
 
   defp render(query) do
     { [nil], body } =
-      Dynamo.View.render Dynamo.View.find(query, @view_paths), [conn: nil], []
+      Dynamo.View.render Dynamo.View.find(query, @view_paths), [conn: nil], [], fn -> nil end
     body
   end
 end

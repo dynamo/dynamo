@@ -29,6 +29,17 @@ defmodule Dynamo.App.Config do
   end
 
   @doc """
+  Defines default functionality available in views.
+  """
+  defmacro views(contents) do
+    quote do
+      def views do
+        unquote(Macro.escape(contents))
+      end
+    end
+  end
+
+  @doc """
   Defines an initializer that will be invoked when
   the application starts.
   """
@@ -43,10 +54,20 @@ defmodule Dynamo.App.Config do
   @doc false
   defmacro __using__(_) do
     quote do
-      Module.register_attribute __MODULE__, :initializers, accumulate: true
+      import Dynamo.App.Config
+
       @config []
       @before_compile unquote(__MODULE__)
-      import Dynamo.App.Config
+
+      Module.register_attribute __MODULE__, :initializers, accumulate: true
+
+      def views do
+        quote do
+          use Dynamo.View.Helpers
+        end
+      end
+
+      defoverridable [views: 0]
     end
   end
 

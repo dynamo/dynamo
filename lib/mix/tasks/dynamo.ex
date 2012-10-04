@@ -186,6 +186,11 @@ defmodule Mix.Tasks.Dynamo do
       # You can turn off static assets by setting it to false
       static_route: "/static"
 
+    # Default functionality available in views
+    views do
+      use Dynamo.View.Helpers
+    end
+
     initializer :start_otp_app do
       :application.start config[:dynamo][:otp_app]
     end

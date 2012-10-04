@@ -9,7 +9,7 @@ defmodule Dynamo.Utils.Incrementer do
 end
 
 defmodule Dynamo.Utils.OnceTest do
-  use ExUnit.Case
+  use ExUnit.Case, async: true
 
   Module.register_attribute __MODULE__, :counter, accumulate: true
   @counter 1

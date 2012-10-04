@@ -45,17 +45,19 @@ defmodule Dynamo.View do
   @doc """
   Renders the given template with the given assigns.
   """
-  def render(template, locals, assigns) do
-    Dynamo.View.Renderer.render(template, locals, assigns)
+  def render(template, locals, assigns, prelude) do
+    Dynamo.View.Renderer.render(template, locals, assigns, prelude)
   end
 
   @doc """
   Compiles the given set of `templates` into a module
   given by `name`. It returns the module binary,
   """
-  def compile_module(name, templates, locals) do
+  def compile_module(name, templates, locals, prelude) do
     { :module, _, binary, _ } =
       defmodule name do
+        Module.eval_quoted __ENV__, prelude.()
+
         Enum.reduce templates, 0, fn(template, i) ->
           template = template.ref({ name, :"template_#{i}" })
           def :find, [template.key], [], do: Macro.escape(template)

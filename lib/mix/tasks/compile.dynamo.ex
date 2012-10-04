@@ -106,7 +106,7 @@ defmodule Mix.Tasks.Compile.Dynamo do
                    view_path.eager?,
                    template inlist view_path.all, do: template
 
-    binary = Dynamo.View.compile_module(name, templates, [:conn])
+    binary = Dynamo.View.compile_module(name, templates, [:conn], fn -> Dynamo.app.views end)
     File.write! File.join(compile_path, "#{name}.beam"), binary
 
     Mix.shell.info "Generated #{inspect name}"
