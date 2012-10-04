@@ -12,18 +12,19 @@ defmodule Dynamo.Cowboy.HTTP do
     [ :req, :path_info_segments, :script_name_segments, :req_headers,
       :params, :cookies, :resp_headers, :resp_cookies, :assigns, :status,
       :method, :original_method, :resp_content_type, :resp_charset, :req_body, # :session, :req_body
-      :resp_body, :state, :before_send ]
+      :resp_body, :state, :before_send, :app ]
 
   use Dynamo.HTTP.Behaviour
 
   @doc false
-  def new(req) do
+  def new(app, req) do
     { verb, req } = R.method req
     { path, _ } = R.path req
 
     segments = split_path(path)
 
     connection(
+      app: app,
       req: req,
       original_method: verb,
       method: verb,

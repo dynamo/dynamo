@@ -36,6 +36,10 @@ defmodule Dynamo.HTTP.Behaviour do
         connection(conn, assigns: Keyword.put(assigns, key, value))
       end
 
+      def app(connection(app: app)) do
+        app
+      end
+
       ## Request
 
       def params(connection(params: nil)) do

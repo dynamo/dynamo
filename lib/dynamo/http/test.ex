@@ -12,7 +12,7 @@ defmodule Dynamo.HTTP.Test do
     [ :method, :original_method, :path_segments, :path_info_segments, :script_name_segments,
       :query_string, :raw_req_headers, :req_headers, :raw_req_body, :req_body, :params,
       :resp_headers, :raw_cookies, :cookies, :resp_cookies, :assigns, :before_send,
-      :resp_content_type, :resp_charset, :status, :resp_body, :state, :fetched ]
+      :resp_content_type, :resp_charset, :status, :resp_body, :state, :fetched, :app ]
 
   use Dynamo.HTTP.Behaviour
 
@@ -31,7 +31,8 @@ defmodule Dynamo.HTTP.Test do
       resp_charset: "utf-8",
       resp_body: "",
       before_send: Dynamo.HTTP.default_before_send,
-      state: :unset
+      state: :unset,
+      app: Dynamo.app
     )
   end
 

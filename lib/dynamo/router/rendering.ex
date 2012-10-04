@@ -51,7 +51,7 @@ defmodule Dynamo.Router.Rendering do
 
   """
   def render(conn, template, assigns // []) do
-    app        = Dynamo.app
+    app        = conn.app
     view_paths = app.view_paths
     prelude    = fn -> app.views end
     template   = Dynamo.View.find!(template, view_paths)

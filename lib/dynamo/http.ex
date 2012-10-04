@@ -319,4 +319,9 @@ defmodule Dynamo.HTTP do
   Sets a new assign with the given key and value.
   """
   defcallback assign(key, value, conn)
+
+  @doc """
+  Returns the application that received the request.
+  """
+  defcallback app(conn)
 end
