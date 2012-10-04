@@ -1,6 +1,6 @@
 Code.require_file "../../../test_helper.exs", __FILE__
 
-defmodule Dynamo.App.ConfigTest do
+defmodule Dynamo.App.BaseTest do
   use ExUnit.Case, async: true
   use Dynamo.HTTP.Case
 
@@ -8,7 +8,7 @@ defmodule Dynamo.App.ConfigTest do
     @dynamo_registration false
     use Dynamo.App.Config
 
-    endpoint Dynamo.App.ConfigTest
+    endpoint Dynamo.App.BaseTest
 
     config :dynamo, static_root:  :app
     config :linq,   adapter: :pg

@@ -94,8 +94,7 @@ defmodule Dynamo.App do
 
       use Dynamo.Utils.Once
 
-      use_once Dynamo.App.Config
-      use_once Dynamo.App.Runner
+      use_once Dynamo.App.Base
       use_once Dynamo.Router.Filters
 
       filter Dynamo.Filters.Head

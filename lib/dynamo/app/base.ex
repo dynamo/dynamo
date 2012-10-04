@@ -1,4 +1,4 @@
-defmodule Dynamo.App.Config do
+defmodule Dynamo.App.Base do
   @moduledoc """
   Holds the configuration DSL available in Dynamo.App.
   """
@@ -22,6 +22,9 @@ defmodule Dynamo.App.Config do
     quote do
       @endpoint unquote(endpoint)
 
+      @doc """
+      Receives a connection and dispatches it to #{unquote(endpoint)}
+      """
       def service(conn) do
         @endpoint.service(conn)
       end
@@ -61,13 +64,24 @@ defmodule Dynamo.App.Config do
 
       Module.register_attribute __MODULE__, :initializers, accumulate: true
 
+      @doc """
+      Returns the code to be injected in each view
+      to expose default functionality.
+      """
       def views do
         quote do
           use Dynamo.View.Helpers
         end
       end
 
-      defoverridable [views: 0]
+      @doc """
+      Runs the app in the configured web server.
+      """
+      def run(options // []) do
+        Dynamo.Cowboy.run __MODULE__, options
+      end
+
+      defoverridable [views: 0, run: 1, run: 0]
     end
   end
 
@@ -76,15 +90,26 @@ defmodule Dynamo.App.Config do
     initializers = Module.get_attribute(mod, :initializers)
 
     quote location: :keep do
+
+      @doc """
+      Starts the application by running all registered
+      initialziers. Check `Dynamo.App` for more information.
+      """
       def start do
         unquote(Enum.reverse initializers)
         __MODULE__
       end
 
+      @doc """
+      Returns the configuration for this application.
+      """
       def config do
         @config
       end
 
+      @doc """
+      Returns the registered endpoint.
+      """
       def endpoint do
         @endpoint
       end
