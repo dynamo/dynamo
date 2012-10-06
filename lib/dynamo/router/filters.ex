@@ -126,25 +126,23 @@ defmodule Dynamo.Router.Filters do
   ## Helpers
 
   defp compile_filter(filter, acc) do
-    { mod, extra } = extract_module_and_arity(filter)
-
-    case Code.ensure_compiled(mod) do
+    case Code.ensure_compiled(extract_module(filter)) do
       { :module, _ } ->
-        filter = Macro.escape(filter)
+        escaped = Macro.escape(filter)
 
         cond do
-          function_exported?(mod, :service, 2 + extra)  ->
+          function_exported?(filter, :service, 2)  ->
             quote do
-              unquote(filter).service(conn, fn(conn) -> unquote(acc) end)
+              unquote(escaped).service(conn, fn(conn) -> unquote(acc) end)
             end
-          function_exported?(mod, :prepare, 1 + extra)  ->
+          function_exported?(filter, :prepare, 1)  ->
             quote do
-              conn = unquote(filter).prepare(conn)
+              conn = unquote(escaped).prepare(conn)
               unquote(acc)
             end
-          function_exported?(mod, :finalize, 1 + extra)  ->
+          function_exported?(filter, :finalize, 1)  ->
             quote do
-              unquote(filter).finalize(unquote(acc))
+              unquote(escaped).finalize(unquote(acc))
             end
           true ->
             raise "filter #{inspect filter} does not implement any of the required functions"
@@ -154,11 +152,11 @@ defmodule Dynamo.Router.Filters do
     end
   end
 
-  defp extract_module_and_arity(h) when is_atom(h) do
-    { h, 0 }
+  defp extract_module(mod) when is_atom(mod) do
+    mod
   end
 
-  defp extract_module_and_arity(h) when is_tuple(h) and is_atom(elem(h, 0)) do
-    { elem(h, 0), 1 }
+  defp extract_module(tuple) when is_tuple(tuple) and is_atom(elem(tuple, 0)) do
+    elem(tuple, 0)
   end
 end
