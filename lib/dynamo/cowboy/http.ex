@@ -80,8 +80,8 @@ defmodule Dynamo.Cowboy.HTTP do
 
   def send(status, body, conn) when is_integer(status) and (is_binary(body) or is_tuple(body)) do
     conn = run_before_send(conn)
-    connection(resp_headers: headers, req: req) = conn
-    { :ok, req } = R.reply(status, Dict.to_list(headers), body, req)
+    connection(resp_headers: headers, resp_cookies: cookies, req: req) = conn
+    { :ok, req } = R.reply(status, get_resp_headers(headers, cookies), body, req)
 
     connection(conn,
       req: req,
@@ -139,6 +139,12 @@ defmodule Dynamo.Cowboy.HTTP do
     case :binary.split(path, "/", [:global, :trim]) do
       [""|segments] -> segments
       segments -> segments
+    end
+  end
+
+  defp get_resp_headers(headers, resp_cookies) do
+    Enum.reduce resp_cookies, Binary.Dict.to_list(headers), fn({ key, value, opts }, acc) ->
+      [{ "set-cookie", Dynamo.HTTP.Utils.cookie_header(key, value, opts) }|acc]
     end
   end
 end

@@ -37,8 +37,7 @@ defmodule Dynamo.HTTP do
   configure cookies and session.
   """
   def default_before_send do
-    [ set_resp_cookies(&1),
-      set_resp_content_type_header(&1) ]
+    [ set_resp_content_type_header(&1) ]
   end
 
   defp set_resp_content_type_header(conn) do
@@ -49,12 +48,6 @@ defmodule Dynamo.HTTP do
       conn.set_resp_header("content-type", content_type)
     else
       conn
-    end
-  end
-
-  defp set_resp_cookies(conn) do
-    Enum.reduce conn.resp_cookies, conn, fn({ key, value, opts }, acc) ->
-      acc.set_resp_header("Set-Cookie", Dynamo.HTTP.Utils.cookie_header(key, value, opts))
     end
   end
 

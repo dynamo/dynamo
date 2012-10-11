@@ -183,15 +183,14 @@ defmodule Dynamo.Cowboy.HTTPTest do
   end
 
   test :resp_cookies do
-    IO.puts "[Pending] Cowboy does not support multiple cookies headers"
-    # response = request :get, "/resp_cookies_0"
-    # assert_success response
-    #
-    # { _, headers, _ } = response
-    # assert List.keyfind(headers, "Set-Cookie", 0) == { "Set-Cookie", "foo=bar; Version=1; Path=/hello; HttpOnly" }
-    #
-    # headers = List.keydelete(headers, "Set-Cookie", 0)
-    # assert List.keyfind(headers, "Set-Cookie", 0) == { "Set-Cookie","bar=baz; Version=1" }
+    response = request :get, "/resp_cookies_0"
+    assert_success response
+
+    { _, headers, _ } = response
+    assert List.keyfind(headers, "set-cookie", 0) == { "set-cookie", "foo=bar; path=/hello; HttpOnly" }
+
+    headers = List.keydelete(headers, "set-cookie", 0)
+    assert List.keyfind(headers, "set-cookie", 0) == { "set-cookie","bar=baz" }
   end
 
   test :req_resp_cookies do
@@ -199,11 +198,11 @@ defmodule Dynamo.Cowboy.HTTPTest do
     assert_success response
 
     { _, headers, _ } = response
-    { "Set-Cookie", contents } = List.keyfind(headers, "Set-Cookie", 0)
+    { "set-cookie", contents } = List.keyfind(headers, "set-cookie", 0)
     assert contents =~ %r"foo=; expires=Thu, 01 Jan 1970 12:00:00 GMT; max-age=0; HttpOnly"
 
-    headers = List.keydelete(headers, "Set-Cookie", 0)
-    assert List.keyfind(headers, "Set-Cookie", 0) == nil
+    headers = List.keydelete(headers, "set-cookie", 0)
+    assert List.keyfind(headers, "set-cookie", 0) == nil
   end
 
   ## Assigns
