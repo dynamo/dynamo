@@ -11,7 +11,7 @@ defmodule Dynamo.Cowboy.HTTP do
   Record.defmacros __ENV__, :connection,
     [ :req, :path_info_segments, :script_name_segments, :req_headers,
       :params, :cookies, :resp_headers, :resp_cookies, :assigns, :status,
-      :method, :original_method, :resp_content_type, :resp_charset, :req_body, # :session, :req_body
+      :method, :original_method, :resp_content_type, :resp_charset, :req_body, # :session
       :resp_body, :state, :before_send, :app ]
 
   use Dynamo.HTTP.Behaviour
