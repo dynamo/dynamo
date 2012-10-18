@@ -46,10 +46,6 @@ defmodule Dynamo.HTTP.Utils do
     integer_to_binary(number)
   end
 
-  defp integer_to_binary(number) do
-    number /> integer_to_list /> list_to_binary
-  end
-
   defp rfc2822({ { year, month, day } = date, { hour, minute, second } }) do
     weekday_name  = weekday_name(:calendar.day_of_the_week(date))
     month_name    = month_name(month)
