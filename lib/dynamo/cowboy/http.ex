@@ -8,11 +8,11 @@ defmodule Dynamo.Cowboy.HTTP do
 
   require :cowboy_req, as: R
 
-  Record.defmacros __ENV__, :connection,
+  Record.defmacros :connection,
     [ :req, :path_info_segments, :script_name_segments, :req_headers,
       :params, :cookies, :resp_headers, :resp_cookies, :assigns, :status,
       :method, :original_method, :resp_content_type, :resp_charset, :req_body, # :session
-      :resp_body, :state, :before_send, :app ]
+      :resp_body, :state, :before_send, :app ], __ENV__
 
   use Dynamo.HTTP.Behaviour
 
