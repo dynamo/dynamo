@@ -339,7 +339,7 @@ defmodule Dynamo.Cowboy.HTTPTest do
   def forward_to(conn) do
     assert conn.path_segments == ["forward_to", "foo", "bar", "baz"]
 
-    conn = conn.forward_to [], Foo
+    conn = conn.forward_to ["forward_to", "foo", "bar", "baz"], Foo
     assert conn.path_segments == ["forward_to", "foo", "bar", "baz"]
 
     conn = conn.forward_to ["foo", "bar", "baz"], Foo
@@ -363,6 +363,17 @@ defmodule Dynamo.Cowboy.HTTPTest do
 
     assert conn.script_name == "/forward_to/foo"
     assert conn.script_name_segments == ["forward_to", "foo"]
+
+    conn = conn.forward_to [], Bar
+
+    assert conn.path_info == "/"
+    assert conn.path_info_segments == []
+
+    assert conn.path == "/forward_to/foo/bar/baz"
+    assert conn.path_segments == ["forward_to", "foo", "bar", "baz"]
+
+    assert conn.script_name == "/forward_to/foo/bar/baz"
+    assert conn.script_name_segments == ["forward_to", "foo", "bar", "baz"]
 
     conn
   end

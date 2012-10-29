@@ -139,10 +139,6 @@ defmodule Dynamo.HTTP.Behaviour do
         to_path segments
       end
 
-      def forward_to([], _target, conn) do
-        conn
-      end
-
       def forward_to(segments, _target,
           connection(path_info_segments: path, script_name_segments: script) = conn) do
         { prefix, ^segments } = Enum.split path, length(path) - length(segments)

@@ -8,6 +8,10 @@ defmodule Dynamo.Router.BaseTest do
   defmodule Sample0 do
     use Dynamo.Router
 
+    get "/" do
+      conn.resp_body("OK").assign :value, :root
+    end
+
     get "/nested/:arg" do
       conn.resp_body("OK").assign :value, arg
     end
@@ -130,6 +134,7 @@ defmodule Dynamo.Router.BaseTest do
   end
 
   def test_forwarding_to_another_endpoint do
+    assert get("/10").assigns[:value] == :root
     assert get("/10/nested/match").assigns[:value] == "match"
   end
 
