@@ -191,6 +191,14 @@ defmodule Dynamo.HTTP.Behaviour do
         connection(conn, resp_charset: resp_charset)
       end
 
+      def resp(status, body, conn) when is_integer(status) do
+        connection(conn,
+          status: status,
+          resp_body: body,
+          state: :set
+        )
+      end
+
       def send(connection(status: status, resp_body: body) = conn) do
         send(status, body, conn)
       end
