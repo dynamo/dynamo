@@ -334,6 +334,26 @@ defmodule Dynamo.Cowboy.HTTPTest do
     assert { 500, _, _ } = request :get, "/invalid_sendfile"
   end
 
+  def resp(conn) do
+    assert conn.state == :unset
+
+    conn = conn.resp(201, "OK")
+    assert conn.state     == :set
+    assert conn.status    == 201
+    assert conn.resp_body == "OK"
+
+    conn = conn.resp(302, "Redirected")
+    assert conn.state     == :set
+    assert conn.status    == 302
+    assert conn.resp_body == "Redirected"
+
+    conn
+  end
+
+  test :resp do
+    assert { 302, _, "Redirected" } = request :get, "/resp"
+  end
+
   ## Misc
 
   def forward_to(conn) do
