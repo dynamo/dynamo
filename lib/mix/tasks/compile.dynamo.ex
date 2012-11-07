@@ -26,7 +26,8 @@ defmodule Mix.Tasks.Compile.Dynamo do
 
   """
   def run(args) do
-    { opts, files } = OptionParser.parse(args, flags: [:force])
+    { opts, _ } = OptionParser.parse(args,
+                    flags: [:force, :quick], aliases: [q: :quick])
 
     # Load the dynamo app but don't start it.
     # We will start it just before compilation
@@ -38,7 +39,7 @@ defmodule Mix.Tasks.Compile.Dynamo do
       app.start
       :noop
     else
-      do_compile(app, files, opts)
+      do_compile(app, opts)
     end
   end
 
@@ -48,19 +49,19 @@ defmodule Mix.Tasks.Compile.Dynamo do
     :code.delete(app)
   end
 
-  defp do_compile(app, files, opts) do
+  defp do_compile(app, opts) do
     root    = Dynamo.root
     project = Mix.project
     dynamo  = app.config[:dynamo]
 
     compile_path = project[:compile_path]
     compile_exts = project[:compile_exts]
+    watch_exts   = project[:watch_exts]
     view_paths   = dynamo[:view_paths]
     source_paths = dynamo[:source_paths] ++ extract_views(view_paths)
 
-    files      = Enum.map files, File.expand_path(&1)
-    to_compile = Mix.Utils.extract_files(source_paths, files, [:ex])
-    to_watch   = Mix.Utils.extract_files(source_paths, files, compile_exts)
+    to_compile = Mix.Utils.extract_files(source_paths, compile_exts)
+    to_watch   = Mix.Utils.extract_files(source_paths, watch_exts)
     targets    = [compile_path]
 
     if opts[:force] or Mix.Dynamo.stale_app?(app) or Mix.Utils.stale?(to_watch, targets) do

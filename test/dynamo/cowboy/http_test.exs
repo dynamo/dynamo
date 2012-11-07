@@ -324,7 +324,7 @@ defmodule Dynamo.Cowboy.HTTPTest do
   end
 
   def invalid_sendfile(conn) do
-    conn = conn.sendfile("unknown.file")
+    conn.sendfile("unknown.file")
   end
 
   test :sendfile do
