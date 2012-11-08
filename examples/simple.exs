@@ -5,7 +5,7 @@
 Code.prepend_path("deps/ranch/ebin")
 Code.prepend_path("deps/cowboy/ebin")
 
-Dynamo.start(:prod, __FILE__)
+Dynamo.start(:prod)
 
 defmodule MyApp do
   use Dynamo.Router

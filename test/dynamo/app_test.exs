@@ -5,7 +5,6 @@ defmodule Dynamo.AppTest do
   use Dynamo.HTTP.Case
 
   defmodule App do
-    @dynamo_registration false
     use Dynamo.App
     endpoint Dynamo.AppTest
 
@@ -19,7 +18,6 @@ defmodule Dynamo.AppTest do
   end
 
   defmodule ReloadApp do
-    @dynamo_registration false
     use Dynamo.App
     endpoint Dynamo.AppTest
 
@@ -31,23 +29,6 @@ defmodule Dynamo.AppTest do
   end
 
   ## Config
-
-  test "gets config from environment" do
-    root = Dynamo.root
-    Dynamo.start(:dev, File.expand_path("../../fixtures", __FILE__))
-
-    try do
-      defmodule Env do
-        @dynamo_registration false
-        use Dynamo.App
-        endpoint Dynamo.AppTest
-      end
-
-      assert Env.config[:from_dev][:other] == "config"
-    after
-      Dynamo.start(:dev, root)
-    end
-  end
 
   test "removes views from source paths" do
     view_path = File.expand_path("../../fixtures/views", __FILE__)

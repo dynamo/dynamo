@@ -101,14 +101,6 @@ defmodule Dynamo.App do
 
       config :dynamo, Dynamo.App.default_options(__ENV__)
       Dynamo.App.default_initializers
-
-      if @dynamo_registration != false do
-        @on_load :register_dynamo_app
-
-        defp register_dynamo_app do
-          Dynamo.app(__MODULE__)
-        end
-      end
     end
   end
 
@@ -139,7 +131,7 @@ defmodule Dynamo.App do
   @doc false
   defmacro normalize_options(mod) do
     dynamo = Module.get_attribute(mod, :config)[:dynamo]
-    root   = Dynamo.root
+    root   = File.cwd!
 
     source = dynamo[:source_paths]
     source = Enum.reduce source, [], fn(path, acc) -> expand_paths(path, root) ++ acc end
@@ -172,9 +164,9 @@ defmodule Dynamo.App do
 
   @doc false
   defmacro load_env_file(_) do
-    root = Dynamo.root
-    if File.dir?("#{root}/config/environments") do
-      file = "#{root}/config/environments/#{Dynamo.env}.exs"
+    root = File.rootname(__CALLER__.file, ".ex")
+    if File.dir?("#{root}/environments") do
+      file = "#{root}/environments/#{Dynamo.env}.exs"
       Code.string_to_ast! File.read!(file), file: file
     end
   end

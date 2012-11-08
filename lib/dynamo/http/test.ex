@@ -32,7 +32,7 @@ defmodule Dynamo.HTTP.Test do
       resp_body: "",
       before_send: Dynamo.HTTP.default_before_send,
       state: :unset,
-      app: Dynamo.app
+      app: Dynamo.under_test
     )
   end
 

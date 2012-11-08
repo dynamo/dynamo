@@ -24,9 +24,9 @@ defmodule Mix.Tasks.Server do
   """
   def run(args) do
     { opts, _ } = OptionParser.parse(args, aliases: [p: :port])
-    Mix.Task.run "dynamo.app"
+    Mix.Task.run Mix.project[:prepare_task], args
 
-    app = Dynamo.app
+    app = Enum.first Mix.project[:dynamos]
     endpoint = app.endpoint
 
     if endpoint && not Code.ensure_compiled?(endpoint) do
