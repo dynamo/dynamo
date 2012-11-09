@@ -47,11 +47,11 @@ defmodule Dynamo.AppTest do
   end
 
   test "adds reloader filter" do
-    assert Dynamo.Filters.Reloader.new(true, true) in ReloadApp.filters
+    assert Dynamo.Reloader.Filter.new(true, true) in ReloadApp.filters
   end
 
   test "does not add reloader filter if disabled" do
-    refute Enum.any? App.filters, match?({ Dynamo.Filters.Reloader, _, _ }, &1)
+    refute Enum.any? App.filters, match?({ Dynamo.Reloader.Filter, _, _ }, &1)
   end
 
   ## View paths

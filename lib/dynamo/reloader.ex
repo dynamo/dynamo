@@ -30,7 +30,7 @@ defmodule Dynamo.Reloader do
   """
   def enable! do
     case enable do
-      :error -> raise "cannot enable on demand compilation because reloader server is not available"
+      :error -> raise "cannot enable on demand compilation because reloader mode is disabled"
       other  -> other
     end
   end
@@ -39,9 +39,13 @@ defmodule Dynamo.Reloader do
   Starts the `Dynamo.Reloader` server. Usually called
   internally by Dynamo. The given `paths` must be expanded.
   """
-  def start_link(paths) do
-    { :module, _ } = Code.ensure_loaded(Dynamo.Reloader.ErrorHandler)
-    :gen_server.start({ :local, __MODULE__ }, __MODULE__, paths, [])
+  def append_paths(paths) do
+    unless Process.whereis(__MODULE__) do
+      { :module, _ } = Code.ensure_loaded(Dynamo.Reloader.ErrorHandler)
+      :gen_server.start({ :local, __MODULE__ }, __MODULE__, [], [])
+    end
+
+    :gen_server.cast(__MODULE__, { :append_paths, paths })
   end
 
   @doc """
@@ -149,6 +153,10 @@ defmodule Dynamo.Reloader do
 
   def handle_cast({ :on_purge, fun }, config) do
     { :noreply, config.prepend_on_purge([fun]) }
+  end
+
+  def handle_cast({ :append_paths, paths }, config) do
+    { :noreply, config.update_paths(&1 ++ paths) }
   end
 
   def handle_cast(_arg, _config) do
