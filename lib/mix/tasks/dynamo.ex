@@ -48,12 +48,15 @@ defmodule Mix.Tasks.Dynamo do
   end
 
   defp do_generate(app, opts) do
-    mod     = opts[:module] || camelize(app)
-    dynamo  = if opts[:dev] do
+    mod = opts[:module] || camelize(app)
+    lib = underscore(mod)
+
+    dynamo = if opts[:dev] do
       %b(raw: "#{File.expand_path("../../../..", __FILE__)}")
     else
       %b(github: "josevalim/dynamo")
     end
+
     assigns = [app: app, mod: mod, dynamo: dynamo, version: @version]
 
     create_file "README.md",  readme_template(assigns)
@@ -68,15 +71,14 @@ defmodule Mix.Tasks.Dynamo do
     create_directory "app/views"
     create_file "app/views/index.html.eex", app_view_template(assigns)
 
-    create_directory "config"
-    create_file "config/app.ex", config_app_template(assigns)
-
-    create_directory "config/environments"
-    create_file "config/environments/dev.exs",  config_dev_template(assigns)
-    create_file "config/environments/test.exs", config_test_template(assigns)
-    create_file "config/environments/prod.exs", config_prod_template(assigns)
-
     create_directory "lib"
+    create_file "lib/#{lib}.ex", lib_app_template(assigns)
+
+    create_directory "lib/#{lib}/environments"
+    create_file "lib/#{lib}/environments/dev.exs",  lib_dev_template(assigns)
+    create_file "lib/#{lib}/environments/test.exs", lib_test_template(assigns)
+    create_file "lib/#{lib}/environments/prod.exs", lib_prod_template(assigns)
+
     create_directory "priv"
     create_directory "priv/static"
 
@@ -108,14 +110,16 @@ defmodule Mix.Tasks.Dynamo do
    erl_crash.dump
    """
 
-  embed_template :mixfile, """
+  embed_template :mixfile, %B"""
   defmodule <%= @mod %>.Mixfile do
     use Mix.Project
 
     def project do
       [ app: :<%= @app %>,
         version: "0.0.1",
-        prepare_task: "dynamo.app",
+        compile_path: "ebin/#{Mix.env}",
+        prepare_task: "dynamo.start",
+        dynamos: [<%= @mod %>],
         compilers: [:elixir, :dynamo, :app],
         deps: deps ]
     end
@@ -172,7 +176,9 @@ defmodule Mix.Tasks.Dynamo do
   </html>
   """
 
-  embed_template :config_app, """
+  embed_template :lib_app, """
+  Dynamo.start(Mix.env)
+
   defmodule <%= @mod %> do
     use Dynamo.App
 
@@ -197,7 +203,7 @@ defmodule Mix.Tasks.Dynamo do
   end
   """
 
-  embed_template :config_dev, """
+  embed_template :lib_dev, """
   config :dynamo,
     # Compile modules as they are accessed.
     # This makes development easy as we don't
@@ -207,28 +213,33 @@ defmodule Mix.Tasks.Dynamo do
     # Every time a module in app changes, we
     # will clean up defined modules and pick
     # up the latest versions.
-    reload_modules: true
+    reload_modules: true,
+
+    # Run on port 4000 for development
+    port: 4000
   """
 
-  embed_template :config_test, """
+  embed_template :lib_test, """
   config :dynamo,
     # For testing we compile modules on demand,
     # but there isn't a need to reload them.
     compile_on_demand: true,
-    reload_modules: false
+    reload_modules: false,
+    port: 8888
   """
 
-  embed_template :config_prod, """
+  embed_template :lib_prod, """
   config :dynamo,
     # On production, modules are compiled up-front.
     compile_on_demand: false,
-    reload_modules: false
+    reload_modules: false,
+    port: 80
   """
 
   embed_text :test_features, """
   Code.require_file "../../test_helper.exs", __FILE__
 
-  # Feature tests goes through the Dynamo.app
+  # Feature tests goes through the Dynamo.under_test
   # and are meant to test the full stack.
   defmodule HomeTest do
     use ExUnit.Case
@@ -261,11 +272,7 @@ defmodule Mix.Tasks.Dynamo do
   """
 
   embed_template :test_helper, """
-  unless Dynamo.app do
-    Dynamo.start(:test, File.expand_path("../..", __FILE__))
-    <%= @mod %>.start
-  end
-
+  Dynamo.under_test(<%= @mod %>)
   ExUnit.start
 
   # Enable reloading in each ExUnit process

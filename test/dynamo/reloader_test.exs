@@ -8,7 +8,7 @@ defmodule Dynamo.ReloaderTest do
   end
 
   def setup_all do
-    Dynamo.Reloader.start_link([fixture_path])
+    Dynamo.Reloader.append_paths([fixture_path])
     Dynamo.Reloader.enable
   end
 

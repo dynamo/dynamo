@@ -5,7 +5,6 @@ defmodule Dynamo.AppTest do
   use Dynamo.HTTP.Case
 
   defmodule App do
-    @dynamo_registration false
     use Dynamo.App
     endpoint Dynamo.AppTest
 
@@ -19,7 +18,6 @@ defmodule Dynamo.AppTest do
   end
 
   defmodule ReloadApp do
-    @dynamo_registration false
     use Dynamo.App
     endpoint Dynamo.AppTest
 
@@ -31,23 +29,6 @@ defmodule Dynamo.AppTest do
   end
 
   ## Config
-
-  test "gets config from environment" do
-    root = Dynamo.root
-    Dynamo.start(:dev, File.expand_path("../../fixtures", __FILE__))
-
-    try do
-      defmodule Env do
-        @dynamo_registration false
-        use Dynamo.App
-        endpoint Dynamo.AppTest
-      end
-
-      assert Env.config[:from_dev][:other] == "config"
-    after
-      Dynamo.start(:dev, root)
-    end
-  end
 
   test "removes views from source paths" do
     view_path = File.expand_path("../../fixtures/views", __FILE__)
@@ -66,11 +47,11 @@ defmodule Dynamo.AppTest do
   end
 
   test "adds reloader filter" do
-    assert Dynamo.Filters.Reloader.new(true, true) in ReloadApp.filters
+    assert Dynamo.Reloader.Filter.new(true, true) in ReloadApp.filters
   end
 
   test "does not add reloader filter if disabled" do
-    refute Enum.any? App.filters, match?({ Dynamo.Filters.Reloader, _, _ }, &1)
+    refute Enum.any? App.filters, match?({ Dynamo.Reloader.Filter, _, _ }, &1)
   end
 
   ## View paths

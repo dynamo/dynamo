@@ -1,20 +1,24 @@
 defmodule Mix.Tasks.Dynamo.Filters do
   use Mix.Task
 
-  @shortdoc "Print all application filters"
+  @shortdoc "Print all dynamos filters"
 
   @moduledoc """
-  Prints all application filters
+  Prints all dynamos filters
   """
   def run(args) do
-    Mix.Task.run "dynamo.app", args
-    app   = Dynamo.app
+    Mix.Task.run Mix.project[:prepare_task], args
     shell = Mix.shell
 
-    Enum.each app.filters, fn(filter) ->
-      shell.info "filter #{inspect filter}"
-    end
+    Enum.each Mix.project[:dynamos], fn(dynamo) ->
+      shell.info "# #{inspect dynamo}"
 
-    shell.info "#{inspect app.endpoint || app}.service/1"
+      Enum.each dynamo.filters, fn(filter) ->
+        shell.info "filter #{inspect filter}"
+      end
+
+      shell.info "#{inspect dynamo.endpoint || dynamo}.service/1"
+      shell.info ""
+    end
   end
 end

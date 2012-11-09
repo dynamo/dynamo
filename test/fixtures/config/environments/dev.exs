@@ -1,1 +1,0 @@
-config :from_dev, other: "config"

@@ -5,7 +5,6 @@ defmodule Dynamo.App.BaseTest do
   use Dynamo.HTTP.Case
 
   defmodule App do
-    @dynamo_registration false
     use Dynamo.App.Base
 
     endpoint Dynamo.App.BaseTest

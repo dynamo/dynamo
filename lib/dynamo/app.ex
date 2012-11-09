@@ -39,9 +39,9 @@ defmodule Dynamo.App do
 
   * `Dynamo.Filters.Static` - when a static_route and static_root are set,
      we add this filter to serve static assets;
-  * `Dynamo.Filters.Reloader` - when `:compile_on_demand` or `:reload_modules`
-    configs are set to true, allowing code to be compiled and reloaded on demand;
   * `Dynamo.Filters.Head` - converts HEAD requests to GET;
+  * `Dynamo.Reloader.Filter` - when `:compile_on_demand` or `:reload_modules`
+    configs are set to true, allowing code to be compiled and reloaded on demand;
 
   Filters can be added and removed using `filter` and `remove_filter`
   macros. You can get the list of application filters using:
@@ -101,14 +101,6 @@ defmodule Dynamo.App do
 
       config :dynamo, Dynamo.App.default_options(__ENV__)
       Dynamo.App.default_initializers
-
-      if @dynamo_registration != false do
-        @on_load :register_dynamo_app
-
-        defp register_dynamo_app do
-          Dynamo.app(__MODULE__)
-        end
-      end
     end
   end
 
@@ -128,7 +120,7 @@ defmodule Dynamo.App do
       initializer :start_dynamo_reloader do
         dynamo = config[:dynamo]
         if dynamo[:compile_on_demand] do
-          Dynamo.Reloader.start_link dynamo[:source_paths]
+          Dynamo.Reloader.append_paths dynamo[:source_paths]
           Dynamo.Reloader.enable!
           IEx.preload.after_spawn(fn -> Dynamo.Reloader.enable! end)
         end
@@ -139,7 +131,7 @@ defmodule Dynamo.App do
   @doc false
   defmacro normalize_options(mod) do
     dynamo = Module.get_attribute(mod, :config)[:dynamo]
-    root   = Dynamo.root
+    root   = File.cwd!
 
     source = dynamo[:source_paths]
     source = Enum.reduce source, [], fn(path, acc) -> expand_paths(path, root) ++ acc end
@@ -172,9 +164,9 @@ defmodule Dynamo.App do
 
   @doc false
   defmacro load_env_file(_) do
-    root = Dynamo.root
-    if File.dir?("#{root}/config/environments") do
-      file = "#{root}/config/environments/#{Dynamo.env}.exs"
+    root = File.rootname(__CALLER__.file, ".ex")
+    if File.dir?("#{root}/environments") do
+      file = "#{root}/environments/#{Dynamo.env}.exs"
       Code.string_to_ast! File.read!(file), file: file
     end
   end
@@ -204,7 +196,7 @@ defmodule Dynamo.App do
     end
 
     if dynamo[:compile_on_demand] || dynamo[:reload_modules] do
-      reloader = Dynamo.Filters.Reloader.new(dynamo[:compile_on_demand], dynamo[:reload_modules])
+      reloader = Dynamo.Reloader.Filter.new(dynamo[:compile_on_demand], dynamo[:reload_modules])
       filters  = [reloader|filters]
     end
 

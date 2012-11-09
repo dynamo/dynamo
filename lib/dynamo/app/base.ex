@@ -90,7 +90,6 @@ defmodule Dynamo.App.Base do
     initializers = Module.get_attribute(mod, :initializers)
 
     quote location: :keep do
-
       @doc """
       Starts the application by running all registered
       initialziers. Check `Dynamo.App` for more information.

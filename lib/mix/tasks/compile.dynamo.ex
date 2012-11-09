@@ -26,71 +26,56 @@ defmodule Mix.Tasks.Compile.Dynamo do
 
   """
   def run(args) do
-    { opts, files } = OptionParser.parse(args, flags: [:force])
+    { opts, _ } = OptionParser.parse(args,
+                    flags: [:force, :quick], aliases: [q: :quick])
 
-    # Load the dynamo app but don't start it.
-    # We will start it just before compilation
-    # or manually.
-    Mix.Task.run "dynamo.app", ["--no-start", "--no-stale"]
-    app = Dynamo.app
+    Mix.Task.run "dynamo.start", ["--no-start"]
 
-    if app.config[:dynamo][:compile_on_demand] do
-      app.start
-      :noop
-    else
-      do_compile(app, files, opts)
+    Enum.reduce Mix.project[:dynamos], :noop, fn(dynamo, acc) ->
+      unless dynamo.config[:dynamo][:compile_on_demand] do
+        acc = do_compile(dynamo, opts, acc)
+      end
+      dynamo.start
+      acc
     end
   end
 
-  defp unload_app(app) do
-    Dynamo.app(nil)
-    :code.purge(app)
-    :code.delete(app)
-  end
-
-  defp do_compile(app, files, opts) do
-    root    = Dynamo.root
+  defp do_compile(mod, opts, acc) do
+    root    = File.cwd!
     project = Mix.project
-    dynamo  = app.config[:dynamo]
+    dynamo  = mod.config[:dynamo]
 
     compile_path = project[:compile_path]
     compile_exts = project[:compile_exts]
+    watch_exts   = project[:watch_exts]
     view_paths   = dynamo[:view_paths]
     source_paths = dynamo[:source_paths] ++ extract_views(view_paths)
 
-    files      = Enum.map files, File.expand_path(&1)
-    to_compile = Mix.Utils.extract_files(source_paths, files, [:ex])
-    to_watch   = Mix.Utils.extract_files(source_paths, files, compile_exts)
-    targets    = [compile_path]
+    to_compile = Mix.Utils.extract_files(source_paths, compile_exts)
+    to_watch   = Mix.Utils.extract_files(source_paths, watch_exts)
+    mod_beam   = File.join(compile_path, "#{mod}.beam")
+    stale      = Mix.Utils.extract_stale([mod_beam|to_watch], [compile_path])
 
-    if opts[:force] or Mix.Dynamo.stale_app?(app) or Mix.Utils.stale?(to_watch, targets) do
+    if opts[:force] or stale != [] do
       File.mkdir_p!(compile_path)
 
       if elixir_opts = project[:elixirc_options] do
         Code.compiler_options(elixir_opts)
       end
 
-      Mix.Dynamo.lock_snapshot fn ->
-        compile_app   app, compile_path, root
-        compile_files List.uniq(to_compile), compile_path, root
-        compile_views dynamo[:compiled_view_paths], view_paths, compile_path
-      end
+      Code.delete_path compile_path
+      compile_files to_compile, compile_path, root
+      compile_views mod, dynamo[:compiled_view_paths], view_paths, compile_path
+      Code.prepend_path compile_path
 
       :ok
     else
-      app.start
-      :noop
+      acc
     end
   end
 
   defp extract_views(view_paths) do
     lc view_path inlist view_paths, path = view_path.to_path, do: path
-  end
-
-  defp compile_app(app, compile_path, root) do
-    unload_app(app)
-    compile_files [Mix.Dynamo.app_file], compile_path, root
-    Dynamo.app.start
   end
 
   defp compile_files(files, to, root) do
@@ -101,12 +86,12 @@ defmodule Mix.Tasks.Compile.Dynamo do
     end
   end
 
-  defp compile_views(name, view_paths, compile_path) do
+  defp compile_views(mod, name, view_paths, compile_path) do
     templates = lc view_path inlist view_paths,
                    view_path.eager?,
                    template inlist view_path.all, do: template
 
-    binary = Dynamo.View.compile_module(name, templates, [:conn], fn -> Dynamo.app.views end)
+    binary = Dynamo.View.compile_module(name, templates, [:conn], fn -> mod.views end)
     File.write! File.join(compile_path, "#{name}.beam"), binary
 
     Mix.shell.info "Generated #{inspect name}"

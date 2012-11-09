@@ -2,53 +2,36 @@ defmodule Dynamo do
   @doc """
   Starts the Dynamo framework.
   """
-  def start(env, root) when is_atom(env) and is_binary(root) do
+  def start(env) when is_atom(env) do
     :application.start(:mimetypes)
     :application.start(:crypto)
     :application.start(:dynamo)
     :application.set_env(:dynamo, :env, env)
-    :application.set_env(:dynamo, :root, root)
-  end
-
-  @doc """
-  Sets the Dynamo application.
-  """
-  def app(nil) do
-    :application.set_env(:dynamo, :app, nil)
-  end
-
-  def app(app) do
-    if current = app() do
-      raise "Cannot load Dynamo application #{inspect app}, because #{inspect current} is already loaded"
-    else
-      :application.set_env(:dynamo, :app, app)
-    end
-  end
-
-  @doc """
-  Retrieves the current Dynamo application.
-  Returns nil if none is set.
-  """
-  def app do
-    case :application.get_env(:dynamo, :app) do
-      { :ok, val } -> val
-      :undefined   -> nil
-    end
+    :application.set_env(:dynamo, :under_test, nil)
   end
 
   @doc """
   Reads the current environment.
   """
   def env do
-    { :ok, env } = :application.get_env(:dynamo, :env)
-    env
+    case :application.get_env(:dynamo, :env) do
+      { :ok, env } -> env
+      :undefined   -> raise "Dynamo was not started, please invoke Dynamo.start before proceeding"
+    end
   end
 
   @doc """
-  Reads Dynamo root.
+  Gets the Dynamo used by default under test.
   """
-  def root do
-    { :ok, root } = :application.get_env(:dynamo, :root)
-    root
+  def under_test() do
+    { :ok, mod } = :application.get_env(:dynamo, :under_test)
+    mod
+  end
+
+  @doc """
+  Sets the Dynamo to be used under test.
+  """
+  def under_test(mod) do
+    :application.set_env(:dynamo, :under_test, mod)
   end
 end

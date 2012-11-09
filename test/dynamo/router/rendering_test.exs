@@ -25,7 +25,6 @@ defmodule Dynamo.Router.RenderingTest do
   end
 
   defmodule RenderingApp do
-    @dynamo_registration false
     use Dynamo.App
     endpoint RenderingRouter
 
@@ -34,11 +33,11 @@ defmodule Dynamo.Router.RenderingTest do
   end
 
   def setup_all do
-    Dynamo.app(RenderingApp)
+    Dynamo.under_test(RenderingApp)
   end
 
   def teardown_all do
-    Dynamo.app(nil)
+    Dynamo.under_test(nil)
   end
 
   @app RenderingRouter

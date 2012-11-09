@@ -24,7 +24,7 @@ defmodule Mix.Tasks.DynamoTest do
       assert_file "README.md", %r(# MyApp)
       assert_file ".gitignore"
 
-      assert_file "config/app.ex", fn(file) ->
+      assert_file "lib/my_app.ex", fn(file) ->
         assert file =~ %r(endpoint ApplicationRouter)
         assert file =~ %r(otp_app: :my_app)
       end
@@ -32,12 +32,12 @@ defmodule Mix.Tasks.DynamoTest do
       assert_file "app/routers/application_router.ex"
       assert_file "app/views/index.html.eex"
 
-      assert_file "config/environments/dev.exs"
-      assert_file "config/environments/test.exs"
-      assert_file "config/environments/prod.exs"
+      assert_file "lib/my_app/environments/dev.exs"
+      assert_file "lib/my_app/environments/test.exs"
+      assert_file "lib/my_app/environments/prod.exs"
 
       assert_received { :mix_shell, :info, ["* creating mix.exs"] }
-      assert_received { :mix_shell, :info, ["* creating config/app.ex"] }
+      assert_received { :mix_shell, :info, ["* creating lib/my_app.ex"] }
 
       assert_file "test/test_helper.exs"
       assert_file "test/features/home_test.exs"
@@ -54,7 +54,7 @@ defmodule Mix.Tasks.DynamoTest do
       end
 
       assert_received { :mix_shell, :info, ["* creating mix.exs"] }
-      assert_received { :mix_shell, :info, ["* creating config/app.ex"] }
+      assert_received { :mix_shell, :info, ["* creating lib/my_dev_app.ex"] }
     end
   end
 end

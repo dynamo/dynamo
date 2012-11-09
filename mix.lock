@@ -1,5 +1,5 @@
-[ "cowboy": "0b82eebed654bd894802acb52697a4d4187cb228",
-  "edown": "35f8296a25d14c5c1e3209399a2c1856700d9d5b",
-  "hackney": "77977858bf833e80abf16a276175320305108eb9",
-  "mimetypes": "e9dfab5aec98963589ecf13bdfcf0490667a730d",
-  "ranch": "cd099983b1b807b87fa050d1e4ff0a13aba25b49" ]
+[ "cowboy": {:git,"https://github.com/extend/cowboy.git","0b82eebed654bd894802acb52697a4d4187cb228",[]},
+  "edown": {:git,"https://github.com/esl/edown.git","35f8296a25d14c5c1e3209399a2c1856700d9d5b",[]},
+  "hackney": {:git,"https://github.com/benoitc/hackney.git","77977858bf833e80abf16a276175320305108eb9",[]},
+  "mimetypes": {:git,"https://github.com/spawngrid/mimetypes.git","e9dfab5aec98963589ecf13bdfcf0490667a730d",[]},
+  "ranch": {:git,"https://github.com/extend/ranch.git","cd099983b1b807b87fa050d1e4ff0a13aba25b49",[]} ]

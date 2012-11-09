@@ -24,22 +24,30 @@ defmodule Mix.Tasks.Server do
   """
   def run(args) do
     { opts, _ } = OptionParser.parse(args, aliases: [p: :port])
-    Mix.Task.run "dynamo.app"
+    Mix.Task.run Mix.project[:prepare_task], args
 
-    app = Dynamo.app
-    endpoint = app.endpoint
+    dynamos = Mix.project[:dynamos]
 
-    if endpoint && not Code.ensure_compiled?(endpoint) do
-      if app.config[:dynamo][:compile_on_demand] do
-        raise "could not find endpoint #{inspect endpoint}, please ensure it is available"
-      else
-        raise "could not find endpoint #{inspect endpoint}, please ensure it was compiled " <>
-          "by running: MIX_ENV=#{Dynamo.env} mix compile"
-      end
+    if opts[:port] && length(dynamos) != 1 do
+      raise "cannot pass port when serving more than one dynamo"
     end
 
-    opts = Keyword.merge [port: 4000], opts
-    app.run opts
+    Enum.each dynamos, fn(dynamo) ->
+      endpoint = dynamo.endpoint
+      config   = dynamo.config[:dynamo]
+
+      if endpoint && not Code.ensure_compiled?(endpoint) do
+        if config[:compile_on_demand] do
+          raise "could not find endpoint #{inspect endpoint}, please ensure it is available"
+        else
+          raise "could not find endpoint #{inspect endpoint}, please ensure it was compiled " <>
+            "by running: MIX_ENV=#{Dynamo.env} mix compile"
+        end
+      end
+
+      opts = Keyword.put(opts, :port, opts[:port] || config[:port] || 4000)
+      dynamo.run opts
+    end
 
     :timer.sleep(:infinity)
   end

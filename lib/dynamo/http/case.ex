@@ -15,8 +15,8 @@ defmodule Dynamo.HTTP.Case do
         end
       end
 
-  The default application is `Dynamo.app`. This can be changed
-  using `@app`:
+  The default dynamo used in tests is `Dynamo.under_Test`.
+  This can be changed in a specific test case using `@app`:
   
       defmodule CustomRouterTest do
         use ExUnit.Case
@@ -43,7 +43,7 @@ defmodule Dynamo.HTTP.Case do
   @doc false
   defmacro __using__(_) do
     quote do
-      @app Dynamo.app
+      @app Dynamo.under_test
       import unquote(__MODULE__)
     end
   end
