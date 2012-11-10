@@ -4,6 +4,10 @@ defmodule Dynamo.View.Handler do
   small conveniences around it.
   """
 
+  @type  template :: Dynamo.View.Template.t
+  @typep assigns  :: list
+  @typep locals   :: list
+
   use Behaviour
 
   @doc """
@@ -17,14 +21,14 @@ defmodule Dynamo.View.Handler do
   named as Dynamo.View.EXTHandler where
   EXT is the handler extension.
   """
-  defcallback compile(template, locals)
+  defcallback compile(template, locals :: list), do: { args :: list, term }
 
   @doc """
-  Receives a module and function the compiled
+  Receives a module and function in which the compiled
   template is stored plus the locals and assigns
   to be used on dispatch.
   """
-  defcallback render(module, function, locals, assigns)
+  defcallback render(module, function :: atom, locals, assigns), do: binary
 
   @doc """
   Get the template handler for the given extension.
@@ -50,7 +54,7 @@ defmodule Dynamo.View.EEXHandler do
     source = EEx.compile_string(source, file: identifier)
 
     { args, quote do
-      __block__ unquote(match)
+      unquote_splicing(match)
       body = unquote(source)
       { unquote(vars), body }
     end }

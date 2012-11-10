@@ -7,11 +7,13 @@ defmodule Dynamo.View.Finder do
 
   use Behaviour
 
+  @type finder :: tuple
+
   @doc """
   Initializes the finder with the relevant
   information.
   """
-  defcallback new(info)
+  defcallback new(info :: term), do: finder
 
   @doc """
   Returns true if templates can be eager
@@ -19,23 +21,23 @@ defmodule Dynamo.View.Finder do
   to implement a `all(self)` function that
   returns all templates hold by the finder.
   """
-  defcallback eager?(self)
+  defcallback eager?(finder), do: boolean
 
   @doc """
   Attempts to find a template given by
-  `query` in the current finder `self`.
+  `query` in the current finder.
 
   Returns a `Dynamo.View.Template` or
   nil in case a template can't be found.
   """
-  defcallback find(query, self)
+  defcallback find(query :: binary, finder), do: Dynamo.View.Template.t
 
   @doc """
   Returns a filesystem path to be watched
   if this finder maps to somewhere in the
   filesystem. Returns nil otherwise.
   """
-  defcallback to_path(self)
+  defcallback to_path(finder), do: binary | nil
 end
 
 defmodule Dynamo.View.PathFinder do

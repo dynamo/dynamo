@@ -1,30 +1,65 @@
 defmodule Dynamo.HTTP.Behaviour do
   @moduledoc """
   Common behaviour to be used between Dynamo connection
-  implementations. It expects a Record.defmacro connection
-  to be defined with the following keys - defaults:
+  implementations. When used, it defines a private record
+  via `defrecordp` named connection with the following fields
+  and their default values:
 
   * assigns - an empty list
-  * before_send - a call to `Dynamo.HTTP.default_before_send`
-  * method - the current request method
-  * original_method - `nil`
-  * state - `:unset`
-  * status - `nil`
+  * cookies - `nil`
   * params - `nil`
-  * path_info_segments - the current path segments
   * req_headers - `nil`
+  * req_body - `nil`
   * resp_body - an empty binary
   * resp_charset - `"utf-8"`
   * resp_content_type - `nil`
+  * resp_cookies - []
+  * resp_headers - an emoty binary dict
+  * state - `:unset`
+  * status - `nil`
   * script_name_segments - an empty list
+
+  Besides the fields above, it also defines the following
+  fields, but it expects those fields to be set wen the
+  connection is initialized with the following contents:
+
+  * app - with the app invoked
+  * before_send - a call to `Dynamo.HTTP.default_before_send`
+  * method - the current request method
+  * original_method - the current request method
+  * path_info_segments - the current path segments
+
+  A developer can pass extra fields via `use`:
+
+      use Dynamo.HTTP.Behaviour, [:my_field, :other_field]
 
   """
 
   @doc false
-  defmacro __using__(_) do
+  defmacro __using__(opts) do
 
     quote location: :keep do
       @behaviour Dynamo.HTTP
+
+      defrecordp :connection,
+        [ app: nil,
+          assigns: [],
+          before_send: [],
+          cookies: nil,
+          method: nil,
+          original_method: nil,
+          params: nil,
+          path_info_segments: nil,
+          req_headers: nil,
+          req_body: nil,
+          resp_body: "",
+          resp_charset: "utf-8",
+          resp_cookies: [],
+          resp_content_type: nil,
+          resp_headers: Binary.Dict.new,
+          state: :unset,
+          status: nil,
+          script_name_segments: [] ] ++ unquote(opts)
 
       ## Assigns
 
@@ -100,7 +135,7 @@ defmodule Dynamo.HTTP.Behaviour do
         value = to_binary(value)
 
         if cookies do
-          cookies = Dict.put(cookies, key, value)
+          cookies = Binary.Dict.put(cookies, key, value)
         end
 
         resp_cookies = List.keydelete(resp_cookies, key, 0)
@@ -114,7 +149,7 @@ defmodule Dynamo.HTTP.Behaviour do
         opts = Keyword.merge(opts, max_age: 0, universal_time: unix)
 
         if cookies do
-          cookies = Dict.delete(cookies, key)
+          cookies = Binary.Dict.delete(cookies, key)
         end
 
         resp_cookies = List.keydelete(resp_cookies, key, 0)
@@ -212,11 +247,11 @@ defmodule Dynamo.HTTP.Behaviour do
       end
 
       def set_resp_header(key, value, connection(resp_headers: resp_headers) = conn) do
-        connection(conn, resp_headers: Dict.put(resp_headers, key, to_binary(value)))
+        connection(conn, resp_headers: Binary.Dict.put(resp_headers, key, to_binary(value)))
       end
 
       def delete_resp_header(key, connection(resp_headers: resp_headers) = conn) do
-        connection(conn, resp_headers: Dict.delete(resp_headers, key))
+        connection(conn, resp_headers: Binary.Dict.delete(resp_headers, key))
       end
 
       # Callbacks

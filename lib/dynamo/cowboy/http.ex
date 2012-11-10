@@ -6,20 +6,13 @@ defmodule Dynamo.Cowboy.HTTP do
   the majority of the functions.
   """
 
+  use Dynamo.HTTP.Behaviour, [:req]
   require :cowboy_req, as: R
-
-  Record.defmacros :connection,
-    [ :req, :path_info_segments, :script_name_segments, :req_headers,
-      :params, :cookies, :resp_headers, :resp_cookies, :assigns, :status,
-      :method, :original_method, :resp_content_type, :resp_charset, :req_body, # :session
-      :resp_body, :state, :before_send, :app ], __ENV__
-
-  use Dynamo.HTTP.Behaviour
 
   @doc false
   def new(app, req) do
     { verb, req } = R.method req
-    { path, _ } = R.path req
+    { path, _ }   = R.path req
 
     segments = split_path(path)
 
@@ -29,14 +22,7 @@ defmodule Dynamo.Cowboy.HTTP do
       original_method: verb,
       method: verb,
       path_info_segments: segments,
-      script_name_segments: [],
-      resp_headers: Binary.Dict.new,
-      resp_cookies: [],
-      assigns: [],
-      resp_charset: "utf-8",
-      resp_body: "",
       before_send: Dynamo.HTTP.default_before_send,
-      state: :unset
     )
   end
 

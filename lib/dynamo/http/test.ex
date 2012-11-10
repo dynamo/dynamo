@@ -8,28 +8,16 @@ defmodule Dynamo.HTTP.Test do
   the majority of the functions.
   """
 
-  Record.defmacros :connection,
-    [ :method, :original_method, :path_segments, :path_info_segments, :script_name_segments,
-      :query_string, :raw_req_headers, :req_headers, :raw_req_body, :req_body, :params,
-      :resp_headers, :raw_cookies, :cookies, :resp_cookies, :assigns, :before_send,
-      :resp_content_type, :resp_charset, :status, :resp_body, :state, :fetched, :app ], __ENV__
-
-  use Dynamo.HTTP.Behaviour
+  use Dynamo.HTTP.Behaviour,
+    [ :query_string, :raw_req_headers, :raw_req_body, :raw_cookies, :fetched, :path_segments ]
 
   @doc """
   Initializes a connection to be used in tests.
   """
   def new() do
     connection(
-      path_info_segments: [],
-      script_name_segments: [],
       raw_req_headers: Binary.Dict.new([ { "host", "127.0.0.1" } ]),
-      resp_headers: Binary.Dict.new,
-      resp_cookies: [],
-      assigns: [],
       fetched: [],
-      resp_charset: "utf-8",
-      resp_body: "",
       before_send: Dynamo.HTTP.default_before_send,
       state: :unset,
       app: Dynamo.under_test
