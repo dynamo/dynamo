@@ -1,6 +1,6 @@
 defmodule Dynamo.Helpers do
   @moduledoc """
-  A simple module that aggregates all common views
+  A simple module that aggregates all common templates
   functionality in Dynamo.
   """
 

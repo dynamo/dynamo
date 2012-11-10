@@ -1,13 +1,13 @@
-defmodule Dynamo.View.Renderer do
+defmodule Dynamo.Templates.Renderer do
   @moduledoc false
   @slots 1_000_000
   @max_attempts 1_000
 
   use GenServer.Behaviour
-  alias Dynamo.View.Template, as: Template
+  alias Dynamo.Template, as: Template
 
   @doc """
-  Starts the `Dynamo.View.Renderer` server.
+  Starts the `Dynamo.Templates.Renderer` server.
   Usually called internally by Dynamo.
   """
   def start_link do
@@ -15,7 +15,7 @@ defmodule Dynamo.View.Renderer do
   end
 
   @doc """
-  Stops the `Dynamo.View.Renderer` server.
+  Stops the `Dynamo.Templates.Renderer` server.
   """
   def stop do
     :gen_server.call(__MODULE__, :stop)
@@ -138,7 +138,7 @@ defmodule Dynamo.View.Renderer do
 
   defp generate_suggestion(attempts) when attempts < @max_attemps do
     random = :random.uniform(@slots)
-    module = Module.concat(Dynamo.View, "Template#{random}")
+    module = Module.concat(Dynamo.Templates, "Template#{random}")
 
     if :code.is_loaded(module) do
       generate_suggestion(attempts + 1)

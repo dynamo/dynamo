@@ -4,7 +4,7 @@ Mix.shell(Mix.Shell.Process)
 System.put_env("MIX_ENV", "dev")
 
 Dynamo.start(:dev)
-Dynamo.View.Renderer.start_link
+Dynamo.Templates.Renderer.start_link
 
 ExUnit.start
 

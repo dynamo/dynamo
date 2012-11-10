@@ -1,10 +1,10 @@
-defmodule Dynamo.View.Handler do
+defmodule Dynamo.Templates.Handler do
   @moduledoc """
   A module that specifies the handler API and
   small conveniences around it.
   """
 
-  @type  template :: Dynamo.View.Template.t
+  @type  template :: Dynamo.Template.t
   @typep assigns  :: list
   @typep locals   :: list
 
@@ -12,13 +12,13 @@ defmodule Dynamo.View.Handler do
 
   @doc """
   A template handler must simply implement
-  compile, receiving a Dynamo.View.Template
+  compile, receiving a Dynamo.Template
   record. It must return the arguments and
   a source, which will then be compiled to
   a function.
 
   A template handler must be necessarily
-  named as Dynamo.View.EXTHandler where
+  named as Dynamo.Templates.EXTHandler where
   EXT is the handler extension.
   """
   defcallback compile(template, locals :: list), do: { args :: list, term }
@@ -34,7 +34,7 @@ defmodule Dynamo.View.Handler do
   Get the template handler for the given extension.
   """
   def get!(extension) do
-    module = Module.concat(Dynamo.View, String.upcase(extension) <> "Handler")
+    module = Module.concat(Dynamo.Templates, String.upcase(extension) <> "Handler")
     if Code.ensure_loaded?(module) do
       module
     else
@@ -43,11 +43,11 @@ defmodule Dynamo.View.Handler do
   end
 end
 
-defmodule Dynamo.View.EEXHandler do
+defmodule Dynamo.Templates.EEXHandler do
   @moduledoc false
-  @behaviour Dynamo.View.Handler
+  @behaviour Dynamo.Templates.Handler
 
-  def compile(Dynamo.View.Template[source: source, identifier: identifier], locals) do
+  def compile(Dynamo.Template[source: source, identifier: identifier], locals) do
     vars   = vars(locals)
     args   = [{ :assigns, 0, nil }|vars]
     match  = match(args)

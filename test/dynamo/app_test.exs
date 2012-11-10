@@ -14,7 +14,7 @@ defmodule Dynamo.AppTest do
       compile_on_demand: false,
       reload_modules: false,
       source_paths: [File.expand_path("../../fixtures/*", __FILE__)],
-      view_paths: [File.expand_path("../../fixtures/views", __FILE__)]
+      templates_paths: [File.expand_path("../../fixtures/templates", __FILE__)]
   end
 
   defmodule ReloadApp do
@@ -25,14 +25,14 @@ defmodule Dynamo.AppTest do
       static_root: false,
       compile_on_demand: true,
       reload_modules: true,
-      view_paths: [File.expand_path("../../fixtures/views", __FILE__)]
+      templates_paths: [File.expand_path("../../fixtures/templates", __FILE__)]
   end
 
   ## Config
 
-  test "removes views from source paths" do
-    view_path = File.expand_path("../../fixtures/views", __FILE__)
-    refute view_path in App.config[:dynamo][:source_paths]
+  test "removes templates from source paths" do
+    templates_path = File.expand_path("../../fixtures/templates", __FILE__)
+    refute templates_path in App.config[:dynamo][:source_paths]
   end
 
   ## Filters
@@ -56,9 +56,9 @@ defmodule Dynamo.AppTest do
 
   ## View paths
 
-  test "defines view paths" do
-    assert App.view_paths == [Dynamo.AppTest.App.CompiledViews]
-    views = File.expand_path("../../fixtures/views", __FILE__)
-    assert ReloadApp.view_paths == [Dynamo.View.PathFinder.new(views)]
+  test "defines templates paths" do
+    assert App.templates_paths == [Dynamo.AppTest.App.CompiledTemplates]
+    templates = File.expand_path("../../fixtures/templates", __FILE__)
+    assert ReloadApp.templates_paths == [Dynamo.Templates.PathFinder.new(templates)]
   end
 end

@@ -1,4 +1,4 @@
-defmodule Dynamo.View.Finder do
+defmodule Dynamo.Templates.Finder do
   @moduledoc """
   This module defines the basic behavior
   required by Elixir for finding templates
@@ -27,10 +27,10 @@ defmodule Dynamo.View.Finder do
   Attempts to find a template given by
   `query` in the current finder.
 
-  Returns a `Dynamo.View.Template` or
+  Returns a `Dynamo.Template` or
   nil in case a template can't be found.
   """
-  defcallback find(query :: binary, finder), do: Dynamo.View.Template.t
+  defcallback find(query :: binary, finder), do: Dynamo.Template.t
 
   @doc """
   Returns a filesystem path to be watched
@@ -40,9 +40,9 @@ defmodule Dynamo.View.Finder do
   defcallback to_path(finder), do: binary | nil
 end
 
-defmodule Dynamo.View.PathFinder do
+defmodule Dynamo.Templates.PathFinder do
   @moduledoc false
-  @behaviour Dynamo.View.Finder
+  @behaviour Dynamo.Templates.Finder
 
   def new(root) do
     { __MODULE__, File.expand_path(root) }
@@ -70,11 +70,11 @@ defmodule Dynamo.View.PathFinder do
   end
 
   defp build(key, path) do
-    Dynamo.View.Template[
+    Dynamo.Template[
       key: key,
       updated_at: File.stat!(path).mtime,
       identifier: path,
-      handler: Dynamo.View.Handler.get!(extname(path)),
+      handler: Dynamo.Templates.Handler.get!(extname(path)),
       format: extname(File.rootname(path)),
       source: File.read!(path)
     ]

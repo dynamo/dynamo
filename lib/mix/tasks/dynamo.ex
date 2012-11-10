@@ -68,8 +68,8 @@ defmodule Mix.Tasks.Dynamo do
     create_directory "app/routers"
     create_file "app/routers/application_router.ex", app_router_template(assigns)
 
-    create_directory "app/views"
-    create_file "app/views/index.html.eex", app_view_template(assigns)
+    create_directory "app/templates"
+    create_file "app/templates/index.html.eex", app_index_template(assigns)
 
     create_directory "lib"
     create_file "lib/#{lib}.ex", lib_app_template(assigns)
@@ -159,7 +159,7 @@ defmodule Mix.Tasks.Dynamo do
   end
   """
 
-  embed_template :app_view, """
+  embed_template :app_index, """
   <!DOCTYPE HTML>
   <html>
   <head>
@@ -168,7 +168,7 @@ defmodule Mix.Tasks.Dynamo do
   <body>
     <h3>Welcome to Dynamo!</h3>
     <ol>
-      <li>Change this view at <code>app/views/index.html.eex</code></li>
+      <li>Change this template at <code>app/templates/index.html.eex</code></li>
       <li>Add new routes at <code>app/routers/application_router.ex</code></li>
       <li>Deploy to production with <code>MIX_ENV=prod mix do compile, server</li>
     </ol>
@@ -192,8 +192,8 @@ defmodule Mix.Tasks.Dynamo do
       # You can turn off static assets by setting it to false
       static_route: "/static"
 
-    # Default functionality available in views
-    views do
+    # Default functionality available in templates
+    templates do
       use Dynamo.Helpers
     end
 

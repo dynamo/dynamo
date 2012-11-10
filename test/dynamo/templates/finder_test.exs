@@ -1,16 +1,16 @@
 Code.require_file "../../../test_helper.exs", __FILE__
 
-defmodule Dynamo.View.PathFinderTest do
+defmodule Dynamo.Templates.PathFinderTest do
   use ExUnit.Case, async: true
 
-  @fixture_path File.expand_path("../../../fixtures/views", __FILE__)
-  @path_finder Dynamo.View.PathFinder.new(@fixture_path)
+  @fixture_path File.expand_path("../../../fixtures/templates", __FILE__)
+  @path_finder Dynamo.Templates.PathFinder.new(@fixture_path)
 
   test "finds available template" do
     path = File.join(@fixture_path, "hello.html.eex")
 
-    assert Dynamo.View.Template[identifier: ^path, key: "hello.html",
-      handler: Dynamo.View.EEXHandler, format: "html"] = @path_finder.find "hello.html"
+    assert Dynamo.Template[identifier: ^path, key: "hello.html",
+      handler: Dynamo.Templates.EEXHandler, format: "html"] = @path_finder.find "hello.html"
   end
 
   test "returns all templates" do

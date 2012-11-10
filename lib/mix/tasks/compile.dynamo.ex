@@ -48,8 +48,8 @@ defmodule Mix.Tasks.Compile.Dynamo do
     compile_path = project[:compile_path]
     compile_exts = project[:compile_exts]
     watch_exts   = project[:watch_exts]
-    view_paths   = dynamo[:view_paths]
-    source_paths = dynamo[:source_paths] ++ extract_views(view_paths)
+    tmpl_paths   = dynamo[:templates_paths]
+    source_paths = dynamo[:source_paths] ++ extract_templates(tmpl_paths)
 
     to_compile = Mix.Utils.extract_files(source_paths, compile_exts)
     to_watch   = Mix.Utils.extract_files(source_paths, watch_exts)
@@ -65,7 +65,7 @@ defmodule Mix.Tasks.Compile.Dynamo do
 
       Code.delete_path compile_path
       compile_files to_compile, compile_path, root
-      compile_views mod, dynamo[:compiled_view_paths], view_paths, compile_path
+      compile_templates mod, dynamo[:compiled_templates], tmpl_paths, compile_path
       Code.prepend_path compile_path
 
       :ok
@@ -74,8 +74,8 @@ defmodule Mix.Tasks.Compile.Dynamo do
     end
   end
 
-  defp extract_views(view_paths) do
-    lc view_path inlist view_paths, path = view_path.to_path, do: path
+  defp extract_templates(paths) do
+    lc path inlist paths, path = path.to_path, do: path
   end
 
   defp compile_files(files, to, root) do
@@ -86,12 +86,12 @@ defmodule Mix.Tasks.Compile.Dynamo do
     end
   end
 
-  defp compile_views(mod, name, view_paths, compile_path) do
-    templates = lc view_path inlist view_paths,
-                   view_path.eager?,
-                   template inlist view_path.all, do: template
+  defp compile_templates(mod, name, tmpl_paths, compile_path) do
+    templates = lc path inlist tmpl_paths,
+                   path.eager?,
+                   template inlist path.all, do: template
 
-    binary = Dynamo.View.compile_module(name, templates, [:conn], fn -> mod.views end)
+    binary = Dynamo.Templates.compile_module(name, templates, [:conn], fn -> mod.templates_prelude end)
     File.write! File.join(compile_path, "#{name}.beam"), binary
 
     Mix.shell.info "Generated #{inspect name}"

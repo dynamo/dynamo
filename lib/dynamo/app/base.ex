@@ -32,11 +32,11 @@ defmodule Dynamo.App.Base do
   end
 
   @doc """
-  Defines default functionality available in views.
+  Defines default functionality available in templates.
   """
-  defmacro views(contents) do
+  defmacro templates(do: contents) do
     quote do
-      def views do
+      def templates_prelude do
         unquote(Macro.escape(contents))
       end
     end
@@ -65,10 +65,10 @@ defmodule Dynamo.App.Base do
       Module.register_attribute __MODULE__, :initializers, accumulate: true
 
       @doc """
-      Returns the code to be injected in each view
+      Returns the code to be injected in each template
       to expose default functionality.
       """
-      def views do
+      def templates_prelude do
         quote do
           use Dynamo.Helpers
         end
@@ -81,7 +81,7 @@ defmodule Dynamo.App.Base do
         Dynamo.Cowboy.run __MODULE__, options
       end
 
-      defoverridable [views: 0, run: 1, run: 0]
+      defoverridable [templates_prelude: 0, run: 1, run: 0]
     end
   end
 

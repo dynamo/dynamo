@@ -27,7 +27,7 @@ defmodule Dynamo.App do
   * `:compile_on_demand` - Compiles modules as they are needed
   * `:reload_modules` - Reload modules after they are changed
   * `:source_paths` - The paths to search when compiling modules on demand
-  * `:view_paths` - The paths to find views
+  * `:templates_paths` - The paths to find templates
   * `:otp_app` - The otp application associated to this app
 
   ## Filters
@@ -90,7 +90,7 @@ defmodule Dynamo.App do
       @before_compile { unquote(__MODULE__), :load_env_file }
       @before_compile { unquote(__MODULE__), :normalize_options }
       @before_compile { unquote(__MODULE__), :define_filters }
-      @before_compile { unquote(__MODULE__), :define_view_paths }
+      @before_compile { unquote(__MODULE__), :define_templates_paths }
 
       use Dynamo.Utils.Once
 
@@ -110,8 +110,8 @@ defmodule Dynamo.App do
       compile_on_demand: true,
       reload_modules: false,
       source_paths: ["app/*"],
-      view_paths: ["app/views"],
-      compiled_view_paths: env.module.CompiledViews ]
+      templates_paths: ["app/templates"],
+      compiled_templates: env.module.CompiledTemplates ]
   end
 
   @doc false
@@ -136,16 +136,16 @@ defmodule Dynamo.App do
     source = dynamo[:source_paths]
     source = Enum.reduce source, [], fn(path, acc) -> expand_paths(path, root) ++ acc end
 
-    view = dynamo[:view_paths]
-    view = Enum.reduce view, [], fn(path, acc) -> expand_paths(path, root) ++ acc end
+    templates = dynamo[:templates_paths]
+    templates = Enum.reduce templates, [], fn(path, acc) -> expand_paths(path, root) ++ acc end
 
-    # Remove views that eventually end up on source
-    source = source -- view
+    # Remove templates that eventually end up on source
+    source = source -- templates
 
-    # Now convert all view paths to Dynamo.View.Finders
-    view = lc path inlist view do
+    # Now convert all templates paths to Dynamo.Templates.Finders
+    templates = lc path inlist templates do
       if is_binary(path) do
-        Dynamo.View.PathFinder.new(path)
+        Dynamo.Templates.PathFinder.new(path)
       else
         path
       end
@@ -153,7 +153,7 @@ defmodule Dynamo.App do
 
     quote do
       config :dynamo,
-        view_paths: unquote(view),
+        templates_paths: unquote(templates),
         source_paths: unquote(source)
     end
   end
@@ -208,37 +208,37 @@ defmodule Dynamo.App do
   end
 
   @doc false
-  defmacro define_view_paths(module) do
-    dynamo     = Module.get_attribute(module, :config)[:dynamo]
-    view_paths = dynamo[:view_paths]
+  defmacro define_templates_paths(module) do
+    dynamo = Module.get_attribute(module, :config)[:dynamo]
+    templates_paths = dynamo[:templates_paths]
 
     { compiled, runtime } =
       if dynamo[:compile_on_demand] do
-        { [], view_paths }
+        { [], templates_paths }
       else
-        Enum.partition(view_paths, fn(path) -> path.eager? end)
+        Enum.partition(templates_paths, fn(path) -> path.eager? end)
       end
 
     if compiled != [] do
-      module     = dynamo[:compiled_view_paths]
-      view_paths = [module|runtime]
+      module = dynamo[:compiled_templates]
+      templates_paths = [module|runtime]
     end
 
     renderer_initializer =
       if runtime != [] do
         quote location: :keep do
           initializer :start_dynamo_renderer do
-            Dynamo.View.Renderer.start_link
+            Dynamo.Templates.Renderer.start_link
 
             if config[:dynamo][:compile_on_demand] do
-              Dynamo.Reloader.on_purge(fn -> Dynamo.View.Renderer.clear end)
+              Dynamo.Reloader.on_purge(fn -> Dynamo.Templates.Renderer.clear end)
             end
           end
         end
       end
 
     quote location: :keep do
-      def view_paths, do: unquote(Macro.escape(view_paths))
+      def templates_paths, do: unquote(Macro.escape(templates_paths))
       unquote(renderer_initializer)
     end
   end

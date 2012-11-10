@@ -21,14 +21,14 @@ defmodule Dynamo.Router.Rendering do
   this function also receives extra assigns as
   arguments. Assigns are used by the application
   developer to pass information from the router
-  to the view.
+  to the template.
 
-  It raises `Dynamo.View.TemplateNotFound` if the given
+  It raises `Dynamo.TemplateNotFound` if the given
   template can't be found.
 
   ## Examples
 
-      # Renders the template usually at app/views/hello.html
+      # Renders the template usually at app/templates/hello.html
       render conn, "hello.html"
 
       # Assign to data (accessible as @data in the template)
@@ -52,9 +52,9 @@ defmodule Dynamo.Router.Rendering do
   """
   def render(conn, template, assigns // []) do
     app        = conn.app
-    view_paths = app.view_paths
-    prelude    = fn -> app.views end
-    template   = Dynamo.View.find!(template, view_paths)
+    tmpl_paths = app.templates_paths
+    prelude    = fn -> app.templates_prelude end
+    template   = Dynamo.Templates.find!(template, tmpl_paths)
 
     if template.format && !conn.resp_content_type do
       mime = :mimetypes.ext_to_mimes(template.format)
@@ -63,12 +63,12 @@ defmodule Dynamo.Router.Rendering do
 
     assigns = Keyword.merge(conn.assigns, assigns)
     layout  = assigns[:layout]
-    { [conn], body } = Dynamo.View.render(template, [conn: conn], assigns, prelude)
+    { [conn], body } = Dynamo.Templates.render(template, [conn: conn], assigns, prelude)
 
     if layout do
-      template = Dynamo.View.find!("layouts/" <> layout, view_paths)
+      template = Dynamo.Templates.find!("layouts/" <> layout, tmpl_paths)
       conn     = Dynamo.Helpers.ContentFor.put_content(conn, :template, body)
-      { [conn], body } = Dynamo.View.render(template, [conn: conn], assigns, prelude)
+      { [conn], body } = Dynamo.Templates.render(template, [conn: conn], assigns, prelude)
     end
 
     conn.resp_body(body)

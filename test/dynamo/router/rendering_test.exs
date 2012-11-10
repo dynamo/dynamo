@@ -29,7 +29,7 @@ defmodule Dynamo.Router.RenderingTest do
     endpoint RenderingRouter
 
     config :dynamo,
-      view_paths: [File.expand_path("../../../fixtures/views", __FILE__)]
+      templates_paths: [File.expand_path("../../../fixtures/templates", __FILE__)]
   end
 
   def setup_all do
@@ -106,7 +106,7 @@ defmodule Dynamo.Router.RenderingTest do
 
 
   test "raises on invalid template" do
-    assert_raise Dynamo.View.TemplateNotFound, fn ->
+    assert_raise Dynamo.TemplateNotFound, fn ->
       get("/unknown.html")
     end
   end

@@ -12,8 +12,8 @@ defmodule Mix.TasksTest do
       assert output =~ %r(Compiled app/routers/application_router.ex)
       assert output =~ %r(Compiled lib/my_app.ex)
       assert output =~ %r(Generated my_compiled_app.app)
-      assert output =~ %r(Generated MyApp.CompiledViews)
-      assert File.regular?("ebin/prod/Elixir-MyApp-CompiledViews.beam")
+      assert output =~ %r(Generated MyApp.CompiledTemplates)
+      assert File.regular?("ebin/prod/Elixir-MyApp-CompiledTemplates.beam")
 
       # Can recompile after changes
       File.touch!("app/routers/application_router.ex", { { 2030, 1, 1 }, { 0, 0, 0 } })
