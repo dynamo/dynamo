@@ -100,6 +100,16 @@ defmodule Dynamo.Cowboy.HTTPTest do
     assert_success request :post, "/req_body", [{ "Content-Type", "application/x-foobar" }], "foobar"
   end
 
+  def fetch_list(conn) do
+    conn = conn.fetch([:body, :cookies])
+    assert conn.req_body == "foobar"
+    conn
+  end
+
+  test :fetch_list do
+    assert_success request :post, "/fetch_list", [{ "Content-Type", "application/x-foobar" }], "foobar"
+  end
+
   def params_0(conn) do
     conn = conn.fetch(:params)
     assert conn.params[:hello]   == "world"

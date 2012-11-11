@@ -324,7 +324,7 @@ defmodule Dynamo.HTTP do
   The "fetchable" aspects are: headers, params, cookies, body
   and session.
   """
-  defcallback fetch(fetch_aspect, conn), do: conn
+  defcallback fetch(fetch_aspect | [fetch_aspect], conn), do: conn
 
   @doc """
   Returns a keywords list with assigns set so far.

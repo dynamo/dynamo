@@ -92,6 +92,10 @@ defmodule Dynamo.Cowboy.HTTP do
 
   ## Misc
 
+  def fetch(list, conn) when is_list(list) do
+    Enum.reduce list, conn, fn(item, acc) -> acc.fetch(item) end
+  end
+
   def fetch(:body, connection(req: req, req_body: nil) = conn) do
     { :ok, body, req } = R.body req
     connection(conn, req: req, req_body: body)

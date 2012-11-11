@@ -81,6 +81,12 @@ defmodule Dynamo.HTTP.TestTest do
     assert conn.fetch(:body).req_body == "foobar"
   end
 
+  test :fetch do
+    conn = conn(:POST, "/foo/bar", "foobar").fetch([:cookies, :body])
+    assert conn.req_body == "foobar"
+    assert conn.req_cookies["foo"] == nil
+  end
+
   ## Cookies
 
   test :req_cookies do

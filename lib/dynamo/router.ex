@@ -86,7 +86,6 @@ defmodule Dynamo.Router do
       use_once Dynamo.Router.Base
       use_once Dynamo.Router.Hooks
       use_once Dynamo.Router.Filters
-      use_once Dynamo.Router.Fetch
       use_once Dynamo.Router.Rendering
 
       import Dynamo.HTTP.Hibernate

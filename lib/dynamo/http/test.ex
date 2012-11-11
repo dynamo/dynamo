@@ -66,6 +66,10 @@ defmodule Dynamo.HTTP.Test do
 
   ## Misc
 
+  def fetch(list, conn) when is_list(list) do
+    Enum.reduce list, conn, fn(item, acc) -> acc.fetch(item) end
+  end
+
   def fetch(:headers, connection(raw_req_headers: raw_req_headers, fetched: fetched) = conn) do
     connection(conn,
       fetched: [:headers|fetched],
