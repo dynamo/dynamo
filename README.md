@@ -2,7 +2,7 @@ Run, dynamo, run!
 
 ## Adventure mode!
 
-If you are felling adventurous, create a Dynamo app in few steps:
+If you are felling adventurous, create a Dynamo in few steps:
 
 1) Ensure you are on Elixir master;
 
@@ -12,7 +12,7 @@ If you are felling adventurous, create a Dynamo app in few steps:
 
 4) Create a project: `mix dynamo path/to/your/app`
 
-Congratulations! You created your first Dynamo app! Let's run it:
+Congratulations! You created your first Dynamo! Let's run it:
 
 1) Go to your app
 
@@ -20,8 +20,8 @@ Congratulations! You created your first Dynamo app! Let's run it:
 
 3) Run it: `mix server`
 
-Check `app/` and `config/` folders for more info. Changes done in the app directory are picked up without a need to reload the server!
+Check `app/` and `lib/` folders for more info. Changes done in the app directory are picked up without a need to reload the server!
 
-Public content is served from `public/` folder and from the `/public` route.
+Public content is served from `priv/static/` folder and from the `/static` route.
 
 Production use is done with: `MIX_ENV=prod mix do compile, server`

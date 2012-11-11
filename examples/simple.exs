@@ -7,9 +7,9 @@ Code.prepend_path("deps/cowboy/ebin")
 
 Dynamo.start(:prod)
 
-defmodule MyApp do
+defmodule MyDynamo do
   use Dynamo.Router
-  use Dynamo.App
+  use Dynamo
 
   config :dynamo,
     compile_on_demand: false
@@ -19,4 +19,4 @@ defmodule MyApp do
   end
 end
 
-MyApp.start.run port: 3030
+MyDynamo.start.run port: 3030

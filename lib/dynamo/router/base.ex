@@ -1,19 +1,18 @@
 defmodule Dynamo.Router.Base do
   @moduledoc """
-  This module provides the match DSL available to dynamo routers
-  and their basic structure. The defined module contains the
-  following functions:
+  This module contains the basic structure for a `Dynamo.Router`.
+  It defines three functions:
 
   * `service(conn)` - This is the main entry point of the module,
-    as defined per the Dynamo API
+    as required by the Dynamo API;
 
-  * `dispatch(method, segments, conn)` - This is the function responsible
-    to dispatch the routes. It is also where callbacks and other hooks are
-    added; When a router points to another router, it usually does so via
-    `dispatch/3`, avoiding any unecessary overhead in `service/1`.
+  * `dispatch(method, segments, conn)` - All routes in a router
+    are defined as clauses to the dispatch function;
 
-  * `not_found(conn)` - Customizes how `not_found` pages are handled
+  * `not_found(conn)` - Customizes how `not_found` pages are handled;
 
+  Besides, this module provides macros for generating routes, as
+  `get`, `post` and friends.
   """
 
   @doc false
@@ -29,7 +28,7 @@ defmodule Dynamo.Router.Base do
 
       @doc false
       def not_found(conn) do
-        conn.status(404).resp_body("Not found")
+        conn.resp(404, "Not found")
       end
 
       defoverridable [not_found: 1, service: 1]
@@ -77,7 +76,7 @@ defmodule Dynamo.Router.Base do
 
   It is compiled to:
 
-      def dispatch(:GET, ["foo", "bar"], conn) do
+      def dispatch("GET", ["foo", "bar"], conn) do
         conn.send 200, "hello world"
       end
 
@@ -228,8 +227,8 @@ defmodule Dynamo.Router.Base do
   end
 
   # Generate a default guard that is mean to avoid warnings
-  # when the request or the response are not used. It automatically
-  # merges the guards related to the verb.
+  # when the request or the response are not used. It
+  # automatically merges the guards related to the verb.
   defp default_guards(true) do
     default_guard
   end
@@ -239,8 +238,6 @@ defmodule Dynamo.Router.Base do
   end
 
   defp default_guard do
-    quote hygiene: false do
-      is_tuple(conn)
-    end
+    quote hygiene: false, do: is_tuple(conn)
   end
 end

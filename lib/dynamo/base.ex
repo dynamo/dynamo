@@ -1,6 +1,6 @@
-defmodule Dynamo.App.Base do
+defmodule Dynamo.Base do
   @moduledoc """
-  Holds the configuration DSL available in Dynamo.App.
+  Holds the configuration DSL available in a Dynamo.
   """
 
   @doc """
@@ -46,9 +46,9 @@ defmodule Dynamo.App.Base do
   Defines an initializer that will be invoked when
   the application starts.
   """
-  defmacro initializer(name, [do: block]) do
+  defmacro initializer(name, do: block) do
     quote do
-      name = :"__initializer_#{unquote(name)}"
+      name = :"initializer_#{unquote(name)}"
       @initializers { name, unquote(__CALLER__.line), [] }
       defp name, [], [], do: unquote(Macro.escape block)
     end
@@ -57,11 +57,11 @@ defmodule Dynamo.App.Base do
   @doc false
   defmacro __using__(_) do
     quote do
-      import Dynamo.App.Base
-
-      @config []
+      import Dynamo.Base
       @before_compile unquote(__MODULE__)
 
+      # Base attributes
+      @config []
       Module.register_attribute __MODULE__, :initializers, accumulate: true
 
       @doc """
@@ -92,7 +92,7 @@ defmodule Dynamo.App.Base do
     quote location: :keep do
       @doc """
       Starts the application by running all registered
-      initialziers. Check `Dynamo.App` for more information.
+      initializers. Check `Dynamo` for more information.
       """
       def start do
         unquote(Enum.reverse initializers)

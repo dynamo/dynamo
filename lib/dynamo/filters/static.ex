@@ -11,12 +11,16 @@ defmodule Dynamo.Filters.Static do
 
   ## Examples
 
-      defmodule MyApp do
-        use Dynamo.App
+  This filter can be used in custom routers as follow:
 
+      defmodule MyDynamo do
+        use Dynamo.Router
         filter Dynamo.Filters.Static.new("/public", :my_app)
       end
 
+  By default, a Dynamo already inserts this filter which
+  can be customized via the dynamo configuration. Check
+  the `Dynamo` module for more information.
   """
 
   @doc false

@@ -7,15 +7,16 @@ defmodule Mix.Tasks.Compile.Dynamo do
   @moduledoc """
   A task to compile Dynamo source files.
 
-  This tasks first loads the application specified by
-  `:dynamo_app` and then based on the value of `:compile_on_demand`,
-  compiles the Elixir project or just compiles on demand.
+  This task will compile all dynamos registered in
+  your Mix project under the `dynamos` configuration.
+  If the current dynamo is set to `:compile_on_demand`
+  compilation is actually skipped.
 
   ## Configuration
 
-  * `:dynamo_app` - the dynamo app to load, defaults to "config/app.ex"
+  * `:dynamos` - the dynamos registered in this project:
 
-        [dynamo_app: "config/other.ex"]
+        [dynamos: Foo, Bar]
 
   This task also uses `:compile_path` and `:elixirc_options`
   options shared with other compilation tasks.

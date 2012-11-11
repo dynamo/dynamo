@@ -1,15 +1,8 @@
 defmodule Dynamo.Reloader.Filter do
   @moduledoc """
   A simple module that handles compilation on demand
-  and automatic code loading.
-
-  ## Examples
-
-      defmodule MyApp do
-        use Dynamo.App
-        filter Dynamo.Reloader.Filter.new(true, false)
-      end
-
+  and automatic code loading. This filter is included
+  by default by Dynamos.
   """
 
   @doc false

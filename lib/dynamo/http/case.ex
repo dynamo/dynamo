@@ -1,6 +1,6 @@
 defmodule Dynamo.HTTP.Case do
   @moduledoc %B"""
-  A bunch of helpers to make it easy to test Dynamo applications.
+  A bunch of helpers to make it easy to test Dynamos and routers.
 
   By default, these helpers are macros that dispatch directly
   to the register application. Here is an example:

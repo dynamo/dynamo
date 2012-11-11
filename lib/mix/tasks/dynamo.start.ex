@@ -3,8 +3,8 @@ defmodule Mix.Tasks.Dynamo.Start do
 
   @moduledoc """
   A task that loads and starts up all registered
-  Dynamo apps. It is usually used as dependency
-  by other tasks.
+  Dynamos. It is usually used as dependency by
+  other tasks.
   """
   def run(args) do
     { opts, _ } = OptionParser.parse(args)

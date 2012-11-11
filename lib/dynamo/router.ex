@@ -2,8 +2,8 @@ defmodule Dynamo.Router do
   @moduledoc """
   `Dynamo.Routes` brings routing semantics to your module.
 
-  A Dynamo application is made of many routers that redirect requests
-  to specific endpoints.
+  A Dynamo is made of many routers that redirect a connection
+  between endpoints.
 
   Here is a minimal router:
 
@@ -11,13 +11,14 @@ defmodule Dynamo.Router do
         use Dynamo.Router
 
         get "/hello" do
-          conn.resp_body "world"
+          conn.resp 200, "world"
         end
       end
 
   This simple router can handle the route "/hello". You can define other
   routes using verbs `get`, `post`, `put` and `delete`. All routes defined
-  using such verbs have direct access to the connection (`conn`).
+  using such verbs have direct access to the connection `conn`. Check
+  `Dynamo.Router.Base` for more information.
 
   ## Forwarding
 
@@ -40,12 +41,10 @@ defmodule Dynamo.Router do
   This function receives the connection as argument and must return the
   updated response.
 
-  The macros for routes definition are imported from `Dynamo.Router.Base`.
-
   ## Filters
 
-  Routers also support filters, as `Dynamo.App`. For more information about
-  filters, check `Dynamo.App` and `Dynamo.Router.Filters` docs.
+  As a Dynamo, Routers also support filters. For more information about
+  filters, check `Dynamo` and `Dynamo.Router.Filters` docs.
 
   ## Callbacks
 
@@ -71,18 +70,6 @@ defmodule Dynamo.Router do
   the stack aborts and the connection is returned. Check
   `Dynamo.Router.Callbacks` for more information.
 
-  ## Fetch
-
-  In Dynamo, parts of the request are parsed lazily. For instance,
-  to use `conn.params`, you first need to explicitly fetch the params
-  using `conn.fetch(:params)`. Since fetching a specific part of the
-  response is common, Dynamo provides a macro to do it:
-
-      defmodule UsersRouter do
-        use Dynamo.Router
-        fetch [:params, :cookies]
-      end
-
   """
 
   @doc false
@@ -90,8 +77,8 @@ defmodule Dynamo.Router do
     quote do
       @dynamo_router true
 
-      if @dynamo_app do
-        raise "use Dynamo.App after Dynamo.Router"
+      if @is_dynamo do
+        raise "use Dynamo needs to be defined after Dynamo.Router"
       end
 
       use Dynamo.Utils.Once

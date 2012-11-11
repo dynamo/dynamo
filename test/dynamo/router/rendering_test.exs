@@ -25,7 +25,7 @@ defmodule Dynamo.Router.RenderingTest do
   end
 
   defmodule RenderingApp do
-    use Dynamo.App
+    use Dynamo
     endpoint RenderingRouter
 
     config :dynamo,

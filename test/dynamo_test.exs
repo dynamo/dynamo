@@ -1,44 +1,44 @@
-Code.require_file "../../test_helper.exs", __FILE__
+Code.require_file "../test_helper.exs", __FILE__
 
-defmodule Dynamo.AppTest do
+defmodule DynamoTest do
   use ExUnit.Case, async: true
   use Dynamo.HTTP.Case
 
   defmodule App do
-    use Dynamo.App
-    endpoint Dynamo.AppTest
+    use Dynamo
+    endpoint DynamoTest
 
     config :dynamo,
-      static_root: File.expand_path("../../fixtures/public", __FILE__),
+      static_root: File.expand_path("../fixtures/public", __FILE__),
       static_route: "/public",
       compile_on_demand: false,
       reload_modules: false,
-      source_paths: [File.expand_path("../../fixtures/*", __FILE__)],
-      templates_paths: [File.expand_path("../../fixtures/templates", __FILE__)]
+      source_paths: [File.expand_path("../fixtures/*", __FILE__)],
+      templates_paths: [File.expand_path("../fixtures/templates", __FILE__)]
   end
 
   defmodule ReloadApp do
-    use Dynamo.App
-    endpoint Dynamo.AppTest
+    use Dynamo
+    endpoint DynamoTest
 
     config :dynamo,
       static_root: false,
       compile_on_demand: true,
       reload_modules: true,
-      templates_paths: [File.expand_path("../../fixtures/templates", __FILE__)]
+      templates_paths: [File.expand_path("../fixtures/templates", __FILE__)]
   end
 
   ## Config
 
   test "removes templates from source paths" do
-    templates_path = File.expand_path("../../fixtures/templates", __FILE__)
+    templates_path = File.expand_path("../fixtures/templates", __FILE__)
     refute templates_path in App.config[:dynamo][:source_paths]
   end
 
   ## Filters
 
   test "adds public filter" do
-    file = File.expand_path("../../fixtures/public", __FILE__)
+    file = File.expand_path("../fixtures/public", __FILE__)
     assert Enum.first(App.filters) == Dynamo.Filters.Static.new("/public", file)
   end
 
@@ -57,8 +57,8 @@ defmodule Dynamo.AppTest do
   ## View paths
 
   test "defines templates paths" do
-    assert App.templates_paths == [Dynamo.AppTest.App.CompiledTemplates]
-    templates = File.expand_path("../../fixtures/templates", __FILE__)
+    assert App.templates_paths == [DynamoTest.App.CompiledTemplates]
+    templates = File.expand_path("../fixtures/templates", __FILE__)
     assert ReloadApp.templates_paths == [Dynamo.Templates.PathFinder.new(templates)]
   end
 end
