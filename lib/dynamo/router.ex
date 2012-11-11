@@ -46,11 +46,11 @@ defmodule Dynamo.Router do
   As a Dynamo, Routers also support filters. For more information about
   filters, check `Dynamo` and `Dynamo.Router.Filters` docs.
 
-  ## Callbacks
+  ## Hooks
 
-  Routers also include callbacks functionality via both `prepare/1` and
-  `finalize/1` macros. Such callbacks receive the connection as argument
-  and may return an updated version. For example:
+  Routers also include some hooks via both `prepare/1` and `finalize/1`
+  macros. Such hooks receive the connection as argument and may return
+  an updated version. For example:
 
       defmodule UsersRouter do
         use Dynamo.Router
@@ -66,9 +66,9 @@ defmodule Dynamo.Router do
         end
       end
 
-  Notice that, if a prepare callbacks replies, redirects or anything,
+  Notice that, if a prepare hook replies, redirects or anything,
   the stack aborts and the connection is returned. Check
-  `Dynamo.Router.Callbacks` for more information.
+  `Dynamo.Router.Hooks` for more information.
 
   """
 
@@ -84,7 +84,7 @@ defmodule Dynamo.Router do
       use Dynamo.Utils.Once
 
       use_once Dynamo.Router.Base
-      use_once Dynamo.Router.Callbacks
+      use_once Dynamo.Router.Hooks
       use_once Dynamo.Router.Filters
       use_once Dynamo.Router.Fetch
       use_once Dynamo.Router.Rendering

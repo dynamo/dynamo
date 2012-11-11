@@ -84,7 +84,7 @@ defmodule Dynamo.Templates.Renderer do
     raise "Compiling template #{inspect identifier} exceeded the max number of attempts #{@max_attemps}. What gives?"
   end
 
-  ## Callbacks
+  ## Backend
 
   @doc false
   def init(args) do

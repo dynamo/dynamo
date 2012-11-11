@@ -110,7 +110,7 @@ defmodule Dynamo.Reloader do
     end
   end
 
-  ## Callbacks
+  ## Backend
 
   defrecord Config, loaded_modules: [], loaded_files: [], paths: nil,
     updated_at: { { 1970, 1, 1 }, { 0, 0, 0 } }, on_purge: []

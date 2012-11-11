@@ -4,14 +4,14 @@ defmodule Dynamo.Router.Filters do
   application. A filter is a module that is invoked before, during or
   after a service match.
 
-  While callbacks are executed only if a route match, filters are always
-  executed. Callbacks also abort in case a response is set, while filters
+  While hooks are executed only if a route match, filters are always
+  executed. Hooks also abort in case a response is set, while filters
   do not halt their execution. In other words, filters are a more low-level
-  mechanism, with less conveniences compared to callbacks.
+  mechanism, with less conveniences compared to hooks.
 
   There is also a difference regarding ordering. While filters are invoked
-  in the order they are declared, regardless of their behaviour, callbacks
-  always execute prepare callbacks first, followed by the finalize ones.
+  in the order they are declared, regardless of their behaviour, hooks
+  always execute `prepare` hooks first, followed by the `finalize` ones.
 
   ## Usage
 

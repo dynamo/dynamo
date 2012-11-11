@@ -187,8 +187,8 @@ defmodule Dynamo.Router.Base do
 
     quote do
       def dispatch(unquote_splicing(args)) when unquote(guards) do
-        case run_prepare_callbacks(var!(conn)) do
-          { :ok, var!(conn) }    -> run_finalize_callbacks(unquote(contents))
+        case run_prepare_hooks(var!(conn)) do
+          { :ok, var!(conn) }    -> run_finalize_hooks(unquote(contents))
           { :abort, var!(conn) } -> var!(conn)
         end
       end

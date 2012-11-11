@@ -1,10 +1,10 @@
 Code.require_file "../../../test_helper.exs", __FILE__
 
-defmodule Dynamo.Router.PrepareCallbacksTest do
+defmodule Dynamo.Router.PrepareHooksTest do
   use ExUnit.Case, async: true
   use Dynamo.HTTP.Case
 
-  defmodule SingleCallbacks do
+  defmodule SingleHooks do
     use Dynamo.Router
 
     prepare :foo
@@ -18,8 +18,8 @@ defmodule Dynamo.Router.PrepareCallbacksTest do
     end
   end
 
-  test "dispatch single callback" do
-    conn = process(SingleCallbacks, :GET, "/foo")
+  test "dispatch single hook" do
+    conn = process(SingleHooks, :GET, "/foo")
     assert conn.assigns[:value] == 3
     assert conn.status == 200
   end
@@ -28,7 +28,7 @@ defmodule Dynamo.Router.PrepareCallbacksTest do
     def new do
       # We are returning a tuple with three elements
       # to ensure we are escaping the tuple contents
-      # with Macro.escape when generating the callback
+      # with Macro.escape when generating the hook
       { __MODULE__, 1, [] }
     end
 
@@ -41,7 +41,7 @@ defmodule Dynamo.Router.PrepareCallbacksTest do
     end
   end
 
-  defmodule DoubleCallbacks do
+  defmodule DoubleHooks do
     use Dynamo.Router
 
     prepare Bar
@@ -52,13 +52,13 @@ defmodule Dynamo.Router.PrepareCallbacksTest do
     end
   end
 
-  test "dispatch double callback" do
-    conn = process(DoubleCallbacks, :GET, "/foo")
+  test "dispatch double hook" do
+    conn = process(DoubleHooks, :GET, "/foo")
     assert conn.assigns[:value] == 6
     assert conn.status == 200
   end
 
-  defmodule BlockCallbacks do
+  defmodule BlockHooks do
     use Dynamo.Router
 
     prepare do
@@ -74,13 +74,13 @@ defmodule Dynamo.Router.PrepareCallbacksTest do
     end
   end
 
-  test "dispatch block callback" do
-    conn = process(DoubleCallbacks, :GET, "/foo")
+  test "dispatch block hook" do
+    conn = process(DoubleHooks, :GET, "/foo")
     assert conn.assigns[:value] == 6
     assert conn.status == 200
   end
 
-  defmodule InvalidCallbacks do
+  defmodule InvalidHooks do
     use Dynamo.Router
 
     prepare do
@@ -92,13 +92,13 @@ defmodule Dynamo.Router.PrepareCallbacksTest do
     end
   end
 
-  test "invalid dispatch callback" do
-    assert_raise Dynamo.Router.Callbacks.InvalidCallbackError, fn ->
-      process(InvalidCallbacks, :GET, "/foo")
+  test "invalid dispatch hook" do
+    assert_raise Dynamo.Router.Hooks.InvalidHookError, fn ->
+      process(InvalidHooks, :GET, "/foo")
     end
   end
 
-  defmodule AbortingCallbacks do
+  defmodule AbortingHooks do
     use Dynamo.Router
 
     prepare do
@@ -111,16 +111,16 @@ defmodule Dynamo.Router.PrepareCallbacksTest do
   end
 
   test "aborts when state is different than unset" do
-    conn = process(AbortingCallbacks, :GET, "/foo")
+    conn = process(AbortingHooks, :GET, "/foo")
     assert conn.status == 302
   end
 end
 
-defmodule Dynamo.Router.FinishCallbacksTest do
+defmodule Dynamo.Router.FinishHooksTest do
   use ExUnit.Case, async: true
   use Dynamo.HTTP.Case
 
-  defmodule SingleCallbacks do
+  defmodule SingleHooks do
     use Dynamo.Router
 
     finalize :foo
@@ -134,8 +134,8 @@ defmodule Dynamo.Router.FinishCallbacksTest do
     end
   end
 
-  test "dispatch single callback" do
-    conn = process(SingleCallbacks, :GET, "/foo")
+  test "dispatch single hook" do
+    conn = process(SingleHooks, :GET, "/foo")
     assert conn.assigns[:value] == 6
   end
 
@@ -149,7 +149,7 @@ defmodule Dynamo.Router.FinishCallbacksTest do
     end
   end
 
-  defmodule DoubleCallbacks do
+  defmodule DoubleHooks do
     use Dynamo.Router
 
     finalize Bar
@@ -160,12 +160,12 @@ defmodule Dynamo.Router.FinishCallbacksTest do
     end
   end
 
-  test "dispatch double callback" do
-    conn = process(SingleCallbacks, :GET, "/foo")
+  test "dispatch double hook" do
+    conn = process(SingleHooks, :GET, "/foo")
     assert conn.assigns[:value] == 6
   end
 
-  defmodule BlockCallbacks do
+  defmodule BlockHooks do
     use Dynamo.Router
 
     finalize do
@@ -181,12 +181,12 @@ defmodule Dynamo.Router.FinishCallbacksTest do
     end
   end
 
-  test "dispatch block callback" do
-    conn = process(SingleCallbacks, :GET, "/foo")
+  test "dispatch block hook" do
+    conn = process(SingleHooks, :GET, "/foo")
     assert conn.assigns[:value] == 6
   end
 
-  defmodule InvalidCallbacks do
+  defmodule InvalidHooks do
     use Dynamo.Router
 
     finalize do
@@ -198,9 +198,9 @@ defmodule Dynamo.Router.FinishCallbacksTest do
     end
   end
 
-  test "invalid dispatch callback" do
-    assert_raise Dynamo.Router.Callbacks.InvalidCallbackError, fn ->
-      process(InvalidCallbacks, :GET, "/foo")
+  test "invalid dispatch hook" do
+    assert_raise Dynamo.Router.Hooks.InvalidHookError, fn ->
+      process(InvalidHooks, :GET, "/foo")
     end
   end
 end
