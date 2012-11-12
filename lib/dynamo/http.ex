@@ -13,8 +13,6 @@ defmodule Dynamo.HTTP do
     end
   end
 
-  defexception InvalidSendOnHeadError, message: "Cannot send data because conn.original_method is HEAD"
-
   @moduledoc """
   This module defines the API implemented by the http
   connection, as in Dynamo.Cowboy.HTTP and Dynamo.HTTP.Test.

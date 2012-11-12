@@ -23,31 +23,31 @@ defmodule Dynamo.Filters.StaticTest do
   test "serves the file" do
     conn = get("/public/fixtures/static/file.txt")
     assert conn.status == 200
-    assert conn.resp_body == "HELLO"
+    assert conn.sent_body == "HELLO"
     assert conn.resp_headers["Content-Type"] == "text/plain"
   end
 
   test "hits the fallback" do
     conn = get("/public/fixtures/fallback")
     assert conn.status == 200
-    assert conn.resp_body == "Fallback"
+    assert conn.sent_body == "Fallback"
   end
 
   test "returns 404 for non existing files" do
     conn = get("/public/fixtures/unknown.txt")
     assert conn.status    == 404
-    assert conn.resp_body == "File not served"
+    assert conn.sent_body == "File not served"
   end
 
   test "returns 404 for directories" do
     conn = get("/public/fixtures")
     assert conn.status    == 404
-    assert conn.resp_body == "File not served"
+    assert conn.sent_body == "File not served"
   end
 
   test "returns 404 for unsecure paths" do
     conn = get("/public/fixtures/../fixtures/static/file.txt")
     assert conn.status    == 404
-    assert conn.resp_body == "File not served"
+    assert conn.sent_body == "File not served"
   end
 end

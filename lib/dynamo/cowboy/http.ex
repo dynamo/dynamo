@@ -19,7 +19,6 @@ defmodule Dynamo.Cowboy.HTTP do
     connection(
       app: app,
       req: req,
-      original_method: verb,
       method: verb,
       path_info_segments: segments,
       before_send: Dynamo.HTTP.default_before_send,
@@ -36,6 +35,11 @@ defmodule Dynamo.Cowboy.HTTP do
   end
 
   ## Request API
+
+  def original_method(connection(req: req)) do
+    { method, _ } = R.method req
+    method
+  end
 
   def query_string(connection(req: req)) do
     { query_string, _ } = R.qs req
@@ -58,11 +62,6 @@ defmodule Dynamo.Cowboy.HTTP do
   end
 
   ## Response API
-
-  def send(_status, body,
-      connection(original_method: "HEAD")) when body != "" do
-    raise Dynamo.HTTP.InvalidSendOnHeadError
-  end
 
   def send(status, body, conn) when is_integer(status) and (is_binary(body) or is_tuple(body)) do
     conn = run_before_send(conn)

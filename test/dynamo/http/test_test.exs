@@ -137,12 +137,8 @@ defmodule Dynamo.HTTP.TestTest do
 
   test :send_with_head do
     conn = conn(:HEAD, "/")
-
-    assert_raise Dynamo.HTTP.InvalidSendOnHeadError, fn ->
-      conn.send(200, "HELLO")
-    end
-
-    conn.send(200, "")
+    conn = conn.send(200, "HELLO")
+    assert conn.sent_body == ""
   end
 
   test :sendfile do
@@ -150,7 +146,7 @@ defmodule Dynamo.HTTP.TestTest do
     conn = conn(:GET, "/").sendfile(file)
     assert conn.state     == :sent
     assert conn.status    == 200
-    assert conn.resp_body == "HELLO"
+    assert conn.sent_body == "HELLO"
     conn
   end
 

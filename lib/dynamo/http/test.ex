@@ -9,7 +9,8 @@ defmodule Dynamo.HTTP.Test do
   """
 
   use Dynamo.HTTP.Behaviour,
-    [ :query_string, :raw_req_headers, :raw_req_body, :raw_cookies, :fetched, :path_segments ]
+    [ :query_string, :raw_req_headers, :raw_req_body, :raw_cookies, :fetched,
+      :path_segments, :sent_body, :original_method ]
 
   @doc """
   Initializes a connection to be used in tests.
@@ -30,6 +31,10 @@ defmodule Dynamo.HTTP.Test do
     { 1, 1 }
   end
 
+  def original_method(connection(original_method: method)) do
+    method
+  end
+
   def query_string(connection(query_string: query_string)) do
     query_string
   end
@@ -48,20 +53,24 @@ defmodule Dynamo.HTTP.Test do
 
   ## Response API
 
-  def send(_status, body, connection(original_method: "HEAD")) when body != "" do
-    raise Dynamo.HTTP.InvalidSendOnHeadError
-  end
-
   def send(status, body, conn) when is_integer(status) and is_binary(body) do
     connection(run_before_send(conn),
       state: :sent,
       status: status,
-      resp_body: body
+      sent_body: check_sent_body(conn, body),
+      resp_body: nil
     )
   end
 
+  defp check_sent_body(connection(original_method: "HEAD"), _body), do: ""
+  defp check_sent_body(_conn, body),                                do: body
+
   def sendfile(path, conn) do
     send(200, File.read!(path), conn)
+  end
+
+  def sent_body(connection(sent_body: sent_body)) do
+    sent_body
   end
 
   ## Misc
