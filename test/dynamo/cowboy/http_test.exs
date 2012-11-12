@@ -313,7 +313,7 @@ defmodule Dynamo.Cowboy.HTTPTest do
   end
 
   def send_with_head(conn) do
-    IO.puts "There is a bug in cowboy which make it fails with send on head"
+    IO.puts "There is a bug in hackney which makes it fails with send on head"
     # conn.send(200, "OK")
     conn.send(200, "")
   end
