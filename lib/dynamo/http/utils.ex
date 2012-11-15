@@ -51,9 +51,15 @@ defmodule Dynamo.HTTP.Utils do
   defp random_file(prefix, tmp_dir, callback, attempts) when attempts < @max_attempts do
     { mega, sec, mili } = :erlang.now()
     name = File.join(tmp_dir, "#{prefix}-#{mega}-#{sec}-#{mili}")
-    case File.open(name, [:write, :exclusive], callback) do
+    case :file.open(name, [:write, :exclusive, :binary]) do
       { :error, :eaccess } -> random_file(prefix, tmp_dir, callback, attempts + 1)
-      { :ok, result } -> { name, result }
+      { :ok, file } ->
+        result = try do
+          callback.(file)
+        after
+          :file.close(file)
+        end
+        { name, result }
     end
   end
 
