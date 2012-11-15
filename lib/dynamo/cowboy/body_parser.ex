@@ -14,7 +14,7 @@ defmodule Dynamo.Cowboy.BodyParser do
   end
 
   defp parse_body({ "multipart", style, _ }, dict, req) when style in ["form-data", "mixed"] do
-    { tuples, req } = parse_multipart(R.multipart_data(req), nil, nil, [])
+    { tuples, req } = parse_multipart(R.multipart_data(req), nil, [])
     dict = Enum.reduce(tuples, dict, Dynamo.HTTP.QueryParser.reduce(&1, &2))
     { dict, req }
   end
@@ -23,48 +23,72 @@ defmodule Dynamo.Cowboy.BodyParser do
     { dict, req }
   end
 
-  defp parse_multipart({ :eof, req }, nil, nil, acc) do
+  defp parse_multipart({ :eof, req }, _tmp_dir, acc) do
     { acc, req }
   end
 
-  defp parse_multipart({ :headers, headers, req }, nil, nil, acc) do
-    parse_multipart(R.multipart_data(req), headers, "", acc)
-  end
+  defp parse_multipart({ :headers, headers, req }, tmp_dir, acc) do
+    case parse_multipart_headers(headers) do
+      { name, nil } ->
+        { body, req } = parse_multipart_body(R.multipart_data(req), "")
+        parse_multipart(R.multipart_data(req), tmp_dir, [{ name, body }|acc])
 
-  defp parse_multipart({ :body, tail, req }, headers, body, acc) do
-    parse_multipart(R.multipart_data(req), headers, body <> tail, acc)
-  end
+      { name, file } ->
+        tmp_dir = get_tmp_dir(tmp_dir)
 
-  defp parse_multipart({ :end_of_part, req }, headers, body, acc) do
-    acc = multipart_entry(headers, body, acc)
-    parse_multipart(R.multipart_data(req), nil, nil, acc)
-  end
+        { path, { :ok, req } } = Dynamo.HTTP.Utils.random_file("uploaded",
+          tmp_dir, parse_multipart_file(R.multipart_data(req), &1))
 
-  defp multipart_entry(headers, body, acc) do
-    case List.keyfind(headers, "content-disposition", 0) do
-      { _, value } ->
-        [_|parts] = String.split(value, ";")
-        parts     = lc part inlist parts, do: to_multipart_kv(part)
+        parse_multipart(R.multipart_data(req), tmp_dir, [{ name, file.path(path) }|acc])
 
-        case List.keyfind(parts, "name", 0) do
-          { "name", name } ->
-            entry =
-              case List.keyfind(parts, "filename", 0) do
-                { "filename", filename } ->
-                  { _, type } = List.keyfind(headers, "content-type", 0) || { "content-type", nil }
-                  { name, Dynamo.HTTP.File.new(name: name, filename: filename, content_type: type, body: body) }
-                _ ->
-                  { name, body }
-              end
-
-            [entry|acc]
-          _ -> acc
-        end
-      _ -> acc
+      nil ->
+        { :ok, req } = R.multipart_skip(req)
+        parse_multipart(R.multipart_data(req), tmp_dir, acc)
     end
   end
 
-  defp to_multipart_kv(binary) do
+  defp parse_multipart_body({ :body, tail, req }, body) do
+    parse_multipart_body(R.multipart_data(req), body <> tail)
+  end
+
+  defp parse_multipart_body({ :end_of_part, req }, body) do
+    { body, req }
+  end
+
+  defp parse_multipart_file({ :body, body, req }, file) do
+    IO.write(file, body)
+    parse_multipart_file(R.multipart_data(req), file)
+  end
+
+  defp parse_multipart_file({ :end_of_part, req }, _file) do
+    { :ok, req }
+  end
+
+  defp parse_multipart_headers(headers) do
+    case List.keyfind(headers, "content-disposition", 0) do
+      { _, disposition } ->
+        [_|parts] = String.split(disposition, ";")
+        parts     = lc part inlist parts, do: split_equals(part)
+
+        case List.keyfind(parts, "name", 0) do
+          { _, name } ->
+            case List.keyfind(parts, "filename", 0) do
+              { _, filename } ->
+                { _, type } = List.keyfind(headers, "content-type", 0) || { "content-type", nil }
+                { name, Dynamo.HTTP.File[name: name, filename: filename, content_type: type, path: nil] }
+              _ ->
+                { name, nil }
+            end
+          _ -> nil
+        end
+      _ -> nil
+    end
+  end
+
+  defp get_tmp_dir(nil),   do: Dynamo.HTTP.Utils.tmp_dir
+  defp get_tmp_dir(other), do: other
+
+  defp split_equals(binary) do
     case String.split(binary, "=", global: false) do
       [h]   -> { trim(h), nil }
       [h,t] -> { trim(h), strip_quotes(t) }

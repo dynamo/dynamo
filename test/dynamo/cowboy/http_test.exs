@@ -123,7 +123,7 @@ defmodule Dynamo.Cowboy.HTTPTest do
     assert conn.params[:name] == "hello"
 
     file = conn.params[:pic]
-    assert file.body == "hello\n\n"
+    assert File.read!(file.path) == "hello\n\n"
     assert file.name == "pic"
     assert file.content_type == "text/plain"
     assert file.filename == "foo.txt"

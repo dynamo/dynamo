@@ -5,6 +5,63 @@ defmodule Dynamo.HTTP.Utils do
   """
 
   @doc """
+  Create a temporary directory usually
+  used to store uploaded files.
+  """
+  def tmp_dir do
+    { mega, _, _ } = :erlang.now
+    dir = "dynamo-#{mega}"
+
+    write_env_tmp_dir('TMPDIR', dir) ||
+      write_env_tmp_dir('TMP', dir)  ||
+      write_env_tmp_dir('TEMP', dir) ||
+      write_tmp_dir("/tmp/" <> dir)  ||
+      write_tmp_dir(File.expand_path(dir)) ||
+      raise "cannot create temporary directory"
+  end
+
+  defp write_env_tmp_dir(env, dir) do
+    case System.get_env(env) do
+      nil -> nil
+      tmp -> write_tmp_dir File.join(tmp, dir)
+    end
+  end
+
+  defp write_tmp_dir(dir) do
+    case File.mkdir_p(dir) do
+      :ok -> dir
+      { :error, _ } -> nil
+    end
+  end
+
+  @doc """
+  Creates a file with random name at the given temporary
+  directory. It returns the name of the file and the result
+  of the executed callback as a tuple.
+
+  In case the file could not be created after 10 attemps,
+  it raises an exception.
+  """
+  @max_attempts 10
+
+  def random_file(prefix, tmp_dir, callback) do
+    random_file(prefix, tmp_dir, callback, 0)
+  end
+
+  defp random_file(prefix, tmp_dir, callback, attempts) when attempts < @max_attempts do
+    { mega, sec, mili } = :erlang.now()
+    name = File.join(tmp_dir, "#{prefix}-#{mega}-#{sec}-#{mili}")
+    case File.open(name, [:write, :exclusive], callback) do
+      { :error, :eaccess } -> random_file(prefix, tmp_dir, callback, attempts + 1)
+      { :ok, result } -> { name, result }
+    end
+  end
+
+  defp random_file(_, tmp_dir, _, attempts) do
+    raise "Could not create random file at #{tmp_dir} after #{attempts} attempts. What gives?"
+  end
+
+  @doc """
   Receives a cookie key, value, options and returns
   a cookie header.
   """
