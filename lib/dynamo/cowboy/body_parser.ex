@@ -56,7 +56,7 @@ defmodule Dynamo.Cowboy.BodyParser do
   end
 
   defp parse_multipart_file({ :body, body, req }, file) do
-    IO.write(file, body)
+    :file.write(file, body)
     parse_multipart_file(R.multipart_data(req), file)
   end
 
