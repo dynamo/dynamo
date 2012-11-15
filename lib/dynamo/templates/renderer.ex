@@ -75,7 +75,7 @@ defmodule Dynamo.Templates.Renderer do
       end
     end
 
-    Module.create(module, contents, __ENV__)
+    Module.create(module, contents, __ENV__.location)
     put_module(module, template)
     module
   end
@@ -132,8 +132,8 @@ defmodule Dynamo.Templates.Renderer do
   ## Server Helpers
 
   defp purge_module(module) do
-    :code.purge(module)
     :code.delete(module)
+    :code.purge(module)
   end
 
   defp generate_suggestion(attempts) when attempts < @max_attemps do

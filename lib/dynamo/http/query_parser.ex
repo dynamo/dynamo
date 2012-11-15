@@ -44,8 +44,8 @@ defmodule Dynamo.HTTP.QueryParser do
   Receives a raw key, its value and the current accumulator
   and parses the key merging it into the current accumulator.
 
-  List are added to the accumulator in reverse order, use
-  `reverse/1` to loop
+  Parameters lists are added to the accumulator in reverse order,
+  so be sure to pass the parameters in reverse order.
   """
   def reduce({ key, value }, acc) do
     parts =

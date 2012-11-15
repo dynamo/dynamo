@@ -88,7 +88,7 @@ defmodule Dynamo.Templates do
         end
       end
 
-    { :module, _, binary, _ } = Module.create(name, contents, __ENV__)
+    { :module, _, binary, _ } = Module.create(name, contents, __ENV__.location)
     binary
   end
 end
