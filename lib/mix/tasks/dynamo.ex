@@ -165,7 +165,7 @@ defmodule Mix.Tasks.Dynamo do
   <!DOCTYPE HTML>
   <html>
   <head>
-    <title><%= @title %></title>
+    <title><%%= @title %></title>
   </head>
   <body>
     <h3>Welcome to Dynamo!</h3>
