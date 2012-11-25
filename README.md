@@ -2,7 +2,7 @@ Run, dynamo, run!
 
 ## Adventure mode!
 
-If you are felling adventurous, create a Dynamo in few steps:
+If you are feeling adventurous, create a Dynamo in few steps:
 
 1) Ensure you are on Elixir master and you have [rebar](https://github.com/basho/rebar) (available on homebrew) installed
 
