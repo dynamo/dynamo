@@ -120,7 +120,10 @@ defmodule Dynamo do
         if dynamo[:compile_on_demand] do
           Dynamo.Reloader.append_paths dynamo[:source_paths]
           Dynamo.Reloader.enable!
-          IEx.preload.after_spawn(fn -> Dynamo.Reloader.enable! end)
+
+          if IEx.started? do
+            IEx.after_spawn(fn -> Dynamo.Reloader.enable! end)
+          end
         end
       end
 

@@ -148,11 +148,11 @@ defmodule Dynamo.Reloader do
 
   @doc false
   def handle_cast({ :loaded, file, modules }, config) do
-    { :noreply, config.prepend_loaded_modules(modules).prepend_loaded_files([file]) }
+    { :noreply, config.update_loaded_modules(modules ++ &1).update_loaded_files([file|&1]) }
   end
 
   def handle_cast({ :on_purge, fun }, config) do
-    { :noreply, config.prepend_on_purge([fun]) }
+    { :noreply, config.update_on_purge([fun|&1]) }
   end
 
   def handle_cast({ :append_paths, paths }, config) do

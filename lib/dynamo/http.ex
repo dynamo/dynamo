@@ -70,7 +70,7 @@ defmodule Dynamo.HTTP do
   body as a `Binary.Dict`. The parameters need to be explicitly
   fetched with `conn.fetch(:params)` before using this function.
   """
-  defcallback params(conn), do: Binary.Dict.t | no_return
+  defcallback params(conn) :: Binary.Dict.t | no_return
 
   @doc """
   Returns the request headers as `Binary.Dict`. Note that duplicated
@@ -78,12 +78,12 @@ defmodule Dynamo.HTTP do
   `conn.fetch(:headers)` before using this function. Headers keys are
   all downcased.
   """
-  defcallback req_headers(conn), do: headers | no_return
+  defcallback req_headers(conn) :: headers | no_return
 
   @doc """
   Returns the request body as a binary.
   """
-  defcallback req_body(conn), do: body | no_return
+  defcallback req_body(conn) :: body | no_return
 
   @doc """
   Returns the HTTP method as a binary.
@@ -93,7 +93,7 @@ defmodule Dynamo.HTTP do
       conn.method #=> "GET"
 
   """
-  defcallback method(conn), do: method
+  defcallback method(conn) :: method
 
   @doc """
   Returns the original HTTP method as a binary.
@@ -106,65 +106,65 @@ defmodule Dynamo.HTTP do
       conn.original_method #=> "GET"
 
   """
-  defcallback original_method(conn), do: method
+  defcallback original_method(conn) :: method
 
   @doc """
   Changes the request method to the given `method`,
   storing the previous value in original_method.
   """
-  defcallback method(method, conn), do: conn
+  defcallback method(method, conn) :: conn
 
   @doc """
   Returns the HTTP version.
   """
-  defcallback version(conn), do: binary
+  defcallback version(conn) :: binary
 
   ## Paths
 
   @doc """
   Returns the query string as a binary.
   """
-  defcallback query_string(conn), do: binary
+  defcallback query_string(conn) :: binary
 
   @doc """
   Returns the full path segments, as received by the web server.
   """
-  defcallback path_segments(conn), do: [binary]
+  defcallback path_segments(conn) :: [binary]
 
   @doc """
   Returns the full path as a binary, as received by the web server.
   """
-  defcallback path(conn), do: binary
+  defcallback path(conn) :: binary
 
   @doc """
   Return the path as a list of binaries split on "/".
   If the request was forwarded request, `path_info_segments` returns
   only the segments related to the current forwarded endpoint.
   """
-  defcallback path_info_segments(conn), do: segments
+  defcallback path_info_segments(conn) :: segments
 
   @doc """
   Returns the request path relative to the forwarding endpoint
   as a binary.
   """
-  defcallback path_info(conn), do: binary
+  defcallback path_info(conn) :: binary
 
   @doc """
   As in CGI environment, returns the current forwarded endpoint as segments.
   """
-  defcallback script_name_segments(conn), do: segments
+  defcallback script_name_segments(conn) :: segments
 
   @doc """
   As in CGI environment, returns the current forwarded endpoint as binary.
   """
-  defcallback script_name(conn), do: binary
+  defcallback script_name(conn) :: binary
 
   @doc """
   Mounts the request by setting the new path information to the given
   *segments*. Both script_name/1 and path_segments/1 are updated.
   The segments given must be a suffix of the current path segments.
   """
-  defcallback forward_to(segments, module, conn), do: conn
+  defcallback forward_to(segments, module, conn) :: conn
 
   ## Response API
 
@@ -173,51 +173,51 @@ defmodule Dynamo.HTTP do
   An updated connection is returned with `:sent` state,
   the given status and response body set to nil.
   """
-  defcallback send(status, body :: term, conn), do: conn
+  defcallback send(status, body :: term, conn) :: conn
 
   @doc """
   Returns the response status if one was set.
   """
-  defcallback status(conn), do: status
+  defcallback status(conn) :: status
 
   @doc """
   Sets the response status and changes the state to `:set`.
   """
-  defcallback status(status, conn), do: conn
+  defcallback status(status, conn) :: conn
 
   @doc """
   Returns the response body if one was set.
   """
-  defcallback resp_body(conn), do: body | nil
+  defcallback resp_body(conn) :: body | nil
 
   @doc """
   Sets the response body and changes the state to `:set`.
   """
-  defcallback resp_body(body, conn), do: conn
+  defcallback resp_body(body, conn) :: conn
 
   @doc """
   Gets the response charset.
   Defaults to "utf-8".
   """
-  defcallback resp_charset(conn), do: binary
+  defcallback resp_charset(conn) :: binary
 
   @doc """
   Sets the response charset. The charset
   is just added to the response if
   `resp_content_type` is also set.
   """
-  defcallback resp_charset(charset, conn), do: conn
+  defcallback resp_charset(charset, conn) :: conn
 
   @doc """
   Gets the response content-type.
   """
-  defcallback resp_content_type(conn), do: binary | nil
+  defcallback resp_content_type(conn) :: binary | nil
 
   @doc """
   Sets the response content-type.
   This is sent as a header when the response is sent.
   """
-  defcallback resp_content_type(content_type, conn), do: conn
+  defcallback resp_content_type(content_type, conn) :: conn
 
   @doc """
   Sets a response to the given status and body. The
@@ -226,19 +226,19 @@ defmodule Dynamo.HTTP do
   After calling this function, the state changes to `:set`,
   both `status` and `resp_body` are set.
   """
-  defcallback resp(status, body, conn), do: conn
+  defcallback resp(status, body, conn) :: conn
 
   @doc """
   A shortcut to `conn.send(conn.status, conn.resp_body)`.
   """
-  defcallback send(conn), do: conn
+  defcallback send(conn) :: conn
 
   @doc """
   Sends the file at the given path. It is expected that the
   given path exists and it points to a regular file. The
   file is sent straight away.
   """
-  defcallback sendfile(path :: binary, conn), do: conn
+  defcallback sendfile(path :: binary, conn) :: conn
 
   @doc """
   Returns the response state. It can be:
@@ -249,23 +249,23 @@ defmodule Dynamo.HTTP do
   * `:sent` - the response was sent
 
   """
-  defcallback state(conn), do: :unset | :set | :chunked | :sent
+  defcallback state(conn) :: :unset | :set | :chunked | :sent
 
   @doc """
   Returns the response headers as `Binary.Dict`.
   """
-  defcallback resp_headers(conn), do: Binary.Dict.t
+  defcallback resp_headers(conn) :: Binary.Dict.t
 
   @doc """
   Sets a response header, overriding any previous value.
   Both `key` and `value` are converted to binary.
   """
-  defcallback set_resp_header(key :: Binary.Chars.t, value :: Binary.Chars.t, conn), do: conn
+  defcallback set_resp_header(key :: Binary.Chars.t, value :: Binary.Chars.t, conn) :: conn
 
   @doc """
   Deletes a response header.
   """
-  defcallback delete_resp_header(key :: Binary.Chars.t, conn), do: conn
+  defcallback delete_resp_header(key :: Binary.Chars.t, conn) :: conn
 
   ## Cookies
 
@@ -274,19 +274,19 @@ defmodule Dynamo.HTTP do
   Cookies need to be explicitly fetched with `conn.fetch(:cookies)`
   before using this function.
   """
-  defcallback req_cookies(conn), do: Binary.Dict.t | no_return
+  defcallback req_cookies(conn) :: Binary.Dict.t | no_return
 
   @doc """
   Returns a Binary.Dict with cookies. Cookies need to be explicitly
   fetched with `conn.fetch(:cookies)` before using this function.
   """
-  defcallback cookies(conn), do: Binary.Dict.t
+  defcallback cookies(conn) :: Binary.Dict.t
 
   @doc """
   Returns the response cookies as a list of three element tuples
   containing the key, value and given options.
   """
-  defcallback resp_cookies(conn), do: [{ binary, binary, list }]
+  defcallback resp_cookies(conn) :: [{ binary, binary, list }]
 
   @doc """
   Sets a cookie with given key and value and the given options.
@@ -305,15 +305,15 @@ defmodule Dynamo.HTTP do
   * `http_only` - If the cookie is sent only via http. Default to true;
 
   """
-  defcallback set_cookie(key :: Binary.Chars.t, value :: Binary.Chars.t, conn), do: conn
-  defcallback set_cookie(key :: Binary.Chars.t, value :: Binary.Chars.t, opts :: list, conn), do: conn
+  defcallback set_cookie(key :: Binary.Chars.t, value :: Binary.Chars.t, conn) :: conn
+  defcallback set_cookie(key :: Binary.Chars.t, value :: Binary.Chars.t, opts :: list, conn) :: conn
 
   @doc """
   Deletes a cookie. The same options given when setting the cookie
   must be given on delete to ensure the browser will pick them up.
   """
-  defcallback delete_cookie(key :: Binary.Chars.t, conn), do: conn
-  defcallback delete_cookie(key :: Binary.Chars.t, opts :: list, conn), do: conn
+  defcallback delete_cookie(key :: Binary.Chars.t, conn) :: conn
+  defcallback delete_cookie(key :: Binary.Chars.t, opts :: list, conn) :: conn
 
   ## Misc
 
@@ -322,20 +322,20 @@ defmodule Dynamo.HTTP do
   The "fetchable" aspects are: headers, params, cookies, body
   and session.
   """
-  defcallback fetch(fetch_aspect | [fetch_aspect], conn), do: conn
+  defcallback fetch(fetch_aspect | [fetch_aspect], conn) :: conn
 
   @doc """
   Returns a keywords list with assigns set so far.
   """
-  defcallback assigns(conn), do: assigns
+  defcallback assigns(conn) :: assigns
 
   @doc """
   Sets a new assign with the given key and value.
   """
-  defcallback assign(key :: atom, value :: term, conn), do: conn
+  defcallback assign(key :: atom, value :: term, conn) :: conn
 
   @doc """
   Returns the application that received the request.
   """
-  defcallback app(conn), do: app
+  defcallback app(conn) :: app
 end

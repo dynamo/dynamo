@@ -32,7 +32,7 @@ defmodule DynamoTest do
 
   test "removes templates from source paths" do
     templates_path = File.expand_path("../fixtures/templates", __FILE__)
-    refute templates_path in App.config[:dynamo][:source_paths]
+    refute templates_path inlist App.config[:dynamo][:source_paths]
   end
 
   ## Filters
@@ -47,7 +47,7 @@ defmodule DynamoTest do
   end
 
   test "adds reloader filter" do
-    assert Dynamo.Reloader.Filter.new(true, true) in ReloadApp.filters
+    assert Dynamo.Reloader.Filter.new(true, true) inlist ReloadApp.filters
   end
 
   test "does not add reloader filter if disabled" do

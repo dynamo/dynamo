@@ -21,14 +21,14 @@ defmodule Dynamo.Templates.Handler do
   named as Dynamo.Templates.EXTHandler where
   EXT is the handler extension.
   """
-  defcallback compile(template, locals :: list), do: { args :: list, term }
+  defcallback compile(template, locals :: list) :: { args :: list, term }
 
   @doc """
   Receives a module and function in which the compiled
   template is stored plus the locals and assigns
   to be used on dispatch.
   """
-  defcallback render(module, function :: atom, locals, assigns), do: binary
+  defcallback render(module, function :: atom, locals, assigns) :: binary
 
   @doc """
   Get the template handler for the given extension.
