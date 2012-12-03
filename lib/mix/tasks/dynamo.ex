@@ -107,6 +107,7 @@ defmodule Mix.Tasks.Dynamo do
    embed_text :gitignore, """
    /ebin
    /deps
+   /tmp/ebin
    erl_crash.dump
    """
 
@@ -117,10 +118,11 @@ defmodule Mix.Tasks.Dynamo do
     def project do
       [ app: :<%= @app %>,
         version: "0.0.1",
-        compile_path: "ebin/#{Mix.env}",
+        compile_path: "tmp/ebin",
         prepare_task: "dynamo.start",
         dynamos: [<%= @mod %>],
         compilers: [:elixir, :dynamo, :app],
+        env: [prod: [compile_path: "ebin"]],
         deps: deps ]
     end
 

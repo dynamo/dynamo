@@ -106,13 +106,7 @@ defmodule Dynamo do
       use_once Dynamo.Base
       use_once Dynamo.Router.Filters
 
-      config :dynamo,
-        static_route: "/static",
-        compile_on_demand: true,
-        reload_modules: false,
-        source_paths: ["app/*"],
-        templates_paths: ["app/templates"],
-        compiled_templates: __MODULE__.CompiledTemplates
+      config :dynamo, unquote(default_dynamo_config(__CALLER__))
 
       initializer :start_dynamo_reloader do
         dynamo = config[:dynamo]
@@ -167,13 +161,25 @@ defmodule Dynamo do
     :application.set_env(:dynamo, :under_test, mod)
   end
 
+  ## Helpers
+
+  defp default_dynamo_config(env) do
+    [ static_route: "/static",
+      compile_on_demand: true,
+      reload_modules: false,
+      source_paths: ["app/*"],
+      environments_path: File.join(File.rootname(env.file, ".ex"), "environments"),
+      templates_paths: ["app/templates"],
+      compiled_templates: env.module.CompiledTemplates ]
+  end
+
   ## __before_compile__ callbacks
 
   @doc false
   defmacro load_env_file(_) do
-    root = File.rootname(__CALLER__.file, ".ex")
-    if File.dir?("#{root}/environments") do
-      file = "#{root}/environments/#{Dynamo.env}.exs"
+    dir = Module.get_attribute(__CALLER__.module, :config)[:dynamo][:environments_path]
+    if dir && File.dir?(dir) do
+      file = "#{dir}/#{Dynamo.env}.exs"
       Code.string_to_ast! File.read!(file), file: file
     end
   end
