@@ -107,6 +107,7 @@ defmodule Dynamo do
       use_once Dynamo.Router.Filters
 
       config :dynamo, unquote(default_dynamo_config(__CALLER__))
+      config :server, []
 
       initializer :start_dynamo_reloader do
         dynamo = config[:dynamo]

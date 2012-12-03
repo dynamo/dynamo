@@ -217,10 +217,10 @@ defmodule Mix.Tasks.Dynamo do
     # Every time a module in app changes, we
     # will clean up defined modules and pick
     # up the latest versions.
-    reload_modules: true,
+    reload_modules: true
 
-    # Run on port 4000 for development
-    port: 4000
+  # Run on port 4000 for development
+  config :server, port: 4000
   """
 
   embed_template :lib_test, """
@@ -228,16 +228,18 @@ defmodule Mix.Tasks.Dynamo do
     # For testing we compile modules on demand,
     # but there isn't a need to reload them.
     compile_on_demand: true,
-    reload_modules: false,
-    port: 8888
+    reload_modules: false
+
+  config :server, port: 8888
   """
 
   embed_template :lib_prod, """
   config :dynamo,
     # On production, modules are compiled up-front.
     compile_on_demand: false,
-    reload_modules: false,
-    port: 80
+    reload_modules: false
+
+  config :server, port: 8888
   """
 
   embed_text :test_features, """

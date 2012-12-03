@@ -78,10 +78,10 @@ defmodule Dynamo.Base do
       Runs the app in the configured web server.
       """
       def run(options // []) do
-        Dynamo.Cowboy.run __MODULE__, options
+        Dynamo.Cowboy.run __MODULE__, Keyword.merge(config[:server], options)
       end
 
-      defoverridable [templates_prelude: 0, run: 1, run: 0]
+      defoverridable [templates_prelude: 0, run: 1]
     end
   end
 

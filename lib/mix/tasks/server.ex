@@ -17,7 +17,6 @@ defmodule Mix.Tasks.Server do
 
   ## Command line options
 
-  * `--app` - the name of the application to load
   * `-p`, `--port` - the port to listen to
   * `--acceptors` - the number of acceptors
 
@@ -45,7 +44,6 @@ defmodule Mix.Tasks.Server do
         end
       end
 
-      opts = Keyword.put(opts, :port, opts[:port] || config[:port] || 4000)
       dynamo.run opts
     end
 
