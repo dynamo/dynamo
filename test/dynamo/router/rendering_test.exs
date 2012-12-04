@@ -30,6 +30,11 @@ defmodule Dynamo.Router.RenderingTest do
 
     config :dynamo,
       templates_paths: [File.expand_path("../../../fixtures/templates", __FILE__)]
+
+    templates do
+      import List, only: [flatten: 1]
+      use Dynamo.Helpers
+    end
   end
 
   def setup_all do
@@ -58,6 +63,12 @@ defmodule Dynamo.Router.RenderingTest do
   test "works with assigns" do
     conn = get("/assigns.html")
     assert conn.resp_body == "world"
+    assert conn.resp_content_type == "text/html"
+  end
+
+  test "uses app prelude" do
+    conn = get("/prelude.html")
+    assert conn.resp_body == ?H /> integer_to_binary
     assert conn.resp_content_type == "text/html"
   end
 
