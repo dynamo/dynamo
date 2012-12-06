@@ -58,16 +58,17 @@ defmodule Mix.Tasks.Compile.Dynamo do
     stale      = Mix.Utils.extract_stale([mod_beam|to_watch], [compile_path])
 
     if opts[:force] or stale != [] do
-      File.mkdir_p!(compile_path)
-
       if elixir_opts = project[:elixirc_options] do
         Code.compiler_options(elixir_opts)
       end
 
-      Code.delete_path compile_path
-      compile_files to_compile, compile_path, root
-      compile_templates mod, dynamo[:compiled_templates], tmpl_paths, compile_path
-      Code.prepend_path compile_path
+      Mix.Utils.preserving_mtime(compile_path, fn ->
+        File.mkdir_p!(compile_path)
+        Code.delete_path compile_path
+        compile_files to_compile, compile_path, root
+        compile_templates mod, dynamo[:compiled_templates], tmpl_paths, compile_path
+        Code.prepend_path compile_path
+      end
 
       :ok
     else
