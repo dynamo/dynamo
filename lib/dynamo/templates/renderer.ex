@@ -75,7 +75,7 @@ defmodule Dynamo.Templates.Renderer do
       end
     end
 
-    Module.create(module, contents, __ENV__.location)
+    Module.create(module, contents, file: identifier)
     put_module(module, template)
     module
   end
