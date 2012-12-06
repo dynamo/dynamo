@@ -68,7 +68,7 @@ defmodule Mix.Tasks.Compile.Dynamo do
         compile_files to_compile, compile_path, root
         compile_templates mod, dynamo[:compiled_templates], tmpl_paths, compile_path
         Code.prepend_path compile_path
-      end
+      end)
 
       :ok
     else
