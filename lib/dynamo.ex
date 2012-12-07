@@ -25,6 +25,7 @@ defmodule Dynamo do
   everytime we have a request at `/static`:
 
       config :dynamo,
+        env: "prod",
         static_root:  :myapp,
         static_route: "/static"
 
@@ -36,7 +37,7 @@ defmodule Dynamo do
   * `:reload_modules` - Reload modules after they are changed
   * `:source_paths` - The paths to search when compiling modules on demand
   * `:templates_paths` - The paths to find templates
-  * `:otp_app` - The otp application associated to this Dynamo
+  * `:env` - The environment this Dynamo runs on
 
   Check `Dynamo.Base` for other macros and how to further
   configure a Dynamo.
@@ -67,7 +68,7 @@ defmodule Dynamo do
   invoked when the dynamo starts. A Dynamo is initialized
   in three steps:
 
-  * The dynamo framework needs to be loaded via `Dynamo.start`
+  * The Dynamo application needs to be started
   * All dynamos needs to be loaded via `DYNAMO_MODULE.start`
   * A dynamo is hooked into a web server via `DYNAMO_MODULE.run`
 
@@ -126,26 +127,6 @@ defmodule Dynamo do
     end
   end
 
-  @doc """
-  Starts the Dynamo framework.
-  """
-  def start(env) when is_atom(env) do
-    :application.start(:mimetypes)
-    :application.start(:crypto)
-    :application.start(:dynamo)
-    :application.set_env(:dynamo, :env, env)
-    :application.set_env(:dynamo, :under_test, nil)
-  end
-
-  @doc """
-  Reads the current environment.
-  """
-  def env do
-    case :application.get_env(:dynamo, :env) do
-      { :ok, env } -> env
-      :undefined   -> raise "Dynamo was not started, please invoke Dynamo.start before proceeding"
-    end
-  end
 
   @doc """
   Gets the Dynamo used by default under test.
@@ -165,7 +146,8 @@ defmodule Dynamo do
   ## Helpers
 
   defp default_dynamo_config(env) do
-    [ static_route: "/static",
+    [ env: "prod",
+      static_route: "/static",
       compile_on_demand: true,
       reload_modules: false,
       source_paths: ["app/*"],
@@ -178,9 +160,11 @@ defmodule Dynamo do
 
   @doc false
   defmacro load_env_file(_) do
-    dir = Module.get_attribute(__CALLER__.module, :config)[:dynamo][:environments_path]
+    dynamo = Module.get_attribute(__CALLER__.module, :config)[:dynamo]
+    dir = dynamo[:environments_path]
+    env = dynamo[:env]
     if dir && File.dir?(dir) do
-      file = "#{dir}/#{Dynamo.env}.exs"
+      file = "#{dir}/#{env}.exs"
       Code.string_to_ast! File.read!(file), file: file
     end
   end

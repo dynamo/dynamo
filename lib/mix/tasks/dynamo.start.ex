@@ -14,8 +14,7 @@ defmodule Mix.Tasks.Dynamo.Start do
       raise Mix.Error, message: %b(configuration :dynamos not set for #{inspect Mix.Project.get!})
     end
 
-    Dynamo.start Mix.env
-    Mix.Task.run "compile", args
+    Mix.Task.run "app.start", args
 
     unless opts[:no_start] do
       Enum.each dynamos, fn(dynamo) ->

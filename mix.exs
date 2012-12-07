@@ -22,6 +22,7 @@ defmodule Dynamo.Mixfile do
   end
 
   def application do
-    [applications: [:crypto, :mimetypes]]
+    [ applications: [:crypto, :mimetypes],
+      env: [under_test: nil] ]
   end
 end

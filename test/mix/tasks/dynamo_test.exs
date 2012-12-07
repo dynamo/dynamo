@@ -26,7 +26,7 @@ defmodule Mix.Tasks.DynamoTest do
 
       assert_file "lib/my_app.ex", fn(file) ->
         assert file =~ %r(endpoint ApplicationRouter)
-        assert file =~ %r(otp_app: :my_app)
+        assert file =~ %r(env: Mix.env)
       end
 
       assert_file "app/routers/application_router.ex"

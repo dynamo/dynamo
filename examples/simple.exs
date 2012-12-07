@@ -2,11 +2,6 @@
 #
 #     mix run -r examples/simple.exs --no-halt
 #
-Code.prepend_path("deps/ranch/ebin")
-Code.prepend_path("deps/cowboy/ebin")
-
-Dynamo.start(:prod)
-
 defmodule MyDynamo do
   use Dynamo.Router
   use Dynamo

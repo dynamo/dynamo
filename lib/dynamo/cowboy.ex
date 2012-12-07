@@ -17,9 +17,10 @@ defmodule Dynamo.Cowboy do
 
   """
   def run(app, options // []) do
-    :application.start(:ranch)  
+    :application.start(:ranch)
     :application.start(:cowboy)
 
+    env       = options[:env]       || "prod"
     port      = options[:port]      || 4000
     acceptors = options[:acceptors] || 100
     dispatch  = options[:dispatch]  || dispatch_for(app)
@@ -28,7 +29,7 @@ defmodule Dynamo.Cowboy do
     acceptors = to_i(acceptors)
 
     unless options[:verbose] == false do
-      IO.puts "Running #{inspect app} at localhost:#{port} with Cowboy on #{Dynamo.env}"
+      IO.puts "Running #{inspect app} at localhost:#{port} with Cowboy on #{env}"
     end
 
     :cowboy.start_http(app, acceptors, [port: port], [dispatch: dispatch])
