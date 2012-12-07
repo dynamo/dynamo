@@ -1,82 +1,72 @@
-defmodule Dynamo.Templates.Finder do
+defprotocol Dynamo.Templates.Finder do
   @moduledoc """
-  This module defines the basic behavior
-  required by Elixir for finding templates
-  in the filesystem
+  Defines the protocol required for finding templates.
   """
 
-  use Behaviour
-
-  @type finder :: tuple
+  @only [Atom, Record, BitString]
 
   @doc """
-  Initializes the finder with the relevant
-  information.
+  Returns true if templates are already precompiled.
   """
-  defcallback new(info :: term) :: finder
+  @spec precompiled?(t) :: boolean
+  def precompiled?(finder)
 
   @doc """
-  Returns true if templates can be eager
-  compiled. If so, the behaviour also needs
-  to implement a `all(self)` function that
-  returns all templates hold by the finder.
+  Attempts to find a template given by `query` in the
+  current finder.
+
+  Returns a `Dynamo.Template` or nil in case a template
+  can't be found.
   """
-  defcallback eager?(finder) :: boolean
+  @spec find(t, query :: binary) :: Dynamo.Template.t
+  def find(finder, query)
 
   @doc """
-  Attempts to find a template given by
-  `query` in the current finder.
-
-  Returns a `Dynamo.Template` or
-  nil in case a template can't be found.
+  Returns all templates available in this finder.
+  This is used for precompilation of templates.
+  Must return nil if this finder already holds
+  precompiled templates (i.e. `precompiled?` is true).
   """
-  defcallback find(query :: binary, finder) :: Dynamo.Template.t
+  @spec all(t) :: [Dynamo.Template.t] | nil
+  def all(finder)
 
   @doc """
-  Returns a filesystem path to be watched
-  if this finder maps to somewhere in the
-  filesystem. Returns nil otherwise.
+  Returns the given template source.
   """
-  defcallback to_path(finder) :: binary | nil
+  @spec source(t, Dynamo.Template.t) :: binary
+  def source(finder, template)
 end
 
-defmodule Dynamo.Templates.PathFinder do
-  @moduledoc false
-  @behaviour Dynamo.Templates.Finder
-
-  def new(root) do
-    { __MODULE__, File.expand_path(root) }
+defimpl Dynamo.Templates.Finder, for: BitString do
+  def precompiled?(_) do
+    false
   end
 
-  def eager?(_) do
-    true
-  end
-
-  def all({ __MODULE__, root }) do
+  def all(root) do
     lc path inlist File.wildcard("#{root}/**/*.*") do
       key = :binary.replace(path, root <> "/", "")
-      build(File.rootname(key), path)
+      build(root, File.rootname(key), path)
     end
   end
 
-  def find(key, { __MODULE__, root }) do
+  def find(root, key) do
     query = File.join(root, key <> ".*")
     path  = Enum.first File.wildcard(query)
-    if path, do: build(key, path)
+    if path, do: build(root, key, path)
   end
 
-  def to_path({ __MODULE__, path }) do
-    path
+  def source(_root, Dynamo.Template[identifier: path]) do
+    File.read!(path)
   end
 
-  defp build(key, path) do
+  defp build(root, key, path) do
     Dynamo.Template[
       key: key,
       updated_at: File.stat!(path).mtime,
       identifier: path,
       handler: Dynamo.Templates.Handler.get!(extname(path)),
       format: extname(File.rootname(path)),
-      source: File.read!(path)
+      finder: root
     ]
   end
 
@@ -87,4 +77,11 @@ defmodule Dynamo.Templates.PathFinder do
       ext -> ext
     end
   end
+end
+
+defimpl Dynamo.Templates.Finder, for: Atom do
+  def precompiled?(atom), do: atom.precompiled?
+  def all(atom),          do: atom.all
+  def find(atom, key),    do: atom.find(key)
+  def source(atom, key),  do: atom.source(key)
 end

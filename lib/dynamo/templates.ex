@@ -1,15 +1,21 @@
 defrecord Dynamo.Template, key: nil, identifier: nil, format: nil,
-    handler: nil, source: nil, updated_at: nil, ref: nil do
+    handler: nil, updated_at: nil, extra: nil, ref: nil, finder: nil do
   @moduledoc """
   The template record is responsible to keep information about
   templates to be rendered. It contains:
 
-  * `:key` - The key used to find the template
-  * `:identifier` - An unique identifier for the template, like its filesystem path
+  * `:key` - The key used to find the template;
+  * `:identifier` - An unique identifier for the template, like its
+     filesystem path. This information may be used later by the finder
+     to retrieve the template source
   * `:format` - The template format
+  * `:finder` - The finder that found the template
   * `:handler` - The handler responsible for compiling the template
-  * `:source` - The template source code
   * `:updated_at` - The last time the template was updated
+  * `:extra` - Used by the finder to put extra information about the template
+
+  Besides, the followig fields are private to Dynamo:
+
   * `:ref` - A reference for already compiled templates
   """
 end
@@ -29,7 +35,7 @@ defmodule Dynamo.Templates do
   end
 
   def find(query, tmpl_paths) do
-    Enum.find_value(tmpl_paths, fn(x) -> x.find(query) end)
+    Enum.find_value(tmpl_paths, Dynamo.Templates.Finder.find(&1, query))
   end
 
   @doc """
@@ -54,7 +60,7 @@ defmodule Dynamo.Templates do
   """
   def compile_module(name, templates, locals, prelude) do
     { finders, _ } =
-      Enum.map_reduce templates, 0, fn(template, i) ->
+      Enum.map_reduce templates, 0, fn(Dynamo.Template[] = template, i) ->
         template = template.ref({ name, :"template_#{i}" })
         finder   = quote do
           def find(unquote(template.key)) do
@@ -65,8 +71,10 @@ defmodule Dynamo.Templates do
       end
 
     { templates, _ } =
-      Enum.map_reduce templates, 0, fn(template, i) ->
-        { args, source } = template.handler.compile(template, locals)
+      Enum.map_reduce templates, 0, fn(Dynamo.Template[] = template, i) ->
+        source = Dynamo.Templates.Finder.source(template.finder, template)
+        { args, source } = template.handler.compile(template, source, locals)
+
         template =
           quote do
             @file unquote(template.identifier)
@@ -85,6 +93,14 @@ defmodule Dynamo.Templates do
 
         def find(_) do
           nil
+        end
+
+        def all do
+          nil
+        end
+
+        def precompiled? do
+          true
         end
       end
 

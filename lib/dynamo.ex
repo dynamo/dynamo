@@ -199,15 +199,6 @@ defmodule Dynamo do
     # Remove templates that eventually end up on source
     source = source -- templates
 
-    # Now convert all templates paths to Dynamo.Templates.Finders
-    templates = lc path inlist templates do
-      if is_binary(path) do
-        Dynamo.Templates.PathFinder.new(path)
-      else
-        path
-      end
-    end
-
     quote do
       config :dynamo,
         templates_paths: unquote(templates),
@@ -258,11 +249,11 @@ defmodule Dynamo do
     dynamo = Module.get_attribute(module, :config)[:dynamo]
     templates_paths = dynamo[:templates_paths]
 
-    { compiled, runtime } =
+    { runtime, compiled } =
       if dynamo[:compile_on_demand] do
-        { [], templates_paths }
+        { templates_paths, [] }
       else
-        Enum.partition(templates_paths, fn(path) -> path.eager? end)
+        Enum.partition(templates_paths, Dynamo.Templates.Finder.precompiled?(&1))
       end
 
     if compiled != [] do

@@ -64,8 +64,9 @@ defmodule Dynamo.Templates.Renderer do
   end
 
   defp compile(module, template, locals, prelude) do
-    Template[handler: handler, identifier: identifier] = template
-    { args, source } = handler.compile(template, locals)
+    Template[handler: handler, identifier: identifier, finder: finder] = template
+    source = Dynamo.Templates.Finder.source(finder, template)
+    { args, source } = handler.compile(template, source, locals)
 
     contents = quote do
       unquote(prelude.())

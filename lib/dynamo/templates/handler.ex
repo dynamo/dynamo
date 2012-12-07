@@ -21,7 +21,7 @@ defmodule Dynamo.Templates.Handler do
   named as Dynamo.Templates.EXTHandler where
   EXT is the handler extension.
   """
-  defcallback compile(template, locals :: list) :: { args :: list, term }
+  defcallback compile(template, source :: binary, locals :: list) :: { args :: list, term }
 
   @doc """
   Receives a module and function in which the compiled
@@ -47,7 +47,7 @@ defmodule Dynamo.Templates.EEXHandler do
   @moduledoc false
   @behaviour Dynamo.Templates.Handler
 
-  def compile(Dynamo.Template[source: source, identifier: identifier], locals) do
+  def compile(Dynamo.Template[identifier: identifier], source, locals) do
     vars   = vars(locals)
     args   = [{ :assigns, 0, nil }|vars]
     match  = match(args)

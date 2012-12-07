@@ -59,6 +59,6 @@ defmodule DynamoTest do
   test "defines templates paths" do
     assert App.templates_paths == [DynamoTest.App.CompiledTemplates]
     templates = File.expand_path("../fixtures/templates", __FILE__)
-    assert ReloadApp.templates_paths == [Dynamo.Templates.PathFinder.new(templates)]
+    assert ReloadApp.templates_paths == [templates]
   end
 end

@@ -4,7 +4,6 @@ defmodule Dynamo.TemplatesTest do
   use ExUnit.Case
 
   @fixture_path File.expand_path("../../fixtures/templates", __FILE__)
-  @path_finder  Dynamo.Templates.PathFinder.new(@fixture_path)
 
   test "renders a template" do
     body = render "hello.html"
@@ -43,14 +42,15 @@ defmodule Dynamo.TemplatesTest do
   end
 
   test "compiles a module with the given templates" do
-    Dynamo.Templates.compile_module(CompileTest.CompiledTemplates, @path_finder.all, [:conn], prelude)
+    all = Dynamo.Templates.Finder.all(@fixture_path)
+    Dynamo.Templates.compile_module(CompileTest.CompiledTemplates, all, [:conn], prelude)
 
     path     = File.join(@fixture_path, "hello.html.eex")
     template = CompileTest.CompiledTemplates.find "hello.html"
 
     assert Dynamo.Template[identifier: ^path, key: "hello.html",
       handler: Dynamo.Templates.EEXHandler, format: "html",
-      ref: { CompileTest.CompiledTemplates, _ }] = template
+      ref: { CompileTest.CompiledTemplates, _ }, finder: @fixture_path] = template
 
     { mod, fun } = template.ref
     assert apply(mod, fun, [[], nil]) == { [nil], "HELLO!" }
@@ -58,7 +58,7 @@ defmodule Dynamo.TemplatesTest do
 
   defp render(query) do
     { [nil], body } =
-      Dynamo.Templates.render Dynamo.Templates.find!(query, [@path_finder]), [conn: nil], [], prelude
+      Dynamo.Templates.render Dynamo.Templates.find!(query, [@fixture_path]), [conn: nil], [], prelude
     body
   end
 

@@ -49,24 +49,31 @@ defmodule Mix.Tasks.Compile.Dynamo do
     compile_path = project[:compile_path]
     compile_exts = project[:compile_exts]
     watch_exts   = project[:watch_exts]
-    tmpl_paths   = dynamo[:templates_paths]
-    source_paths = dynamo[:source_paths] ++ extract_templates(tmpl_paths)
+    source_paths = dynamo[:source_paths]
+    templates    = extract_templates(dynamo[:templates_paths])
 
-    to_compile = Mix.Utils.extract_files(source_paths, compile_exts)
-    to_watch   = Mix.Utils.extract_files(source_paths, watch_exts)
-    mod_beam   = File.join(compile_path, "#{mod}.beam")
-    stale      = Mix.Utils.extract_stale([mod_beam|to_watch], [compile_path])
+    # Source files + Mix setup + Dynamo config + Templates
+    to_watch = Mix.Utils.extract_files(source_paths, watch_exts)
+    to_watch = Mix.Project.sources ++ to_watch
+    to_watch = [File.join(compile_path, "#{mod}.beam")|to_watch]
+    to_watch = to_watch ++ Enum.map(templates, template_mtime(&1))
+
+    stale = Mix.Utils.extract_stale(to_watch, [compile_path])
 
     if opts[:force] or stale != [] do
+      Mix.Task.run "deps.start"
+
       if elixir_opts = project[:elixirc_options] do
         Code.compiler_options(elixir_opts)
       end
+
+      to_compile = Mix.Utils.extract_files(source_paths, compile_exts)
 
       Mix.Utils.preserving_mtime(compile_path, fn ->
         File.mkdir_p!(compile_path)
         Code.delete_path compile_path
         compile_files to_compile, compile_path, root
-        compile_templates mod, dynamo[:compiled_templates], tmpl_paths, compile_path
+        compile_templates mod, dynamo[:compiled_templates], templates, compile_path
         Code.prepend_path compile_path
       end)
 
@@ -77,7 +84,14 @@ defmodule Mix.Tasks.Compile.Dynamo do
   end
 
   defp extract_templates(paths) do
-    lc path inlist paths, path = path.to_path, do: path
+    lc path inlist paths,
+       not Dynamo.Templates.Finder.precompiled?(path),
+       templates = Dynamo.Templates.Finder.all(path),
+       template inlist templates, do: template
+  end
+
+  defp template_mtime(Dynamo.Template[key: key, updated_at: updated_at]) do
+    { key, updated_at }
   end
 
   defp compile_files(files, to, root) do
@@ -88,14 +102,9 @@ defmodule Mix.Tasks.Compile.Dynamo do
     end
   end
 
-  defp compile_templates(mod, name, tmpl_paths, compile_path) do
-    templates = lc path inlist tmpl_paths,
-                   path.eager?,
-                   template inlist path.all, do: template
-
+  defp compile_templates(mod, name, templates, compile_path) do
     binary = Dynamo.Templates.compile_module(name, templates, [:conn], fn -> mod.templates_prelude end)
     File.write! File.join(compile_path, "#{name}.beam"), binary
-
     Mix.shell.info "Generated #{inspect name}"
   end
 end
