@@ -35,7 +35,7 @@ defmodule Mix.Tasks.Dynamo do
   end
 
   def run(argv) do
-    { opts, argv } = OptionParser.parse(argv, flags: [:dev])
+    { opts, argv } = OptionParser.parse(argv, switches: [dev: :boolean])
     case argv do
       [] ->
         raise Mix.Error, message: "expected PATH to be given, please use `mix dynamo PATH`"

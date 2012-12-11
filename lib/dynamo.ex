@@ -259,7 +259,15 @@ defmodule Dynamo do
       end
 
     quote location: :keep do
+      @doc """
+      Returns templates paths after being processed.
+
+      If compilation on demand is disabled, templates paths
+      that can be precompiled will be precompiled and stored
+      into a given module for performance.
+      """
       def templates_paths, do: unquote(Macro.escape(templates_paths))
+
       unquote(renderer_initializer)
     end
   end

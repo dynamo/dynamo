@@ -28,7 +28,7 @@ defmodule Mix.Tasks.Compile.Dynamo do
   """
   def run(args) do
     { opts, _ } = OptionParser.parse(args,
-                    flags: [:force, :quick], aliases: [q: :quick])
+                    switches: [force: :boolean, quick: :boolean], aliases: [q: :quick])
 
     Mix.Task.run "dynamo.start", ["--no-start"]
 
