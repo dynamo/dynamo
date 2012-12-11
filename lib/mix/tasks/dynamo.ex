@@ -187,11 +187,12 @@ defmodule Mix.Tasks.Dynamo do
   defmodule <%= @mod %> do
     use Dynamo
 
-    endpoint ApplicationRouter
-
     config :dynamo,
       # The environment this Dynamo runs on
       env: Mix.env,
+
+      # The endpoint to dispatch requests to
+      endpoint: ApplicationRouter,
 
       # The route from where static assets are served
       # You can turn off static assets by setting it to false
@@ -213,8 +214,7 @@ defmodule Mix.Tasks.Dynamo do
     application and its Dynamos.
     \"""
     def start(_type, _args) do
-      <%= @mod %>.start
-      Dynamo.Supervisor.start_link(<%= @mod %>.Supervisor, [])
+      <%= @mod %>.start_link([max_restarts: 5, max_seconds: 5])
     end
   end
   """

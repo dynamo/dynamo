@@ -7,14 +7,16 @@ defmodule Dynamo.BaseTest do
   defmodule App do
     use Dynamo.Base
 
-    endpoint Dynamo.BaseTest
-
-    config :dynamo, static_root:  :app
+    config :dynamo, static_root: :app, endpoint: Dynamo.BaseTest
     config :linq,   adapter: :pg
     config :dynamo, static_root: :myapp
 
     initializer :sample do
       Process.put(__MODULE__, :sample)
+    end
+
+    def start do
+      run_initializers
     end
   end
 
@@ -24,14 +26,10 @@ defmodule Dynamo.BaseTest do
 
   @app App
 
-  test "defines a start which runs initializers" do
+  test "allows initializers to be run" do
     assert Process.get(App) == nil
     App.start
     assert Process.get(App) == :sample
-  end
-
-  test "defines an endpoint" do
-    assert get("/").assigns[:done] == :ok
   end
 
   test "sets and overrides config" do

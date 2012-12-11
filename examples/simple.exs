@@ -17,4 +17,5 @@ defmodule MyDynamo do
   end
 end
 
-MyDynamo.start.run
+MyDynamo.start_link
+MyDynamo.run

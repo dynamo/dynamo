@@ -6,9 +6,9 @@ defmodule DynamoTest do
 
   defmodule App do
     use Dynamo
-    endpoint DynamoTest
 
     config :dynamo,
+      endpoint: DynamoTest,
       static_root: File.expand_path("../fixtures/public", __FILE__),
       static_route: "/public",
       compile_on_demand: false,
@@ -19,9 +19,9 @@ defmodule DynamoTest do
 
   defmodule ReloadApp do
     use Dynamo
-    endpoint DynamoTest
 
     config :dynamo,
+      endpoint: DynamoTest,
       static_root: false,
       compile_on_demand: true,
       reload_modules: true,

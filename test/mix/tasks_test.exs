@@ -51,10 +51,10 @@ defmodule Mix.TasksTest do
     in_tmp "my_run_app", fn ->
       app_with_dynamo_deps_path
 
-      output = System.cmd %b{mix run "MyApp.start; IO.inspect HelloRouter.__info__(:module)"}
+      output = System.cmd %b{mix run "IO.inspect HelloRouter.__info__(:module)"}
       assert output =~ %r(HelloRouter)
 
-      output = System.cmd %b{MIX_ENV=prod mix do compile, run "MyApp.start; IO.inspect HelloRouter.__info__(:module)"}
+      output = System.cmd %b{MIX_ENV=prod mix do compile, run "IO.inspect HelloRouter.__info__(:module)"}
       assert output =~ %r(HelloRouter)
     end
   end

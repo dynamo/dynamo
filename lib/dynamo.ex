@@ -26,21 +26,24 @@ defmodule Dynamo do
 
       config :dynamo,
         env: "prod",
+        endpoint: ApplicationRouter,
         static_root:  :myapp,
         static_route: "/static"
 
   The available `:dynamo` configurations are:
 
+  * `:env` - The environment this Dynamo runs on
+  * `:endpoint` - The endpoint to dispatch requests too
+  * `:supervisor` - The supervisor local node name
   * `:static_route` - The route to serve static assets
   * `:static_root` - The location static assets are defined
   * `:compile_on_demand` - Compiles modules as they are needed
   * `:reload_modules` - Reload modules after they are changed
   * `:source_paths` - The paths to search when compiling modules on demand
   * `:templates_paths` - The paths to find templates
-  * `:env` - The environment this Dynamo runs on
 
-  Check `Dynamo.Base` for other macros and how to further
-  configure a Dynamo.
+  Check `Dynamo.Base` for more information on `config` and
+  other initialize configuration.
 
   ## Filters
 
@@ -68,9 +71,9 @@ defmodule Dynamo do
   invoked when the dynamo starts. A Dynamo is initialized
   in three steps:
 
-  * The Dynamo application needs to be started
-  * All dynamos needs to be loaded via `DYNAMO_MODULE.start`
-  * A dynamo is hooked into a web server via `DYNAMO_MODULE.run`
+  * The `:dynamo` application needs to be started
+  * All dynamos needs to be loaded via `DYNAMO.start_link`
+  * A dynamo is hooked into a web server via `DYNAMO.run`
 
   The step 2 can be extended via initializers. For example:
 
@@ -92,42 +95,6 @@ defmodule Dynamo do
 
   """
 
-  @doc false
-  defmacro __using__(_) do
-    quote location: :keep do
-      @is_dynamo true
-
-      @before_compile { unquote(__MODULE__), :load_env_file }
-      @before_compile { unquote(__MODULE__), :normalize_paths }
-      @before_compile { unquote(__MODULE__), :define_filters }
-      @before_compile { unquote(__MODULE__), :define_templates_paths }
-
-      use Dynamo.Utils.Once
-
-      use_once Dynamo.Base
-      use_once Dynamo.Router.Filters
-
-      config :dynamo, unquote(default_dynamo_config(__CALLER__))
-      config :server, []
-
-      initializer :start_dynamo_reloader do
-        dynamo = config[:dynamo]
-
-        if dynamo[:compile_on_demand] do
-          Dynamo.Reloader.append_paths dynamo[:source_paths]
-          Dynamo.Reloader.enable!
-
-          if IEx.started? do
-            IEx.after_spawn(fn -> Dynamo.Reloader.enable! end)
-          end
-        end
-      end
-
-      filter Dynamo.Filters.Head
-    end
-  end
-
-
   @doc """
   Gets the Dynamo used by default under test.
   """
@@ -143,6 +110,70 @@ defmodule Dynamo do
     :application.set_env(:dynamo, :under_test, mod)
   end
 
+  @doc false
+  defmacro __using__(_) do
+    quote location: :keep do
+      @is_dynamo true
+
+      @before_compile { unquote(__MODULE__), :load_env_file }
+      @before_compile { unquote(__MODULE__), :normalize_paths }
+      @before_compile { unquote(__MODULE__), :define_endpoint }
+      @before_compile { unquote(__MODULE__), :define_supervisor }
+      @before_compile { unquote(__MODULE__), :define_filters }
+      @before_compile { unquote(__MODULE__), :define_templates_paths }
+
+      use Dynamo.Utils.Once
+
+      use_once Dynamo.Base
+      use_once Dynamo.Router.Filters
+
+      config :dynamo, unquote(default_dynamo_config(__CALLER__))
+      config :server, []
+
+      @doc """
+      Starts the application by running all registered
+      initializers. Check `Dynamo` for more information.
+      """
+      def start_link(opts // []) do
+        info = Dynamo.Supervisor.start_link(supervisor, opts)
+        run_initializers
+        info
+      end
+
+      @doc """
+      Runs the app in the configured web server.
+      """
+      def run(options // []) do
+        options = Keyword.merge(config[:server], options)
+        options = Keyword.put(options, :env, config[:dynamo][:env])
+        Dynamo.Cowboy.run __MODULE__, options
+      end
+
+      initializer :start_dynamo_reloader do
+        dynamo = config[:dynamo]
+
+        if dynamo[:compile_on_demand] do
+          Dynamo.Reloader.append_paths dynamo[:source_paths]
+          Dynamo.Reloader.enable!
+
+          if IEx.started? do
+            IEx.after_spawn(fn -> Dynamo.Reloader.enable! end)
+          end
+        end
+      end
+
+      initializer :start_dynamo_renderer do
+        precompiled = Enum.all?(templates_paths, Dynamo.Templates.Finder.precompiled?(&1))
+        unless precompiled do
+          Dynamo.Templates.Renderer.start_link
+
+          if config[:dynamo][:compile_on_demand], do:
+            Dynamo.Reloader.on_purge(fn -> Dynamo.Templates.Renderer.clear end)
+        end
+      end
+    end
+  end
+
   ## Helpers
 
   defp default_dynamo_config(env) do
@@ -153,6 +184,7 @@ defmodule Dynamo do
       source_paths: ["app/*"],
       environments_path: File.join(File.rootname(env.file, ".ex"), "environments"),
       templates_paths: ["app/templates"],
+      supervisor: env.module.Supervisor,
       compiled_templates: env.module.CompiledTemplates ]
   end
 
@@ -203,7 +235,7 @@ defmodule Dynamo do
 
   @doc false
   def define_filters(mod, filters) do
-    dynamo  = Module.get_attribute(mod, :config)[:dynamo]
+    dynamo = Module.get_attribute(mod, :config)[:dynamo]
 
     static_route = dynamo[:static_route]
     static_root  = case dynamo[:static_root] do
@@ -225,7 +257,46 @@ defmodule Dynamo do
       raise "Cannot have reload_modules set to true and compile_on_demand set to false"
     end
 
+    filters = [Dynamo.Filters.Head|filters]
     filters
+  end
+
+  @doc false
+  defmacro define_endpoint(module) do
+    dynamo = Module.get_attribute(module, :config)[:dynamo]
+
+    quote location: :keep do
+      @endpoint unquote(dynamo[:endpoint])
+
+      if @endpoint do
+        @doc """
+        Receives a connection and dispatches it to #{inspect @endpoint}
+        """
+        def service(conn) do
+          @endpoint.service(conn)
+        end
+      end
+
+      @doc """
+      Returns the registered endpoint.
+      """
+      def endpoint do
+        @endpoint
+      end
+    end
+  end
+
+  @doc false
+  defmacro define_supervisor(module) do
+    dynamo = Module.get_attribute(module, :config)[:dynamo]
+
+    quote location: :keep do
+      @supervisor unquote(dynamo[:supervisor])
+
+      def supervisor do
+        @supervisor
+      end
+    end
   end
 
   @doc false
@@ -245,20 +316,9 @@ defmodule Dynamo do
       templates_paths = [module|runtime]
     end
 
-    renderer_initializer =
-      if runtime != [] do
-        quote location: :keep do
-          initializer :start_dynamo_renderer do
-            Dynamo.Templates.Renderer.start_link
-
-            if config[:dynamo][:compile_on_demand] do
-              Dynamo.Reloader.on_purge(fn -> Dynamo.Templates.Renderer.clear end)
-            end
-          end
-        end
-      end
-
     quote location: :keep do
+      @templates_paths unquote(Macro.escape(templates_paths))
+
       @doc """
       Returns templates paths after being processed.
 
@@ -266,9 +326,7 @@ defmodule Dynamo do
       that can be precompiled will be precompiled and stored
       into a given module for performance.
       """
-      def templates_paths, do: unquote(Macro.escape(templates_paths))
-
-      unquote(renderer_initializer)
+      def templates_paths, do: @templates_paths
     end
   end
 end

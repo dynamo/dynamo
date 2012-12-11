@@ -26,9 +26,9 @@ defmodule Dynamo.Router.RenderingTest do
 
   defmodule RenderingApp do
     use Dynamo
-    endpoint RenderingRouter
 
     config :dynamo,
+      endpoint: RenderingRouter,
       templates_paths: [File.expand_path("../../../fixtures/templates", __FILE__)]
 
     templates do
