@@ -29,6 +29,10 @@ defmodule Mix.Tasks.DynamoTest do
         assert file =~ %r(env: Mix.env)
       end
 
+      assert_file "lib/my_app/app.ex", fn(file) ->
+        assert file =~ %r(use Application.Behaviour)
+      end
+
       assert_file "app/routers/application_router.ex"
       assert_file "app/templates/index.html.eex"
 
@@ -50,7 +54,7 @@ defmodule Mix.Tasks.DynamoTest do
       Mix.Tasks.Dynamo.run [".", "--dev"]
 
       assert_file "mix.exs", fn(file) ->
-        assert file =~ %r(raw:)
+        assert file =~ %r(path:)
       end
 
       assert_received { :mix_shell, :info, ["* creating mix.exs"] }

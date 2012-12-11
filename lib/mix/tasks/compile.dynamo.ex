@@ -30,14 +30,12 @@ defmodule Mix.Tasks.Compile.Dynamo do
     { opts, _ } = OptionParser.parse(args,
                     switches: [force: :boolean, quick: :boolean], aliases: [q: :quick])
 
-    Mix.Task.run "dynamo.start", ["--no-start"]
-
     Enum.reduce Mix.project[:dynamos], :noop, fn(dynamo, acc) ->
-      unless dynamo.config[:dynamo][:compile_on_demand] do
-        acc = do_compile(dynamo, opts, acc)
+      if dynamo.config[:dynamo][:compile_on_demand] do
+        acc
+      else
+        do_compile(dynamo, opts, acc)
       end
-      dynamo.start
-      acc
     end
   end
 
@@ -103,7 +101,8 @@ defmodule Mix.Tasks.Compile.Dynamo do
   end
 
   defp compile_templates(mod, name, templates, compile_path) do
-    binary = Dynamo.Templates.compile_module(name, templates, [:conn], fn -> mod.templates_prelude end)
+    binary = Dynamo.Templates.compile_module(name, templates, [:conn],
+               fn -> mod.templates_prelude end)
     File.write! File.join(compile_path, "#{name}.beam"), binary
     Mix.shell.info "Generated #{inspect name}"
   end

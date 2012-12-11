@@ -52,7 +52,7 @@ defmodule Mix.Tasks.Dynamo do
     lib = underscore(mod)
 
     dynamo = if opts[:dev] do
-      %b(raw: "#{File.expand_path("../../../..", __FILE__)}")
+      %b(path: "#{File.expand_path("../../../..", __FILE__)}")
     else
       %b(github: "josevalim/dynamo")
     end
@@ -72,7 +72,10 @@ defmodule Mix.Tasks.Dynamo do
     create_file "app/templates/index.html.eex", app_index_template(assigns)
 
     create_directory "lib"
-    create_file "lib/#{lib}.ex", lib_app_template(assigns)
+    create_file "lib/#{lib}.ex", lib_template(assigns)
+
+    create_directory "lib/#{lib}"
+    create_file "lib/#{lib}/app.ex", lib_app_template(assigns)
 
     create_directory "lib/#{lib}/environments"
     create_file "lib/#{lib}/environments/dev.exs",  lib_dev_template(assigns)
@@ -118,17 +121,17 @@ defmodule Mix.Tasks.Dynamo do
     def project do
       [ app: :<%= @app %>,
         version: "0.0.1",
-        compile_path: "tmp/ebin",
-        prepare_task: "dynamo.start",
         dynamos: [<%= @mod %>],
         compilers: [:elixir, :dynamo, :app],
+        compile_path: "tmp/ebin",
         env: [prod: [compile_path: "ebin"]],
         deps: deps ]
     end
 
     # Configuration for the OTP application
     def application do
-      [ applications: [:cowboy, :dynamo] ]
+      [ applications: [:cowboy, :dynamo],
+        mod: { <%= @mod %>.App, [] } ]
     end
 
     defp deps do
@@ -180,7 +183,7 @@ defmodule Mix.Tasks.Dynamo do
   </html>
   """
 
-  embed_template :lib_app, """
+  embed_template :lib, """
   defmodule <%= @mod %> do
     use Dynamo
 
@@ -197,6 +200,21 @@ defmodule Mix.Tasks.Dynamo do
     # Default functionality available in templates
     templates do
       use Dynamo.Helpers
+    end
+  end
+  """
+
+  embed_template :lib_app, """
+  defmodule <%= @mod %>.App do
+    use Application.Behaviour
+
+    @doc \"""
+    The application callback used to start this
+    application and its Dynamos.
+    \"""
+    def start(_type, _args) do
+      <%= @mod %>.start
+      Dynamo.Supervisor.start_link(<%= @mod %>.Supervisor, [])
     end
   end
   """
