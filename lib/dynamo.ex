@@ -165,10 +165,11 @@ defmodule Dynamo do
       initializer :start_dynamo_renderer do
         precompiled = Enum.all?(templates_paths, Dynamo.Templates.Finder.precompiled?(&1))
         unless precompiled do
-          Dynamo.Templates.Renderer.start_link
+          Dynamo.Supervisor.start_child(__MODULE__, Dynamo.Templates.Renderer, [renderer])
 
-          if config[:dynamo][:compile_on_demand], do:
-            Dynamo.Reloader.on_purge(fn -> Dynamo.Templates.Renderer.clear end)
+          if config[:dynamo][:compile_on_demand] do
+            Dynamo.Reloader.on_purge(fn -> Dynamo.Templates.Renderer.clear(renderer) end)
+          end
         end
       end
     end
@@ -293,8 +294,18 @@ defmodule Dynamo do
     quote location: :keep do
       @supervisor unquote(dynamo[:supervisor])
 
+      @doc """
+      The name of the supervisor of this Dynamo.
+      """
       def supervisor do
         @supervisor
+      end
+
+      @doc """
+      The name of the renderer associated to this Dynamo.
+      """
+      def renderer do
+        @supervisor.Renderer
       end
     end
   end

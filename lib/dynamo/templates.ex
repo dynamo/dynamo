@@ -49,9 +49,10 @@ defmodule Dynamo.Templates do
 
   @doc """
   Renders the given template with the given assigns.
+  Expects the template renderer server as first argument.
   """
-  def render(template, locals, assigns, prelude) do
-    Dynamo.Templates.Renderer.render(template, locals, assigns, prelude)
+  def render(renderer, template, locals, assigns, prelude) do
+    Dynamo.Templates.Renderer.render(renderer, template, locals, assigns, prelude)
   end
 
   @doc """

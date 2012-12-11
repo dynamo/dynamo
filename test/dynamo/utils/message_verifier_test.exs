@@ -1,7 +1,7 @@
 Code.require_file "../../../test_helper.exs", __FILE__
 
 defmodule Dynamo.Utils.MessageVerifierTest do
-  use ExUnit.Case
+  use ExUnit.Case, async: true
 
   alias Dynamo.Utils.MessageVerifier, as: MV
 

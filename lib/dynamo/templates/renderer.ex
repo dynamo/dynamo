@@ -10,22 +10,22 @@ defmodule Dynamo.Templates.Renderer do
   Starts the `Dynamo.Templates.Renderer` server.
   Usually called internally by Dynamo.
   """
-  def start_link do
-    :gen_server.start({ :local, __MODULE__ }, __MODULE__, [], [])
+  def start_link(name) do
+    :gen_server.start({ :local, name }, __MODULE__, name, [])
   end
 
   @doc """
   Stops the `Dynamo.Templates.Renderer` server.
   """
-  def stop do
-    :gen_server.call(__MODULE__, :stop)
+  def stop(name) do
+    :gen_server.call(name, :stop)
   end
 
   @doc """
   Clear compiled templates cache.
   """
-  def clear do
-    :gen_server.cast(__MODULE__, :clear)
+  def clear(name) do
+    :gen_server.cast(name, :clear)
   end
 
   @doc """
@@ -33,19 +33,19 @@ defmodule Dynamo.Templates.Renderer do
   It supports both pre-compiled and on demand compilation.
 
   The on demand mode needs to be explicitly enabled
-  by calling start_link/0.
+  by calling `start_link/0`.
   """
-  def render(Template[ref: { mod, fun }, handler: handler], locals, assigns, _prelude) do
+  def render(_name, Template[ref: { mod, fun }, handler: handler], locals, assigns, _prelude) do
     handler.render(mod, fun, locals, assigns)
   end
 
-  def render(Template[handler: handler] = template, locals, assigns, prelude) do
+  def render(name, Template[handler: handler] = template, locals, assigns, prelude) do
     module =
-      case get_module(template) do
+      case get_module(name, template) do
         { :ok, mod } ->
           mod
         { :reserved, mod } ->
-          compile(mod, template, Keyword.keys(locals), prelude)
+          compile(name, mod, template, Keyword.keys(locals), prelude)
         :unavailable ->
           raise_too_busy(template)
       end
@@ -55,15 +55,15 @@ defmodule Dynamo.Templates.Renderer do
 
   ## Helpers
 
-  defp get_module(Template[identifier: identifier, updated_at: updated_at]) do
-    :gen_server.call(__MODULE__, { :get_module, identifier, updated_at })
+  defp get_module(name, Template[identifier: identifier, updated_at: updated_at]) do
+    :gen_server.call(name, { :get_module, identifier, updated_at })
   end
 
-  defp put_module(module, Template[identifier: identifier, updated_at: updated_at]) do
-    :gen_server.cast(__MODULE__, { :put_module, module, identifier, updated_at })
+  defp put_module(name, module, Template[identifier: identifier, updated_at: updated_at]) do
+    :gen_server.cast(name, { :put_module, module, identifier, updated_at })
   end
 
-  defp compile(module, template, locals, prelude) do
+  defp compile(name, module, template, locals, prelude) do
     Template[handler: handler, identifier: identifier, finder: finder] = template
     source = Dynamo.Templates.Finder.source(finder, template)
     { args, source } = handler.compile(template, source, locals)
@@ -77,7 +77,7 @@ defmodule Dynamo.Templates.Renderer do
     end
 
     Module.create(module, contents, file: identifier)
-    put_module(module, template)
+    put_module(name, module, template)
     module
   end
 
@@ -88,45 +88,45 @@ defmodule Dynamo.Templates.Renderer do
   ## Backend
 
   @doc false
-  def init(args) do
-    { :ok, Binary.Dict.new(args) }
+  def init(name) do
+    { :ok, { name, Binary.Dict.new() } }
   end
 
   @doc false
-  def handle_call({ :get_module, identifier, updated_at }, _from, dict) do
+  def handle_call({ :get_module, identifier, updated_at }, _from, { name, dict }) do
     case Dict.get(dict, identifier) do
       { module, cached } when updated_at > cached ->
         spawn fn -> purge_module(module) end
-        { :reply, generate_suggestion(0), Dict.delete(dict, identifier) }
+        { :reply, generate_suggestion(name, 0), { name, Dict.delete(dict, identifier) } }
       { module, _ } ->
-        { :reply, { :ok, module }, dict }
+        { :reply, { :ok, module }, { name, dict } }
       nil ->
-        { :reply, generate_suggestion(0), dict }
+        { :reply, generate_suggestion(name, 0), { name, dict } }
     end
   end
 
-  def handle_call(:stop, _from, dict) do
-    { :stop, :normal, :ok, dict }
+  def handle_call(:stop, _from, config) do
+    { :stop, :normal, :ok, config }
   end
 
-  def handle_call(_arg, _from, _dict) do
+  def handle_call(_arg, _from, _config) do
     super
   end
 
-  def handle_cast(:clear, dict) do
+  def handle_cast(:clear, { name, dict }) do
     spawn fn ->
       Enum.each dict, fn({ _, { module, _ } }) ->
         purge_module(module)
       end
     end
-    { :noreply, Binary.Dict.new }
+    { :noreply, { name, Binary.Dict.new } }
   end
 
-  def handle_cast({ :put_module, module, identifier, updated_at }, dict) do
-    { :noreply, Dict.put(dict, identifier, { module, updated_at }) }
+  def handle_cast({ :put_module, module, identifier, updated_at }, { name, dict }) do
+    { :noreply, { name, Dict.put(dict, identifier, { module, updated_at }) } }
   end
 
-  def handle_cast(_arg, _dict) do
+  def handle_cast(_arg, _config) do
     super
   end
 
@@ -137,9 +137,9 @@ defmodule Dynamo.Templates.Renderer do
     :code.purge(module)
   end
 
-  defp generate_suggestion(attempts) when attempts < @max_attemps do
+  defp generate_suggestion(name, attempts) when attempts < @max_attemps do
     random = :random.uniform(@slots)
-    module = Module.concat(Dynamo.Templates, "Template#{random}")
+    module = Module.concat(name, "T#{random}")
 
     if :code.is_loaded(module) do
       generate_suggestion(attempts + 1)

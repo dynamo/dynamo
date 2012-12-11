@@ -1,7 +1,7 @@
 Code.require_file "../../../test_helper.exs", __FILE__
 
 defmodule Dynamo.Router.RenderingTest do
-  use ExUnit.Case
+  use ExUnit.Case, async: true
   use Dynamo.HTTP.Case
 
   defmodule RenderingRouter do
@@ -38,6 +38,7 @@ defmodule Dynamo.Router.RenderingTest do
   end
 
   def setup_all do
+    RenderingApp.start_link
     Dynamo.under_test(RenderingApp)
   end
 

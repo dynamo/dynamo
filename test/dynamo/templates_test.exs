@@ -1,9 +1,18 @@
 Code.require_file "../../test_helper.exs", __FILE__
 
 defmodule Dynamo.TemplatesTest do
-  use ExUnit.Case
+  use ExUnit.Case, async: true
 
+  @renderer __MODULE__.Renderer
   @fixture_path File.expand_path("../../fixtures/templates", __FILE__)
+
+  def setup_all() do
+    Dynamo.Templates.Renderer.start_link(@renderer)
+  end
+
+  def teardown_all(_) do
+    Dynamo.Templates.Renderer.stop(@renderer)
+  end
 
   test "renders a template" do
     body = render "hello.html"
@@ -35,7 +44,7 @@ defmodule Dynamo.TemplatesTest do
     cached = render "module.html"
     assert module == cached
 
-    Dynamo.Templates.Renderer.clear
+    Dynamo.Templates.Renderer.clear @renderer
 
     not_cached = render "module.html"
     assert module != not_cached
@@ -58,7 +67,9 @@ defmodule Dynamo.TemplatesTest do
 
   defp render(query) do
     { [nil], body } =
-      Dynamo.Templates.render Dynamo.Templates.find!(query, [@fixture_path]), [conn: nil], [], prelude
+      Dynamo.Templates.render @renderer,
+        Dynamo.Templates.find!(query, [@fixture_path]),
+        [conn: nil], [], prelude
     body
   end
 

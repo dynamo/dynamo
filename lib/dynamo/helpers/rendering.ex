@@ -27,6 +27,7 @@ defmodule Dynamo.Helpers.Rendering do
   """
   def render(conn, template, assigns) do
     app        = conn.app
+    renderer   = app.renderer
     tmpl_paths = app.templates_paths
     prelude    = fn -> app.templates_prelude end
     template   = Dynamo.Templates.find!(template, tmpl_paths)
@@ -34,11 +35,11 @@ defmodule Dynamo.Helpers.Rendering do
     layout  = assigns[:layout]
     assigns = Keyword.merge(conn.assigns, assigns)
 
-    { [conn], body } = Dynamo.Templates.render(template, [conn: conn], assigns, prelude)
+    { [conn], body } = Dynamo.Templates.render(renderer, template, [conn: conn], assigns, prelude)
 
     if layout do
       template         = Dynamo.Templates.find!("layouts/" <> layout, tmpl_paths)
-      { [conn], body } = Dynamo.Templates.render(template, [conn: conn], assigns, prelude)
+      { [conn], body } = Dynamo.Templates.render(renderer, template, [conn: conn], assigns, prelude)
     end
 
     { conn, body }
