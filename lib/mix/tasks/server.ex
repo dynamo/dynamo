@@ -31,6 +31,8 @@ defmodule Mix.Tasks.Server do
       raise "cannot pass port when serving more than one dynamo"
     end
 
+    Dynamo.Reloader.enable
+
     Enum.each dynamos, fn(dynamo) ->
       endpoint = dynamo.endpoint
       config   = dynamo.config[:dynamo]

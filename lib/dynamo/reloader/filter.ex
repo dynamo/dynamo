@@ -13,7 +13,7 @@ defmodule Dynamo.Reloader.Filter do
   @doc false
   def prepare(conn, { __MODULE__, compile_on_demand, reload_modules }) do
     if compile_on_demand do
-      Dynamo.Reloader.enable!
+      Dynamo.Reloader.enable
     end
 
     if reload_modules do

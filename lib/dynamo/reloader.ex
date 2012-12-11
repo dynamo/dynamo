@@ -1,11 +1,15 @@
 defmodule Dynamo.Reloader do
   @moduledoc """
-  This module is responsible for managing code
-  reloading used in development environments in
-  Dynamo. The reloader works per-process, so
-  each process which requires reloading semantics
-  must be explicitly enabled with
-  `Dynamo.Reloader.enable`.
+  This module is responsible for managing code reloading used
+  in development environments in Dynamo.
+
+  The reloader is enabled per Elixir process, so each process
+  which requires reloading semantics must explicitly enabled
+  it with `Dynamo.Reloader.enable`.
+
+  The `Dynamo.Reloader` is part of the Dynamo application
+  and one is started per node, regardless the number of
+  dynamos in the node.
   """
 
   use GenServer.Behaviour
@@ -26,33 +30,16 @@ defmodule Dynamo.Reloader do
   end
 
   @doc """
-  Sames as enable/0 but raises if the server is not available.
-  """
-  def enable! do
-    case enable do
-      :error -> raise "cannot enable on demand compilation because reloader mode is disabled"
-      other  -> other
-    end
-  end
-
-  @doc """
   Starts the `Dynamo.Reloader` server. Usually called
   internally by Dynamo. The given `paths` must be expanded.
   """
   def append_paths(paths) do
     unless Process.whereis(__MODULE__) do
       { :module, _ } = Code.ensure_loaded(Dynamo.Reloader.ErrorHandler)
-      :gen_server.start({ :local, __MODULE__ }, __MODULE__, [], [])
+      Dynamo.Supervisor.start_child(Dynamo.Supervisor, __MODULE__, [])
     end
 
     :gen_server.cast(__MODULE__, { :append_paths, paths })
-  end
-
-  @doc """
-  Stops the `Dynamo.Reloader` server.
-  """
-  def stop do
-    :gen_server.call(__MODULE__, :stop)
   end
 
   @doc """
@@ -114,6 +101,16 @@ defmodule Dynamo.Reloader do
 
   defrecord Config, loaded_modules: [], loaded_files: [], paths: nil,
     updated_at: { { 1970, 1, 1 }, { 0, 0, 0 } }, on_purge: []
+
+  @doc false
+  def start_link do
+    :gen_server.start({ :local, __MODULE__ }, __MODULE__, [], [])
+  end
+
+  @doc false
+  def stop do
+    :gen_server.call(__MODULE__, :stop)
+  end
 
   @doc false
   def init(paths) do

@@ -128,11 +128,11 @@ defmodule Dynamo do
       use_once Dynamo.Router.Filters
 
       config :dynamo, unquote(default_dynamo_config(__CALLER__))
-      config :server, []
+      config :server, [handler: Dynamo.Cowboy, port: 4000]
 
       @doc """
-      Starts the application by running all registered
-      initializers. Check `Dynamo` for more information.
+      Starts the application supervisor and run all
+      registered initializers.
       """
       def start_link(opts // []) do
         info = Dynamo.Supervisor.start_link(supervisor, opts)
@@ -146,18 +146,18 @@ defmodule Dynamo do
       def run(options // []) do
         options = Keyword.merge(config[:server], options)
         options = Keyword.put(options, :env, config[:dynamo][:env])
-        Dynamo.Cowboy.run __MODULE__, options
+        options[:handler].run __MODULE__, options
       end
 
       initializer :start_dynamo_reloader do
         dynamo = config[:dynamo]
 
         if dynamo[:compile_on_demand] do
-          Dynamo.Reloader.append_paths dynamo[:source_paths]
-          Dynamo.Reloader.enable!
+          Dynamo.Reloader.append_paths(dynamo[:source_paths])
+          Dynamo.Reloader.enable
 
           if IEx.started? do
-            IEx.after_spawn(fn -> Dynamo.Reloader.enable! end)
+            IEx.after_spawn(fn -> Dynamo.Reloader.enable end)
           end
         end
       end
