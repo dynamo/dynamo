@@ -60,6 +60,7 @@ defmodule Dynamo.HTTP do
   @type   fetch_aspect :: :headers | :params | :cookies | :body | :session
   @type   app          :: module
   @type   assigns      :: list
+  @type   private      :: list
 
   use Behaviour
 
@@ -333,6 +334,22 @@ defmodule Dynamo.HTTP do
   Sets a new assign with the given key and value.
   """
   defcallback assign(key :: atom, value :: term, conn) :: conn
+
+  @doc """
+  Returns a keywords list with private assigns set so far.
+  """
+  defcallback private(conn) :: assigns
+
+  @doc %B"""
+  Sets a new private assign with the given key and value.
+  We recommended private keys to follow the format:
+
+    :"#{plugin}_#{key}"
+
+  For example, a Dynamo key to store timeout values would
+  be set as: `:dynamo_timeout`.
+  """
+  defcallback private(key :: atom, value :: term, conn) :: conn
 
   @doc """
   Returns the application that received the request.

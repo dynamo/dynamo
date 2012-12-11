@@ -1,16 +1,34 @@
 defmodule Dynamo.HTTP.Hibernate do
   @moduledoc """
-  Conveniences that allows a connection to hibernate or
-  wait a given amount or an unlimited amount of time.
-  Such conveniences are useful when a connection needs
-  to be kept open (because of long polling, websockets
-  or streaming) but you don't want to keep the current
-  erlang process active all times and waiting through
-  small intervals or hibernating through long intervals
-  is convenient.
+  Conveniences that allows a connection to hibernate or wait
+  a given amount or an unlimited amount of time.
+
+  Such conveniences are useful when a connection needs to be
+  kept open (because of long polling, websockets or streaming)
+  but you don't want to keep the current erlang process active
+  all times.
+
+  As such, waiting through small intervals or hibernating through
+  long intervals is convenient.
+
+  ## Examples
+
+  There are two main functions defined by this module: `hibernate`
+  and `await`. They can receive either 2 arguments, with the
+  connection and a callback to be invoked on wake up:
+
+    hibernate(conn, on_wake_up(&1, &2))
+    await(conn, on_wake_up(&1, &2))
+
+  Or 4 arguments, in which a timeout and a callback to be invoked
+  on timeout must also be present:
+
+    hibernate(conn, timeout, on_wake_up(&1, &2), on_timeout(&1))
+    await(conn, timeout, on_wake_up(&1, &2), on_timeout(&1))
+
   """
 
-  @key :__timeref__
+  @key :dynamo_timeref
 
   @doc """
   Hibernates the current process until a message is received.
@@ -22,7 +40,7 @@ defmodule Dynamo.HTTP.Hibernate do
   """
   def hibernate(conn, on_wake_up) when is_function(on_wake_up, 2) do
     clear_timeout(conn)
-    :erlang.hibernate(__MODULE__, :__loop__, [conn, on_wake_up, :no_timeout_callback])
+    :erlang.hibernate(__MODULE__, :loop, [conn, on_wake_up, :no_timeout_callback])
   end
 
   @doc """
@@ -40,7 +58,7 @@ defmodule Dynamo.HTTP.Hibernate do
       is_function(on_wake_up, 2) and is_function(on_timeout, 1) do
     clear_timeout(conn)
     conn = set_timeout(conn, timeout)
-    :erlang.hibernate(__MODULE__, :__loop__, [conn, on_wake_up, on_timeout])
+    :erlang.hibernate(__MODULE__, :loop, [conn, on_wake_up, on_timeout])
   end
 
   @doc """
@@ -50,7 +68,7 @@ defmodule Dynamo.HTTP.Hibernate do
   """
   def await(conn, on_wake_up) when is_function(on_wake_up, 2) do
     clear_timeout(conn)
-    __loop__(conn, on_wake_up, :no_timeout_callback)
+    loop(conn, on_wake_up, :no_timeout_callback)
   end
 
   @doc """
@@ -65,29 +83,29 @@ defmodule Dynamo.HTTP.Hibernate do
       is_function(on_wake_up, 2) and is_function(on_timeout, 1) do
     clear_timeout(conn)
     conn = set_timeout(conn, timeout)
-    __loop__(conn, on_wake_up, on_timeout)
+    loop(conn, on_wake_up, on_timeout)
   end
 
   @doc false
-  def __loop__(conn, on_wake_up, on_timeout) do
-    ref = conn.assigns[@key]
+  def loop(conn, on_wake_up, on_timeout) do
+    ref = conn.private[@key]
     receive do
       { :timeout, ^ref, __MODULE__ } ->
         on_timeout.(conn)
       { :timeout, older_ref, __MODULE__ } when is_reference(older_ref) ->
-        __loop__(conn, on_wake_up, on_timeout)
+        loop(conn, on_wake_up, on_timeout)
       msg ->
         on_wake_up.(conn, msg)
     end
   end
 
   defp clear_timeout(conn) do
-    ref = conn.assigns[@key]
+    ref = conn.private[@key]
     ref && :erlang.cancel_timer(ref)
   end
 
   defp set_timeout(conn, timeout) do
     ref = :erlang.start_timer(timeout, self(), __MODULE__)
-    conn.assign(@key, ref)
+    conn.private(@key, ref)
   end
 end

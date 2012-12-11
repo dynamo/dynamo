@@ -189,6 +189,17 @@ defmodule Dynamo.HTTP.TestTest do
     assert conn.assigns == [foo: "baz"]
   end
 
+  test :private do
+    conn  = conn(:GET, "/")
+    assert conn.private == []
+
+    conn = conn.private :foo, "bar"
+    assert conn.private == [foo: "bar"]
+
+    conn = conn.private :foo, "baz"
+    assert conn.private == [foo: "baz"]
+  end
+
   test :forward_to do
     conn = conn(:GET, "/forward_to/foo/bar/baz")
     assert conn.path_segments == ["forward_to", "foo", "bar", "baz"]

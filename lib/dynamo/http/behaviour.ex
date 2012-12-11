@@ -50,6 +50,7 @@ defmodule Dynamo.HTTP.Behaviour do
           original_method: nil,
           params: nil,
           path_info_segments: nil,
+          private: [],
           req_headers: nil,
           req_body: nil,
           resp_body: "",
@@ -69,6 +70,14 @@ defmodule Dynamo.HTTP.Behaviour do
 
       def assign(key, value, connection(assigns: assigns) = conn) do
         connection(conn, assigns: Keyword.put(assigns, key, value))
+      end
+
+      def private(connection(private: private)) do
+        private
+      end
+
+      def private(key, value, connection(private: private) = conn) do
+        connection(conn, private: Keyword.put(private, key, value))
       end
 
       def app(connection(app: app)) do

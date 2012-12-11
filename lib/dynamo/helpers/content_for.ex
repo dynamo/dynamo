@@ -38,7 +38,7 @@ defmodule Dynamo.Helpers.ContentFor do
   can later retrieve any chunk by calling `content_for(key)`.
   """
 
-  @key :__contents__
+  @key :dynamo_contents
 
   @doc """
   Stores the given `value` under the given `key`. This value
@@ -74,14 +74,14 @@ defmodule Dynamo.Helpers.ContentFor do
   A simple function that stores a content chunk in the connection.
   """
   def put_content(conn, key, value) when is_atom(key) and (is_binary(value) or is_function(value)) do
-    conn.assign(@key, Keyword.put(conn.assigns[@key] || [], key, value))
+    conn.private(@key, Keyword.put(conn.private[@key] || [], key, value))
   end
 
   @doc """
   A simple function that reads a content chunk from the connection.
   """
   def get_content(conn, key) when is_atom(key) do
-    contents = conn.assigns[@key][key]
+    contents = conn.private[@key][key]
     if is_function(contents), do: contents.(), else: contents
   end
 end
