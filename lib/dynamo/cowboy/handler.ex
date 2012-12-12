@@ -4,8 +4,8 @@ defmodule Dynamo.Cowboy.Handler do
   to respond to http and websockets requests.
   """
 
-  require :cowboy_req, as: R
   @behaviour :cowboy_http_handler
+  require :cowboy_req, as: R
 
   def init({ :tcp, :http }, req, app) do
     { :ok, req, app }

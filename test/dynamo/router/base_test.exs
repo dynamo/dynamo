@@ -107,7 +107,7 @@ defmodule Dynamo.Router.BaseTest do
   def test_dispatch_not_found do
     conn = post("/100/foo")
     assert conn.status == 404
-    assert conn.resp_body == "OOPS"
+    assert conn.sent_body == "OOPS"
   end
 
   def test_dispatch_with_guards do
@@ -117,13 +117,13 @@ defmodule Dynamo.Router.BaseTest do
 
     conn = get("/7/abcd")
     assert conn.status == 404
-    assert conn.resp_body == "OOPS"
+    assert conn.sent_body == "OOPS"
   end
 
   def test_dispatch_wrong_verb do
     conn = post("/1/bar")
     assert conn.status == 404
-    assert conn.resp_body == "OOPS"
+    assert conn.sent_body == "OOPS"
   end
 
   def test_dispatch_any_verb do

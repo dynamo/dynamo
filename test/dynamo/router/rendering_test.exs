@@ -51,7 +51,7 @@ defmodule Dynamo.Router.RenderingTest do
   test "sets response body and content type" do
     conn = get("/hello.html")
     assert conn.status == 200
-    assert conn.resp_body == "HELLO!"
+    assert conn.sent_body == "HELLO!"
     assert conn.resp_content_type == "text/html"
   end
 
@@ -63,25 +63,25 @@ defmodule Dynamo.Router.RenderingTest do
 
   test "works with assigns" do
     conn = get("/assigns.html")
-    assert conn.resp_body == "world"
+    assert conn.sent_body == "world"
     assert conn.resp_content_type == "text/html"
   end
 
   test "uses app prelude" do
     conn = get("/prelude.html")
-    assert conn.resp_body == ?H /> integer_to_binary
+    assert conn.sent_body == (?H /> integer_to_binary)
     assert conn.resp_content_type == "text/html"
   end
 
   test "returns the updated connection" do
     conn = get("/updatable.html")
-    assert conn.resp_body == "UPDATE\n\nCONN"
+    assert conn.sent_body == "UPDATE\n\nCONN"
     assert conn.assigns[:template] == :eex
   end
 
   test "works with layouts" do
     conn = get("/with_layout")
-    assert strip_lines(conn.resp_body) == """
+    assert strip_lines(conn.sent_body) == """
     <html>
     <head>
     <title>
@@ -99,7 +99,7 @@ defmodule Dynamo.Router.RenderingTest do
 
   test "works with nested rendering and layouts" do
     conn = get("/with_nested")
-    assert strip_lines(conn.resp_body) == """
+    assert strip_lines(conn.sent_body) == """
     <html>
     <head>
     <title>

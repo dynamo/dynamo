@@ -10,7 +10,7 @@ defmodule Dynamo.Filters.HeadTest do
     filter Dynamo.Filters.Head
 
     get "/hello" do
-      conn.resp_body("WILL BE IGNORED")
+      conn.send(200, "WILL BE IGNORED")
     end
 
     post "/hello" do
@@ -23,12 +23,12 @@ defmodule Dynamo.Filters.HeadTest do
   test "converts head to get and ignores the body" do
     conn = process @app, :HEAD, "/hello"
     assert conn.status == 200
-    assert conn.resp_body == ""
+    assert conn.sent_body == ""
   end
 
   test "does not touch non head requests" do
     conn = process @app, :POST, "/hello"
     assert conn.status == 201
-    assert conn.resp_body == "POST"
+    assert conn.sent_body == "POST"
   end
 end

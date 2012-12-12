@@ -8,7 +8,7 @@ defmodule Dynamo.HTTP.Case do
       defmodule MyAppTest do
         use ExUnit.Case
         use Dynamo.HTTP.Case
-        
+
         test :root_route do
           conn = get("/")
           assert conn.resp_body =~ %r/somevalue/
@@ -17,13 +17,13 @@ defmodule Dynamo.HTTP.Case do
 
   The default dynamo used in tests is `Dynamo.under_Test`.
   This can be changed in a specific test case using `@app`:
-  
+
       defmodule CustomRouterTest do
         use ExUnit.Case
         use Dynamo.HTTP.Case
-    
+
         @app CustomRouter
-    
+
         test :route do
           conn = get("/route")
           assert conn.resp_body =~ %r/somevalue/
@@ -105,10 +105,13 @@ defmodule Dynamo.HTTP.Case do
       raise "#{inspect app}.service did not return a connection, got #{inspect conn}"
     end
 
-    if conn.state == :unset do
-      raise "#{inspect app}.service returned a connection that did not respond yet"
+    case conn.state do
+      :unset ->
+        raise "#{inspect app}.service returned a connection that did not respond yet"
+      :set ->
+        conn.send
+      _ ->
+        conn
     end
-
-    conn
   end
 end
