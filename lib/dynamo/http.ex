@@ -177,6 +177,20 @@ defmodule Dynamo.HTTP do
   defcallback send(status, body :: term, conn) :: conn
 
   @doc """
+  Starts to send a chunked response to the client.
+  An updated connection is returned with `:chunked` state,
+  the given status and response body set to nil.
+  Use `chunk/2` to chunk each part of the response.
+  """
+  defcallback send_chunked(status, conn) :: conn
+
+  @doc """
+  Send the given data through the socket.
+  `send_chunked/2` needs to be called before `chunk/2`.
+  """
+  defcallback chunk(data, conn) :: conn
+
+  @doc """
   Returns the response status if one was set.
   """
   defcallback status(conn) :: status

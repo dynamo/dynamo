@@ -17,7 +17,7 @@ defmodule Dynamo.HTTP.Test do
   """
   def new() do
     connection(
-      raw_req_headers: Binary.Dict.new([ { "host", "127.0.0.1" } ]),
+      raw_req_headers: Binary.Dict.new([{ "host", "127.0.0.1" }]),
       fetched: [],
       before_send: Dynamo.HTTP.default_before_send,
       state: :unset,
@@ -53,13 +53,28 @@ defmodule Dynamo.HTTP.Test do
 
   ## Response API
 
-  def send(status, body, conn) when is_integer(status) and is_binary(body) do
+  def send(status, body, connection(state: state) = conn) when is_integer(status)
+      and state in [:unset, :set] and is_binary(body) do
     connection(run_before_send(conn),
       state: :sent,
       status: status,
       sent_body: check_sent_body(conn, body),
       resp_body: nil
     )
+  end
+
+  def send_chunked(status, connection(state: state) = conn) when is_integer(status)
+      and state in [:unset, :set] do
+    connection(run_before_send(conn),
+      state: :chunked,
+      status: status,
+      sent_body: "",
+      resp_body: nil
+    )
+  end
+
+  def chunk(body, connection(state: state, sent_body: sent) = conn) when state == :chunked do
+    connection(conn, sent_body: check_sent_body(conn, sent <> body))
   end
 
   defp check_sent_body(connection(original_method: "HEAD"), _body), do: ""

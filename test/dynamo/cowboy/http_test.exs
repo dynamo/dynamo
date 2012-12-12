@@ -321,6 +321,14 @@ defmodule Dynamo.Cowboy.HTTPTest do
     assert { 200, _, "" }   = request :head, "/send_with_head"
   end
 
+  def send_chunked(conn) do
+    conn.send_chunked(200).chunk("1").chunk("2").chunk("3")
+  end
+
+  test :send_chunked do
+    assert { 200, _, "123" } = request :get,  "/send_chunked"
+  end
+
   def sendfile(conn) do
     file = File.expand_path("../../../fixtures/static/file.txt", __FILE__)
     conn = conn.sendfile(file)

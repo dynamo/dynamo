@@ -63,7 +63,8 @@ defmodule Dynamo.Cowboy.HTTP do
 
   ## Response API
 
-  def send(status, body, conn) when is_integer(status) and (is_binary(body) or is_tuple(body)) do
+  def send(status, body, connection(state: state) = conn) when is_integer(status)
+      and state in [:unset, :set] and (is_binary(body) or is_tuple(body)) do
     conn = run_before_send(conn)
     connection(resp_headers: headers, resp_cookies: cookies, req: req) = conn
     { :ok, req } = R.reply(status, get_resp_headers(headers, cookies), body, req)
@@ -72,8 +73,25 @@ defmodule Dynamo.Cowboy.HTTP do
       req: req,
       resp_body: nil,
       status: status,
-      state: :sent
-    )
+      state: :sent)
+  end
+
+  def send_chunked(status, connection(state: state) = conn) when is_integer(status)
+      and state in [:unset, :set] do
+    conn = run_before_send(conn)
+    connection(resp_headers: headers, resp_cookies: cookies, req: req) = conn
+    { :ok, req } = R.chunked_reply(status, get_resp_headers(headers, cookies), req)
+
+    connection(conn,
+      req: req,
+      resp_body: nil,
+      status: status,
+      state: :chunked)
+  end
+
+  def chunk(body, connection(state: state, req: req) = conn) when state == :chunked do
+    R.chunk(body, req)
+    conn
   end
 
   def sendfile(path, connection(req: req) = conn) do

@@ -141,6 +141,30 @@ defmodule Dynamo.HTTP.TestTest do
     assert conn.sent_body == ""
   end
 
+  test :send_chunked do
+    conn = conn(:GET, "/")
+    assert conn.state == :unset
+
+    conn = conn.send_chunked(201)
+    assert conn.state  == :chunked
+    assert conn.status == 201
+    assert conn.sent_body == ""
+
+    conn = conn.chunk("1").chunk("2").chunk("3")
+    assert conn.state  == :chunked
+    assert conn.status == 201
+    assert conn.sent_body == "123"
+  end
+
+  test :send_chunked_with_head do
+    conn = conn(:HEAD, "/").send_chunked(201)
+    assert conn.state  == :chunked
+    assert conn.sent_body == ""
+
+    conn = conn.chunk("1").chunk("2").chunk("3")
+    assert conn.sent_body == ""
+  end
+
   test :sendfile do
     file = File.expand_path("../../../fixtures/static/file.txt", __FILE__)
     conn = conn(:GET, "/").sendfile(file)
