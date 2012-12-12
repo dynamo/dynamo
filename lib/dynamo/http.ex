@@ -188,7 +188,7 @@ defmodule Dynamo.HTTP do
   Send the given data through the socket.
   `send_chunked/2` needs to be called before `chunk/2`.
   """
-  defcallback chunk(data, conn) :: conn
+  defcallback chunk(body, conn) :: conn
 
   @doc """
   Returns the response status if one was set.
