@@ -18,7 +18,7 @@ defmodule Dynamo.Filters.StaticTest do
     end
   end
 
-  @app StaticApp
+  @endpoint StaticApp
 
   test "serves the file" do
     conn = get("/public/fixtures/static/file.txt")

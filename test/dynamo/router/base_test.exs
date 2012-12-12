@@ -78,7 +78,7 @@ defmodule Dynamo.Router.BaseTest do
     assert process(RootSample, :GET, "/8/foo").assigns[:value] == 8
   end
 
-  @app Sample1
+  @endpoint Sample1
 
   def test_dispatch_single_segment do
     assert get("/1/bar").assigns[:value] == 1

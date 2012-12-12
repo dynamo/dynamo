@@ -154,36 +154,42 @@ defmodule Dynamo.Cowboy.HTTPTest do
   end
 
   def req_cookies_1(conn) do
+    import :functions, Dynamo.Router.Cookies
+
     conn = conn.fetch(:cookies)
-    assert conn.cookies["foo"] == "bar"
-    assert conn.cookies["baz"] == "bat"
+    assert get_cookie(conn, "foo") == "bar"
+    assert get_cookie(conn, "baz") == "bat"
     conn
   end
 
   def resp_cookies_0(conn) do
+    import :functions, Dynamo.Router.Cookies
+
     assert conn.resp_cookies == []
 
-    conn = conn.set_cookie(:foo, :bar, path: "/hello")
+    conn = put_cookie(conn, :foo, :bar, path: "/hello")
     assert conn.resp_cookies == [{ "foo", "bar", path: "/hello" }]
 
-    conn = conn.set_cookie(:bar, :baz, http_only: false)
+    conn = put_cookie(conn, :bar, :baz, http_only: false)
     conn.send(200, "Hello")
   end
 
   def req_resp_cookies(conn) do
-    conn = conn.fetch(:cookies)
-    assert conn.cookies["foo"] == "bar"
-    assert conn.cookies["baz"] == "bat"
-
-    conn = conn.set_cookie(:foo, :new)
-    assert conn.cookies["foo"] == "new"
-    assert conn.cookies["baz"] == "bat"
+    import :functions, Dynamo.Router.Cookies
 
     conn = conn.fetch(:cookies)
-    assert conn.cookies["foo"] == "new"
+    assert get_cookie(conn, "foo") == "bar"
+    assert get_cookie(conn, "baz") == "bat"
 
-    conn = conn.delete_cookie(:foo)
-    assert conn.cookies["foo"] == nil
+    conn = put_cookie(conn, :foo, :new)
+    assert get_cookie(conn, "foo") == "new"
+    assert get_cookie(conn, "baz") == "bat"
+
+    conn = conn.fetch(:cookies)
+    assert get_cookie(conn, "foo") == "new"
+
+    conn = delete_cookie(conn, :foo)
+    assert get_cookie(conn, :foo) == nil
     conn.send(200, "Hello")
   end
 
@@ -250,16 +256,16 @@ defmodule Dynamo.Cowboy.HTTPTest do
   def resp_headers(conn) do
     assert conn.resp_headers == Binary.Dict.new
 
-    conn = conn.set_resp_header("x-header", "First")
+    conn = conn.put_resp_header("x-header", "First")
     assert conn.resp_headers["x-header"] == "First"
 
-    conn = conn.set_resp_header("x-header", "Second")
+    conn = conn.put_resp_header("x-header", "Second")
     assert conn.resp_headers["x-header"] == "Second"
 
     conn = conn.delete_resp_header("x-header")
     assert conn.resp_headers["x-header"] == nil
 
-    conn = conn.set_resp_header("x-header", "Third")
+    conn = conn.put_resp_header("x-header", "Third")
     assert conn.resp_headers["x-header"] == "Third"
 
     conn.send(200, "Hello")

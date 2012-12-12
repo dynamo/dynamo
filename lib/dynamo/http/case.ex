@@ -16,13 +16,13 @@ defmodule Dynamo.HTTP.Case do
       end
 
   The default dynamo used in tests is `Dynamo.under_Test`.
-  This can be changed in a specific test case using `@app`:
+  This can be changed in a specific test case using `@endpoint`:
 
       defmodule CustomRouterTest do
         use ExUnit.Case
         use Dynamo.HTTP.Case
 
-        @app CustomRouter
+        @endpoint CustomRouter
 
         test :route do
           conn = get("/route")
@@ -43,7 +43,7 @@ defmodule Dynamo.HTTP.Case do
   @doc false
   defmacro __using__(_) do
     quote do
-      @app Dynamo.under_test
+      @endpoint Dynamo.under_test
       import unquote(__MODULE__)
     end
   end
@@ -51,7 +51,7 @@ defmodule Dynamo.HTTP.Case do
   @doc """
   A simple macro that expands to:
 
-      process(@app, :GET, path)
+      process(@endpoint, :GET, path)
 
   """
   defmacro get(path) do
@@ -61,7 +61,7 @@ defmodule Dynamo.HTTP.Case do
   @doc """
   A simple macro that expands to:
 
-      process(@app, :POST, path)
+      process(@endpoint, :POST, path)
 
   """
   defmacro post(path) do
@@ -71,7 +71,7 @@ defmodule Dynamo.HTTP.Case do
   @doc """
   A simple macro that expands to:
 
-      process(@app, :PUT, path)
+      process(@endpoint, :PUT, path)
 
   """
   defmacro put(path) do
@@ -81,7 +81,7 @@ defmodule Dynamo.HTTP.Case do
   @doc """
   A simple macro that expands to:
 
-      process(@app, :DELETE, path)
+      process(@endpoint, :DELETE, path)
 
   """
   defmacro delete(path) do
@@ -90,7 +90,7 @@ defmodule Dynamo.HTTP.Case do
 
   defp do_method(method, path) do
     quote do
-      unquote(__MODULE__).process @app, unquote(method), unquote(path)
+      unquote(__MODULE__).process @endpoint, unquote(method), unquote(path)
     end
   end
 

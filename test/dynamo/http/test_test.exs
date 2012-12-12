@@ -56,7 +56,7 @@ defmodule Dynamo.HTTP.TestTest do
       conn.req_headers
     end
 
-    conn = conn.set_req_header "X-Code", "123456"
+    conn = conn.put_req_header "X-Code", "123456"
     assert conn.fetch(:headers).req_headers["x-code"] == "123456"
 
     conn = conn.delete_req_header "X-Code"
@@ -94,34 +94,6 @@ defmodule Dynamo.HTTP.TestTest do
     assert conn.req_cookies["foo"] == "bar"
     assert conn.req_cookies["baz"] == "bat"
     conn
-  end
-
-  test :cookies do
-    conn = conn(:GET, "/").req_cookies(foo: "bar", baz: "bat").fetch(:cookies)
-    assert conn.cookies["foo"] == "bar"
-    assert conn.cookies["baz"] == "bat"
-    conn
-  end
-
-  test :resp_cookies do
-    conn = conn(:GET, "/")
-    assert conn.resp_cookies == []
-
-    conn = conn.set_cookie(:foo, :bar, path: "/hello")
-    assert conn.resp_cookies == [{ "foo", "bar", path: "/hello" }]
-  end
-
-  test :req_resp_cookies do
-    conn = conn(:GET, "/").req_cookies(foo: "bar", baz: "bat").fetch(:cookies)
-    assert conn.cookies["foo"] == "bar"
-    assert conn.cookies["baz"] == "bat"
-
-    conn = conn.set_cookie(:foo, :new)
-    assert conn.cookies["foo"] == "new"
-    assert conn.cookies["baz"] == "bat"
-
-    conn = conn.delete_cookie(:foo)
-    assert conn.cookies["foo"] == nil
   end
 
   ## Response

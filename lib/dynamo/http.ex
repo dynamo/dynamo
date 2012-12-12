@@ -24,7 +24,7 @@ defmodule Dynamo.HTTP do
 
   It is also important to remind that, as in all Elixir
   structures, a connection is immutable. So if you are using
-  `conn.set_resp_header("X-API", "123456")` to set a response
+  `conn.put_resp_header("X-API", "123456")` to set a response
   header, a new connection will be returned with the new header
   set. The original `conn` is not going to be modified.
   """
@@ -35,15 +35,15 @@ defmodule Dynamo.HTTP do
   configure cookies and session.
   """
   def default_before_send do
-    [ set_resp_content_type_header(&1) ]
+    [ put_resp_content_type_header(&1) ]
   end
 
-  defp set_resp_content_type_header(conn) do
+  defp put_resp_content_type_header(conn) do
     if content_type = conn.resp_content_type do
       if charset = conn.resp_charset do
         content_type = content_type <> "; charset=" <> charset
       end
-      conn.set_resp_header("content-type", content_type)
+      conn.put_resp_header("content-type", content_type)
     else
       conn
     end
@@ -57,7 +57,7 @@ defmodule Dynamo.HTTP do
   @type   segments     :: [binary]
   @type   charset      :: binary
   @type   content_type :: binary
-  @type   fetch_aspect :: :headers | :params | :cookies | :body | :session
+  @type   fetch_aspect :: :headers | :params | :cookies | :body | atom
   @type   app          :: module
   @type   assigns      :: list
   @type   private      :: list
@@ -275,7 +275,7 @@ defmodule Dynamo.HTTP do
   Sets a response header, overriding any previous value.
   Both `key` and `value` are converted to binary.
   """
-  defcallback set_resp_header(key :: Binary.Chars.t, value :: Binary.Chars.t, conn) :: conn
+  defcallback put_resp_header(key :: Binary.Chars.t, value :: Binary.Chars.t, conn) :: conn
 
   @doc """
   Deletes a response header.
@@ -292,43 +292,16 @@ defmodule Dynamo.HTTP do
   defcallback req_cookies(conn) :: Binary.Dict.t | no_return
 
   @doc """
-  Returns a Binary.Dict with cookies. Cookies need to be explicitly
-  fetched with `conn.fetch(:cookies)` before using this function.
-  """
-  defcallback cookies(conn) :: Binary.Dict.t | no_return
-
-  @doc """
   Returns the response cookies as a list of three element tuples
   containing the key, value and given options.
   """
   defcallback resp_cookies(conn) :: [{ binary, binary, list }]
 
   @doc """
-  Sets a cookie with given key and value and the given options.
-
-  ## Options
-
-  * `max_age` - The cookie max-age in seconds. In order to support
-    older IE versions, setting `max_age` also sets the Expires header;
-
-  * `secure` - Marks the cookie as secure;
-
-  * `domain` - The domain to which the cookie applies;
-
-  * `path` - The path to which the cookie applies;
-
-  * `http_only` - If the cookie is sent only via http. Default to true;
-
+  Puts the response cookie with the given key, value and list
+  of options.
   """
-  defcallback set_cookie(key :: Binary.Chars.t, value :: Binary.Chars.t, conn) :: conn
-  defcallback set_cookie(key :: Binary.Chars.t, value :: Binary.Chars.t, opts :: list, conn) :: conn
-
-  @doc """
-  Deletes a cookie. The same options given when setting the cookie
-  must be given on delete to ensure the browser will pick them up.
-  """
-  defcallback delete_cookie(key :: Binary.Chars.t, conn) :: conn
-  defcallback delete_cookie(key :: Binary.Chars.t, opts :: list, conn) :: conn
+  defcallback put_resp_cookie(key :: binary, value :: binary | nil, opts :: list, conn) :: conn
 
   ## Misc
 

@@ -279,8 +279,8 @@ defmodule Mix.Tasks.Dynamo do
 
     # Sometimes it may be convenient to test a specific
     # aspect of a router in isolation. For such, we just
-    # need to set the @app to the router under test.
-    @app ApplicationRouter
+    # need to set the @endpoint to the router under test.
+    @endpoint ApplicationRouter
 
     test "returns OK" do
       conn = get("/")

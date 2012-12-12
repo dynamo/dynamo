@@ -18,16 +18,16 @@ defmodule Dynamo.Filters.HeadTest do
     end
   end
 
-  @app HeadApp
+  @endpoint HeadApp
 
   test "converts head to get and ignores the body" do
-    conn = process @app, :HEAD, "/hello"
+    conn = process @endpoint, :HEAD, "/hello"
     assert conn.status == 200
     assert conn.sent_body == ""
   end
 
   test "does not touch non head requests" do
-    conn = process @app, :POST, "/hello"
+    conn = process @endpoint, :POST, "/hello"
     assert conn.status == 201
     assert conn.sent_body == "POST"
   end

@@ -46,7 +46,7 @@ defmodule Dynamo.Router.RenderingTest do
     Dynamo.under_test(nil)
   end
 
-  @app RenderingRouter
+  @endpoint RenderingRouter
 
   test "sets response body and content type" do
     conn = get("/hello.html")

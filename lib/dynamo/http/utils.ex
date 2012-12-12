@@ -71,7 +71,13 @@ defmodule Dynamo.HTTP.Utils do
   Receives a cookie key, value, options and returns
   a cookie header.
   """
-  def cookie_header(key, value, options // []) do
+  def cookie_header(key, value, options // [])
+
+  def cookie_header(key, nil, options) do
+    cookie_header(key, "", options)
+  end
+
+  def cookie_header(key, value, options) do
     key    = URI.encode(key)
     value  = URI.encode(value)
     header = "#{key}=#{value}"

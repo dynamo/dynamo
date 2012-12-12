@@ -83,10 +83,14 @@ defmodule Dynamo.Router do
 
       use Dynamo.Utils.Once
 
+      # Definition
       use_once Dynamo.Router.Base
       use_once Dynamo.Router.Hooks
       use_once Dynamo.Router.Filters
+
+      # Helpers
       use_once Dynamo.Router.Rendering
+      use_once Dynamo.Router.Cookies
 
       import Dynamo.HTTP.Hibernate
     end

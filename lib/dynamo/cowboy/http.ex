@@ -100,13 +100,6 @@ defmodule Dynamo.Cowboy.HTTP do
     send(200, { size, fn -> :file.sendfile(path, socket) end }, conn)
   end
 
-  ## Cookies
-
-  def req_cookies(connection(req: req)) do
-    { cookies, _ } = R.cookies req
-    Binary.Dict.new(cookies)
-  end
-
   ## Misc
 
   def fetch(list, conn) when is_list(list) do
@@ -125,9 +118,9 @@ defmodule Dynamo.Cowboy.HTTP do
     connection(conn, req: req, params: params)
   end
 
-  def fetch(:cookies, connection(req: req, cookies: nil) = conn) do
+  def fetch(:cookies, connection(req: req, req_cookies: nil) = conn) do
     { cookies, req } = R.cookies req
-    connection(conn, req: req, cookies: Binary.Dict.new(cookies))
+    connection(conn, req: req, req_cookies: Binary.Dict.new(cookies))
   end
 
   def fetch(:headers, connection(req: req, req_headers: nil) = conn) do

@@ -37,7 +37,7 @@ defmodule Dynamo.Filters.Static do
       path = File.join([root_path(root)|segments])
       if File.regular?(path) do
         mimes = :mimetypes.filename(path)
-        conn.set_resp_header("Content-Type", hd(mimes)).sendfile(path)
+        conn.put_resp_header("Content-Type", hd(mimes)).sendfile(path)
       else
         fun.(conn)
       end

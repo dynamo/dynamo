@@ -9,7 +9,7 @@ defmodule Dynamo.HTTP.Test do
   """
 
   use Dynamo.HTTP.Behaviour,
-    [ :query_string, :raw_req_headers, :raw_req_body, :raw_cookies, :fetched,
+    [ :query_string, :raw_req_headers, :raw_req_body, :raw_req_cookies, :fetched,
       :path_segments, :sent_body, :original_method ]
 
   @doc """
@@ -21,7 +21,7 @@ defmodule Dynamo.HTTP.Test do
       fetched: [],
       before_send: Dynamo.HTTP.default_before_send,
       state: :unset,
-      raw_cookies: Binary.Dict.new(),
+      raw_req_cookies: Binary.Dict.new(),
       app: Dynamo.under_test
     )
   end
@@ -46,10 +46,6 @@ defmodule Dynamo.HTTP.Test do
 
   def path(connection(path_segments: path_segments)) do
     to_path path_segments
-  end
-
-  def req_cookies(connection(raw_cookies: raw_cookies)) do
-    raw_cookies
   end
 
   ## Response API
@@ -107,8 +103,8 @@ defmodule Dynamo.HTTP.Test do
     connection(conn, params: params, fetched: [:params|fetched])
   end
 
-  def fetch(:cookies, connection(raw_cookies: raw_cookies, fetched: fetched) = conn) do
-    connection(conn, cookies: raw_cookies, fetched: [:cookies|fetched])
+  def fetch(:cookies, connection(raw_req_cookies: raw_req_cookies, fetched: fetched) = conn) do
+    connection(conn, req_cookies: raw_req_cookies, fetched: [:cookies|fetched])
   end
 
   def fetch(:body, connection(raw_req_body: req_body, fetched: fetched) = conn) do
@@ -142,7 +138,7 @@ defmodule Dynamo.HTTP.Test do
       original_method: method)
 
     if uri.authority do
-      conn.set_req_header "host", uri.authority
+      conn.put_req_header "host", uri.authority
     else
       conn
     end
@@ -159,14 +155,14 @@ defmodule Dynamo.HTTP.Test do
   Sets the cookies to be read by the request.
   """
   def req_cookies(cookies, conn) do
-    connection(conn, raw_cookies: Binary.Dict.new(cookies))
+    connection(conn, raw_req_cookies: Binary.Dict.new(cookies))
   end
 
   @doc """
   Sets a request header, overriding any previous value.
   Both `key` and `value` are converted to binary.
   """
-  def set_req_header(key, value, connection(raw_req_headers: raw_req_headers) = conn) do
+  def put_req_header(key, value, connection(raw_req_headers: raw_req_headers) = conn) do
     connection(conn, raw_req_headers: Dict.put(raw_req_headers, String.downcase(key), to_binary(value)))
   end
 

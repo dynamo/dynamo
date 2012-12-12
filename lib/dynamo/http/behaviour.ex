@@ -6,15 +6,14 @@ defmodule Dynamo.HTTP.Behaviour do
   and their default values:
 
   * assigns - an empty list
-  * cookies - `nil`
   * params - `nil`
   * req_headers - `nil`
   * req_body - `nil`
   * resp_body - an empty binary
   * resp_charset - `"utf-8"`
   * resp_content_type - `nil`
-  * resp_cookies - []
-  * resp_headers - an emoty binary dict
+  * resp_cookies - `[]`
+  * resp_headers - an empty binary dict
   * state - `:unset`
   * status - `nil`
   * script_name_segments - an empty list
@@ -45,14 +44,14 @@ defmodule Dynamo.HTTP.Behaviour do
         [ app: nil,
           assigns: [],
           before_send: [],
-          cookies: nil,
           method: nil,
           original_method: nil,
           params: nil,
           path_info_segments: nil,
           private: [],
-          req_headers: nil,
           req_body: nil,
+          req_cookies: nil,
+          req_headers: nil,
           resp_body: "",
           resp_charset: "utf-8",
           resp_cookies: [],
@@ -120,47 +119,22 @@ defmodule Dynamo.HTTP.Behaviour do
 
       ## Cookies
 
-      def req_cookies(connection(cookies: nil)) do
+      def req_cookies(connection(req_cookies: nil)) do
         raise Dynamo.HTTP.UnfetchedError, aspect: :cookies
       end
 
-      def cookies(connection(cookies: nil)) do
-        raise Dynamo.HTTP.UnfetchedError, aspect: :cookies
-      end
-
-      def cookies(connection(cookies: cookies)) do
-        cookies
+      def req_cookies(connection(req_cookies: req_cookies)) do
+        req_cookies
       end
 
       def resp_cookies(connection(resp_cookies: resp_cookies)) do
         resp_cookies
       end
 
-      def set_cookie(key, value, opts // [],
-          connection(cookies: cookies, resp_cookies: resp_cookies) = conn) do
-        key   = to_binary(key)
-        value = to_binary(value)
-
-        if cookies do
-          cookies = Binary.Dict.put(cookies, key, value)
-        end
-
+      def put_resp_cookie(key, value, opts, connection(resp_cookies: resp_cookies) = conn)
+          when is_binary(key) and (is_binary(value) or nil?(value)) and is_list(opts) do
         resp_cookies = List.keydelete(resp_cookies, key, 0)
-        connection(conn, cookies: cookies, resp_cookies: [{ key, value, opts }|resp_cookies])
-      end
-
-      def delete_cookie(key, opts // [],
-          connection(cookies: cookies, resp_cookies: resp_cookies) = conn) do
-        key  = to_binary(key)
-        unix = { { 1970, 1, 1 }, { 12, 0, 0 } }
-        opts = Keyword.merge(opts, max_age: 0, universal_time: unix)
-
-        if cookies do
-          cookies = Binary.Dict.delete(cookies, key)
-        end
-
-        resp_cookies = List.keydelete(resp_cookies, key, 0)
-        connection(conn, cookies: cookies, resp_cookies: [{ key, "", opts }|resp_cookies])
+        connection(conn, resp_cookies: [{ key, value, opts }|resp_cookies])
       end
 
       ## Paths
@@ -253,7 +227,7 @@ defmodule Dynamo.HTTP.Behaviour do
         resp_headers
       end
 
-      def set_resp_header(key, value, connection(resp_headers: resp_headers) = conn) do
+      def put_resp_header(key, value, connection(resp_headers: resp_headers) = conn) do
         connection(conn, resp_headers: Binary.Dict.put(resp_headers, key, to_binary(value)))
       end
 

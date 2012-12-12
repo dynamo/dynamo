@@ -34,7 +34,7 @@ defmodule Dynamo.Router.Filters do
 
     defmodule ChromeFrameFilter do
       def prepare(conn) do
-        conn.set_resp_header("X-UA-Compatible", "chrome=1")
+        conn.put_resp_header("X-UA-Compatible", "chrome=1")
       end
     end
 
@@ -48,7 +48,7 @@ defmodule Dynamo.Router.Filters do
 
       defmodule JSONFilter do
         def service(conn, fun) do
-          conn = conn.set_resp_header("Content-Type", "application/json")
+          conn = conn.put_resp_header("Content-Type", "application/json")
           conn = fun.(conn)
           conn.resp_body(to_json(conn.resp_body))
         end

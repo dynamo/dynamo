@@ -24,7 +24,7 @@ defmodule Dynamo.BaseTest do
     conn.assign(:done, :ok).resp_body("OK")
   end
 
-  @app App
+  @endpoint App
 
   test "allows initializers to be run" do
     assert Process.get(App) == nil
