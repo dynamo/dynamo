@@ -295,7 +295,7 @@ defmodule Dynamo.HTTP do
   Returns a Binary.Dict with cookies. Cookies need to be explicitly
   fetched with `conn.fetch(:cookies)` before using this function.
   """
-  defcallback cookies(conn) :: Binary.Dict.t
+  defcallback cookies(conn) :: Binary.Dict.t | no_return
 
   @doc """
   Returns the response cookies as a list of three element tuples

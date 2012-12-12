@@ -120,6 +120,10 @@ defmodule Dynamo.HTTP.Behaviour do
 
       ## Cookies
 
+      def req_cookies(connection(cookies: nil)) do
+        raise Dynamo.HTTP.UnfetchedError, aspect: :cookies
+      end
+
       def cookies(connection(cookies: nil)) do
         raise Dynamo.HTTP.UnfetchedError, aspect: :cookies
       end

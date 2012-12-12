@@ -21,6 +21,7 @@ defmodule Dynamo.HTTP.Test do
       fetched: [],
       before_send: Dynamo.HTTP.default_before_send,
       state: :unset,
+      raw_cookies: Binary.Dict.new(),
       app: Dynamo.under_test
     )
   end

@@ -90,7 +90,7 @@ defmodule Dynamo.HTTP.TestTest do
   ## Cookies
 
   test :req_cookies do
-    conn = conn(:GET, "/").req_cookies(foo: "bar", baz: "bat")
+    conn = conn(:GET, "/").req_cookies(foo: "bar", baz: "bat").fetch(:cookies)
     assert conn.req_cookies["foo"] == "bar"
     assert conn.req_cookies["baz"] == "bat"
     conn
