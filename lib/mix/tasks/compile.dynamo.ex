@@ -59,8 +59,6 @@ defmodule Mix.Tasks.Compile.Dynamo do
     stale = Mix.Utils.extract_stale(to_watch, [compile_path])
 
     if opts[:force] or stale != [] do
-      Mix.Task.run "deps.start"
-
       if elixir_opts = project[:elixirc_options] do
         Code.compiler_options(elixir_opts)
       end
