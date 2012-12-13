@@ -112,6 +112,8 @@ defmodule Dynamo do
 
   @doc false
   defmacro __using__(_) do
+    Dynamo.App.start
+
     quote location: :keep do
       @is_dynamo true
 
