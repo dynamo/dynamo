@@ -83,3 +83,57 @@ defmodule Session.CookieStore do
     :ok
   end
 end
+
+defmodule Session.ETSStore do
+  @moduledoc """
+  Stores the session in an ETS table (i.e. in memory).
+
+  Useful for single server applications which do not want
+  to write their session down to a cookie.
+
+  This store does not create the ETS table, it is expected
+  that an existing named table is given as argument with
+  public properties.
+  """
+
+  @behaviour Session.Store
+
+  def setup(opts) do
+    if table = opts[:table] do
+      if :ets.info(table, :name) == :undefined do
+        raise ArgumentError, message: "ETSStore expects an exitsting public table, " <>
+          "table #{inspect table} not found"
+      end
+
+      opts
+    else
+      raise ArgumentError, message: "ETSStore expects a table as option"
+    end
+  end
+
+  def get_session(content, opts) do
+    case :ets.lookup(opts[:table], content) do
+      [tuple] -> tuple
+      _       -> { nil, [] }
+    end
+  end
+
+  def put_session(nil, term, opts) do
+    key = :crypto.strong_rand_bytes(128) /> :base64.encode
+
+    if :ets.insert_new(opts[:table], [{key, term}]) do
+      key
+    else
+      put_session(nil, term, opts)
+    end
+  end
+
+  def put_session(key, term, opts) do
+    :ets.insert(opts[:table], [{key, term}])
+    key
+  end
+
+  def delete_session(key, opts) do
+    :ets.delete(opts[:table], key)
+  end
+end

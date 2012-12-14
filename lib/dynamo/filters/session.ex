@@ -26,11 +26,11 @@ defmodule Dynamo.Filters.Session do
 
   """
 
+  defexception CookieOverflowError, message: "the session cookie exceeds the 4kb limit"
+
+  @limit   4096
   @session :dynamo_session
   @opts    :dynamo_session_opts
-
-  @todo "Check for cookie overflow"
-  @todo "Tests for ETS store"
 
   @doc false
   def new(store, opts) do
@@ -64,7 +64,9 @@ defmodule Dynamo.Filters.Session do
     if session = conn.private[@session] do
       { id, written, user_opts } = conn.private[@opts]
 
-      if opts[:renew] && id do
+      if user_opts[:renew] && id do
+        id = nil
+        written = true
         store.delete_session(id, opts)
       end
 
@@ -73,6 +75,7 @@ defmodule Dynamo.Filters.Session do
         value = store.put_session(id, session, opts)
 
         unless conn.req_cookies[key] == value do
+          if size(value) > @limit, do: raise(CookieOverflowError)
           conn.put_resp_cookie(key, value, opts)
         end
       end

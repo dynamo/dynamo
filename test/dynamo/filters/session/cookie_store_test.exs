@@ -1,6 +1,6 @@
-Code.require_file "../../../test_helper.exs", __FILE__
+Code.require_file "../../../../test_helper.exs", __FILE__
 
-defmodule Dynamo.Filters.SessionTest do
+defmodule Dynamo.Filters.Session.CookieStoreTest do
   use ExUnit.Case, async: true
   use Dynamo.HTTP.Case
 
@@ -50,19 +50,47 @@ defmodule Dynamo.Filters.SessionTest do
     refute List.keyfind(conn.resp_cookies, @key, 0)
   end
 
+  test "fails when cookie exceeds 4kb" do
+    conn = session.prepare(conn(:GET, "/hello"))
+    conn = put_session(conn.fetch(:session), :key, String.duplicate("0123456789", 480))
+    assert_raise Dynamo.Filters.Session.CookieOverflowError, fn ->
+      conn.send(200, "OK")
+    end
+  end
+
   test "persists session in between requests" do
     conn = session.prepare(conn(:GET, "/hello"))
     conn = conn.fetch(:session)
-    conn = put_session(conn, :foo, :bar)
+    conn = put_session(conn, :foo, :bar).send(200, "OK")
+    assert { @key, id, _ } = List.keyfind(conn.resp_cookies, @key, 0)
 
-    conn = send_and_recycle(conn, @key)
+    conn = conn(:GET, "/hello").put_req_cookie(@key, id)
     conn = session.prepare(conn).fetch(:session)
     assert get_session(conn, :foo) == :bar
   end
 
-  defp send_and_recycle(conn, key) do
-    { ^key, value, _ } = List.keyfind(conn.send(200, "OK").resp_cookies, key, 0)
-    conn(conn.method, conn.path_info).put_req_cookie(key, value)
+  test "does not resend cookie if it did not change" do
+    conn = session.prepare(conn(:GET, "/hello"))
+    conn = conn.fetch(:session)
+    conn = put_session(conn, :foo, :bar).send(200, "OK")
+    assert { @key, id, _ } = List.keyfind(conn.resp_cookies, @key, 0)
+
+    conn = conn(:GET, "/hello").put_req_cookie(@key, id)
+    conn = session.prepare(conn).fetch(:session).send(200, "OK")
+    refute List.keyfind(conn.resp_cookies, @key, 0)
+  end
+
+  test "resends cookie if it changed" do
+    conn = session.prepare(conn(:GET, "/hello"))
+    conn = conn.fetch(:session)
+    conn = put_session(conn, :foo, :bar).send(200, "OK")
+    assert { @key, id, _ } = List.keyfind(conn.resp_cookies, @key, 0)
+
+    conn = conn(:GET, "/hello").put_req_cookie(@key, id)
+    conn = session.prepare(conn).fetch(:session)
+    conn = put_session(conn, :foo, :baz).send(200, "OK")
+    assert { @key, other_id, _ } = List.keyfind(conn.resp_cookies, @key, 0)
+    assert other_id != id
   end
 
   defp session(opts // []) do
