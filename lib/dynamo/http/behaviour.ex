@@ -19,7 +19,7 @@ defmodule Dynamo.HTTP.Behaviour do
   * script_name_segments - an empty list
 
   Besides the fields above, it also defines the following
-  fields, but it expects those fields to be set wen the
+  fields, but it expects those fields to be set when the
   connection is initialized with the following contents:
 
   * app - with the app invoked
@@ -72,11 +72,15 @@ defmodule Dynamo.HTTP.Behaviour do
         connection(conn, assigns: Keyword.put(assigns, key, value))
       end
 
+      def put_assign(key, value, conn) do
+        assign(key, value, conn)
+      end
+
       def private(connection(private: private)) do
         private
       end
 
-      def private(key, value, connection(private: private) = conn) do
+      def put_private(key, value, connection(private: private) = conn) do
         connection(conn, private: Keyword.put(private, key, value))
       end
 

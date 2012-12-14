@@ -106,6 +106,6 @@ defmodule Dynamo.HTTP.Hibernate do
 
   defp set_timeout(conn, timeout) do
     ref = :erlang.start_timer(timeout, self(), __MODULE__)
-    conn.private(@key, ref)
+    conn.put_private(@key, ref)
   end
 end

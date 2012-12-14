@@ -1,15 +1,8 @@
 defmodule Dynamo.Router.Rendering do
   @moduledoc """
-  Module responsible for template rendering
-  and similar functions.
+  Conveniences for template rendering and similar functions.
+  To use them, just import this module.
   """
-
-  @doc false
-  defmacro __using__(_) do
-    quote do
-      import unquote(__MODULE__)
-    end
-  end
 
   @doc """
   Renders a template and assigns its contents to

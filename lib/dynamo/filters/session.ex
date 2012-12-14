@@ -40,7 +40,7 @@ defmodule Dynamo.Filters.Session do
   defp fetch(conn, store, key, opts) do
     conn = conn.fetch(:cookies)
     { id, value } = store.get_session(conn.req_cookies[key], opts)
-    conn.private(@session, value).private(@opts, [id: id])
+    conn.put_private(@session, value).put_private(@opts, [id: id])
   end
 
   @todo "Check if the session was writen besides loaded"

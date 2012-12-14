@@ -1,14 +1,8 @@
 defmodule Dynamo.Router.Cookies do
   @doc """
   Conveniences for working with cookies.
+  To use them, just import this module.
   """
-
-  @doc false
-  defmacro __using__(_) do
-    quote do
-      import unquote(__MODULE__)
-    end
-  end
 
   @doc """
   Returns the cookie value regardless if it was given sent

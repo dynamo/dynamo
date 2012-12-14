@@ -65,8 +65,8 @@ defmodule Dynamo.HTTP do
   @type   content_type :: binary
   @type   fetch_aspect :: :headers | :params | :cookies | :body | atom
   @type   app          :: module
-  @type   assigns      :: list
-  @type   private      :: list
+  @type   assigns      :: Keyword.t
+  @type   private      :: Keyword.t
 
   use Behaviour
 
@@ -223,9 +223,8 @@ defmodule Dynamo.HTTP do
   defcallback resp_charset(conn) :: binary
 
   @doc """
-  Sets the response charset. The charset
-  is just added to the response if
-  `resp_content_type` is also set.
+  Sets the response charset. The charset is just added
+  to the response if `resp_content_type` is also set.
   """
   defcallback resp_charset(charset, conn) :: conn
 
@@ -278,7 +277,7 @@ defmodule Dynamo.HTTP do
   defcallback resp_headers(conn) :: Binary.Dict.t
 
   @doc """
-  Sets a response header, overriding any previous value.
+  Puts a response header, overriding any previous value.
   Both `key` and `value` are converted to binary.
   """
   defcallback put_resp_header(key :: Binary.Chars.t, value :: Binary.Chars.t, conn) :: conn
@@ -328,9 +327,14 @@ defmodule Dynamo.HTTP do
   defcallback assigns(conn) :: assigns
 
   @doc """
-  Sets a new assign with the given key and value.
+  Puts a new assign with the given key and value.
   """
   defcallback assign(key :: atom, value :: term, conn) :: conn
+
+  @doc """
+  The same as `assign/3`.
+  """
+  defcallback put_assign(key :: atom, value :: term, conn) :: conn
 
   @doc """
   Returns a keywords list with private assigns set so far.
@@ -346,7 +350,7 @@ defmodule Dynamo.HTTP do
   For example, a Dynamo key to store timeout values would
   be set as: `:dynamo_timeout`.
   """
-  defcallback private(key :: atom, value :: term, conn) :: conn
+  defcallback put_private(key :: atom, value :: term, conn) :: conn
 
   @doc """
   Returns the application that received the request.

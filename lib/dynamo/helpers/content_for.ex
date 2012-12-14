@@ -74,7 +74,8 @@ defmodule Dynamo.Helpers.ContentFor do
   A simple function that stores a content chunk in the connection.
   """
   def put_content(conn, key, value) when is_atom(key) and (is_binary(value) or is_function(value)) do
-    conn.private(@key, Keyword.put(conn.private[@key] || [], key, value))
+    value = Keyword.put(conn.private[@key] || [], key, value)
+    conn.put_private(@key, value)
   end
 
   @doc """

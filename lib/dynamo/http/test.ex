@@ -17,13 +17,14 @@ defmodule Dynamo.HTTP.Test do
   """
   def new() do
     connection(
-      raw_req_headers: Binary.Dict.new([{ "host", "127.0.0.1" }]),
-      fetched: [],
+      app: Dynamo.under_test,
       before_send: Dynamo.HTTP.default_before_send,
-      state: :unset,
+      fetched: [],
       raw_req_cookies: Binary.Dict.new(),
-      app: Dynamo.under_test
-    )
+      raw_req_headers: Binary.Dict.new([{ "host", "127.0.0.1" }]),
+      sent_body: nil,
+      state: :unset
+    ).req(:GET, "/", "")
   end
 
   ## Request API
@@ -138,15 +139,15 @@ defmodule Dynamo.HTTP.Test do
     method   = Dynamo.Router.Utils.normalize_verb(method)
 
     conn = connection(conn,
-      query_string: uri.query || "",
-      path_segments: segments,
-      path_info_segments: segments,
-      script_name_segments: [],
-      params: nil,
-      req_headers: nil,
       method: method,
+      original_method: method,
+      params: nil,
+      path_info_segments: segments,
+      path_segments: segments,
+      query_string: uri.query || "",
       raw_req_body: body,
-      original_method: method)
+      req_body: nil,
+      script_name_segments: [])
 
     if uri.authority do
       conn.put_req_header "host", uri.authority

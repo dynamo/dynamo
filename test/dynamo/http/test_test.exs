@@ -188,10 +188,10 @@ defmodule Dynamo.HTTP.TestTest do
     conn  = conn(:GET, "/")
     assert conn.private == []
 
-    conn = conn.private :foo, "bar"
+    conn = conn.put_private :foo, "bar"
     assert conn.private == [foo: "bar"]
 
-    conn = conn.private :foo, "baz"
+    conn = conn.put_private :foo, "baz"
     assert conn.private == [foo: "baz"]
   end
 

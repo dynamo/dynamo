@@ -1,14 +1,8 @@
 defmodule Dynamo.Router.Session do
   @doc """
   Conveniences for working with session.
+  To use them, just import this module.
   """
-
-  @doc false
-  defmacro __using__(_) do
-    quote do
-      import unquote(__MODULE__)
-    end
-  end
 
   @session :dynamo_session
 
@@ -37,6 +31,6 @@ defmodule Dynamo.Router.Session do
   """
   def put_session(conn, key, value) do
     session = [{ key, value }|List.keydelete(get_session(conn), key, 0)]
-    conn.private(@session, session)
+    conn.put_private(@session, session)
   end
 end

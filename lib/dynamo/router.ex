@@ -89,10 +89,10 @@ defmodule Dynamo.Router do
       use_once Dynamo.Router.Filters
 
       # Helpers
-      use_once Dynamo.Router.Rendering
-      use_once Dynamo.Router.Cookies
-
       import Dynamo.HTTP.Hibernate
+      import Dynamo.Router.Rendering
+      import Dynamo.Router.Cookies
+      import Dynamo.Router.Session
     end
   end
 end
