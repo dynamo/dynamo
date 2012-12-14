@@ -2,6 +2,10 @@ defmodule Dynamo.Templates.Handler do
   @moduledoc """
   A module that specifies the handler API and
   small conveniences around it.
+
+  A template handler is a module that is capable
+  to compile Dynamo templates into executable elixir
+  code.
   """
 
   @type  template :: Dynamo.Template.t

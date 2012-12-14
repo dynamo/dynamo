@@ -27,6 +27,8 @@ defexception Dynamo.TemplateNotFound, query: nil, paths: nil do
 end
 
 defmodule Dynamo.Templates do
+  @moduledoc false
+
   @doc """
   Finds the given template in any of the templates paths.
   """

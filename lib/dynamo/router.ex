@@ -87,12 +87,12 @@ defmodule Dynamo.Router do
       use_once Dynamo.Router.Base
       use_once Dynamo.Router.Hooks
       use_once Dynamo.Router.Filters
+      use_once Dynamo.Router.Rendering
 
       # Helpers
       import Dynamo.HTTP.Hibernate
-      import Dynamo.Router.Rendering
-      import Dynamo.Router.Cookies
-      import Dynamo.Router.Session
+      import Dynamo.HTTP.Cookies
+      import Dynamo.HTTP.Session
     end
   end
 end

@@ -1,8 +1,5 @@
 defmodule Dynamo.HTTP.Utils do
-  @moduledoc """
-  Convenience functions for working with HTTP
-  connections, like date conversions, cookies, etc.
-  """
+  @moduledoc false
 
   @doc """
   Create a temporary directory usually

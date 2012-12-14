@@ -4,7 +4,7 @@ defmodule Dynamo.Filters.SessionTest do
   use ExUnit.Case, async: true
   use Dynamo.HTTP.Case
 
-  import Dynamo.Router.Session
+  import Dynamo.HTTP.Session
 
   @key "_session"
 
@@ -28,6 +28,28 @@ defmodule Dynamo.Filters.SessionTest do
     assert { @key, _, _ } = List.keyfind(conn.resp_cookies, @key, 0)
   end
 
+  test "can mark the cookie as secure on the filter" do
+    conn = session(secure: true).prepare(conn(:GET, "/hello"))
+    conn = conn.fetch(:session)
+    conn = put_session(conn, :foo, :bar).send(200, "OK")
+    assert { @key, _, opts } = List.keyfind(conn.resp_cookies, @key, 0)
+    assert opts[:secure]
+  end
+
+  test "can mark the cookie as secure during a request" do
+    conn = session.prepare(conn(:GET, "/hello"))
+    conn = configure_session(conn.fetch(:session), :secure, true)
+    conn = put_session(conn, :foo, :bar).send(200, "OK")
+    assert { @key, _, opts } = List.keyfind(conn.resp_cookies, @key, 0)
+    assert opts[:secure]
+  end
+
+  test "does not set a cookie if session was not writen to" do
+    conn = session.prepare(conn(:GET, "/hello"))
+    conn = conn.fetch(:session).send(200, "OK")
+    refute List.keyfind(conn.resp_cookies, @key, 0)
+  end
+
   test "persists session in between requests" do
     conn = session.prepare(conn(:GET, "/hello"))
     conn = conn.fetch(:session)
@@ -43,7 +65,8 @@ defmodule Dynamo.Filters.SessionTest do
     conn(conn.method, conn.path_info).put_req_cookie(key, value)
   end
 
-  defp session do
-    Dynamo.Filters.Session.new(Dynamo.Filters.Session.CookieStore, key: @key)
+  defp session(opts // []) do
+    Dynamo.Filters.Session.new(Dynamo.Filters.Session.CookieStore,
+      [key: @key, secret: String.duplicate("1234567890", 8)] ++ opts)
   end
 end

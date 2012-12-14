@@ -154,7 +154,7 @@ defmodule Dynamo.Cowboy.HTTPTest do
   end
 
   def req_cookies_1(conn) do
-    import :functions, Dynamo.Router.Cookies
+    import :functions, Dynamo.HTTP.Cookies
 
     conn = conn.fetch(:cookies)
     assert get_cookie(conn, "foo") == "bar"
@@ -163,7 +163,7 @@ defmodule Dynamo.Cowboy.HTTPTest do
   end
 
   def resp_cookies_0(conn) do
-    import :functions, Dynamo.Router.Cookies
+    import :functions, Dynamo.HTTP.Cookies
 
     assert conn.resp_cookies == []
 
@@ -175,7 +175,7 @@ defmodule Dynamo.Cowboy.HTTPTest do
   end
 
   def req_resp_cookies(conn) do
-    import :functions, Dynamo.Router.Cookies
+    import :functions, Dynamo.HTTP.Cookies
 
     conn = conn.fetch(:cookies)
     assert get_cookie(conn, "foo") == "bar"
@@ -375,6 +375,14 @@ defmodule Dynamo.Cowboy.HTTPTest do
   end
 
   ## Misc
+
+  def conn_inspect(conn) do
+    conn.resp(200, inspect(conn))
+  end
+
+  test :inspect do
+    assert { 200, _, "Dynamo.HTTP[GET /conn_inspect (cowboy)]" } = request :get, "/conn_inspect"
+  end
 
   def forward_to(conn) do
     assert conn.path_segments == ["forward_to", "foo", "bar", "baz"]

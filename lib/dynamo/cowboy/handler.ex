@@ -1,8 +1,5 @@
 defmodule Dynamo.Cowboy.Handler do
-  @moduledoc """
-  This is the default Cowboy handler that is able
-  to respond to http and websockets requests.
-  """
+  @moduledoc false
 
   @behaviour :cowboy_http_handler
   require :cowboy_req, as: R

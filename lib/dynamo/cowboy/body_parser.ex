@@ -1,7 +1,7 @@
 defmodule Dynamo.Cowboy.BodyParser do
-  require :cowboy_req, as: R
-
   @moduledoc false
+
+  require :cowboy_req, as: R
 
   def parse(dict, req) do
     { :ok, type, req } = R.parse_header("content-type", req)

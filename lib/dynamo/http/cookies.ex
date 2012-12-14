@@ -1,4 +1,4 @@
-defmodule Dynamo.Router.Cookies do
+defmodule Dynamo.HTTP.Cookies do
   @doc """
   Conveniences for working with cookies.
   To use them, just import this module.

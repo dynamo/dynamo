@@ -1,10 +1,5 @@
 defmodule Dynamo.Cowboy.HTTP do
-  @moduledoc """
-  A wrapper around Cowboy request structure.
-
-  Check `Dynamo.HTTP` for documentation on
-  the majority of the functions.
-  """
+  @moduledoc false
 
   use Dynamo.HTTP.Behaviour, [:req]
   require :cowboy_req, as: R
@@ -153,5 +148,11 @@ defmodule Dynamo.Cowboy.HTTP do
     Enum.reduce resp_cookies, Binary.Dict.to_list(headers), fn({ key, value, opts }, acc) ->
       [{ "set-cookie", Dynamo.HTTP.Utils.cookie_header(key, value, opts) }|acc]
     end
+  end
+end
+
+defimpl Binary.Inspect, for: Dynamo.Cowboy.HTTP do
+  def inspect(conn, _) do
+    "Dynamo.HTTP[#{conn.method} #{conn.path} (cowboy)]"
   end
 end

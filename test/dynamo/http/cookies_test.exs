@@ -1,9 +1,9 @@
 Code.require_file "../../../test_helper.exs", __FILE__
 
-defmodule Dynamo.Router.CookiesTest do
+defmodule Dynamo.HTTP.CookiesTest do
   use ExUnit.Case, async: true
   use Dynamo.HTTP.Case
-  import Dynamo.Router.Cookies
+  import Dynamo.HTTP.Cookies
 
   test :get_cookie do
     conn = conn(:GET, "/").put_req_cookie(:foo, "bar")
