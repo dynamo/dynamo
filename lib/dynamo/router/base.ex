@@ -17,22 +17,24 @@ defmodule Dynamo.Router.Base do
 
   @doc false
   defmacro __using__(_) do
-    quote location: :keep do
-      @before_compile unquote(__MODULE__)
-      import unquote(__MODULE__)
+    [ quote do
+        @before_compile unquote(__MODULE__)
+        import unquote(__MODULE__)
+      end,
 
-      @doc false
-      def service(conn) do
-        dispatch(conn.method, conn.path_info_segments, conn)
-      end
+      quote location: :keep do
+        @doc false
+        def service(conn) do
+          dispatch(conn.method, conn.path_info_segments, conn)
+        end
 
-      @doc false
-      def not_found(conn) do
-        conn.resp(404, "Not found")
-      end
+        @doc false
+        def not_found(conn) do
+          conn.resp(404, "Not found")
+        end
 
-      defoverridable [not_found: 1, service: 1]
-    end
+        defoverridable [not_found: 1, service: 1]
+      end ]
   end
 
   @doc false

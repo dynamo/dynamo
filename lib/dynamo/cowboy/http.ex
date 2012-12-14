@@ -1,8 +1,21 @@
 defmodule Dynamo.Cowboy.HTTP do
-  @moduledoc false
+  @moduledoc """
+  Implementation of the `Dynamo.HTTP` behaviour
+  for the Cowboy webserver. Check `Dynamo.HTTP`
+  for documentation of all available callbacks.
+  """
 
   use Dynamo.HTTP.Behaviour, [:req]
   require :cowboy_req, as: R
+
+  @doc """
+  Returns the underlying cowboy request. This is used
+  internally by Dynamo but may also be used by other
+  developers (with caution).
+  """
+  def cowboy_request(connection(req: req)) do
+    req
+  end
 
   @doc false
   def new(app, req) do
@@ -20,37 +33,33 @@ defmodule Dynamo.Cowboy.HTTP do
     )
   end
 
-  @doc """
-  Returns the underlying cowboy request. This is used
-  internally by Dynamo but may also be used by other
-  developers (with caution).
-  """
-  def cowboy_request(connection(req: req)) do
-    req
-  end
-
   ## Request API
 
+  @doc false
   def original_method(connection(req: req)) do
     { method, _ } = R.method req
     method
   end
 
+  @doc false
   def query_string(connection(req: req)) do
     { query_string, _ } = R.qs req
     query_string
   end
 
+  @doc false
   def path_segments(connection(req: req)) do
     { path, _ } = R.path req
     split_path path
   end
 
+  @doc false
   def path(connection(req: req)) do
     { binary, _ } = R.path req
     binary
   end
 
+  @doc false
   def version(connection(req: req)) do
     { version, _ } = R.version req
     version
@@ -58,6 +67,7 @@ defmodule Dynamo.Cowboy.HTTP do
 
   ## Response API
 
+  @doc false
   def send(status, body, connection(state: state) = conn) when is_integer(status)
       and state in [:unset, :set] and (is_binary(body) or is_tuple(body)) do
     conn = run_before_send(conn)
@@ -71,6 +81,7 @@ defmodule Dynamo.Cowboy.HTTP do
       state: :sent)
   end
 
+  @doc false
   def send_chunked(status, connection(state: state) = conn) when is_integer(status)
       and state in [:unset, :set] do
     conn = run_before_send(conn)
@@ -84,11 +95,13 @@ defmodule Dynamo.Cowboy.HTTP do
       state: :chunked)
   end
 
+  @doc false
   def chunk(body, connection(state: state, req: req) = conn) when state == :chunked do
     R.chunk(body, req)
     conn
   end
 
+  @doc false
   def sendfile(path, connection(req: req) = conn) do
     File.Stat[type: :regular, size: size] = File.stat!(path)
     { :ok, :ranch_tcp, socket } = R.transport(req)
@@ -97,6 +110,7 @@ defmodule Dynamo.Cowboy.HTTP do
 
   ## Misc
 
+  @doc false
   def fetch(list, conn) when is_list(list) do
     Enum.reduce list, conn, fn(item, acc) -> acc.fetch(item) end
   end
@@ -153,6 +167,6 @@ end
 
 defimpl Binary.Inspect, for: Dynamo.Cowboy.HTTP do
   def inspect(conn, _) do
-    "Dynamo.HTTP[#{conn.method} #{conn.path} (cowboy)]"
+    "Dynamo.Cowboy.HTTP[#{conn.method} #{conn.path}]"
   end
 end

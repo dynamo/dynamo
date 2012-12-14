@@ -381,7 +381,7 @@ defmodule Dynamo.Cowboy.HTTPTest do
   end
 
   test :inspect do
-    assert { 200, _, "Dynamo.HTTP[GET /conn_inspect (cowboy)]" } = request :get, "/conn_inspect"
+    assert { 200, _, "Dynamo.Cowboy.HTTP[GET /conn_inspect]" } = request :get, "/conn_inspect"
   end
 
   def forward_to(conn) do

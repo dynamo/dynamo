@@ -1,9 +1,6 @@
 Code.require_file "../../../test_helper.exs", __FILE__
 
 defmodule Dynamo.Filters.HeadTest do
-  use ExUnit.Case, async: true
-  use Dynamo.HTTP.Case
-
   defmodule HeadApp do
     use Dynamo.Router
 
@@ -17,6 +14,9 @@ defmodule Dynamo.Filters.HeadTest do
       conn.status(201).resp_body(conn.method)
     end
   end
+
+  use ExUnit.Case, async: true
+  use Dynamo.HTTP.Case
 
   @endpoint HeadApp
 

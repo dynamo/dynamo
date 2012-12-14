@@ -32,14 +32,16 @@ defmodule Dynamo do
 
   The available `:dynamo` configurations are:
 
+  * `:compile_on_demand` - Compiles modules as they are needed
   * `:env` - The environment this Dynamo runs on
   * `:endpoint` - The endpoint to dispatch requests too
-  * `:supervisor` - The supervisor local node name
+  * `:reload_modules` - Reload modules after they are changed
+  * `:session_store` - The session store to be used, may be `CookieStore` and `ETSStore`
+  * `:session_options` - The session options to be used
+  * `:source_paths` - The paths to search when compiling modules on demand
   * `:static_route` - The route to serve static assets
   * `:static_root` - The location static assets are defined
-  * `:compile_on_demand` - Compiles modules as they are needed
-  * `:reload_modules` - Reload modules after they are changed
-  * `:source_paths` - The paths to search when compiling modules on demand
+  * `:supervisor` - The supervisor local node name
   * `:templates_paths` - The paths to find templates
 
   Check `Dynamo.Base` for more information on `config` and
@@ -188,6 +190,7 @@ defmodule Dynamo do
       environments_path: File.join(File.rootname(env.file, ".ex"), "environments"),
       templates_paths: ["app/templates"],
       supervisor: env.module.Supervisor,
+      session_options: [],
       compiled_templates: env.module.CompiledTemplates ]
   end
 
@@ -258,6 +261,12 @@ defmodule Dynamo do
 
     if dynamo[:reload_modules] && !dynamo[:compile_on_demand] do
       raise "Cannot have reload_modules set to true and compile_on_demand set to false"
+    end
+
+    if dynamo[:session_store] && dynamo[:session_options] do
+      store   = Module.concat(Dynamo.Filter.Session, dynamo[:session_store])
+      session = Dynamo.Filter.Session.new(store, dynamo[:session_options])
+      filters = [session|filters]
     end
 
     filters = [Dynamo.Filters.Head|filters]

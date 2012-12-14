@@ -1,9 +1,6 @@
 Code.require_file "../../../test_helper.exs", __FILE__
 
 defmodule Dynamo.Filters.StaticTest do
-  use ExUnit.Case, async: true
-  use Dynamo.HTTP.Case
-
   defmodule StaticApp do
     use Dynamo.Router
 
@@ -17,6 +14,9 @@ defmodule Dynamo.Filters.StaticTest do
       conn.send(404, "File not served")
     end
   end
+
+  use ExUnit.Case, async: true
+  use Dynamo.HTTP.Case
 
   @endpoint StaticApp
 

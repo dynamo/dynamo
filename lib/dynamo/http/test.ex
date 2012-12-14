@@ -1,11 +1,23 @@
 defmodule Dynamo.HTTP.Test do
   @moduledoc """
-  A connection to be used in tests. It implements
-  the same API as the other connections implementations
-  and a couple extra helpers to be used in tests.
+  Implementation of the `Dynamo.HTTP` behaviour used for testing.
+  Check `Dynamo.HTTP` for documentation of all available callbacks.
 
-  Check `Dynamo.HTTP` for documentation on
-  the majority of the functions.
+  Note that, besides the functions required by `Dynamo.HTTP`,
+  this connection also implements a couple extra functions, like
+  `sent_body/1`, to retrieve the sent body, and `fetched/1`, to
+  retrieve fetched aspects, which are useful for testing.
+
+  Although a new connection can be created via:
+
+      Dynamo.HTTP.Test.new(verb, path, body)
+
+  In practice, a developer should simply use `Dynamo.HTTP.Case`,
+  which provides some wrappers around testing:
+
+      conn(verb, path, body)
+
+  Check `Dynamo.HTTP.Case` for more information on testing.
   """
 
   use Dynamo.HTTP.Behaviour,
@@ -15,42 +27,45 @@ defmodule Dynamo.HTTP.Test do
   @doc """
   Initializes a connection to be used in tests.
   """
-  def new() do
+  def new(method, path, body // "") do
     connection(
       app: Dynamo.under_test,
-      before_send: Dynamo.HTTP.default_before_send,
-      fetched: [],
       raw_req_cookies: Binary.Dict.new(),
       raw_req_headers: Binary.Dict.new([{ "host", "127.0.0.1" }]),
-      sent_body: nil,
-      state: :unset
-    ).req(:GET, "/", "")
+      sent_body: "force recycle"
+    ).recycle.req(method, path, body)
   end
 
   ## Request API
 
+  @doc false
   def version(_conn) do
     { 1, 1 }
   end
 
+  @doc false
   def original_method(connection(original_method: method)) do
     method
   end
 
+  @doc false
   def query_string(connection(query_string: query_string)) do
     query_string
   end
 
+  @doc false
   def path_segments(connection(path_segments: path_segments)) do
     path_segments
   end
 
+  @doc false
   def path(connection(path_segments: path_segments)) do
     to_path path_segments
   end
 
   ## Response API
 
+  @doc false
   def send(status, body, connection(state: state) = conn) when is_integer(status)
       and state in [:unset, :set] and is_binary(body) do
     connection(run_before_send(conn),
@@ -61,6 +76,7 @@ defmodule Dynamo.HTTP.Test do
     )
   end
 
+  @doc false
   def send_chunked(status, connection(state: state) = conn) when is_integer(status)
       and state in [:unset, :set] do
     connection(run_before_send(conn),
@@ -71,6 +87,7 @@ defmodule Dynamo.HTTP.Test do
     )
   end
 
+  @doc false
   def chunk(body, connection(state: state, sent_body: sent) = conn) when state == :chunked do
     connection(conn, sent_body: check_sent_body(conn, sent <> body))
   end
@@ -78,16 +95,19 @@ defmodule Dynamo.HTTP.Test do
   defp check_sent_body(connection(original_method: "HEAD"), _body), do: ""
   defp check_sent_body(_conn, body),                                do: body
 
+  @doc false
   def sendfile(path, conn) do
     send(200, File.read!(path), conn)
   end
 
+  @doc false
   def sent_body(connection(sent_body: sent_body)) do
     sent_body
   end
 
   ## Misc
 
+  @doc false
   def fetch(list, conn) when is_list(list) do
     Enum.reduce list, conn, fn(item, acc) -> acc.fetch(item) end
   end
@@ -116,22 +136,21 @@ defmodule Dynamo.HTTP.Test do
     conn
   end
 
-  def fetch(aspect, connection(fetchable: fetchable) = conn) when is_atom(aspect) do
+  def fetch(aspect, connection(fetchable: fetchable, fetched: fetched) = conn) when is_atom(aspect) do
     case Keyword.get(fetchable, aspect) do
       nil -> raise Dynamo.HTTP.UnknownAspectError, aspect: aspect
-      fun -> fun.(conn)
+      fun -> connection(fun.(conn), fetched: [aspect|fetched])
     end
   end
 
   ## Test only API
 
   @doc """
-  Resets the connection for a new request with the given
-  method and on the given path.
+  Prepares the connection to do a new request on the
+  given `path` with the given `method` and `body`.
 
-  If the path contains a host, e.g `//example.com/foo`,
-  the Host request header is set to such value, otherwise
-  it defaults to `127.0.0.1`.
+  This can be considered the counter-part of recycle
+  (which is used to clean up the response).
   """
   def req(method, path, body // "", conn) do
     uri      = URI.parse(path)
@@ -157,7 +176,40 @@ defmodule Dynamo.HTTP.Test do
   end
 
   @doc """
-  Stores fetched aspects.
+  Recycles the connection to it can be used in a subsequent requests.
+
+  Reclycing the connection resets all assigns, privates and other
+  response information but keeps mostly of request information intact.
+
+  Particularly, cookies sent in the response are moved to the request,
+  so they can be used in upcoming requests.
+  """
+  def recycle(connection(resp_cookies: resp_cookies) = conn) do
+    conn = connection(conn,
+      assigns: [],
+      before_send: Dynamo.HTTP.default_before_send,
+      fetchable: [],
+      fetched: [],
+      private: [],
+      req_cookies: nil,
+      req_headers: nil,
+      resp_body: "",
+      resp_charset: "utf-8",
+      resp_cookies: [],
+      resp_content_type: nil,
+      resp_headers: Binary.Dict.new,
+      sent_body: nil,
+      state: :unset,
+      status: nil
+    )
+
+    Enum.reduce resp_cookies, conn, fn({ key, value, _opts }, acc) ->
+      acc.put_req_cookie(key, value)
+    end
+  end
+
+  @doc """
+  Returns all fetched aspects during a request.
   """
   def fetched(connection(fetched: fetched)) do
     fetched
@@ -183,5 +235,11 @@ defmodule Dynamo.HTTP.Test do
   """
   def delete_req_header(key, connection(raw_req_headers: raw_req_headers) = conn) do
     connection(conn, raw_req_headers: Dict.delete(raw_req_headers, String.downcase(key)))
+  end
+end
+
+defimpl Binary.Inspect, for: Dynamo.HTTP.Test do
+  def inspect(conn, _) do
+    "Dynamo.HTTP.Test[#{conn.method} #{conn.path}]"
   end
 end

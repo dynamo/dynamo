@@ -3,7 +3,7 @@ defmodule Dynamo.HTTP.Case do
   A bunch of helpers to make it easy to test Dynamos and routers.
 
   By default, these helpers are macros that dispatch directly
-  to the register application. Here is an example:
+  to the registered endpoint. Here is an example:
 
       defmodule MyAppTest do
         use ExUnit.Case
@@ -31,13 +31,52 @@ defmodule Dynamo.HTTP.Case do
       end
 
   The connection used in such tests is the `Dynamo.HTTP.Test`
-  which provides some test specific function. Check it for
-  more documentation.
+  which provides some test specific function.
 
-  In case you want to test different apps, you can use the
-  lower-level `process/3` function. All helpers provided
-  in this module contain a lint function that asserts the
-  endpoint returned a valid response.
+  ## Testing with sequential requests
+
+  In some cases, the same test may request different endpoints:
+
+      test :session do
+        conn = get("/put_session")
+        assert conn.resp_body =~ %r/somevalue/
+
+        conn = get(conn, "/set_session")
+        assert conn.resp_body =~ %r/othervalue/
+      end
+
+  The example above will automatically work, since
+  `get`/`post`/`put`/`delete` recycles the connection before
+  each request.
+
+  When recycled, all response information previously set in
+  the connection is cleaned and all cookies are moved from
+  the response to the request. This allows state to be passed
+  in between the different requests.
+
+  Notice though that recycling will clean up any information
+  set in the connection:
+
+      test :session do
+        conn = get("/put_session")
+        assert conn.resp_body =~ %r/somevalue/
+
+        conn = conn.assign(:foo, :bar)
+        conn = get(conn, "/set_session")
+        assert conn.resp_body =~ %r/othervalue/
+      end
+
+  In the example above, the assign `:foo` set before the request
+  won't be visible in the endpoint since it will be cleaned up.
+  This can be fixed by explicitly cleaning up the request:
+
+      conn = conn.recycle.assign(:foo, :bar)
+
+  If the connection was already recycled, it won't be recycled once again.
+
+  Finally, notice that all `get`/`post`/`put`/`delete` macros
+  are simply a proxy to `process/4`. So in case you want to dispatch
+  to different apps at the same time, `process/4` may be useful.
   """
 
   @doc false
@@ -49,76 +88,103 @@ defmodule Dynamo.HTTP.Case do
   end
 
   @doc """
-  A simple macro that expands to:
-
-      process(@endpoint, :GET, path)
-
+  Returns a connection built with the given method, path and body.
   """
-  defmacro get(path) do
-    do_method :GET, path
+  def conn(method, path, body // "") do
+    Dynamo.HTTP.Test.new(method, path, body)
   end
 
   @doc """
-  A simple macro that expands to:
+  Does a GET request to the given path:
 
-      process(@endpoint, :POST, path)
+      get("/foo")
+      get(conn, "/foo")
 
   """
-  defmacro post(path) do
-    do_method :POST, path
+  defmacro get(arg1, arg2 // nil) do
+    do_method :GET, arg1, arg2
   end
 
   @doc """
-  A simple macro that expands to:
+  Does a POST request to the given path:
 
-      process(@endpoint, :PUT, path)
+      post("/foo")
+      post(conn, "/foo")
 
   """
-  defmacro put(path) do
-    do_method :PUT, path
+  defmacro post(arg1, arg2 // nil) do
+    do_method :POST, arg1, arg2
   end
 
   @doc """
-  A simple macro that expands to:
+  Does a PUT request to the given path:
 
-      process(@endpoint, :DELETE, path)
+      put("/foo")
+      put(conn, "/foo")
 
   """
-  defmacro delete(path) do
-    do_method :DELETE, path
+  defmacro put(arg1, arg2 // nil) do
+    do_method :PUT, arg1, arg2
   end
 
-  defp do_method(method, path) do
+  @doc """
+  Does a DELETE request to the given path:
+
+      delete("/foo")
+      delete(conn, "/foo")
+
+  """
+  defmacro delete(arg1, arg2 // nil) do
+    do_method :DELETE, arg1, arg2
+  end
+
+  defp do_method(method, arg1, nil) do
     quote do
-      unquote(__MODULE__).process @endpoint, unquote(method), unquote(path)
+      unquote(__MODULE__).process @endpoint, unquote(method), unquote(arg1)
+    end
+  end
+
+  defp do_method(method, arg1, arg2) do
+    quote do
+      unquote(__MODULE__).process @endpoint, unquote(arg1), unquote(method), unquote(arg2)
     end
   end
 
   @doc """
-  Access the given `app` with the given `method` and `path`.
-  After access, it verifies the app returned a valid connection.
+  Requests the given `endpoint` with the given `method` and `path`.
+  And verifies if the endpoint returned a valid connection.
+
+  ## Examples
+
+      process MyDynamo, :get, "/foo"
+      process MyDynamo, conn, :get, "/foo"
+
   """
-  def process(app, method, path) do
-    conn = app.service Dynamo.HTTP.Test.new.req(method, path)
+  def process(endpoint, conn, method, path // nil)
+
+  def process(endpoint, conn, method, path) when is_tuple(conn) do
+    conn = if conn.sent_body, do: conn.recycle, else: conn
+    do_process endpoint, conn.req(method, path)
+  end
+
+  def process(endpoint, method, path, nil) do
+    do_process endpoint, Dynamo.HTTP.Test.new(method, path)
+  end
+
+  defp do_process(endpoint, conn) do
+    conn = endpoint.service(conn)
 
     if not is_tuple(conn) or not function_exported?(elem(conn, 0), :state, 1) do
-      raise "#{inspect app}.service did not return a connection, got #{inspect conn}"
+      raise "#{inspect endpoint}.service did not return a connection, got #{inspect conn}"
     end
 
     case conn.state do
       :unset ->
-        raise "#{inspect app}.service returned a connection that did not respond yet"
+        raise "#{inspect endpoint}.service returned a connection that did not respond yet"
       :set ->
         conn.send
       _ ->
         conn
     end
-  end
-
-  @doc """
-  Returns a connection built with the given method and path.
-  """
-  def conn(method, path, body // "") do
-    Dynamo.HTTP.Test.new.req(method, path, body)
   end
 end

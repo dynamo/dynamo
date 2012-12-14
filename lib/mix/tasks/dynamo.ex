@@ -198,6 +198,13 @@ defmodule Mix.Tasks.Dynamo do
       # You can turn off static assets by setting it to false
       static_route: "/static"
 
+    # Uncomment the lines below to enable the cookie session store.
+    # config :dynamo,
+    #   session_store: CookieStore,
+    #   session_options:
+    #     [ key: "_<%= @app %>_session",
+    #       secret: "<%= :crypto.strong_rand_bytes(48) /> :base64.encode %>"]
+
     # Default functionality available in templates
     templates do
       use Dynamo.Helpers

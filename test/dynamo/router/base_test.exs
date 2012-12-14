@@ -1,10 +1,6 @@
 Code.require_file "../../../test_helper.exs", __FILE__
 
 defmodule Dynamo.Router.BaseTest do
-  use ExUnit.Case, async: true
-
-  use Dynamo.HTTP.Case
-
   defmodule Sample0 do
     use Dynamo.Router
 
@@ -68,9 +64,11 @@ defmodule Dynamo.Router.BaseTest do
 
   defmodule RootSample do
     use Dynamo.Router
-
     forward "/", to: Sample1
   end
+
+  use ExUnit.Case, async: true
+  use Dynamo.HTTP.Case
 
   def test_dispatch_root do
     assert process(Sample1, :GET, "/").assigns[:value] == :root
