@@ -17,6 +17,13 @@ defmodule Dynamo.Cowboy.HTTP do
     req
   end
 
+  @doc """
+  Sets the underlying cowboy request.
+  """
+  def cowboy_request(req, conn) do
+    connection(conn, req: req)
+  end
+
   @doc false
   def new(app, req) do
     { verb, req } = R.method req

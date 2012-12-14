@@ -55,7 +55,8 @@ defmodule Dynamo.HTTP do
     end
   end
 
-  @opaque conn         :: tuple
+  @opaque t            :: tuple
+  @type   conn         :: Dynamo.HTTP.t
   @type   body         :: binary
   @type   status       :: non_neg_integer
   @type   headers      :: Binary.Dict.t
@@ -67,6 +68,8 @@ defmodule Dynamo.HTTP do
   @type   app          :: module
   @type   assigns      :: Keyword.t
   @type   private      :: Keyword.t
+  @type   upgrades     :: :websocket
+  @type   state        :: :unset | :set | :chunked | :sent | { :upgrade, upgrades, module }
 
   use Behaviour
 
@@ -269,7 +272,18 @@ defmodule Dynamo.HTTP do
   * `:sent` - the response was sent
 
   """
-  defcallback state(conn) :: :unset | :set | :chunked | :sent
+  defcallback state(conn) :: state
+
+  @doc """
+  Upgrades the connection to the given handler.
+  The only supported handler so far is `:websocket`.
+
+  ## Examples
+
+      conn.upgrade(:websockets, GameRoom)
+
+  """
+  defcallback upgrade(upgrades, module, conn) :: conn
 
   @doc """
   Returns the response headers as `Binary.Dict`.
