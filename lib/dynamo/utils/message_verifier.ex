@@ -11,7 +11,7 @@ defmodule Dynamo.Utils.MessageVerifier do
   @doc """
   Decodes and verifies the encoded binary was not tampared with.
   """
-  def verify(encoded, secret) do
+  def verify(secret, encoded) do
     case String.split(encoded, "--", global: false) do
       [content, digest] when content != "" and digest != "" ->
         if secure_compare(digest(secret, content), digest) do
@@ -27,7 +27,7 @@ defmodule Dynamo.Utils.MessageVerifier do
   @doc """
   Generates an encoded and signed binary for the given term.
   """
-  def generate(term, secret) do
+  def generate(secret, term) do
     encoded = term /> term_to_binary /> :base64.encode
     encoded <> "--" <> digest(secret, encoded)
   end

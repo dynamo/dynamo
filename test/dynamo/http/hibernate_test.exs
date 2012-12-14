@@ -3,6 +3,7 @@ Code.require_file "../../../test_helper.exs", __FILE__
 defmodule Dynamo.HTTP.HibernateTest do
   use ExUnit.Case, async: true
 
+  use Dynamo.HTTP.Case
   import Dynamo.HTTP.Hibernate
 
   test "hibernates and invokes wake up callback" do
@@ -63,10 +64,6 @@ defmodule Dynamo.HTTP.HibernateTest do
     end
 
     assert_timeout
-  end
-
-  defp conn(verb, path, body // "") do
-    Dynamo.HTTP.Test.new.req(verb, path, body)
   end
 
   defp await_wake_up(pid) do

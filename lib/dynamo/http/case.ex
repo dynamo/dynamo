@@ -114,4 +114,11 @@ defmodule Dynamo.HTTP.Case do
         conn
     end
   end
+
+  @doc """
+  Returns a connection built with the given method and path.
+  """
+  def conn(method, path, body // "") do
+    Dynamo.HTTP.Test.new.req(method, path, body)
+  end
 end

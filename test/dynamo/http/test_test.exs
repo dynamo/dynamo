@@ -2,8 +2,7 @@ Code.require_file "../../../test_helper.exs", __FILE__
 
 defmodule Dynamo.HTTP.TestTest do
   use ExUnit.Case, async: true
-
-  alias Dynamo.HTTP.Test, as: C
+  use Dynamo.HTTP.Case
 
   ## Request
 
@@ -90,7 +89,7 @@ defmodule Dynamo.HTTP.TestTest do
   ## Cookies
 
   test :req_cookies do
-    conn = conn(:GET, "/").req_cookies(foo: "bar", baz: "bat").fetch(:cookies)
+    conn = conn(:GET, "/").put_req_cookie(:foo, "bar").put_req_cookie(:baz, "bat").fetch(:cookies)
     assert conn.req_cookies["foo"] == "bar"
     assert conn.req_cookies["baz"] == "bat"
     conn
@@ -237,9 +236,5 @@ defmodule Dynamo.HTTP.TestTest do
     assert conn.script_name_segments == ["forward_to", "foo", "bar", "baz"]
 
     conn
-  end
-
-  defp conn(verb, path, body // "") do
-    C.new.req(verb, path, body)
   end
 end

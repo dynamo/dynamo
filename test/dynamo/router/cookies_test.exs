@@ -2,10 +2,12 @@ Code.require_file "../../../test_helper.exs", __FILE__
 
 defmodule Dynamo.Router.CookiesTest do
   use ExUnit.Case, async: true
+  use Dynamo.HTTP.Case
   import Dynamo.Router.Cookies
 
   test :get_cookie do
-    conn = conn(:GET, "/").req_cookies(foo: "bar", baz: "bat").fetch(:cookies)
+    conn = conn(:GET, "/").put_req_cookie(:foo, "bar")
+             .put_req_cookie(:baz, "bat").fetch(:cookies)
     assert get_cookie(conn, :foo) == "bar"
     assert get_cookie(conn, "baz") == "bat"
     conn
@@ -20,7 +22,8 @@ defmodule Dynamo.Router.CookiesTest do
   end
 
   test :delete_cookie do
-    conn = conn(:GET, "/").req_cookies(foo: "bar", baz: "bat").fetch(:cookies)
+    conn = conn(:GET, "/").put_req_cookie(:foo, "bar")
+             .put_req_cookie(:baz, "bat").fetch(:cookies)
     assert get_cookie(conn, "foo") == "bar"
     assert get_cookie(conn, "baz") == "bat"
 
@@ -30,9 +33,5 @@ defmodule Dynamo.Router.CookiesTest do
 
     conn = delete_cookie(conn, :foo)
     assert get_cookie(conn, :foo) == nil
-  end
-
-  defp conn(verb, path, body // "") do
-    Dynamo.HTTP.Test.new.req(verb, path, body)
   end
 end

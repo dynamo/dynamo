@@ -133,6 +133,13 @@ defmodule Dynamo.Cowboy.HTTP do
     conn
   end
 
+  def fetch(aspect, connection(fetchable: fetchable) = conn) when is_atom(aspect) do
+    case Keyword.get(fetchable, aspect) do
+      nil -> raise Dynamo.HTTP.UnknownAspectError, aspect: aspect
+      fun -> fun.(conn)
+    end
+  end
+
   ## Helpers
 
   defp split_path(path) do

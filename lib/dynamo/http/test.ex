@@ -91,24 +91,35 @@ defmodule Dynamo.HTTP.Test do
     Enum.reduce list, conn, fn(item, acc) -> acc.fetch(item) end
   end
 
-  def fetch(:headers, connection(raw_req_headers: raw_req_headers, fetched: fetched) = conn) do
+  def fetch(:headers, connection(raw_req_headers: raw_req_headers, req_headers: nil, fetched: fetched) = conn) do
     connection(conn,
       fetched: [:headers|fetched],
       req_headers: raw_req_headers,
       raw_req_headers: Binary.Dict.new)
   end
 
-  def fetch(:params, connection(query_string: query_string, fetched: fetched) = conn) do
+  def fetch(:params, connection(query_string: query_string, params: nil, fetched: fetched) = conn) do
     params = Dynamo.HTTP.QueryParser.parse(query_string)
     connection(conn, params: params, fetched: [:params|fetched])
   end
 
-  def fetch(:cookies, connection(raw_req_cookies: raw_req_cookies, fetched: fetched) = conn) do
+  def fetch(:cookies, connection(raw_req_cookies: raw_req_cookies, req_cookies: nil, fetched: fetched) = conn) do
     connection(conn, req_cookies: raw_req_cookies, fetched: [:cookies|fetched])
   end
 
-  def fetch(:body, connection(raw_req_body: req_body, fetched: fetched) = conn) do
+  def fetch(:body, connection(raw_req_body: req_body, req_body: nil, fetched: fetched) = conn) do
     connection(conn, req_body: req_body, fetched: [:body|fetched])
+  end
+
+  def fetch(aspect, conn) when aspect in [:params, :cookies, :body, :headers] do
+    conn
+  end
+
+  def fetch(aspect, connection(fetchable: fetchable) = conn) when is_atom(aspect) do
+    case Keyword.get(fetchable, aspect) do
+      nil -> raise Dynamo.HTTP.UnknownAspectError, aspect: aspect
+      fun -> fun.(conn)
+    end
   end
 
   ## Test only API
@@ -154,8 +165,8 @@ defmodule Dynamo.HTTP.Test do
   @doc """
   Sets the cookies to be read by the request.
   """
-  def req_cookies(cookies, conn) do
-    connection(conn, raw_req_cookies: Binary.Dict.new(cookies))
+  def put_req_cookie(key, value, connection(raw_req_cookies: cookies) = conn) do
+    connection(conn, raw_req_cookies: Dict.put(cookies, key, value))
   end
 
   @doc """

@@ -44,6 +44,7 @@ defmodule Dynamo.HTTP.Behaviour do
         [ app: nil,
           assigns: [],
           before_send: [],
+          fetchable: [],
           method: nil,
           original_method: nil,
           params: nil,
@@ -81,6 +82,12 @@ defmodule Dynamo.HTTP.Behaviour do
 
       def app(connection(app: app)) do
         app
+      end
+
+      ## Fetch
+
+      def fetchable(atom, fun, connection(fetchable: fetchable) = conn) when is_atom(atom) and is_function(fun, 1) do
+        connection(conn, fetchable: [{ atom, fun }|fetchable])
       end
 
       ## Request

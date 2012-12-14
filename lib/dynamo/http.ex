@@ -13,6 +13,12 @@ defmodule Dynamo.HTTP do
     end
   end
 
+  defexception UnknownAspectError, aspect: nil do
+    def message(exception) do
+      "Unknown aspect :#{aspect(exception)}"
+    end
+  end
+
   @moduledoc """
   This module defines the API implemented by the http
   connection, as in Dynamo.Cowboy.HTTP and Dynamo.HTTP.Test.
@@ -307,10 +313,14 @@ defmodule Dynamo.HTTP do
 
   @doc """
   Responsible for fetching and caching aspects of the response.
-  The "fetchable" aspects are: headers, params, cookies, body
-  and session.
+  The default "fetchable" aspects are: headers, params, cookies and body.
   """
   defcallback fetch(fetch_aspect | [fetch_aspect], conn) :: conn
+
+  @doc """
+  Register an aspect as fetchable in the connection.
+  """
+  defcallback fetchable(atom, (conn -> conn), conn) :: conn
 
   @doc """
   Returns a keywords list with assigns set so far.
