@@ -13,11 +13,12 @@ defmodule Mix.Tasks.Dynamo.Filters do
     Enum.each Mix.project[:dynamos], fn(dynamo) ->
       shell.info "# #{inspect dynamo}"
 
-      Enum.each dynamo.filters, fn(filter) ->
+      Enum.each dynamo.__filters__, fn(filter) ->
         shell.info "filter #{inspect filter}"
       end
 
-      shell.info "#{inspect dynamo.endpoint || dynamo}.service/1"
+    endpoint = dynamo.config[:dynamo][:endpoint] || dynamo
+      shell.info "#{inspect endpoint}.service/1"
       shell.info ""
     end
   end

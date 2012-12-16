@@ -19,17 +19,16 @@ defmodule Dynamo.Supervisor do
   end
 
   @doc """
-  Add a child to the given Dynamo supervisor.
+  Add a child to the given supervisor.
   It accepts the same options as `Supervisor.Behaviour.worker/3`.
 
   ## Examples
 
-      Dynamo.Supervisor.start_child MyDynamo, Worker, []
+      Dynamo.Supervisor.start_child MyDynamo.supervisor, Worker, []
 
   """
-  def start_child(dynamo, name, args, opts // []) do
-    id = if dynamo == __MODULE__, do: dynamo, else: dynamo.supervisor
-    :supervisor.start_child(id, worker(name, args, opts))
+  def start_child(supervisor, name, args, opts // []) do
+    :supervisor.start_child(supervisor, worker(name, args, opts))
   end
 
   @doc false

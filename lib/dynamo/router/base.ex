@@ -115,7 +115,7 @@ defmodule Dynamo.Router.Base do
     what = Keyword.get(options, :to, nil)
 
     unless what, do:
-      raise ArgumentError, "Expected to: to be given to forward"
+      raise ArgumentError, message: "Expected to: to be given to forward"
 
     block =
       quote do

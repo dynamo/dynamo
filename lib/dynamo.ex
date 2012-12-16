@@ -122,7 +122,6 @@ defmodule Dynamo do
       @before_compile { unquote(__MODULE__), :load_env_file }
       @before_compile { unquote(__MODULE__), :normalize_paths }
       @before_compile { unquote(__MODULE__), :define_endpoint }
-      @before_compile { unquote(__MODULE__), :define_supervisor }
       @before_compile { unquote(__MODULE__), :define_filters }
       @before_compile { unquote(__MODULE__), :define_templates_paths }
 
@@ -139,7 +138,7 @@ defmodule Dynamo do
       registered initializers.
       """
       def start_link(opts // []) do
-        info = Dynamo.Supervisor.start_link(supervisor, opts)
+        info = Dynamo.Supervisor.start_link(config[:dynamo][:supervisor], opts)
         run_initializers
         info
       end
@@ -148,9 +147,12 @@ defmodule Dynamo do
       Runs the app in the configured web server.
       """
       def run(options // []) do
+        dynamo  = config[:dynamo]
+        options = Keyword.put(options, :ssl, config[:ssl])
+        options = Keyword.put(options, :env, dynamo[:env])
+        options = Keyword.put(options, :otp_app, dynamo[:otp_app])
         options = Keyword.merge(config[:server], options)
-        options = Keyword.put(options, :env, config[:dynamo][:env])
-        options[:handler].run __MODULE__, options
+        options[:handler].run(__MODULE__, options)
       end
 
       initializer :start_dynamo_reloader do
@@ -169,7 +171,9 @@ defmodule Dynamo do
       initializer :start_dynamo_renderer do
         precompiled = Enum.all?(templates_paths, Dynamo.Templates.Finder.precompiled?(&1))
         unless precompiled do
-          Dynamo.Supervisor.start_child(__MODULE__, Dynamo.Templates.Renderer, [renderer])
+          supervisor = config[:dynamo][:supervisor]
+          renderer   = templates_renderer()
+          Dynamo.Supervisor.start_child(supervisor, Dynamo.Templates.Renderer, [renderer])
 
           if config[:dynamo][:compile_on_demand] do
             Dynamo.Reloader.on_purge(fn -> Dynamo.Templates.Renderer.clear(renderer) end)
@@ -275,48 +279,16 @@ defmodule Dynamo do
 
   @doc false
   defmacro define_endpoint(module) do
-    dynamo = Module.get_attribute(module, :config)[:dynamo]
+    endpoint = Module.get_attribute(module, :config)[:dynamo][:endpoint] /> Macro.escape
 
-    quote location: :keep do
-      @endpoint unquote(dynamo[:endpoint])
-
-      if @endpoint do
+    if endpoint do
+      quote location: :keep do
         @doc """
-        Receives a connection and dispatches it to #{inspect @endpoint}
+        Receives a connection and dispatches it to #{inspect unquote(endpoint)}
         """
         def service(conn) do
-          @endpoint.service(conn)
+          unquote(endpoint).service(conn)
         end
-      end
-
-      @doc """
-      Returns the registered endpoint.
-      """
-      def endpoint do
-        @endpoint
-      end
-    end
-  end
-
-  @doc false
-  defmacro define_supervisor(module) do
-    dynamo = Module.get_attribute(module, :config)[:dynamo]
-
-    quote location: :keep do
-      @supervisor unquote(dynamo[:supervisor])
-
-      @doc """
-      The name of the supervisor of this Dynamo.
-      """
-      def supervisor do
-        @supervisor
-      end
-
-      @doc """
-      The name of the renderer associated to this Dynamo.
-      """
-      def renderer do
-        @supervisor.Renderer
       end
     end
   end
@@ -338,9 +310,9 @@ defmodule Dynamo do
       templates_paths = [module|runtime]
     end
 
-    quote location: :keep do
-      @templates_paths unquote(Macro.escape(templates_paths))
+    templates_renderer = dynamo[:supervisor].Renderer
 
+    quote location: :keep do
       @doc """
       Returns templates paths after being processed.
 
@@ -348,7 +320,12 @@ defmodule Dynamo do
       that can be precompiled will be precompiled and stored
       into a given module for performance.
       """
-      def templates_paths, do: @templates_paths
+      def templates_paths, do: unquote(Macro.escape(templates_paths))
+
+      @doc """
+      The worker responsible for rendering templates.
+      """
+      def templates_renderer, do: unquote(Macro.escape(templates_renderer))
     end
   end
 end

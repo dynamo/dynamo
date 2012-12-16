@@ -2,7 +2,6 @@ Code.require_file "../test_helper.exs", __FILE__
 
 defmodule DynamoTest do
   use ExUnit.Case, async: true
-  use Dynamo.HTTP.Case
 
   defmodule App do
     use Dynamo
@@ -39,19 +38,19 @@ defmodule DynamoTest do
 
   test "adds public filter" do
     file = File.expand_path("../fixtures/public", __FILE__)
-    assert Enum.first(App.filters) == Dynamo.Filters.Static.new("/public", file)
+    assert Enum.first(App.__filters__) == Dynamo.Filters.Static.new("/public", file)
   end
 
   test "does not add public filter if disabled" do
-    refute Enum.any? ReloadApp.filters, match?({ Dynamo.Filters.Static, _, _ }, &1)
+    refute Enum.any? ReloadApp.__filters__, match?({ Dynamo.Filters.Static, _, _ }, &1)
   end
 
   test "adds reloader filter" do
-    assert Dynamo.Reloader.Filter.new(true, true) inlist ReloadApp.filters
+    assert Dynamo.Reloader.Filter.new(true, true) inlist ReloadApp.__filters__
   end
 
   test "does not add reloader filter if disabled" do
-    refute Enum.any? App.filters, match?({ Dynamo.Reloader.Filter, _, _ }, &1)
+    refute Enum.any? App.__filters__, match?({ Dynamo.Reloader.Filter, _, _ }, &1)
   end
 
   ## View paths

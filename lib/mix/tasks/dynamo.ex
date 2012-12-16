@@ -191,6 +191,9 @@ defmodule Mix.Tasks.Dynamo do
       # The environment this Dynamo runs on
       env: Mix.env,
 
+      # The OTP application associated to this Dynamo
+      otp_app: :<%= @app %>,
+
       # The endpoint to dispatch requests to
       endpoint: ApplicationRouter,
 

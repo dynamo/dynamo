@@ -77,7 +77,7 @@ defmodule Dynamo.Router.Filters do
 
     quote location: :keep do
       defoverridable [service: 1]
-      def filters(), do: unquote(escaped)
+      def __filters__(), do: unquote(escaped)
       def service(conn), do: unquote(code)
     end
   end

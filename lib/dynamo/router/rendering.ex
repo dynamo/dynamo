@@ -51,7 +51,7 @@ defmodule Dynamo.Router.Rendering do
   """
   def render(conn, template, assigns // []) do
     app        = conn.app
-    renderer   = app.renderer
+    renderer   = app.templates_renderer
     tmpl_paths = app.templates_paths
     prelude    = fn -> app.templates_prelude end
     template   = Dynamo.Templates.find!(template, tmpl_paths)
