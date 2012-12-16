@@ -40,7 +40,7 @@ defmodule Dynamo.HTTP.Hibernate do
   """
   def hibernate(conn, on_wake_up) when is_function(on_wake_up, 2) do
     clear_timeout(conn)
-    :erlang.hibernate(__MODULE__, :loop, [conn, on_wake_up, :no_timeout_callback])
+    :erlang.hibernate(__MODULE__, :__loop__, [conn, on_wake_up, :no_timeout_callback])
   end
 
   @doc """
@@ -58,7 +58,7 @@ defmodule Dynamo.HTTP.Hibernate do
       is_function(on_wake_up, 2) and is_function(on_timeout, 1) do
     clear_timeout(conn)
     conn = set_timeout(conn, timeout)
-    :erlang.hibernate(__MODULE__, :loop, [conn, on_wake_up, on_timeout])
+    :erlang.hibernate(__MODULE__, :__loop__, [conn, on_wake_up, on_timeout])
   end
 
   @doc """
@@ -68,7 +68,7 @@ defmodule Dynamo.HTTP.Hibernate do
   """
   def await(conn, on_wake_up) when is_function(on_wake_up, 2) do
     clear_timeout(conn)
-    loop(conn, on_wake_up, :no_timeout_callback)
+    __loop__(conn, on_wake_up, :no_timeout_callback)
   end
 
   @doc """
@@ -83,17 +83,17 @@ defmodule Dynamo.HTTP.Hibernate do
       is_function(on_wake_up, 2) and is_function(on_timeout, 1) do
     clear_timeout(conn)
     conn = set_timeout(conn, timeout)
-    loop(conn, on_wake_up, on_timeout)
+    __loop__(conn, on_wake_up, on_timeout)
   end
 
   @doc false
-  def loop(conn, on_wake_up, on_timeout) do
+  def __loop__(conn, on_wake_up, on_timeout) do
     ref = conn.private[@key]
     receive do
       { :timeout, ^ref, __MODULE__ } ->
         on_timeout.(conn)
       { :timeout, older_ref, __MODULE__ } when is_reference(older_ref) ->
-        loop(conn, on_wake_up, on_timeout)
+        __loop__(conn, on_wake_up, on_timeout)
       msg ->
         on_wake_up.(conn, msg)
     end

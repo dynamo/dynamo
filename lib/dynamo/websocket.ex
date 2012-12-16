@@ -27,7 +27,7 @@ defmodule Dynamo.Websocket do
   interactions and terminate the socket with reason
   `{ :normal, :timeout }` in case it times out.
   """
-  defcallback websocket_init(conn) ::
+  defcallback init(conn) ::
     { :ok, conn } |
     { :ok, conn, timeout } |
     { :ok, conn, :hibernate } |
@@ -39,7 +39,7 @@ defmodule Dynamo.Websocket do
   It can do nothing (`:ok`), reply back to the socket
   or shutdown the connection.
   """
-  defcallback websocket_handle(message, conn) ::
+  defcallback handle_msg(message, conn) ::
     { :ok, conn } |
     { :ok, conn, :hibernate } |
     { :reply, message | [message], conn } |
@@ -49,7 +49,7 @@ defmodule Dynamo.Websocket do
   @doc """
   Handles all other messages received by an Erlang process.
   """
-  defcallback websocket_info(term, conn) ::
+  defcallback handle_info(term, conn) ::
     { :ok, conn } |
     { :ok, conn, :hibernate } |
     { :reply, message | [message], conn } |
@@ -60,5 +60,5 @@ defmodule Dynamo.Websocket do
   Notified when the socket terminates.
   Useful for cleaning up, error notifications, etc.
   """
-  defcallback websocket_terminate(terminate_reason, conn) :: :ok
+  defcallback terminate(terminate_reason, conn) :: :ok
 end

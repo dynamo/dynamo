@@ -9,21 +9,24 @@ defmodule Dynamo.Websocket.Behaviour do
     quote location: :keep do
       @behaviour Dynamo.Websocket
 
-      def websocket_init(conn) do
+      def init(conn) do
         { :ok, conn, :hibernate }
       end
 
-      def websocket_handle(_message, conn) do
+      def handle_msg(_message, conn) do
         { :ok, conn, :hibernate }
       end
 
-      def websocket_info(_term, conn) do
+      def handle_info(_term, conn) do
         { :ok, conn, :hibernate }
       end
 
-      def websocket_terminate(_reason, _conn) do
+      def terminate(_reason, _conn) do
         :ok
       end
+
+      defoverridable [ init: 1, handle_msg: 2,
+                       handle_info: 2, terminate: 2 ]
     end
   end
 end

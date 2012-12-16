@@ -184,6 +184,11 @@ defmodule Dynamo.HTTP.TestTest do
     assert conn.assigns == [foo: "baz"]
   end
 
+  test :handler do
+    conn = conn(:GET, "/").handler(:websocket, Sample)
+    assert conn.state == { :handler, :websocket, Sample }
+  end
+
   test :private do
     conn  = conn(:GET, "/")
     assert conn.private == []
