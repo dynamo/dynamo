@@ -17,7 +17,8 @@ defmodule Dynamo.Cowboy.Handler do
     if is_record(conn, Dynamo.Cowboy.HTTP) do
       case conn.state do
         { :handler, :websocket, mod } ->
-          { :upgrade, :protocol, :cowboy_websocket, conn.cowboy_request, { conn, mod } }
+          { :upgrade, :protocol, :cowboy_websocket,
+            conn.cowboy_request.set_meta(:websocket_handler, mod), conn }
         :set ->
           { :ok, conn.send.cowboy_request, nil }
         other ->
@@ -38,43 +39,23 @@ defmodule Dynamo.Cowboy.Handler do
 
   # Websockets
 
-  def websocket_init(_any, req, { conn, mod }) do
-    case mod.init(conn.cowboy_request(req)) do
-      { :ok, conn } ->
-        { :ok, conn.cowboy_request, { conn, mod } }
-      { :ok, conn, timeout_or_hibernate } ->
-        { :ok, conn.cowboy_request, { conn, mod }, timeout_or_hibernate }
-      { :ok, conn, timeout, hibernate } ->
-        { :ok, conn.cowboy_request, { conn, mod }, timeout, hibernate }
-      { :shutdown, conn } ->
-        { :shutdown, conn.cowboy_request }
-    end
+  def websocket_init(any, req, conn) do
+    { mod, req } = req.meta(:websocket_handler)
+    mod.websocket_init(any, req, conn)
   end
 
   def websocket_handle(msg, req, state) do
-    websocket_call(:handle_msg, msg, req, state)
+    { mod, req } = req.meta(:websocket_handler)
+    mod.websocket_handle(msg, req, state)
   end
 
   def websocket_info(msg, req, state) do
-    websocket_call(:handle_info, msg, req, state)
+    { mod, req } = req.meta(:websocket_handler)
+    mod.websocket_info(msg, req, state)
   end
 
-  def websocket_terminate(reason, req, { conn, mod }) do
-    mod.terminate(reason, conn.cowboy_request(req))
-  end
-
-  defp websocket_call(fun, msg, req, { conn, mod }) do
-    case apply(mod, fun, [msg, conn.cowboy_request(req)]) do
-      { :ok, conn } ->
-        { :ok, conn.cowboy_request, { conn, mod } }
-      { :ok, conn, hibernate } ->
-        { :ok, conn.cowboy_request, { conn, mod }, hibernate }
-      { :reply, payload, conn } ->
-        { :reply, payload, conn.cowboy_request, { conn, mod } }
-      { :reply, payload, conn, hibernate } ->
-        { :reply, payload, conn.cowboy_request, { conn, mod }, hibernate }
-      { :shutdown, conn } ->
-        { :shutdown, conn.cowboy_request, { conn, mod } }
-    end
+  def websocket_terminate(reason, req, state) do
+    { mod, req } = req.meta(:websocket_handler)
+    mod.websocket_terminate(reason, req, state)
   end
 end

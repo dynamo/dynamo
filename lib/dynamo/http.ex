@@ -68,9 +68,9 @@ defmodule Dynamo.HTTP do
   @type   app          :: module
   @type   assigns      :: Keyword.t
   @type   private      :: Keyword.t
-  @type   handlers     :: :websocket
+  @type   upgrades     :: :websocket
   @type   scheme       :: :http | :https
-  @type   state        :: :unset | :set | :chunked | :sent | { :handler, handlers, module }
+  @type   state        :: :unset | :set | :chunked | :sent | { :upgrade, upgrades, module }
 
   use Behaviour
 
@@ -281,23 +281,22 @@ defmodule Dynamo.HTTP do
   defcallback state(conn) :: state
 
   @doc """
-  Sets up a connection handler. The connection is sent
+  Upgrades the connection. The connection is sent
   back to the server which encapsulates all the
   communication with the desired handler.
 
-  The only supported handler so far is `:websocket`,
-  which is responsible to encapsulate the protocol
-  update and socket communication.
+  Dynamo does not intermediate any connection upgrade.
+  This means you need to consult the underlying web
+  server in order to interact with the upgraded connection.
 
-  Supports to server sent events and other handlers may be
-  added in the future.
+  The only supported upgrade so far is `:websocket`.
 
   ## Examples
 
-      conn.handler(:websockets, GameRoom)
+      conn.upgrade(:websocket, GameRoom)
 
   """
-  defcallback handler(handlers, module, conn) :: conn
+  defcallback upgrade(upgrades, module, conn) :: conn
 
   @doc """
   Returns the response headers as `Binary.Dict`.

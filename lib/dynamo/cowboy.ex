@@ -48,7 +48,7 @@ defmodule Dynamo.Cowboy do
   ## Helpers
 
   @http_options  [port: 4000]
-  @https_options [port: 4040, certfile: "ssl/cert.pem", keyfile: "ssl/key.pem"]
+  @https_options [port: 4040]
 
   defp start_listener(kind, app, options) do
     acceptors = options[:acceptors] || 100
@@ -65,7 +65,7 @@ defmodule Dynamo.Cowboy do
 
   defp https_options(app, options) do
     options = Keyword.merge @https_options, options
-    Enum.reduce [:keyfile, :certfile], options, normalize_ssl_file(app, &2, &1)
+    Enum.reduce [:keyfile, :certfile, :cacertfile], options, normalize_ssl_file(app, &2, &1)
     Enum.reduce [:password], options, to_char_list(&2, &1)
   end
 
@@ -82,7 +82,7 @@ defmodule Dynamo.Cowboy do
   defp normalize_ssl_file(app, options, key) do
     value = options[key]
 
-    if File.exists?(value) do
+    if nil?(value) or File.exists?(value) do
       options
     else
       new = File.expand_path(value, priv_dir(app)) /> to_char_list

@@ -207,9 +207,9 @@ defmodule Dynamo.HTTP.Behaviour do
       ## Response
 
       @doc false
-      def handler(handler, mod, connection(state: state) = conn) when
-          state in [:unset, :set] and handler in [:websocket] do
-        connection(conn, state: { :handler, handler, mod })
+      def upgrade(upgrade, mod, connection(state: state) = conn) when
+          state in [:unset, :set] and upgrade in [:websocket] do
+        connection(conn, state: { :upgrade, upgrade, mod })
       end
 
       @doc false
