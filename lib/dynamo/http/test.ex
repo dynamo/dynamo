@@ -22,7 +22,7 @@ defmodule Dynamo.HTTP.Test do
 
   use Dynamo.HTTP.Behaviour,
     [ :query_string, :raw_req_headers, :raw_req_body, :raw_req_cookies, :fetched,
-      :path_segments, :sent_body, :original_method ]
+      :path_segments, :sent_body, :original_method, :scheme ]
 
   @doc """
   Initializes a connection to be used in tests.
@@ -32,6 +32,7 @@ defmodule Dynamo.HTTP.Test do
       app: Dynamo.under_test,
       raw_req_cookies: Binary.Dict.new(),
       raw_req_headers: Binary.Dict.new([{ "host", "127.0.0.1" }]),
+      scheme: :http,
       sent_body: "force recycle"
     ).recycle.req(method, path, body)
   end
@@ -61,6 +62,11 @@ defmodule Dynamo.HTTP.Test do
   @doc false
   def path(connection(path_segments: path_segments)) do
     to_path path_segments
+  end
+
+  @doc false
+  def scheme(connection(scheme: scheme)) do
+    scheme
   end
 
   ## Response API
@@ -169,10 +175,14 @@ defmodule Dynamo.HTTP.Test do
       script_name_segments: [])
 
     if uri.authority do
-      conn.put_req_header "host", uri.authority
-    else
-      conn
+      conn = conn.put_req_header "host", uri.authority
     end
+
+    if uri.scheme do
+      conn = connection(conn, scheme: uri.scheme)
+    end
+
+    conn
   end
 
   @doc """

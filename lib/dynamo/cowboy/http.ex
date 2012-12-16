@@ -5,7 +5,7 @@ defmodule Dynamo.Cowboy.HTTP do
   for documentation of all available callbacks.
   """
 
-  use Dynamo.HTTP.Behaviour, [:req]
+  use Dynamo.HTTP.Behaviour, [:req, :scheme]
   require :cowboy_req, as: R
 
   @doc """
@@ -25,7 +25,7 @@ defmodule Dynamo.Cowboy.HTTP do
   end
 
   @doc false
-  def new(app, req) do
+  def new(app, req, scheme) do
     { verb, req } = R.method req
     { path, _ }   = R.path req
 
@@ -33,10 +33,11 @@ defmodule Dynamo.Cowboy.HTTP do
 
     connection(
       app: app,
-      req: req,
+      before_send: Dynamo.HTTP.default_before_send,
       method: verb,
       path_info_segments: segments,
-      before_send: Dynamo.HTTP.default_before_send,
+      req: req,
+      scheme: scheme
     )
   end
 
@@ -70,6 +71,11 @@ defmodule Dynamo.Cowboy.HTTP do
   def version(connection(req: req)) do
     { version, _ } = R.version req
     version
+  end
+
+  @doc false
+  def scheme(connection(scheme: scheme)) do
+    scheme
   end
 
   ## Response API

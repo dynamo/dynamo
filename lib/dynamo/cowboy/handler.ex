@@ -8,8 +8,11 @@ defmodule Dynamo.Cowboy.Handler do
 
   # HTTP
 
-  def init({ :tcp, :http }, req, app) do
-    conn = app.service(Dynamo.Cowboy.HTTP.new(app, req))
+  defp scheme(:tcp), do: :http
+  defp scheme(:ssl), do: :https
+
+  def init({ transport, :http }, req, app) when transport in [:tcp, :ssl] do
+    conn = app.service(Dynamo.Cowboy.HTTP.new(app, req, scheme(transport)))
 
     if is_record(conn, Dynamo.Cowboy.HTTP) do
       case conn.state do

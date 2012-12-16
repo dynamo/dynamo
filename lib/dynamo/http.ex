@@ -69,6 +69,7 @@ defmodule Dynamo.HTTP do
   @type   assigns      :: Keyword.t
   @type   private      :: Keyword.t
   @type   handlers     :: :websocket
+  @type   scheme       :: :http | :https
   @type   state        :: :unset | :set | :chunked | :sent | { :handler, handlers, module }
 
   use Behaviour
@@ -128,6 +129,11 @@ defmodule Dynamo.HTTP do
   Returns the HTTP version.
   """
   defcallback version(conn) :: binary
+
+  @doc """
+  Returns the url scheme.
+  """
+  defcallback scheme(conn) :: scheme
 
   ## Paths
 
