@@ -25,12 +25,12 @@ defmodule Mix.Tasks.DynamoTest do
       assert_file ".gitignore"
 
       assert_file "lib/my_app.ex", fn(file) ->
-        assert file =~ %r(endpoint: ApplicationRouter)
-        assert file =~ %r(env: Mix.env)
+        assert file =~ %r(use Application.Behaviour)
       end
 
-      assert_file "lib/my_app/app.ex", fn(file) ->
-        assert file =~ %r(use Application.Behaviour)
+      assert_file "lib/my_app/dynamo.ex", fn(file) ->
+        assert file =~ %r(endpoint: ApplicationRouter)
+        assert file =~ %r(env: Mix.env)
       end
 
       assert_file "app/routers/application_router.ex"

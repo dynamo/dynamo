@@ -75,7 +75,7 @@ defmodule Mix.Tasks.Dynamo do
     create_file "lib/#{lib}.ex", lib_template(assigns)
 
     create_directory "lib/#{lib}"
-    create_file "lib/#{lib}/app.ex", lib_app_template(assigns)
+    create_file "lib/#{lib}/dynamo.ex", lib_dynamo_template(assigns)
 
     create_directory "lib/#{lib}/environments"
     create_file "lib/#{lib}/environments/dev.exs",  lib_dev_template(assigns)
@@ -121,7 +121,7 @@ defmodule Mix.Tasks.Dynamo do
     def project do
       [ app: :<%= @app %>,
         version: "0.0.1",
-        dynamos: [<%= @mod %>],
+        dynamos: [<%= @mod %>.Dynamo],
         compilers: [:elixir, :dynamo, :app],
         compile_path: "tmp/ebin",
         env: [prod: [compile_path: "ebin"]],
@@ -131,7 +131,7 @@ defmodule Mix.Tasks.Dynamo do
     # Configuration for the OTP application
     def application do
       [ applications: [:cowboy, :dynamo],
-        mod: { <%= @mod %>.App, [] } ]
+        mod: { <%= @mod %>, [] } ]
     end
 
     defp deps do
@@ -185,6 +185,20 @@ defmodule Mix.Tasks.Dynamo do
 
   embed_template :lib, """
   defmodule <%= @mod %> do
+    use Application.Behaviour
+
+    @doc \"""
+    The application callback used to start this
+    application and its Dynamos.
+    \"""
+    def start(_type, _args) do
+      <%= @mod %>.Dynamo.start_link([max_restarts: 5, max_seconds: 5])
+    end
+  end
+  """
+
+  embed_template :lib_dynamo, """
+  defmodule <%= @mod %>.Dynamo do
     use Dynamo
 
     config :dynamo,
@@ -201,7 +215,7 @@ defmodule Mix.Tasks.Dynamo do
       # You can turn off static assets by setting it to false
       static_route: "/static"
 
-    # Uncomment the lines below to enable the cookie session store.
+    # Uncomment the lines below to enable the cookie session store
     # config :dynamo,
     #   session_store: CookieStore,
     #   session_options:
@@ -211,20 +225,6 @@ defmodule Mix.Tasks.Dynamo do
     # Default functionality available in templates
     templates do
       use Dynamo.Helpers
-    end
-  end
-  """
-
-  embed_template :lib_app, """
-  defmodule <%= @mod %>.App do
-    use Application.Behaviour
-
-    @doc \"""
-    The application callback used to start this
-    application and its Dynamos.
-    \"""
-    def start(_type, _args) do
-      <%= @mod %>.start_link([max_restarts: 5, max_seconds: 5])
     end
   end
   """
@@ -311,7 +311,7 @@ defmodule Mix.Tasks.Dynamo do
   """
 
   embed_template :test_helper, """
-  Dynamo.under_test(<%= @mod %>)
+  Dynamo.under_test(<%= @mod %>.Dynamo)
   ExUnit.start
 
   # Enable reloading in each ExUnit process

@@ -11,9 +11,10 @@ defmodule Mix.TasksTest do
       output = System.cmd "MIX_ENV=prod mix compile"
       assert output =~ %r(Compiled app/routers/application_router.ex)
       assert output =~ %r(Compiled lib/my_app.ex)
+      assert output =~ %r(Compiled lib/my_app/dynamo.ex)
       assert output =~ %r(Generated my_compiled_app.app)
-      assert output =~ %r(Generated MyApp.CompiledTemplates)
-      assert File.regular?("ebin/Elixir-MyApp-CompiledTemplates.beam")
+      assert output =~ %r(Generated MyApp.Dynamo.CompiledTemplates)
+      assert File.regular?("ebin/Elixir-MyApp-Dynamo-CompiledTemplates.beam")
 
       # Can recompile after changes
       File.touch!("app/routers/application_router.ex", { { 2030, 1, 1 }, { 0, 0, 0 } })

@@ -193,7 +193,7 @@ defmodule Dynamo do
       compile_on_demand: true,
       reload_modules: false,
       source_paths: ["app/*"],
-      environments_path: File.join(File.rootname(env.file, ".ex"), "environments"),
+      environments_path: File.expand_path("../environments", env.file),
       templates_paths: ["app/templates"],
       supervisor: env.module.Supervisor,
       session_options: [],
