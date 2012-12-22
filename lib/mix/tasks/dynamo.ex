@@ -261,7 +261,14 @@ defmodule Mix.Tasks.Dynamo do
     compile_on_demand: false,
     reload_modules: false
 
-  config :server, port: 8888
+  config :server,
+    port: 8888,
+
+    # The number of connection acceptors
+    acceptor: 100,
+
+    # The maximum number of connection accepted by the server
+    max_connections: 100_000
   """
 
   embed_text :test_features, """

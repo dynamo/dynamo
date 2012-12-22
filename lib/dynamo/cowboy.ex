@@ -9,6 +9,7 @@ defmodule Dynamo.Cowboy do
 
   * `port` - the port to run the server
   * `acceptors` - the number of acceptors for the listener
+  * `max_connections` - max number of connections supported
   * `dispatch` - the Cowboy HTTP Dispatch info to be used
   * `ssl` - SSL options for the server
 
