@@ -14,6 +14,13 @@ defmodule DynamoTest do
       reload_modules: false,
       source_paths: [File.expand_path("../fixtures/*", __FILE__)],
       templates_paths: [File.expand_path("../fixtures/templates", __FILE__)]
+
+    # Test session compilation as well
+    config :dynamo,
+      session_store: CookieStore,
+      session_options:
+        [ key: "_foo_session",
+          secret: "8RR6p7LJ6YN+vn8br/qZ6R0A1UXWIYRLNuvqvmJw7eLf6/ZTDXljAdNpHQhIzIRF"]
   end
 
   defmodule ReloadApp do

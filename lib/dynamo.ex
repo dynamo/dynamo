@@ -264,8 +264,8 @@ defmodule Dynamo do
     end
 
     if dynamo[:session_store] && dynamo[:session_options] do
-      store   = Module.concat(Dynamo.Filter.Session, dynamo[:session_store])
-      session = Dynamo.Filter.Session.new(store, dynamo[:session_options])
+      store   = Module.concat(Dynamo.Filters.Session, dynamo[:session_store])
+      session = Dynamo.Filters.Session.new(store, dynamo[:session_options])
       filters = [session|filters]
     end
 
