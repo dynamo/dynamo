@@ -254,7 +254,7 @@ defmodule Dynamo.Cowboy.HTTPTest do
   end
 
   def resp_headers(conn) do
-    assert conn.resp_headers == Binary.Dict.new
+    assert conn.resp_headers["cache-control"] == "max-age=0, private, must-revalidate"
 
     conn = conn.put_resp_header("x-header", "First")
     assert conn.resp_headers["x-header"] == "First"

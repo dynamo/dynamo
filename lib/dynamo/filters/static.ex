@@ -15,7 +15,7 @@ defmodule Dynamo.Filters.Static do
 
       defmodule MyDynamo do
         use Dynamo.Router
-        filter Dynamo.Filters.Static.new("/public", :my_app)
+        filter Dynamo.Filters.Static.new("/public", "priv/app")
       end
 
   By default, a Dynamo already inserts this filter which
@@ -25,7 +25,7 @@ defmodule Dynamo.Filters.Static do
 
   @doc false
   def new(path, root) do
-    { __MODULE__, Dynamo.Router.Utils.split(path), root }
+    { __MODULE__, Dynamo.Router.Utils.split(path), root  }
   end
 
   @doc false
@@ -37,7 +37,10 @@ defmodule Dynamo.Filters.Static do
       path = File.join([root_path(root)|segments])
       if File.regular?(path) do
         mimes = :mimetypes.filename(path)
-        conn.put_resp_header("Content-Type", hd(mimes)).sendfile(path)
+        conn
+          .put_resp_header("content-type", hd(mimes))
+          .put_resp_header("cache-control", "public, max-age=31536000")
+          .sendfile(path)
       else
         fun.(conn)
       end
@@ -60,8 +63,11 @@ defmodule Dynamo.Filters.Static do
     Enum.any?(segments, &1 in [".", ".."])
   end
 
-  defp root_path(root) when is_atom(root) do
-    File.join :code.lib_dir(root), "priv/static"
+  defp root_path({ app, root }) do
+    case :code.lib_dir(app) do
+      list when is_list(list) -> File.expand_path(root, list)
+      _ -> root
+    end
   end
 
   defp root_path(root) when is_binary(root) do

@@ -124,6 +124,7 @@ defmodule Dynamo do
       @before_compile { unquote(__MODULE__), :define_endpoint }
       @before_compile { unquote(__MODULE__), :define_filters }
       @before_compile { unquote(__MODULE__), :define_templates_paths }
+      @before_compile { unquote(__MODULE__), :define_static }
 
       use Dynamo.Utils.Once
 
@@ -162,7 +163,7 @@ defmodule Dynamo do
           Dynamo.Reloader.append_paths(dynamo[:source_paths])
           Dynamo.Reloader.enable
 
-          if IEx.started? do
+          if Code.ensure_loaded?(IEx) and IEx.started? do
             IEx.after_spawn(fn -> Dynamo.Reloader.enable end)
           end
         end
@@ -172,7 +173,7 @@ defmodule Dynamo do
         precompiled = Enum.all?(templates_paths, Dynamo.Templates.Finder.precompiled?(&1))
         unless precompiled do
           supervisor = config[:dynamo][:supervisor]
-          renderer   = templates_renderer()
+          renderer   = templates_server()
           Dynamo.Supervisor.start_child(supervisor, Dynamo.Templates.Renderer, [renderer])
 
           if config[:dynamo][:compile_on_demand] do
@@ -187,7 +188,8 @@ defmodule Dynamo do
 
   defp default_dynamo_config(env) do
     [ env: "prod",
-      static_route: "/static",
+      static_root: "priv/static",
+      cache_static: true,
       compile_on_demand: true,
       reload_modules: false,
       source_paths: ["app/*"],
@@ -247,14 +249,8 @@ defmodule Dynamo do
   def define_filters(mod, filters) do
     dynamo = Module.get_attribute(mod, :config)[:dynamo]
 
-    static_route = dynamo[:static_route]
-    static_root  = case dynamo[:static_root] do
-      nil   -> dynamo[:otp_app]
-      other -> other
-    end
-
-    if static_root && static_route do
-      static  = Dynamo.Filters.Static.new(static_route, static_root)
+    if dynamo[:static_route] do
+      static  = Dynamo.Filters.Static.new(dynamo[:static_route], { dynamo[:otp_app], dynamo[:static_root] })
       filters = [static|filters]
     end
 
@@ -310,7 +306,7 @@ defmodule Dynamo do
       templates_paths = [module|runtime]
     end
 
-    templates_renderer = dynamo[:supervisor].Renderer
+    templates_server = dynamo[:supervisor].TemplatesServer
 
     quote location: :keep do
       @doc """
@@ -325,7 +321,29 @@ defmodule Dynamo do
       @doc """
       The worker responsible for rendering templates.
       """
-      def templates_renderer, do: unquote(Macro.escape(templates_renderer))
+      def templates_server, do: unquote(Macro.escape(templates_server))
+    end
+  end
+
+  @doc false
+  defmacro define_static(module) do
+    dynamo = Module.get_attribute(module, :config)[:dynamo]
+    supervisor = dynamo[:supervisor]
+
+    if dynamo[:static_route] do
+      quote location: :keep do
+        @doc """
+        Returns the static ets table and server name
+        used by this Dynamo.
+        """
+        def static_cache do
+          { unquote(supervisor.StaticTable), unquote(supervisor.StaticServer) }
+        end
+
+        initializer :start_dynamo_static do
+          Dynamo.Supervisor.start_child(config[:dynamo][:supervisor], Dynamo.Static, [__MODULE__])
+        end
+      end
     end
   end
 end

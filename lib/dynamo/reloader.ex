@@ -118,14 +118,14 @@ defmodule Dynamo.Reloader do
   end
 
   @doc false
-  def handle_call(:paths, _from, Config[paths: paths] = config) do
-    { :reply, paths, config }
+  def handle_call(:paths, _from, Config[] = config) do
+    { :reply, config.paths, config }
   end
 
-  def handle_call(:conditional_purge, _from, Config[updated_at: updated_at] = config) do
+  def handle_call(:conditional_purge, _from, Config[] = config) do
     last_modified = last_modified(config)
 
-    if last_modified == updated_at do
+    if last_modified == config.updated_at do
       { :reply, :ok, config }
     else
       purge_all(config)

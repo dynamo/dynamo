@@ -239,7 +239,11 @@ defmodule Mix.Tasks.Dynamo do
     # Every time a module in app changes, we
     # will clean up defined modules and pick
     # up the latest versions.
-    reload_modules: true
+    reload_modules: true,
+
+    # Do not cache static assets, so they
+    # are reloaded every page in development
+    cache_static: false
 
   # Run on port 4000 for development
   config :server, port: 4000

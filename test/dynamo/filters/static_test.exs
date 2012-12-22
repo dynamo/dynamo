@@ -24,7 +24,8 @@ defmodule Dynamo.Filters.StaticTest do
     conn = get("/public/fixtures/static/file.txt")
     assert conn.status == 200
     assert conn.sent_body == "HELLO"
-    assert conn.resp_headers["Content-Type"] == "text/plain"
+    assert conn.resp_headers["content-type"]  == "text/plain"
+    assert conn.resp_headers["cache-control"] == "public, max-age=31536000"
   end
 
   test "hits the fallback" do

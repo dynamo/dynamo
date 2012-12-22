@@ -86,7 +86,7 @@ defmodule Dynamo.Cowboy do
     if nil?(value) or File.exists?(value) do
       options
     else
-      new = File.expand_path(value, priv_dir(app)) /> to_char_list
+      new = File.expand_path(value, lib_dir(app)) /> to_char_list
       Keyword.put(options, key, new)
     end
   end
@@ -99,10 +99,10 @@ defmodule Dynamo.Cowboy do
     end
   end
 
-  defp priv_dir(app) do
-    case :code.priv_dir(app) do
+  defp lib_dir(app) do
+    case :code.lib_dir(app) do
       list when is_list(list) -> list
-      _ -> raise ArgumentError, message: "cannot use SSL because :otp_app is not available"
+      _ -> File.cwd!
     end
   end
 end

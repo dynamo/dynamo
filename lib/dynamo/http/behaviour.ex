@@ -57,7 +57,7 @@ defmodule Dynamo.HTTP.Behaviour do
           resp_charset: "utf-8",
           resp_cookies: [],
           resp_content_type: nil,
-          resp_headers: Binary.Dict.new,
+          resp_headers: Binary.Dict.new([{"cache-control", "max-age=0, private, must-revalidate"}]),
           state: :unset,
           status: nil,
           script_name_segments: [] ] ++ unquote(opts)
