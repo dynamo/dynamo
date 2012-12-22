@@ -267,11 +267,7 @@ defmodule Mix.Tasks.Dynamo do
 
   config :server,
     port: 8888,
-
-    # The number of connection acceptors
-    acceptor: 100,
-
-    # The maximum number of connection accepted by the server
+    acceptors: 100,
     max_connections: 100_000
   """
 
