@@ -177,7 +177,7 @@ defmodule Mix.Tasks.Dynamo do
     <ol>
       <li>Change this template at <code>app/templates/index.html.eex</code></li>
       <li>Add new routes at <code>app/routers/application_router.ex</code></li>
-      <li>Deploy to production with <code>MIX_ENV=prod mix do compile, server</li>
+      <li>Deploy to production with <code>MIX_ENV=prod mix do compile, server</code></li>
     </ol>
   </body>
   </html>
