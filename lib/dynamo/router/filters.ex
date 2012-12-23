@@ -61,7 +61,7 @@ defmodule Dynamo.Router.Filters do
   @doc false
   defmacro __using__(_) do
     quote location: :keep do
-      @__filters []
+      @dynamo_filters []
       @before_compile unquote(__MODULE__)
       import unquote(__MODULE__), only: [filter: 1, prepend_filter: 1, delete_filter: 1]
     end
@@ -69,7 +69,7 @@ defmodule Dynamo.Router.Filters do
 
   @doc false
   defmacro __before_compile__(module) do
-    filters = Module.get_attribute(module, :__filters)
+    filters = Module.get_attribute(module, :dynamo_filters)
     escaped = Macro.escape(Enum.reverse(filters))
 
     code = quote(do: super(conn))
@@ -87,7 +87,7 @@ defmodule Dynamo.Router.Filters do
   """
   defmacro filter(spec) do
     quote do
-      @__filters [unquote(spec)|@__filters]
+      @dynamo_filters [unquote(spec)|@dynamo_filters]
     end
   end
 
@@ -96,7 +96,7 @@ defmodule Dynamo.Router.Filters do
   """
   defmacro prepend_filter(spec) do
     quote do
-      @__filters @__filters ++ [unquote(spec)]
+      @dynamo_filters @dynamo_filters ++ [unquote(spec)]
     end
   end
 
@@ -106,7 +106,7 @@ defmodule Dynamo.Router.Filters do
   defmacro delete_filter(atom) do
     quote do
       atom = unquote(atom)
-      @__filters Enum.filter(@__filters, fn(f) -> not unquote(__MODULE__).match?(atom, f) end)
+      @dynamo_filters Enum.filter(@dynamo_filters, fn(f) -> not unquote(__MODULE__).match?(atom, f) end)
     end
   end
 

@@ -116,6 +116,33 @@ defmodule Dynamo.Router.PrepareHooksTest do
       process(InvalidHooks, :GET, "/foo")
     end
   end
+
+  defmodule AnnotatedHooks do
+    use Dynamo.Router
+
+    @prepare :foo
+    get "/foo" do
+      conn.resp_body("OK")
+    end
+
+    get "/bar" do
+      conn.resp_body("OK")
+    end
+
+    defp foo(conn) do
+      conn.assign(:value, 3)
+    end
+  end
+
+  test "dispatch annotated hook" do
+    conn = process(AnnotatedHooks, :GET, "/foo")
+    assert conn.assigns[:value] == 3
+    assert conn.status == 200
+
+    conn = process(AnnotatedHooks, :GET, "/bar")
+    assert conn.assigns[:value] == nil
+    assert conn.status == 200
+  end
 end
 
 defmodule Dynamo.Router.FinishHooksTest do
@@ -223,5 +250,32 @@ defmodule Dynamo.Router.FinishHooksTest do
     assert_raise Dynamo.Router.InvalidHookError, fn ->
       process(InvalidHooks, :GET, "/foo")
     end
+  end
+
+  defmodule AnnotatedHooks do
+    use Dynamo.Router
+
+    @finalize :foo
+    get "/foo" do
+      conn.resp_body("OK")
+    end
+
+    get "/bar" do
+      conn.resp_body("OK")
+    end
+
+    defp foo(conn) do
+      conn.assign(:value, 3)
+    end
+  end
+
+  test "dispatch annotated hook" do
+    conn = process(AnnotatedHooks, :GET, "/foo")
+    assert conn.assigns[:value] == 3
+    assert conn.status == 200
+
+    conn = process(AnnotatedHooks, :GET, "/bar")
+    assert conn.assigns[:value] == nil
+    assert conn.status == 200
   end
 end
