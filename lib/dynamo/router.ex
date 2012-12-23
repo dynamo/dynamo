@@ -90,8 +90,9 @@ defmodule Dynamo.Router do
       use_once Dynamo.Router.Rendering
 
       # Helpers
-      import Dynamo.HTTP.Hibernate
       import Dynamo.HTTP.Cookies
+      import Dynamo.HTTP.Halt
+      import Dynamo.HTTP.Hibernate
       import Dynamo.HTTP.Session
     end
   end
