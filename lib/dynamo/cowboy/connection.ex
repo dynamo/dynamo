@@ -70,6 +70,24 @@ defmodule Dynamo.Cowboy.Connection do
   end
 
   @doc false
+  def host(connection(req: req)) do
+    { host, _ } = R.host req
+    host
+  end
+
+  @doc false
+  def port(connection(req: req)) do
+    { port, _ } = R.port req
+    port
+  end
+
+  @doc false
+  def host_url(connection(req: req)) do
+    { host_url, _ } = R.host_url req
+    host_url
+  end
+
+  @doc false
   def scheme(connection(scheme: scheme)) do
     scheme
   end

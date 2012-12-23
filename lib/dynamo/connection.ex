@@ -73,6 +73,9 @@ defmodule Dynamo.Connection do
   @type   private      :: Keyword.t
   @type   upgrades     :: :websocket
   @type   scheme       :: :http | :https
+  @type   host         :: binary
+  @type   port_number  :: :inet.port_number()
+  @type   host_url     :: binary
   @type   state        :: :unset | :set | :chunked | :sent | { :upgrade, upgrades, module }
 
   use Behaviour
@@ -134,9 +137,25 @@ defmodule Dynamo.Connection do
   defcallback version(conn) :: binary
 
   @doc """
-  Returns the url scheme.
+  Returns the request scheme.
   """
   defcallback scheme(conn) :: scheme
+
+  @doc """
+  Returns the request host.
+  """
+  defcallback host(conn) :: host
+
+  @doc """
+  Returns the request port.
+  """
+  defcallback port(conn) :: port_number
+
+  @doc """
+  Returns the host_url (i.e. containing the scheme,
+  hort and port).
+  """
+  defcallback host_url(conn) :: host_url
 
   ## Paths
 

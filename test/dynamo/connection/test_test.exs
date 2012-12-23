@@ -64,10 +64,28 @@ defmodule Dynamo.Connection.TestTest do
 
   test :host do
     conn = conn(:GET, "/foo/bar").fetch(:headers)
+    assert conn.host == "127.0.0.1"
     assert conn.req_headers["host"] == "127.0.0.1"
 
     conn = conn(:GET, "//example.com:4000/foo/bar").fetch(:headers)
+    assert conn.host == "example.com"
     assert conn.req_headers["host"] == "example.com:4000"
+  end
+
+  test :port do
+    conn = conn(:GET, "/foo/bar").fetch(:headers)
+    assert conn.port == 80
+
+    conn = conn(:GET, "//example.com:4000/foo/bar").fetch(:headers)
+    assert conn.port == 4000
+  end
+
+  test :host_url do
+    conn = conn(:GET, "/foo/bar").fetch(:headers)
+    assert conn.host_url == "http://127.0.0.1"
+
+    conn = conn(:GET, "//example.com:4000/foo/bar").fetch(:headers)
+    assert conn.host_url == "http://example.com:4000"
   end
 
   test :req_body do

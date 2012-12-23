@@ -22,7 +22,7 @@ defmodule Dynamo.Connection.Test do
 
   use Dynamo.Connection.Behaviour,
     [ :query_string, :raw_req_headers, :raw_req_body, :raw_req_cookies, :fetched,
-      :path_segments, :sent_body, :original_method, :scheme ]
+      :path_segments, :sent_body, :original_method, :scheme, :port ]
 
   @doc """
   Initializes a connection to be used in tests.
@@ -33,6 +33,7 @@ defmodule Dynamo.Connection.Test do
       raw_req_cookies: Binary.Dict.new(),
       raw_req_headers: Binary.Dict.new([{ "host", "127.0.0.1" }]),
       scheme: :http,
+      port: 80,
       sent_body: "force recycle"
     ).recycle.req(method, path, body)
   end
@@ -67,6 +68,21 @@ defmodule Dynamo.Connection.Test do
   @doc false
   def scheme(connection(scheme: scheme)) do
     scheme
+  end
+
+  @doc false
+  def port(connection(port: port)) do
+    port
+  end
+
+  @doc false
+  def host(connection(raw_req_headers: headers)) do
+    hd(:binary.split(headers["host"], ":"))
+  end
+
+  @doc false
+  def host_url(connection(scheme: scheme, raw_req_headers: headers)) do
+    "#{scheme}://#{headers["host"]}"
   end
 
   ## Response API
@@ -121,8 +137,7 @@ defmodule Dynamo.Connection.Test do
   def fetch(:headers, connection(raw_req_headers: raw_req_headers, req_headers: nil, fetched: fetched) = conn) do
     connection(conn,
       fetched: [:headers|fetched],
-      req_headers: raw_req_headers,
-      raw_req_headers: Binary.Dict.new)
+      req_headers: raw_req_headers)
   end
 
   def fetch(:params, connection(query_string: query_string, params: nil, fetched: fetched) = conn) do
@@ -180,6 +195,10 @@ defmodule Dynamo.Connection.Test do
 
     if uri.scheme do
       conn = connection(conn, scheme: uri.scheme)
+    end
+
+    if uri.port do
+      conn = connection(conn, port: uri.port)
     end
 
     conn
