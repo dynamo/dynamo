@@ -139,11 +139,11 @@ defmodule Dynamo.Router.Base do
     finalize = Module.get_attribute(module, :__finalize_hooks)
 
     prepare = Enum.reduce prepare, quote(do: conn), fn(hook, acc) ->
-      compile_hook(hook, acc, function(:compile_prepare, 3))
+      compile_hook(hook, acc, :prepare, function(:compile_prepare, 3))
     end
 
     finalize = Enum.reduce finalize, quote(do: conn), fn(hook, acc) ->
-      compile_hook(hook, acc, function(:compile_finalize, 3))
+      compile_hook(hook, acc, :finalize, function(:compile_finalize, 3))
     end
 
     quote location: :keep do
@@ -399,10 +399,10 @@ defmodule Dynamo.Router.Base do
 
   ## Hooks helpers
 
-  defp compile_hook(ref, acc, fun) when is_atom(ref) do
+  defp compile_hook(ref, acc, kind, fun) when is_atom(ref) do
     case atom_to_binary(ref) do
       "Elixir-" <> _ ->
-        call = quote(do: unquote(ref).service(conn))
+        call = quote(do: unquote(ref).unquote(kind)(conn))
         fun.(call, ref, acc)
       _ ->
         call = quote(do: unquote(ref).(conn))
@@ -410,11 +410,23 @@ defmodule Dynamo.Router.Base do
     end
   end
 
-  defp compile_hook(ref, acc, fun) when is_tuple(ref) do
-    ref  = Macro.escape(ref)
-    call = quote(do: unquote(ref).service(conn))
-    fun.(call, ref, acc)
+  defp compile_hook(ref, acc, kind, fun) when is_tuple(ref) do
+    if is_mod_fun?(ref, kind) do
+      { mod, modfun } = ref
+      call = quote(do: unquote(mod).unquote(modfun)(conn))
+      fun.(call, ref, acc)
+    else
+      ref  = Macro.escape(ref)
+      call = quote(do: unquote(ref).unquote(kind)(conn))
+      fun.(call, ref, acc)
+    end
   end
+
+  defp is_mod_fun?({ mod, fun } = ref, kind) when is_atom(mod) and is_atom(fun) do
+    not function_exported?(ref, kind, 1)
+  end
+
+  defp is_mod_fun?(_ref, _kind), do: false
 
   defp compile_prepare(call, ref, acc) do
     quote do

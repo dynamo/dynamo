@@ -32,11 +32,11 @@ defmodule Dynamo.Router.PrepareHooksTest do
       { __MODULE__, 1, [] }
     end
 
-    def service(conn) do
-      conn.assign(:value, 3)
+    def prepare(conn) do
+      conn.assign(:value, 4)
     end
 
-    def service(conn, { __MODULE__, 1, [] }) do
+    def prepare(conn, { __MODULE__, 1, [] }) do
       conn.assign(:value, conn.assigns[:value] * 2)
     end
   end
@@ -54,8 +54,27 @@ defmodule Dynamo.Router.PrepareHooksTest do
 
   test "dispatch double hook" do
     conn = process(DoubleHooks, :GET, "/foo")
-    assert conn.assigns[:value] == 6
+    assert conn.assigns[:value] == 8
     assert conn.status == 200
+  end
+
+  defmodule ModFunHooks do
+    use Dynamo.Router
+
+    prepare { __MODULE__, :hello }
+
+    def hello(conn) do
+      conn.assign(:value, 2)
+    end
+
+    get "/foo" do
+      conn.assign(:value, conn.assigns[:value] * 2).resp_body("OK")
+    end
+  end
+
+  test "dispatch mod/fun hook" do
+    conn = process(ModFunHooks, :GET, "/foo")
+    assert conn.assigns[:value] == 4
   end
 
   defmodule BlockHooks do
@@ -75,7 +94,7 @@ defmodule Dynamo.Router.PrepareHooksTest do
   end
 
   test "dispatch block hook" do
-    conn = process(DoubleHooks, :GET, "/foo")
+    conn = process(BlockHooks, :GET, "/foo")
     assert conn.assigns[:value] == 6
     assert conn.status == 200
   end
@@ -123,11 +142,11 @@ defmodule Dynamo.Router.FinishHooksTest do
   end
 
   defmodule Bar do
-    def service(conn) do
+    def finalize(conn) do
       conn.assign(:value, conn.assigns[:value] + 1)
     end
 
-    def service(conn, { __MODULE__, :data }) do
+    def finalize(conn, { __MODULE__, :data }) do
       conn.assign(:value, conn.assigns[:value] * 2)
     end
   end
@@ -139,13 +158,32 @@ defmodule Dynamo.Router.FinishHooksTest do
     finalize { Bar, :data }
 
     get "/foo" do
-      conn.assign(:value, 2).resp_body("OK")
+      conn.assign(:value, 3).resp_body("OK")
     end
   end
 
   test "dispatch double hook" do
-    conn = process(SingleHooks, :GET, "/foo")
-    assert conn.assigns[:value] == 6
+    conn = process(DoubleHooks, :GET, "/foo")
+    assert conn.assigns[:value] == 8
+  end
+
+  defmodule ModFunHooks do
+    use Dynamo.Router
+
+    finalize { __MODULE__, :hello }
+
+    def hello(conn) do
+      conn.assign(:value, conn.assigns[:value] * 2)
+    end
+
+    get "/foo" do
+      conn.assign(:value, 2).resp_body("OK")
+    end
+  end
+
+  test "dispatch mod/fun hook" do
+    conn = process(ModFunHooks, :GET, "/foo")
+    assert conn.assigns[:value] == 4
   end
 
   defmodule BlockHooks do
@@ -160,13 +198,13 @@ defmodule Dynamo.Router.FinishHooksTest do
     end
 
     get "/foo" do
-      conn.assign(:value, 2).resp_body("OK")
+      conn.assign(:value, 5).resp_body("OK")
     end
   end
 
   test "dispatch block hook" do
-    conn = process(SingleHooks, :GET, "/foo")
-    assert conn.assigns[:value] == 6
+    conn = process(BlockHooks, :GET, "/foo")
+    assert conn.assigns[:value] == 12
   end
 
   defmodule InvalidHooks do
