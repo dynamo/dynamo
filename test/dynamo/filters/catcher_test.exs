@@ -7,7 +7,7 @@ defmodule Dynamo.Filters.CatcherTest do
     filter Dynamo.Filters.Catcher
 
     get "/halt" do
-      halt conn.resp(200, "HALT")
+      halt! conn.resp(200, "HALT")
     end
 
     get "/no_halt" do

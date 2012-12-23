@@ -10,10 +10,10 @@ defmodule Dynamo.HTTP.Halt do
 
   ## Examples
 
-      unless conn.session[:user_info], do: halt(conn.status(401))
+      unless conn.session[:user_info], do: halt! conn.status(401)
 
   """
-  def halt(conn) do
-    throw { :dynamo_halt, conn }
+  def halt!(conn) do
+    throw { :halt!, conn }
   end
 end

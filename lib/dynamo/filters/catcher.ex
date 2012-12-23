@@ -7,7 +7,7 @@ defmodule Dynamo.Filters.Catcher do
     try do
       fun.(conn)
     catch
-      { :dynamo_halt, conn } -> conn
+      { :halt!, conn } -> conn
     end
   end
 end
