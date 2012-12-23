@@ -93,26 +93,9 @@ defmodule Dynamo.Router.PrepareHooksTest do
   end
 
   test "invalid dispatch hook" do
-    assert_raise Dynamo.Router.Hooks.InvalidHookError, fn ->
+    assert_raise Dynamo.Router.InvalidHookError, fn ->
       process(InvalidHooks, :GET, "/foo")
     end
-  end
-
-  defmodule AbortingHooks do
-    use Dynamo.Router
-
-    prepare do
-      conn.status(302).resp_body("Redirect")
-    end
-
-    get "/foo" do
-      raise "will never be invoked"
-    end
-  end
-
-  test "aborts when state is different than unset" do
-    conn = process(AbortingHooks, :GET, "/foo")
-    assert conn.status == 302
   end
 end
 
@@ -199,7 +182,7 @@ defmodule Dynamo.Router.FinishHooksTest do
   end
 
   test "invalid dispatch hook" do
-    assert_raise Dynamo.Router.Hooks.InvalidHookError, fn ->
+    assert_raise Dynamo.Router.InvalidHookError, fn ->
       process(InvalidHooks, :GET, "/foo")
     end
   end

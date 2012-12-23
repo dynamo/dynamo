@@ -1,9 +1,9 @@
 defmodule Dynamo.Router do
   @moduledoc """
-  `Dynamo.Routes` brings routing semantics to your module.
-
   A Dynamo is made of many routers that redirect a connection
-  between endpoints.
+  between endpoints. Those endpoints are usually built with
+  `Dynamo.Routes` which are responsible to brings routing
+  semantics to your modules.
 
   Here is a minimal router:
 
@@ -15,60 +15,45 @@ defmodule Dynamo.Router do
         end
       end
 
-  This simple router can handle the route "/hello". You can define other
-  routes using verbs `get`, `post`, `put` and `delete`. All routes defined
-  using such verbs have direct access to the connection `conn`. Check
-  `Dynamo.Router.Base` for more information.
+  The functionality and documentation for routers is split into
+  diverse modules. Keep reading below for more information.
 
-  ## Forwarding
+  ## Routes and hooks
 
-  A Dynamo router can also forward a specific subroute to any other router,
-  allowing a developer to scope its application instead of having a big,
-  monolitic, routes handler:
+  A router is made by many routes which usually map to an HTTP
+  verb like `get`, `post`, etc. Not only that, a router may easily
+  forward requests to another router to handle a specific set of
+  requests via the forward API:
 
       defmodule ApplicationRouter do
         use Dynamo.Router
         forward "/home", to: HomeRouter
       end
 
-  Now any request starting with "/home" in `ApplicationRouter` router will
-  be forwarded to `HomeRouter`, but without the "/home" prefix. Therefore
-  a request to "/home/hello" is seen by the `HomeRouter` simply as "/hello",
-  matching the route we defined previously and returning "world".
-
-  Although in the example above we forwarded to another Dynamo router, we
-  can forward to any module, as long as it exports the function `service/1`.
-  This function receives the connection as argument and must return the
-  updated response.
+  Hooks can be used to prepare and finalize requests after a given
+  route match. For more information, check `Dynamo.Router.Base`
+  documentation.
 
   ## Filters
 
   As a Dynamo, Routers also support filters. For more information about
   filters, check `Dynamo` and `Dynamo.Router.Filters` docs.
 
-  ## Hooks
+  ## Rendering
 
-  Routers also include some hooks via both `prepare/1` and `finalize/1`
-  macros. Such hooks receive the connection as argument and may return
-  an updated version. For example:
+  A router contains a set of functions to make it easy to render and
+  also configure templates rendering. Those functions are defined
+  and documented at `Dynamo.Router.Rendering`.
 
-      defmodule UsersRouter do
-        use Dynamo.Router
+  ## HTTP conveniences
 
-        prepare :check_user_cookie
+  Finally, a router imports by default many of the `Dynamo.HTTP`
+  modules, as listed below:
 
-        get ...
-
-        defp check_user_cookie(conn) do
-          unless conn.cookies[:user_id] do
-            redirect_to conn, "/"
-          end
-        end
-      end
-
-  Notice that, if a prepare hook replies, redirects or anything,
-  the stack aborts and the connection is returned. Check
-  `Dynamo.Router.Hooks` for more information.
+  * `Dynamo.HTTP.Cookies` - conveniences for working with cookies
+  * `Dynamo.HTTP.Halt` - conveniences for halting a request
+  * `Dynamo.HTTP.Hibernate` - conveniences for awaiting and hibernating a connection
+  * `Dynamo.HTTP.Session` - conveniences for working with session
 
   """
 
@@ -85,7 +70,6 @@ defmodule Dynamo.Router do
 
       # Definition
       use_once Dynamo.Router.Base
-      use_once Dynamo.Router.Hooks
       use_once Dynamo.Router.Filters
       use_once Dynamo.Router.Rendering
 
