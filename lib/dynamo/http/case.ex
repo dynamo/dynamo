@@ -30,7 +30,7 @@ defmodule Dynamo.HTTP.Case do
         end
       end
 
-  The connection used in such tests is the `Dynamo.HTTP.Test`
+  The connection used in such tests is the `Dynamo.Connection.Test`
   which provides some test specific function.
 
   ## Testing with sequential requests
@@ -91,7 +91,7 @@ defmodule Dynamo.HTTP.Case do
   Returns a connection built with the given method, path and body.
   """
   def conn(method, path, body // "") do
-    Dynamo.HTTP.Test.new(method, path, body)
+    Dynamo.Connection.Test.new(method, path, body)
   end
 
   @doc """
@@ -168,7 +168,7 @@ defmodule Dynamo.HTTP.Case do
   end
 
   def process(endpoint, method, path, nil) do
-    do_process endpoint, Dynamo.HTTP.Test.new(method, path)
+    do_process endpoint, Dynamo.Connection.Test.new(method, path)
   end
 
   defp do_process(endpoint, conn) do

@@ -1,16 +1,16 @@
-defmodule Dynamo.HTTP.Test do
+defmodule Dynamo.Connection.Test do
   @moduledoc """
-  Implementation of the `Dynamo.HTTP` behaviour used for testing.
-  Check `Dynamo.HTTP` for documentation of all available callbacks.
+  Implementation of the `Dynamo.Connection` behaviour used for testing.
+  Check `Dynamo.Connection` for documentation of all available callbacks.
 
-  Note that, besides the functions required by `Dynamo.HTTP`,
+  Note that, besides the functions required by `Dynamo.Connection`,
   this connection also implements a couple extra functions, like
   `sent_body/1`, to retrieve the sent body, and `fetched/1`, to
   retrieve fetched aspects, which are useful for testing.
 
   Although a new connection can be created via:
 
-      Dynamo.HTTP.Test.new(verb, path, body)
+      Dynamo.Connection.Test.new(verb, path, body)
 
   In practice, a developer should simply use `Dynamo.HTTP.Case`,
   which provides some wrappers around testing:
@@ -20,7 +20,7 @@ defmodule Dynamo.HTTP.Test do
   Check `Dynamo.HTTP.Case` for more information on testing.
   """
 
-  use Dynamo.HTTP.Behaviour,
+  use Dynamo.Connection.Behaviour,
     [ :query_string, :raw_req_headers, :raw_req_body, :raw_req_cookies, :fetched,
       :path_segments, :sent_body, :original_method, :scheme ]
 
@@ -126,7 +126,7 @@ defmodule Dynamo.HTTP.Test do
   end
 
   def fetch(:params, connection(query_string: query_string, params: nil, fetched: fetched) = conn) do
-    params = Dynamo.HTTP.QueryParser.parse(query_string)
+    params = Dynamo.Connection.QueryParser.parse(query_string)
     connection(conn, params: params, fetched: [:params|fetched])
   end
 
@@ -144,7 +144,7 @@ defmodule Dynamo.HTTP.Test do
 
   def fetch(aspect, connection(fetchable: fetchable, fetched: fetched) = conn) when is_atom(aspect) do
     case Keyword.get(fetchable, aspect) do
-      nil -> raise Dynamo.HTTP.UnknownAspectError, aspect: aspect
+      nil -> raise Dynamo.Connection.UnknownAspectError, aspect: aspect
       fun -> connection(fun.(conn), fetched: [aspect|fetched])
     end
   end
@@ -197,7 +197,7 @@ defmodule Dynamo.HTTP.Test do
   def recycle(connection(resp_cookies: resp_cookies) = conn) do
     conn = connection(conn,
       assigns: [],
-      before_send: Dynamo.HTTP.default_before_send,
+      before_send: Dynamo.Connection.default_before_send,
       fetchable: [],
       fetched: [],
       private: [],
@@ -248,8 +248,8 @@ defmodule Dynamo.HTTP.Test do
   end
 end
 
-defimpl Binary.Inspect, for: Dynamo.HTTP.Test do
+defimpl Binary.Inspect, for: Dynamo.Connection.Test do
   def inspect(conn, _) do
-    "Dynamo.HTTP.Test[#{conn.method} #{conn.path}]"
+    "Dynamo.Connection.Test[#{conn.method} #{conn.path}]"
   end
 end

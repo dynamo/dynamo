@@ -1,6 +1,6 @@
 Code.require_file "../../../test_helper.exs", __FILE__
 
-defmodule Dynamo.HTTP.TestTest do
+defmodule Dynamo.Connection.TestTest do
   use ExUnit.Case, async: true
   use Dynamo.HTTP.Case
 
@@ -39,7 +39,7 @@ defmodule Dynamo.HTTP.TestTest do
   test :params do
     conn = conn(:GET, "/foo/bar?hello=world&foo[name]=bar")
 
-    assert_raise Dynamo.HTTP.UnfetchedError, fn ->
+    assert_raise Dynamo.Connection.UnfetchedError, fn ->
       conn.params
     end
 
@@ -51,7 +51,7 @@ defmodule Dynamo.HTTP.TestTest do
   test :req_headers do
     conn = conn(:GET, "/foo/bar")
 
-    assert_raise Dynamo.HTTP.UnfetchedError, fn ->
+    assert_raise Dynamo.Connection.UnfetchedError, fn ->
       conn.req_headers
     end
 
@@ -73,7 +73,7 @@ defmodule Dynamo.HTTP.TestTest do
   test :req_body do
     conn = conn(:POST, "/foo/bar", "foobar")
 
-    assert_raise Dynamo.HTTP.UnfetchedError, fn ->
+    assert_raise Dynamo.Connection.UnfetchedError, fn ->
       conn.req_body
     end
 

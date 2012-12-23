@@ -10,12 +10,12 @@ defmodule Dynamo.Cowboy.BodyParser do
 
   defp parse_body({ "application", "x-www-form-urlencoded", _ }, dict, req) do
     { :ok, body, req } = R.body(req)
-    { Dynamo.HTTP.QueryParser.parse(body, dict), req }
+    { Dynamo.Connection.QueryParser.parse(body, dict), req }
   end
 
   defp parse_body({ "multipart", style, _ }, dict, req) when style in ["form-data", "mixed"] do
     { tuples, req } = parse_multipart(R.multipart_data(req), nil, [])
-    dict = Enum.reduce(tuples, dict, Dynamo.HTTP.QueryParser.reduce(&1, &2))
+    dict = Enum.reduce(tuples, dict, Dynamo.Connection.QueryParser.reduce(&1, &2))
     { dict, req }
   end
 
@@ -36,7 +36,7 @@ defmodule Dynamo.Cowboy.BodyParser do
       { name, file } ->
         tmp_dir = get_tmp_dir(tmp_dir)
 
-        { path, { :ok, req } } = Dynamo.HTTP.Utils.random_file("uploaded",
+        { path, { :ok, req } } = Dynamo.Connection.Utils.random_file("uploaded",
           tmp_dir, parse_multipart_file(R.multipart_data(req), &1))
 
         parse_multipart(R.multipart_data(req), tmp_dir, [{ name, file.path(path) }|acc])
@@ -75,7 +75,7 @@ defmodule Dynamo.Cowboy.BodyParser do
             case List.keyfind(parts, "filename", 0) do
               { _, filename } ->
                 { _, type } = List.keyfind(headers, "content-type", 0) || { "content-type", nil }
-                { name, Dynamo.HTTP.File[name: name, filename: filename, content_type: type, path: nil] }
+                { name, Dynamo.Connection.File[name: name, filename: filename, content_type: type, path: nil] }
               _ ->
                 { name, nil }
             end
@@ -85,7 +85,7 @@ defmodule Dynamo.Cowboy.BodyParser do
     end
   end
 
-  defp get_tmp_dir(nil),   do: Dynamo.HTTP.Utils.tmp_dir
+  defp get_tmp_dir(nil),   do: Dynamo.Connection.Utils.tmp_dir
   defp get_tmp_dir(other), do: other
 
   defp split_equals(binary) do

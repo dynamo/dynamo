@@ -1,6 +1,6 @@
 Code.require_file "../../../test_helper.exs", __FILE__
 
-defmodule Dynamo.HTTP.QueryParserTest do
+defmodule Dynamo.Connection.QueryParserTest do
   use ExUnit.Case, async: true
 
   test "parse queries" do
@@ -38,15 +38,15 @@ defmodule Dynamo.HTTP.QueryParserTest do
   end
 
   test "failure on bad queries" do
-    assert_raise Dynamo.HTTP.QueryParser.ParseError, fn ->
+    assert_raise Dynamo.Connection.QueryParser.ParseError, fn ->
       parse "x[y]=1&x[]=1"
     end
 
-    assert_raise Dynamo.HTTP.QueryParser.ParseError, fn ->
+    assert_raise Dynamo.Connection.QueryParser.ParseError, fn ->
       IO.inspect parse "x[y]=1&x[y][][w]=2"
     end
 
-    assert_raise Dynamo.HTTP.QueryParser.ParseError, fn ->
+    assert_raise Dynamo.Connection.QueryParser.ParseError, fn ->
       IO.inspect parse "x[y]=1&x=1"
     end
 
@@ -94,10 +94,10 @@ defmodule Dynamo.HTTP.QueryParserTest do
   end
 
   defp parse(binary) do
-    Dynamo.HTTP.QueryParser.parse(binary)
+    Dynamo.Connection.QueryParser.parse(binary)
   end
 
   defp reduce(pairs) do
-    Enum.reduce Enum.reverse(pairs), Binary.Dict.new, Dynamo.HTTP.QueryParser.reduce(&1, &2)
+    Enum.reduce Enum.reverse(pairs), Binary.Dict.new, Dynamo.Connection.QueryParser.reduce(&1, &2)
   end
 end

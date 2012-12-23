@@ -1,6 +1,6 @@
-defmodule Dynamo.HTTP.Behaviour do
+defmodule Dynamo.Connection.Behaviour do
   @moduledoc """
-  Common behaviour used between `Dynamo.HTTP` connection
+  Common behaviour used between `Dynamo.Connection` connection
   implementations. When used, it defines a private record
   via `defrecordp` named `connection` with the following fields
   and their default values:
@@ -23,14 +23,14 @@ defmodule Dynamo.HTTP.Behaviour do
   connection is initialized with the following contents:
 
   * app - with the app invoked
-  * before_send - a call to `Dynamo.HTTP.default_before_send`
+  * before_send - a call to `Dynamo.Connection.default_before_send`
   * method - the current request method
   * original_method - the current request method
   * path_info_segments - the current path segments
 
   A developer can pass extra fields via `use`:
 
-      use Dynamo.HTTP.Behaviour, [:my_field, :other_field]
+      use Dynamo.Connection.Behaviour, [:my_field, :other_field]
 
   """
 
@@ -38,7 +38,7 @@ defmodule Dynamo.HTTP.Behaviour do
   defmacro __using__(opts) do
 
     quote location: :keep do
-      @behaviour Dynamo.HTTP
+      @behaviour Dynamo.Connection
 
       defrecordp :connection,
         [ app: nil,
@@ -105,7 +105,7 @@ defmodule Dynamo.HTTP.Behaviour do
 
       @doc false
       def params(connection(params: nil)) do
-        raise Dynamo.HTTP.UnfetchedError, aspect: :params
+        raise Dynamo.Connection.UnfetchedError, aspect: :params
       end
 
       @doc false
@@ -125,7 +125,7 @@ defmodule Dynamo.HTTP.Behaviour do
 
       @doc false
       def req_headers(connection(req_headers: nil)) do
-        raise Dynamo.HTTP.UnfetchedError, aspect: :req_headers
+        raise Dynamo.Connection.UnfetchedError, aspect: :req_headers
       end
 
       @doc false
@@ -135,7 +135,7 @@ defmodule Dynamo.HTTP.Behaviour do
 
       @doc false
       def req_body(connection(req_body: nil)) do
-        raise Dynamo.HTTP.UnfetchedError, aspect: :req_body
+        raise Dynamo.Connection.UnfetchedError, aspect: :req_body
       end
 
       @doc false
@@ -147,7 +147,7 @@ defmodule Dynamo.HTTP.Behaviour do
 
       @doc false
       def req_cookies(connection(req_cookies: nil)) do
-        raise Dynamo.HTTP.UnfetchedError, aspect: :cookies
+        raise Dynamo.Connection.UnfetchedError, aspect: :cookies
       end
 
       @doc false

@@ -1,4 +1,4 @@
-defmodule Dynamo.HTTP.Utils do
+defmodule Dynamo.Connection.Utils do
   @moduledoc false
 
   @doc """

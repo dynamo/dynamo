@@ -1,4 +1,4 @@
-defmodule Dynamo.HTTP do
+defmodule Dynamo.Connection do
   defrecord File, path: nil, name: nil, content_type: nil, filename: nil do
     @moduledoc """
     Contains a file representation whenever there is a multipart
@@ -20,13 +20,16 @@ defmodule Dynamo.HTTP do
   end
 
   @moduledoc """
-  This module defines the API implemented by the http
-  connection, as in Dynamo.Cowboy.HTTP and Dynamo.HTTP.Test.
+  This modules defines the connection API.
 
-  Notice that Dynamo.HTTP connections uses the record
+  By default, Elixir ships with two implementations
+  of this API: `Dynamo.Cowboy.Connection` (used by
+  Cowboy web server) and `Dynamo.Connection.Test`.
+
+  Notice that this module documentation uses the record
   notation. So although the documentation says `params(conn)`,
   the function should be invoked as `conn.params()` and
-  Elixir automatically moves the conn to the last argument.
+  Elixir automatically moves the `conn` to the last argument.
 
   It is also important to remind that, as in all Elixir
   structures, a connection is immutable. So if you are using
@@ -56,7 +59,7 @@ defmodule Dynamo.HTTP do
   end
 
   @opaque t            :: tuple
-  @type   conn         :: Dynamo.HTTP.t
+  @type   conn         :: Dynamo.Connection.t
   @type   body         :: binary
   @type   status       :: non_neg_integer
   @type   headers      :: Binary.Dict.t

@@ -50,7 +50,7 @@ defmodule Dynamo.HTTP.Session do
 
   defp get_from_private(private, key) do
     case Keyword.get(private, key) do
-      nil   -> raise Dynamo.HTTP.UnfetchedError, aspect: :session
+      nil   -> raise Dynamo.Connection.UnfetchedError, aspect: :session
       other -> other
     end
   end

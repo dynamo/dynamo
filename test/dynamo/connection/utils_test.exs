@@ -1,9 +1,9 @@
 Code.require_file "../../../test_helper.exs", __FILE__
 
-defmodule Dynamo.HTTP.UtilsTest do
+defmodule Dynamo.Connection.UtilsTest do
   use ExUnit.Case, async: true
 
-  alias Dynamo.HTTP.Utils, as: Utils
+  alias Dynamo.Connection.Utils, as: Utils
 
   test "generate a header value" do
     header = Utils.cookie_header("foo", "bar")

@@ -1,6 +1,6 @@
 Code.require_file "../../../test_helper.exs", __FILE__
 
-defmodule Dynamo.Cowboy.HTTPTest do
+defmodule Dynamo.Cowboy.ConnectionTest do
   use ExUnit.Case, async: true
 
   def setup_all do
@@ -381,7 +381,7 @@ defmodule Dynamo.Cowboy.HTTPTest do
   end
 
   test :inspect do
-    assert { 200, _, "Dynamo.Cowboy.HTTP[GET /conn_inspect]" } = request :get, "/conn_inspect"
+    assert { 200, _, "Dynamo.Connection[GET /conn_inspect (cowboy)]" } = request :get, "/conn_inspect"
   end
 
   def forward_to(conn) do

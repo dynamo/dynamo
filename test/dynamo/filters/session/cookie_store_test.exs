@@ -15,7 +15,7 @@ defmodule Dynamo.Filters.Session.CookieStoreTest do
   end
 
   test "fails when session is not fetched" do
-    assert_raise Dynamo.HTTP.UnfetchedError, fn ->
+    assert_raise Dynamo.Connection.UnfetchedError, fn ->
       conn = session.prepare conn(:GET, "/hello")
       get_session(conn, :foo)
     end

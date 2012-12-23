@@ -1,11 +1,7 @@
-defmodule Dynamo.Cowboy.HTTP do
-  @moduledoc """
-  Implementation of the `Dynamo.HTTP` behaviour
-  for the Cowboy webserver. Check `Dynamo.HTTP`
-  for documentation of all available callbacks.
-  """
+defmodule Dynamo.Cowboy.Connection do
+  @moduledoc false
 
-  use Dynamo.HTTP.Behaviour, [:req, :scheme]
+  use Dynamo.Connection.Behaviour, [:req, :scheme]
   require :cowboy_req, as: R
 
   @doc """
@@ -33,7 +29,7 @@ defmodule Dynamo.Cowboy.HTTP do
 
     connection(
       app: app,
-      before_send: Dynamo.HTTP.default_before_send,
+      before_send: Dynamo.Connection.default_before_send,
       method: verb,
       path_info_segments: segments,
       req: req,
@@ -135,7 +131,7 @@ defmodule Dynamo.Cowboy.HTTP do
 
   def fetch(:params, connection(req: req, params: nil) = conn) do
     { query_string, req } = R.qs req
-    params = Dynamo.HTTP.QueryParser.parse(query_string)
+    params = Dynamo.Connection.QueryParser.parse(query_string)
     { params, req } = Dynamo.Cowboy.BodyParser.parse(params, req)
     connection(conn, req: req, params: params)
   end
@@ -157,7 +153,7 @@ defmodule Dynamo.Cowboy.HTTP do
 
   def fetch(aspect, connection(fetchable: fetchable) = conn) when is_atom(aspect) do
     case Keyword.get(fetchable, aspect) do
-      nil -> raise Dynamo.HTTP.UnknownAspectError, aspect: aspect
+      nil -> raise Dynamo.Connection.UnknownAspectError, aspect: aspect
       fun -> fun.(conn)
     end
   end
@@ -173,13 +169,13 @@ defmodule Dynamo.Cowboy.HTTP do
 
   defp get_resp_headers(headers, resp_cookies) do
     Enum.reduce resp_cookies, Binary.Dict.to_list(headers), fn({ key, value, opts }, acc) ->
-      [{ "set-cookie", Dynamo.HTTP.Utils.cookie_header(key, value, opts) }|acc]
+      [{ "set-cookie", Dynamo.Connection.Utils.cookie_header(key, value, opts) }|acc]
     end
   end
 end
 
-defimpl Binary.Inspect, for: Dynamo.Cowboy.HTTP do
+defimpl Binary.Inspect, for: Dynamo.Cowboy.Connection do
   def inspect(conn, _) do
-    "Dynamo.Cowboy.HTTP[#{conn.method} #{conn.path}]"
+    "Dynamo.Connection[#{conn.method} #{conn.path} (cowboy)]"
   end
 end

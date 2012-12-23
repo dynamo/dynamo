@@ -1,17 +1,22 @@
 defmodule Dynamo.Cowboy do
   @moduledoc """
-  Provides a runner using Cowboy webserver.
+  Provides the interface to Cowboy webserver.
   Check `run/2` for more information.
   """
 
   @doc """
   Runs the given app with the given options:
 
-  * `port` - the port to run the server
+  * `port` - the port to run the server (defaults to 4000)
+
   * `acceptors` - the number of acceptors for the listener
+
   * `max_connections` - max number of connections supported
-  * `dispatch` - the Cowboy HTTP Dispatch info to be used
-  * `ssl` - SSL options for the server
+
+  * `ssl` - SSL options for the server. It accepts all options
+    mentioned above plus the configuration options accepted
+    by the [`ssl` erlang module](http://www.erlang.org/doc/man/ssl.html)
+    (like keyfile, certfile and others).
 
   ## Example
 

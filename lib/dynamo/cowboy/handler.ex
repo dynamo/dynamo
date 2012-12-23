@@ -12,9 +12,9 @@ defmodule Dynamo.Cowboy.Handler do
   defp scheme(:ssl), do: :https
 
   def init({ transport, :http }, req, app) when transport in [:tcp, :ssl] do
-    conn = app.service(Dynamo.Cowboy.HTTP.new(app, req, scheme(transport)))
+    conn = app.service(Dynamo.Cowboy.Connection.new(app, req, scheme(transport)))
 
-    if is_record(conn, Dynamo.Cowboy.HTTP) do
+    if is_record(conn, Dynamo.Cowboy.Connection) do
       case conn.state do
         { :handler, :websocket, mod } ->
           { :upgrade, :protocol, :cowboy_websocket,
@@ -25,7 +25,7 @@ defmodule Dynamo.Cowboy.Handler do
           { :ok, conn.cowboy_request, nil }
       end
     else
-      raise "Expected service to return a Dynamo.Cowboy.HTTP, got #{inspect conn}"
+      raise "Expected service to return a Dynamo.Cowboy.Connection, got #{inspect conn}"
     end
   end
 
