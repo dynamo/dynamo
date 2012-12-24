@@ -298,9 +298,9 @@ defmodule Dynamo.Router.Base do
 
     contents =
       cond do
-        block -> block
-        to    -> quote do: unquote(to).service(var!(conn))
-        true  -> raise ArgumentError, message: "Expected to: or do: to be given"
+        Keyword.has_key?(options, :do) -> block
+        to -> quote do: unquote(to).service(var!(conn))
+        true -> raise ArgumentError, message: "Expected :to or :do to be given as option"
       end
 
     { vars, match } = apply Dynamo.Router.Utils, generator, [path]
