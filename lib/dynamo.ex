@@ -235,7 +235,7 @@ defmodule Dynamo do
     dynamo = Module.get_attribute(mod, :config)[:dynamo]
 
     if dynamo[:static_route] do
-      static  = Dynamo.Filters.Static.new(dynamo[:static_route], { dynamo[:otp_app], dynamo[:static_root] })
+      static  = Dynamo.Filters.Static.new(dynamo[:static_route], dynamo[:static_root])
       filters = [static|filters]
     end
 
