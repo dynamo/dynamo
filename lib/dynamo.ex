@@ -254,7 +254,7 @@ defmodule Dynamo do
       filters = [session|filters]
     end
 
-    filters = [Dynamo.Filters.Head|filters]
+    filters = [Dynamo.Filters.Head, Dynamo.Filters.Catcher|filters]
     filters
   end
 
