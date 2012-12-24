@@ -44,6 +44,13 @@ defmodule Dynamo.HTTP.Redirect do
       .resp(status, redirect_body(conn.resp_content_type, to))
   end
 
+  @doc """
+  A convenience that redirects and halts straight away.
+  """
+  def redirect!(conn, opts) do
+    Dynamo.HTTP.Halt.halt! redirect(conn, opts)
+  end
+
   defp redirect_body("text/html", to), do: %b[<html><body>You are being <a href="#{to}">redirected</a>.</body></html>]
   defp redirect_body(_, _), do: ""
 end

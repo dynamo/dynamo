@@ -1,6 +1,6 @@
 Code.require_file "../../../test_helper.exs", __FILE__
 
-defmodule Dynamo.Router.RenderingTest do
+defmodule Dynamo.HTTP.RenderTest do
   defmodule RenderingRouter do
     use Dynamo.Router
 

@@ -39,12 +39,6 @@ defmodule Dynamo.Router do
   As a Dynamo, Routers also support filters. For more information about
   filters, check `Dynamo` and `Dynamo.Router.Filters` docs.
 
-  ## Rendering
-
-  A router contains a set of functions to make it easy to render and
-  also configure templates rendering. Those functions are defined
-  and documented at `Dynamo.Router.Rendering`.
-
   ## HTTP conveniences
 
   Finally, a router imports by default many of the `Dynamo.HTTP`
@@ -53,6 +47,8 @@ defmodule Dynamo.Router do
   * `Dynamo.HTTP.Cookies` - conveniences for working with cookies
   * `Dynamo.HTTP.Halt` - conveniences for halting a request
   * `Dynamo.HTTP.Hibernate` - conveniences for awaiting and hibernating a connection
+  * `Dynamo.HTTP.Redirect` - conveniences for redirect connection
+  * `Dynamo.HTTP.Render` - conveniences for rendering templates
   * `Dynamo.HTTP.Session` - conveniences for working with session
 
   """
@@ -68,17 +64,9 @@ defmodule Dynamo.Router do
 
       use Dynamo.Utils.Once
 
-      # Definition
       use_once Dynamo.Router.Base
       use_once Dynamo.Router.Filters
-      use_once Dynamo.Router.Rendering
-
-      # Helpers
-      import Dynamo.HTTP.Cookies
-      import Dynamo.HTTP.Halt
-      import Dynamo.HTTP.Hibernate
-      import Dynamo.HTTP.Redirect
-      import Dynamo.HTTP.Session
+      use_once Dynamo.HTTP
     end
   end
 end

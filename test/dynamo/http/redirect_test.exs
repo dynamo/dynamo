@@ -11,6 +11,12 @@ defmodule Dynamo.HTTP.RedirectTest do
     assert conn.status == 302
   end
 
+  test :redirect! do
+    assert { :halt!, conn } = catch_throw(redirect! conn(:GET, "/"), to: "/foo")
+    assert conn.resp_headers["location"] == "http://127.0.0.1/foo"
+    assert conn.status == 302
+  end
+
   test :redirect_with_status do
     conn = redirect conn(:GET, "/"), to: "/foo", status: 301
     assert conn.resp_headers["location"] == "http://127.0.0.1/foo"
