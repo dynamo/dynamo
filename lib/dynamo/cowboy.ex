@@ -29,18 +29,17 @@ defmodule Dynamo.Cowboy do
 
     env     = options[:env]
     ssl     = options[:ssl]
-    otp_app = options[:otp_app]
-    options = Enum.reduce [:env, :ssl, :otp_app], options, Keyword.delete(&2, &1)
+    options = Enum.reduce [:env, :ssl], options, Keyword.delete(&2, &1)
 
     if ssl do
       :application.start(:public_key)
       :application.start(:ssl)
-      https = https_options(otp_app, Keyword.merge(options, ssl))
+      https = https_options(app, Keyword.merge(options, ssl))
       log(app, :https, env, https)
       start_listener(:https, app, https)
     end
 
-    http = http_options(otp_app, options)
+    http = http_options(app, options)
     log(app, :http, env, http)
     start_listener(:http, app, http)
   end
@@ -91,7 +90,7 @@ defmodule Dynamo.Cowboy do
     if nil?(value) or File.exists?(value) do
       options
     else
-      new = File.expand_path(value, lib_dir(app)) /> to_char_list
+      new = File.expand_path(value, app.root) /> to_char_list
       Keyword.put(options, key, new)
     end
   end
@@ -101,13 +100,6 @@ defmodule Dynamo.Cowboy do
       Keyword.put options, key, to_char_list(value)
     else
       options
-    end
-  end
-
-  defp lib_dir(app) do
-    case :code.lib_dir(app) do
-      list when is_list(list) -> list
-      _ -> File.cwd!
     end
   end
 end

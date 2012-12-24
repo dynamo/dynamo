@@ -21,6 +21,9 @@ defmodule Mix.TasksTest do
       output = System.cmd "MIX_ENV=prod mix compile"
       assert output =~ %r(Compiled app/routers/application_router.ex)
 
+      # TODO: Get rid of this
+      File.rm_rf "ebin"
+
       # Can compile for other environments too
       output = System.cmd "MIX_ENV=dev mix compile"
       assert output =~ %r(Generated my_compiled_app.app)
@@ -35,6 +38,9 @@ defmodule Mix.TasksTest do
       assert output =~ %r(filter Dynamo.Filters.Head)
       assert output =~ %r(filter \{Dynamo.Reloader.Filter,true,true\})
       assert output =~ %r(ApplicationRouter.service/1)
+
+      # TODO: Get rid of this
+      File.rm_rf "ebin"
 
       # Check it works with first compilation in prod
       output = System.cmd "MIX_ENV=prod mix do compile, dynamo.filters"
@@ -54,6 +60,9 @@ defmodule Mix.TasksTest do
 
       output = System.cmd %b{mix run "IO.inspect HelloRouter.__info__(:module)"}
       assert output =~ %r(HelloRouter)
+
+      # TODO: Get rid of this
+      File.rm_rf "ebin"
 
       output = System.cmd %b{MIX_ENV=prod mix do compile, run "IO.inspect HelloRouter.__info__(:module)"}
       assert output =~ %r(HelloRouter)

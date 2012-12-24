@@ -40,8 +40,7 @@ defmodule Dynamo.Static do
   @doc false
   def init(app) do
     dynamo  = app.config[:dynamo]
-    otp_app = dynamo[:otp_app]
-    root    = File.expand_path(dynamo[:static_root], lib_dir(otp_app))
+    root    = File.expand_path(dynamo[:static_root], app.root)
     route   = dynamo[:static_route]
     cache   = dynamo[:cache_static]
 
@@ -66,13 +65,6 @@ defmodule Dynamo.Static do
   end
 
   ## Server helpers
-
-  defp lib_dir(app) do
-    case :code.lib_dir(app) do
-      list when is_list(list) -> list
-      _ -> File.cwd!
-    end
-  end
 
   defp static_path(path, Config[] = config) do
     case File.stat(File.join(config.root, path)) do

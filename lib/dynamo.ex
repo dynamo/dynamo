@@ -120,11 +120,11 @@ defmodule Dynamo do
       @is_dynamo true
 
       @before_compile { unquote(__MODULE__), :load_env_file }
-      @before_compile { unquote(__MODULE__), :normalize_paths }
       @before_compile { unquote(__MODULE__), :define_endpoint }
       @before_compile { unquote(__MODULE__), :define_filters }
       @before_compile { unquote(__MODULE__), :define_templates_paths }
       @before_compile { unquote(__MODULE__), :define_static }
+      @before_compile { unquote(__MODULE__), :define_root }
 
       use Dynamo.Utils.Once
 
@@ -160,7 +160,17 @@ defmodule Dynamo do
         dynamo = config[:dynamo]
 
         if dynamo[:compile_on_demand] do
-          Dynamo.Reloader.append_paths(dynamo[:source_paths])
+          callback = fn
+            path, acc when is_binary(path) ->
+              (path /> File.expand_path(root) /> File.wildcard) ++ acc
+            _, acc ->
+              acc
+          end
+
+          source    = Enum.reduce dynamo[:source_paths], [], callback
+          templates = Enum.reduce dynamo[:templates_paths], [], callback
+
+          Dynamo.Reloader.append_paths(source -- templates)
           Dynamo.Reloader.enable
 
           if Code.ensure_loaded?(IEx) and IEx.started? do
@@ -211,31 +221,6 @@ defmodule Dynamo do
       file = "#{dir}/#{env}.exs"
       Code.string_to_ast! File.read!(file), file: file
     end
-  end
-
-  @doc false
-  defmacro normalize_paths(mod) do
-    dynamo = Module.get_attribute(mod, :config)[:dynamo]
-    root   = File.cwd!
-
-    source = dynamo[:source_paths]
-    source = Enum.reduce source, [], fn(path, acc) -> expand_paths(path, root) ++ acc end
-
-    templates = dynamo[:templates_paths]
-    templates = Enum.reduce templates, [], fn(path, acc) -> expand_paths(path, root) ++ acc end
-
-    # Remove templates that eventually end up on source
-    source = source -- templates
-
-    quote do
-      config :dynamo,
-        templates_paths: unquote(templates),
-        source_paths: unquote(source)
-    end
-  end
-
-  defp expand_paths(path, root) do
-    path /> File.expand_path(root) /> File.wildcard
   end
 
   @doc false
@@ -308,6 +293,14 @@ defmodule Dynamo do
 
     templates_server = dynamo[:supervisor].TemplatesServer
 
+    templates_paths  = lc path inlist templates_paths do
+      if is_binary(path) do
+        quote do: File.expand_path(unquote(path), root)
+      else
+        Macro.escape(path)
+      end
+    end
+
     quote location: :keep do
       @doc """
       Returns templates paths after being processed.
@@ -316,12 +309,12 @@ defmodule Dynamo do
       that can be precompiled will be precompiled and stored
       into a given module for performance.
       """
-      def templates_paths, do: unquote(Macro.escape(templates_paths))
+      def templates_paths, do: unquote(templates_paths)
 
       @doc """
       The worker responsible for rendering templates.
       """
-      def templates_server, do: unquote(Macro.escape(templates_server))
+      def templates_server, do: unquote(templates_server)
     end
   end
 
@@ -342,6 +335,41 @@ defmodule Dynamo do
 
         initializer :start_dynamo_static do
           Dynamo.Supervisor.start_child(config[:dynamo][:supervisor], Dynamo.Static, [__MODULE__])
+        end
+      end
+    end
+  end
+
+  @doc false
+  defmacro define_root(module) do
+    dynamo = Module.get_attribute(module, :config)[:dynamo]
+    root   =
+      cond do
+        dynamo[:root] -> dynamo[:root]
+        nil?(dynamo[:otp_app]) -> File.cwd!
+        true -> nil
+      end
+
+    if root do
+      quote location: :keep do
+        @doc """
+        Returns the root path for this Dynamo.
+        """
+        def root, do: unquote(root)
+      end
+    else
+      quote location: :keep do
+        @doc """
+        Returns the root path for this Dynamo
+        based on the OTP app directory.
+        """
+        def root do
+          case :code.lib_dir(unquote(dynamo[:otp_app])) do
+            list when is_list(list) -> list_to_binary(list)
+            _ ->
+              raise "could not find OTP app #{unquote(dynamo[:otp_app])} for #{inspect __MODULE__}. " <>
+                "This may happen if the directory name is different than the application name."
+          end
         end
       end
     end

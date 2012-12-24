@@ -123,8 +123,6 @@ defmodule Mix.Tasks.Dynamo do
         version: "0.0.1",
         dynamos: [<%= @mod %>.Dynamo],
         compilers: [:elixir, :dynamo, :app],
-        compile_path: "tmp/ebin",
-        env: [prod: [compile_path: "ebin"]],
         deps: deps ]
     end
 

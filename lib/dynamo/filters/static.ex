@@ -34,7 +34,7 @@ defmodule Dynamo.Filters.Static do
     if segments == nil or invalid_path?(segments) do
       fun.(conn)
     else
-      path = File.join([root_path(root)|segments])
+      path = File.join([conn.app.root, root|segments])
       if File.regular?(path) do
         mimes = :mimetypes.filename(path)
         conn
@@ -61,16 +61,5 @@ defmodule Dynamo.Filters.Static do
 
   defp invalid_path?(segments) do
     Enum.any?(segments, &1 in [".", ".."])
-  end
-
-  defp root_path({ app, root }) do
-    case :code.lib_dir(app) do
-      list when is_list(list) -> File.expand_path(root, list)
-      _ -> root
-    end
-  end
-
-  defp root_path(root) when is_binary(root) do
-    root
   end
 end
