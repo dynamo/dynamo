@@ -37,8 +37,12 @@ defmodule Dynamo.Templates do
   end
 
   def find(query, tmpl_paths) do
+    query = normalize_query(query)
     Enum.find_value(tmpl_paths, Dynamo.Templates.Finder.find(&1, query))
   end
+
+  defp normalize_query("/" <> query), do: query
+  defp normalize_query(query), do: query
 
   @doc """
   Finds the given template in any of the templates paths,

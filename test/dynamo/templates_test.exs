@@ -19,6 +19,11 @@ defmodule Dynamo.TemplatesTest do
     assert body == "HELLO!"
   end
 
+  test "renders a normalized template name" do
+    body = render "/hello.html"
+    assert body == "HELLO!"
+  end
+
   test "uses cached template unless it changes" do
     module = render "module.html"
     assert "Elixir-" <> _ = module
