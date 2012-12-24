@@ -19,12 +19,12 @@ defmodule Dynamo.Router.Utils do
       generate_match("/foo/:id") => ["foo", { :id, 0, nil }]
 
   """
-  def generate_match([h|_] = match) when is_binary(h) do
-    match
+  def generate_match([h|_] = match) when not is_integer(h) do
+    { [], match }
   end
 
   def generate_match(spec) when is_binary(spec) do
-    generate_match list_split(spec), []
+    generate_match list_split(spec), [], []
   end
 
   @doc """
@@ -36,14 +36,14 @@ defmodule Dynamo.Router.Utils do
       generate_forward("/foo/:id") => ["foo", { :id, 0, nil } | _glob]
 
   """
-  def generate_forward([h|_] = list) when is_binary(h) do
+  def generate_forward([h|_] = list) when not is_integer(h) do
     [h|t] = Enum.reverse(list)
     glob  = { :glob, 0, nil }
-    Enum.reverse [ { :|, 0, [h, glob] } | t ]
+    { [], Enum.reverse [ { :|, 0, [h, glob] } | t ] }
   end
 
   def generate_forward(spec) when is_binary(spec) do
-    generate_match list_split(spec) ++ ['*glob'], []
+    generate_match list_split(spec) ++ ['*glob'], [], []
   end
 
   @doc """
@@ -63,35 +63,37 @@ defmodule Dynamo.Router.Utils do
 
   # Loops each segment checking for matches.
 
-  defp generate_match([h|t], acc) do
-    handle_segment_match segment_match(h, []), t, acc
+  defp generate_match([h|t], vars, acc) do
+    handle_segment_match segment_match(h, []), t, vars, acc
   end
 
-  defp generate_match([], acc) do
-    Enum.reverse(acc)
+  defp generate_match([], vars, acc) do
+    { vars /> Enum.uniq /> Enum.reverse, Enum.reverse(acc) }
   end
 
   # Handle each segment match. They can either be a
   # :literal ('foo'), an identifier (':bar') or a glob ('*path')
 
-  def handle_segment_match({ :literal, literal }, t, acc) do
-    generate_match t, [literal|acc]
+  def handle_segment_match({ :literal, literal }, t, vars, acc) do
+    generate_match t, vars, [literal|acc]
   end
 
-  def handle_segment_match({ :identifier, _identifier, expr }, t, acc) do
-    generate_match t, [expr|acc]
+  def handle_segment_match({ :identifier, identifier, expr }, t, vars, acc) do
+    generate_match t, [identifier|vars], [expr|acc]
   end
 
-  def handle_segment_match({ :glob, _identifier, expr }, t, acc) do
+  def handle_segment_match({ :glob, identifier, expr }, t, vars, acc) do
     if t != [] do
       raise(Dynamo.Router.InvalidSpec, message: "cannot have a *glob followed by other segments")
     end
 
     case acc do
       [hs|ts] ->
-        final = [{ :|, 0, [hs, expr] } | ts]
-        Enum.reverse(final)
-      _ -> expr
+        acc = [{ :|, 0, [hs, expr] } | ts]
+        generate_match([], [identifier|vars], acc)
+      _ ->
+        { vars, expr } = generate_match([], [identifier|vars], [expr])
+        { vars, hd(expr) }
     end
   end
 

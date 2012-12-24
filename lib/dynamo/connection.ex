@@ -90,6 +90,19 @@ defmodule Dynamo.Connection do
   defcallback params(conn) :: Binary.Dict.t | no_return
 
   @doc """
+  Returns the parameters that were set as part of the route
+  matching. This is used internally by Dynamo and a developer
+  likely does not need to invoke it manually.
+  """
+  defcallback route_params(conn) :: Keyword.t
+
+  @doc """
+  Updates the route parameters. This is used internally by Dynamo
+  and a developer does not need to invoke it manually.
+  """
+  defcallback route_params(Keyword.t, conn) :: conn
+
+  @doc """
   Returns the request headers as `Binary.Dict`. Note that duplicated
   entries are removed. The headers need to be explicitly fetched with
   `conn.fetch(:headers)` before using this function. Headers keys are

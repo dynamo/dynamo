@@ -58,6 +58,7 @@ defmodule Dynamo.Connection.Behaviour do
           resp_cookies: [],
           resp_content_type: nil,
           resp_headers: Binary.Dict.new([{"cache-control", "max-age=0, private, must-revalidate"}]),
+          route_params: [],
           state: :unset,
           status: nil,
           script_name_segments: [] ] ++ unquote(opts)
@@ -111,6 +112,21 @@ defmodule Dynamo.Connection.Behaviour do
       @doc false
       def params(connection(params: params)) do
         params
+      end
+
+      @doc false
+      def route_params(connection(route_params: route_params)) do
+        route_params
+      end
+
+      @doc false
+      def route_params(new, connection(params: nil, route_params: route_params) = conn) do
+        connection(conn, route_params: route_params ++ new)
+      end
+
+      @doc false
+      def route_params(new, connection(params: params, route_params: route_params) = conn) do
+        connection(conn, route_params: route_params ++ new, params: Dict.merge(params, new))
       end
 
       @doc false

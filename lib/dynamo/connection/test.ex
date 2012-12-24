@@ -140,8 +140,9 @@ defmodule Dynamo.Connection.Test do
       req_headers: raw_req_headers)
   end
 
-  def fetch(:params, connection(query_string: query_string, params: nil, fetched: fetched) = conn) do
+  def fetch(:params, connection(query_string: query_string, params: nil, route_params: route_params, fetched: fetched) = conn) do
     params = Dynamo.Connection.QueryParser.parse(query_string)
+    params = Dict.merge(params, route_params)
     connection(conn, params: params, fetched: [:params|fetched])
   end
 
@@ -187,6 +188,7 @@ defmodule Dynamo.Connection.Test do
       query_string: uri.query || "",
       raw_req_body: body,
       req_body: nil,
+      route_params: [],
       script_name_segments: [])
 
     if uri.authority do

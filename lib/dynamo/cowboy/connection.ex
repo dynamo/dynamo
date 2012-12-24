@@ -147,11 +147,11 @@ defmodule Dynamo.Cowboy.Connection do
     connection(conn, req: req, req_body: body)
   end
 
-  def fetch(:params, connection(req: req, params: nil) = conn) do
+  def fetch(:params, connection(req: req, params: nil, route_params: route_params) = conn) do
     { query_string, req } = R.qs req
     params = Dynamo.Connection.QueryParser.parse(query_string)
     { params, req } = Dynamo.Cowboy.BodyParser.parse(params, req)
-    connection(conn, req: req, params: params)
+    connection(conn, req: req, params: merge_route_params(params, route_params))
   end
 
   def fetch(:cookies, connection(req: req, req_cookies: nil) = conn) do
@@ -177,6 +177,9 @@ defmodule Dynamo.Cowboy.Connection do
   end
 
   ## Helpers
+
+  defp merge_route_params(params, []), do: params
+  defp merge_route_params(params, route_params), do: Dict.merge(params, route_params)
 
   defp split_path(path) do
     case :binary.split(path, "/", [:global, :trim]) do

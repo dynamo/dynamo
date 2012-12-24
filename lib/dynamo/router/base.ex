@@ -303,13 +303,14 @@ defmodule Dynamo.Router.Base do
         true  -> raise ArgumentError, message: "Expected to: or do: to be given"
       end
 
-    match = apply Dynamo.Router.Utils, generator, [path]
+    { vars, match } = apply Dynamo.Router.Utils, generator, [path]
     args  = quote do: [_verb, unquote(match), var!(conn)]
 
     quote do
       args   = unquote(Macro.escape args)
       guards = unquote(Macro.escape guards)
-      body   = unquote(__MODULE__).__hooks__(__MODULE__, unquote(Macro.escape(contents)))
+      body   = unquote(__MODULE__).__hooks__(__MODULE__,
+                 unquote(Macro.escape(vars)), unquote(Macro.escape(contents)))
 
       def :dispatch, args, guards, do: body
     end
@@ -405,13 +406,21 @@ defmodule Dynamo.Router.Base do
 
   # Used to retrieve hooks at function definition.
   @doc false
-  def __hooks__(module, contents) do
+  def __hooks__(module, vars, contents) do
     hooks = compile_hooks Module.get_attribute(module, :finalize),
               quote(do: var!(conn)), :finalize, function(:compile_finalize, 3)
 
     hooks = quote do
       var!(conn) = unquote(contents)
       unquote(hooks)
+    end
+
+    unless vars == [] do
+      route_params = lc var inlist vars, do: { var, { var, 0, nil } }
+      hooks = quote do
+        var!(conn) = var!(conn).route_params(unquote(route_params))
+        unquote(hooks)
+      end
     end
 
     hooks = compile_hooks Module.get_attribute(module, :prepare),
