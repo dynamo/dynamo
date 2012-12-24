@@ -3,6 +3,7 @@ Code.require_file "../../../test_helper.exs", __FILE__
 defmodule Dynamo.Filters.StaticTest do
   defmodule StaticApp do
     use Dynamo.Router
+    use Dynamo
 
     filter Dynamo.Filters.Static.new("/public", File.expand_path("../../..", __FILE__))
 
@@ -15,8 +16,16 @@ defmodule Dynamo.Filters.StaticTest do
     end
   end
 
-  use ExUnit.Case, async: true
+  use ExUnit.Case
   use Dynamo.HTTP.Case
+
+  def setup_all do
+    Dynamo.under_test(StaticApp)
+  end
+
+  def teardown_all(_) do
+    Dynamo.under_test(nil)
+  end
 
   @endpoint StaticApp
 

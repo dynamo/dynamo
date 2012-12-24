@@ -34,7 +34,7 @@ defmodule Dynamo.Router.RenderingTest do
     end
   end
 
-  use ExUnit.Case, async: true
+  use ExUnit.Case
   use Dynamo.HTTP.Case
 
   def setup_all do

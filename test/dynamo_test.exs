@@ -7,6 +7,7 @@ defmodule DynamoTest do
     use Dynamo
 
     config :dynamo,
+      root: File.expand_path("../fixtures", __FILE__),
       endpoint: DynamoTest,
       static_root: File.expand_path("../fixtures/public", __FILE__),
       static_route: "/public",
@@ -27,18 +28,22 @@ defmodule DynamoTest do
     use Dynamo
 
     config :dynamo,
+      otp_app: :dynamo,
       endpoint: DynamoTest,
       static_root: false,
       compile_on_demand: true,
       reload_modules: true,
-      templates_paths: [File.expand_path("../fixtures/templates", __FILE__)]
+      templates_paths: ["test/fixtures/templates"]
   end
 
   ## Config
 
-  test "removes templates from source paths" do
-    templates_path = File.expand_path("../fixtures/templates", __FILE__)
-    refute templates_path inlist App.config[:dynamo][:source_paths]
+  test "defines root based on otp app" do
+    assert ReloadApp.root == File.expand_path("../..", __FILE__)
+  end
+
+  test "defines root based on user config" do
+    assert App.root == File.expand_path("../fixtures", __FILE__)
   end
 
   ## Filters
