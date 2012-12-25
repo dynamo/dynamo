@@ -139,7 +139,10 @@ defmodule Dynamo.Connection.TestTest do
     assert conn.status == 201
     assert conn.sent_body == ""
 
-    conn = conn.chunk("1").chunk("2").chunk("3")
+    { :ok, conn } = conn.chunk("1")
+    { :ok, conn } = conn.chunk("2")
+    { :ok, conn } = conn.chunk("3")
+
     assert conn.state  == :chunked
     assert conn.status == 201
     assert conn.sent_body == "123"
@@ -150,7 +153,10 @@ defmodule Dynamo.Connection.TestTest do
     assert conn.state  == :chunked
     assert conn.sent_body == ""
 
-    conn = conn.chunk("1").chunk("2").chunk("3")
+    { :ok, conn } = conn.chunk("1")
+    { :ok, conn } = conn.chunk("2")
+    { :ok, conn } = conn.chunk("3")
+
     assert conn.sent_body == ""
   end
 

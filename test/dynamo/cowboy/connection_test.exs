@@ -337,7 +337,11 @@ defmodule Dynamo.Cowboy.ConnectionTest do
   end
 
   def send_chunked(conn) do
-    conn.send_chunked(200).chunk("1").chunk("2").chunk("3")
+    conn = conn.send_chunked(200)
+    { :ok, conn } = conn.chunk("1")
+    { :ok, conn } = conn.chunk("2")
+    { :ok, conn } = conn.chunk("3")
+    conn
   end
 
   test :send_chunked do

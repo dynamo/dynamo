@@ -238,7 +238,7 @@ defmodule Dynamo.Connection do
   Send the given data through the socket.
   `send_chunked/2` needs to be called before `chunk/2`.
   """
-  defcallback chunk(body, conn) :: conn | { :error, atom }
+  defcallback chunk(body, conn) :: { :ok, conn } | { :error, atom }
 
   @doc """
   Returns the response status if one was set.

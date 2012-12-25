@@ -111,7 +111,7 @@ defmodule Dynamo.Connection.Test do
 
   @doc false
   def chunk(body, connection(state: state, sent_body: sent) = conn) when state == :chunked do
-    connection(conn, sent_body: check_sent_body(conn, sent <> body))
+    { :ok, connection(conn, sent_body: check_sent_body(conn, sent <> body)) }
   end
 
   defp check_sent_body(connection(original_method: "HEAD"), _body), do: ""
