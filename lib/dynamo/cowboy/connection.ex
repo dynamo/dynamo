@@ -124,8 +124,10 @@ defmodule Dynamo.Cowboy.Connection do
 
   @doc false
   def chunk(body, connection(state: state, req: req) = conn) when state == :chunked do
-    R.chunk(body, req)
-    conn
+    case R.chunk(body, req) do
+      :ok   -> conn
+      other -> other
+    end
   end
 
   @doc false
