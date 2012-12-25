@@ -162,6 +162,14 @@ defmodule Dynamo.Cowboy.ConnectionTest do
     conn
   end
 
+  def req_cookies_2(conn) do
+    import :functions, Dynamo.HTTP.Cookies
+
+    conn = conn.fetch(:cookies)
+    assert get_cookie(conn, "foo") == "bar=baz"
+    conn
+  end
+
   def resp_cookies_0(conn) do
     import :functions, Dynamo.HTTP.Cookies
 
@@ -194,8 +202,9 @@ defmodule Dynamo.Cowboy.ConnectionTest do
   end
 
   test :req_cookies do
-    assert_success request :get, "/req_cookies_0", [{ "Cookie", %b(foo="bar"; baz="bat") }]
-    assert_success request :get, "/req_cookies_1", [{ "Cookie", %b(foo="bar"; baz="bat") }]
+    assert_success request :get, "/req_cookies_0", [{ "Cookie", %b(foo=bar; baz=bat) }]
+    assert_success request :get, "/req_cookies_1", [{ "Cookie", %b(foo=bar; baz=bat) }]
+    assert_success request :get, "/req_cookies_2", [{ "Cookie", %b(foo=bar=baz) }]
   end
 
   test :resp_cookies do
@@ -206,16 +215,16 @@ defmodule Dynamo.Cowboy.ConnectionTest do
     assert List.keyfind(headers, "set-cookie", 0) == { "set-cookie", "foo=bar; path=/hello; HttpOnly" }
 
     headers = List.keydelete(headers, "set-cookie", 0)
-    assert List.keyfind(headers, "set-cookie", 0) == { "set-cookie","bar=baz" }
+    assert List.keyfind(headers, "set-cookie", 0) == { "set-cookie", "bar=baz; path=/" }
   end
 
   test :req_resp_cookies do
-    response = request :get, "/req_resp_cookies", [{ "Cookie", %b(foo="bar"; baz="bat") }]
+    response = request :get, "/req_resp_cookies", [{ "Cookie", %b(foo=bar; baz=bat) }]
     assert_success response
 
     { _, headers, _ } = response
     { "set-cookie", contents } = List.keyfind(headers, "set-cookie", 0)
-    assert contents =~ %r"foo=; expires=Thu, 01 Jan 1970 12:00:00 GMT; max-age=0; HttpOnly"
+    assert contents =~ %r"foo=; path=/; expires=Thu, 01 Jan 1970 12:00:00 GMT; max-age=0; HttpOnly"
 
     headers = List.keydelete(headers, "set-cookie", 0)
     assert List.keyfind(headers, "set-cookie", 0) == nil

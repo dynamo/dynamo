@@ -13,6 +13,17 @@ defmodule Dynamo.HTTP.CookiesTest do
     conn
   end
 
+  test :get_cookies do
+    conn = conn(:GET, "/").put_req_cookie(:foo, "bar")
+             .put_req_cookie(:baz, "bat").fetch(:cookies)
+    assert get_cookies(conn) == Binary.Dict.new([foo: "bar", baz: "bat"])
+
+    conn = put_cookie(conn, :baz, "new")
+    assert get_cookies(conn) == Binary.Dict.new([foo: "bar", baz: "new"])
+
+    conn
+  end
+
   test :set_cookies do
     conn = conn(:GET, "/")
     assert conn.resp_cookies == []

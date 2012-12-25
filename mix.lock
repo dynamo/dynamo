@@ -1,4 +1,4 @@
-[ "cowboy": {:git,"https://github.com/extend/cowboy.git","d761a343807661fe7343f2f0977b4b1819cb8695",[]},
+[ "cowboy": {:git,"https://github.com/extend/cowboy.git","a3049f7100bb9f3cbaef1db6bf6cdeb750d9e298",[]},
   "edown": {:git,"https://github.com/esl/edown.git","35f8296a25d14c5c1e3209399a2c1856700d9d5b",[]},
   "hackney": {:git,"https://github.com/benoitc/hackney.git","2d69d7ce52d06ecc360b104dcb978da3e24ce304",[]},
   "mimetypes": {:git,"https://github.com/spawngrid/mimetypes.git","e9dfab5aec98963589ecf13bdfcf0490667a730d",[]},

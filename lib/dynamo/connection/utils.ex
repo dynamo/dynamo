@@ -75,13 +75,7 @@ defmodule Dynamo.Connection.Utils do
   end
 
   def cookie_header(key, value, options) do
-    key    = URI.encode(key)
-    value  = URI.encode(value)
-    header = "#{key}=#{value}"
-
-    if path = options[:path] do
-      header = header <> "; path=#{path}"
-    end
+    header = "#{key}=#{value}; path=#{Keyword.get(options, :path, "/")}"
 
     if domain = options[:domain] do
       header = header <> "; domain=#{domain}"

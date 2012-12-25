@@ -5,6 +5,16 @@ defmodule Dynamo.HTTP.Cookies do
   """
 
   @doc """
+  Returns all cookies. In case you want to retrieve
+  just a value, it is recommended to use `get_cookie/2`.
+  """
+  def get_cookies(conn) do
+    Enum.reduce conn.resp_cookies, conn.req_cookies, fn({ key, value, _opts }, acc) ->
+      Binary.Dict.put(acc, key, value)
+    end
+  end
+
+  @doc """
   Returns the cookie value regardless if it was given sent
   on the request or set as part of the response.
   """
