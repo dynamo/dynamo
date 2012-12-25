@@ -39,8 +39,9 @@ defmodule Dynamo.HTTP.Hibernate do
   http://www.erlang.org/doc/man/erlang.html#hibernate-3
   """
   def hibernate(conn, on_wake_up) when is_function(on_wake_up, 2) do
-    clear_timeout(conn)
-    :erlang.hibernate(__MODULE__, :__loop__, [conn, on_wake_up, :no_timeout_callback])
+    __start__ conn, on_wake_up, fn ->
+      :erlang.hibernate(__MODULE__, :__loop__, [conn, on_wake_up, :no_timeout_callback])
+    end
   end
 
   @doc """
@@ -56,9 +57,10 @@ defmodule Dynamo.HTTP.Hibernate do
   """
   def hibernate(conn, timeout, on_wake_up, on_timeout) when is_integer(timeout) and
       is_function(on_wake_up, 2) and is_function(on_timeout, 1) do
-    clear_timeout(conn)
-    conn = set_timeout(conn, timeout)
-    :erlang.hibernate(__MODULE__, :__loop__, [conn, on_wake_up, on_timeout])
+    __start__ conn, on_wake_up, fn ->
+      conn = set_timeout(conn, timeout)
+      :erlang.hibernate(__MODULE__, :__loop__, [conn, on_wake_up, on_timeout])
+    end
   end
 
   @doc """
@@ -67,8 +69,9 @@ defmodule Dynamo.HTTP.Hibernate do
   received message on wake up.
   """
   def await(conn, on_wake_up) when is_function(on_wake_up, 2) do
-    clear_timeout(conn)
-    __loop__(conn, on_wake_up, :no_timeout_callback)
+    __start__ conn, on_wake_up, fn ->
+      __loop__(conn, on_wake_up, :no_timeout_callback)
+    end
   end
 
   @doc """
@@ -81,9 +84,24 @@ defmodule Dynamo.HTTP.Hibernate do
   """
   def await(conn, timeout, on_wake_up, on_timeout) when is_integer(timeout) and
       is_function(on_wake_up, 2) and is_function(on_timeout, 1) do
-    clear_timeout(conn)
-    conn = set_timeout(conn, timeout)
-    __loop__(conn, on_wake_up, on_timeout)
+    __start__ conn, on_wake_up, fn ->
+      conn = set_timeout(conn, timeout)
+      __loop__(conn, on_wake_up, on_timeout)
+    end
+  end
+
+  @doc false
+  def __start__(conn, on_wake_up, callback) do
+    receive do
+      { :timeout, older_ref, __MODULE__ } when is_reference(older_ref) ->
+        __start__(conn, on_wake_up, callback)
+      msg ->
+        on_wake_up.(msg, conn)
+    after
+      0 ->
+        clear_timeout(conn)
+        callback.()
+    end
   end
 
   @doc false
@@ -95,7 +113,7 @@ defmodule Dynamo.HTTP.Hibernate do
       { :timeout, older_ref, __MODULE__ } when is_reference(older_ref) ->
         __loop__(conn, on_wake_up, on_timeout)
       msg ->
-        on_wake_up.(conn, msg)
+        on_wake_up.(msg, conn)
     end
   end
 

@@ -116,7 +116,6 @@ defmodule Dynamo.HTTP.RenderTest do
     assert conn.resp_content_type == "text/html"
   end
 
-
   test "raises on invalid template" do
     assert_raise Dynamo.TemplateNotFound, fn ->
       get("/unknown.html")

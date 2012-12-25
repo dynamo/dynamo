@@ -84,7 +84,7 @@ defmodule Dynamo.HTTP.HibernateTest do
     end
   end
 
-  defp on_wake_up(conn, "hello") do
+  defp on_wake_up("hello", conn) do
     conn.assigns[:parent] <- :awaken
   end
 
