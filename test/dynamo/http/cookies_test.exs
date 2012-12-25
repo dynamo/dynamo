@@ -24,7 +24,7 @@ defmodule Dynamo.HTTP.CookiesTest do
     conn
   end
 
-  test :set_cookies do
+  test :put_cookies do
     conn = conn(:GET, "/")
     assert conn.resp_cookies == []
 

@@ -37,9 +37,11 @@ defmodule Dynamo.Helpers.Rendering do
 
     { [conn], body } = Dynamo.Templates.render(renderer, template, [conn: conn], assigns, prelude)
 
-    if layout do
-      template         = Dynamo.Templates.find!("layouts/" <> layout, tmpl_paths)
-      { [conn], body } = Dynamo.Templates.render(renderer, template, [conn: conn], assigns, prelude)
+    if layout && (layout = Dynamo.Templates.find_layout(layout, template, tmpl_paths)) do
+      previous = Dynamo.Helpers.ContentFor.get_content(conn, :template)
+      conn = Dynamo.Helpers.ContentFor.put_content(conn, :template, body)
+      { [conn], body } = Dynamo.Templates.render(renderer, layout, [conn: conn], assigns, prelude)
+      conn = Dynamo.Helpers.ContentFor.put_content(conn, :template, previous)
     end
 
     { conn, body }

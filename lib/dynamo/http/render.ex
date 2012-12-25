@@ -34,12 +34,16 @@ defmodule Dynamo.HTTP.Render do
   ## Layouts
 
   Rendering also supports layouts. The layout name should
-  be given as an assign. It is common to set a layout that
-  is used throughout the application in your `ApplicationRouter`
-  and it will be carried out to all other routers:
+  be given as an assign. After the template is found, a layout
+  with the same format will be looked up and rendered if
+  available.
+
+  It is common to set a layout that is used throughout the
+  dynamo in your `ApplicationRouter` and it will be carried
+  out to all other routers:
 
       prepare do
-        conn.assign :layout, "application.html"
+        conn.assign :layout, "application"
       end
 
   """
@@ -49,9 +53,10 @@ defmodule Dynamo.HTTP.Render do
     tmpl_paths = app.templates_paths
     prelude    = fn -> app.templates_prelude end
     template   = Dynamo.Templates.find!(template, tmpl_paths)
+    format     = template.format
 
-    if template.format && !conn.resp_content_type do
-      mime = :mimetypes.ext_to_mimes(template.format)
+    if format && !conn.resp_content_type do
+      mime = :mimetypes.ext_to_mimes(format)
       conn = conn.resp_content_type(hd(mime))
     end
 
@@ -59,10 +64,9 @@ defmodule Dynamo.HTTP.Render do
     layout  = assigns[:layout]
     { [conn], body } = Dynamo.Templates.render(renderer, template, [conn: conn], assigns, prelude)
 
-    if layout do
-      template = Dynamo.Templates.find!("layouts/" <> layout, tmpl_paths)
-      conn     = Dynamo.Helpers.ContentFor.put_content(conn, :template, body)
-      { [conn], body } = Dynamo.Templates.render(renderer, template, [conn: conn], assigns, prelude)
+    if layout && (layout = Dynamo.Templates.find_layout(layout, template, tmpl_paths)) do
+      conn = Dynamo.Helpers.ContentFor.put_content(conn, :template, body)
+      { [conn], body } = Dynamo.Templates.render(renderer, layout, [conn: conn], assigns, prelude)
     end
 
     conn.resp_body(body)

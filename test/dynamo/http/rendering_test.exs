@@ -5,15 +5,15 @@ defmodule Dynamo.HTTP.RenderTest do
     use Dynamo.Router
 
     get "/set_content_type" do
-      render conn.resp_content_type("application/json"), "hello.html"
+      render conn.resp_content_type("application/json"), "hello"
     end
 
     get "/with_layout" do
-      render conn, "content_for.html", layout: "yield.html"
+      render conn, "content_for.html", layout: "yield"
     end
 
     get "/with_nested" do
-      render conn, "nested.html", layout: "yield.html"
+      render conn, "nested.html", layout: "yield"
     end
 
     get "/:template" do

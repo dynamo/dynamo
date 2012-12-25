@@ -54,6 +54,17 @@ defmodule Dynamo.Templates do
   end
 
   @doc """
+  Finds a layout in the layouts view path for the given
+  query and template.
+  """
+  def find_layout(layout, template, tmpl_paths) do
+    (format = template.format) ||
+      raise ArgumentError, message: "cannot find layout #{layout} for template #{template.identifier} since it has no format"
+
+    find File.join("layouts", layout) <> ".#{format}", tmpl_paths
+  end
+
+  @doc """
   Renders the given template with the given assigns.
   Expects the template renderer server as first argument.
   """
