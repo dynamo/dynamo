@@ -26,6 +26,16 @@ defmodule Dynamo.HTTP.HibernateTest do
     assert await_wake_up(pid)
   end
 
+  test "hibernates with infinite timeout and invokes wake up callback" do
+    conn = conn(:GET, "/").assign(:parent, self())
+
+    pid = spawn_link fn ->
+      hibernate conn, :infinity, on_wake_up(&1, &2), on_timeout(&1)
+    end
+
+    assert await_wake_up(pid)
+  end
+
   test "hibernates with timeout and invokes time out callback" do
     conn = conn(:GET, "/").assign(:parent, self())
 

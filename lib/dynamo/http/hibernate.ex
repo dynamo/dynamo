@@ -55,7 +55,7 @@ defmodule Dynamo.HTTP.Hibernate do
   For more information on hibernation, check:
   http://www.erlang.org/doc/man/erlang.html#hibernate-3
   """
-  def hibernate(conn, timeout, on_wake_up, on_timeout) when is_integer(timeout) and
+  def hibernate(conn, timeout, on_wake_up, on_timeout) when (is_integer(timeout) or timeout == :infinity) and
       is_function(on_wake_up, 2) and is_function(on_timeout, 1) do
     __start__ conn, on_wake_up, fn ->
       conn = set_timeout(conn, timeout)
@@ -76,13 +76,13 @@ defmodule Dynamo.HTTP.Hibernate do
 
   @doc """
   Sleeps the current process until a message is received
-  but also sets a timeout for hibernation time.
+  but also sets a timeout.
 
   The `on_wake_up` callback is invoked with the `conn` and the
   received message on wake up. A `on_timeout` callback is
   invoked when it times out.
   """
-  def await(conn, timeout, on_wake_up, on_timeout) when is_integer(timeout) and
+  def await(conn, timeout, on_wake_up, on_timeout) when (is_integer(timeout) or timeout == :infinity) and
       is_function(on_wake_up, 2) and is_function(on_timeout, 1) do
     __start__ conn, on_wake_up, fn ->
       conn = set_timeout(conn, timeout)
@@ -121,6 +121,8 @@ defmodule Dynamo.HTTP.Hibernate do
     ref = conn.private[@key]
     ref && :erlang.cancel_timer(ref)
   end
+
+  defp set_timeout(conn, :infinity), do: conn
 
   defp set_timeout(conn, timeout) do
     ref = :erlang.start_timer(timeout, self(), __MODULE__)
