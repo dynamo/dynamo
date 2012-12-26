@@ -26,6 +26,9 @@ defmodule Dynamo.HTTP.Hibernate do
     hibernate(conn, timeout, on_wake_up(&1, &2), on_timeout(&1))
     await(conn, timeout, on_wake_up(&1, &2), on_timeout(&1))
 
+  Besides an positive integer or `:infinity`, this module also
+  allows `:keep` as timeout value. This is useful to preserve
+  a previously set timeout value.
   """
 
   @key :dynamo_timeref
@@ -39,7 +42,8 @@ defmodule Dynamo.HTTP.Hibernate do
   http://www.erlang.org/doc/man/erlang.html#hibernate-3
   """
   def hibernate(conn, on_wake_up) when is_function(on_wake_up, 2) do
-    __start__ conn, on_wake_up, fn ->
+    clear_timeout(conn)
+    __loop__ conn, on_wake_up, :no_timeout_callback, 0, fn ->
       :erlang.hibernate(__MODULE__, :__loop__, [conn, on_wake_up, :no_timeout_callback])
     end
   end
@@ -55,10 +59,11 @@ defmodule Dynamo.HTTP.Hibernate do
   For more information on hibernation, check:
   http://www.erlang.org/doc/man/erlang.html#hibernate-3
   """
-  def hibernate(conn, timeout, on_wake_up, on_timeout) when (is_integer(timeout) or timeout == :infinity) and
+  def hibernate(conn, timeout, on_wake_up, on_timeout) when (is_integer(timeout) or timeout in [:infinity, :keep]) and
       is_function(on_wake_up, 2) and is_function(on_timeout, 1) do
-    __start__ conn, on_wake_up, fn ->
-      conn = set_timeout(conn, timeout)
+    clear_timeout(conn, timeout)
+    conn = set_timeout(conn, timeout)
+    __loop__ conn, on_wake_up, on_timeout, 0, fn ->
       :erlang.hibernate(__MODULE__, :__loop__, [conn, on_wake_up, on_timeout])
     end
   end
@@ -69,7 +74,8 @@ defmodule Dynamo.HTTP.Hibernate do
   received message on wake up.
   """
   def await(conn, on_wake_up) when is_function(on_wake_up, 2) do
-    __start__ conn, on_wake_up, fn ->
+    clear_timeout(conn)
+    __loop__ conn, on_wake_up, :no_timeout_callback, 0, fn ->
       __loop__(conn, on_wake_up, :no_timeout_callback)
     end
   end
@@ -82,47 +88,44 @@ defmodule Dynamo.HTTP.Hibernate do
   received message on wake up. A `on_timeout` callback is
   invoked when it times out.
   """
-  def await(conn, timeout, on_wake_up, on_timeout) when (is_integer(timeout) or timeout == :infinity) and
+  def await(conn, timeout, on_wake_up, on_timeout) when (is_integer(timeout) or timeout in [:infinity, :keep]) and
       is_function(on_wake_up, 2) and is_function(on_timeout, 1) do
-    __start__ conn, on_wake_up, fn ->
-      conn = set_timeout(conn, timeout)
+    clear_timeout(conn, timeout)
+    conn = set_timeout(conn, timeout)
+    __loop__ conn, on_wake_up, on_timeout, 0, fn ->
       __loop__(conn, on_wake_up, on_timeout)
     end
   end
 
   @doc false
-  def __start__(conn, on_wake_up, callback) do
+  def __loop__(conn, on_wake_up, on_timeout) do
+    __loop__(conn, on_wake_up, on_timeout, :infinity, :no_after_callback)
+  end
+
+  defp __loop__(conn, on_wake_up, on_timeout, timer, callback) do
+    ref = conn.private[@key]
     receive do
+      { :timeout, ^ref, __MODULE__ } when is_function(on_timeout) ->
+        on_timeout.(conn)
       { :timeout, older_ref, __MODULE__ } when is_reference(older_ref) ->
-        __start__(conn, on_wake_up, callback)
+        __loop__(conn, on_wake_up, on_timeout, timer, callback)
       msg ->
         on_wake_up.(msg, conn)
     after
-      0 ->
-        clear_timeout(conn)
+      timer ->
         callback.()
     end
   end
 
-  @doc false
-  def __loop__(conn, on_wake_up, on_timeout) do
-    ref = conn.private[@key]
-    receive do
-      { :timeout, ^ref, __MODULE__ } ->
-        on_timeout.(conn)
-      { :timeout, older_ref, __MODULE__ } when is_reference(older_ref) ->
-        __loop__(conn, on_wake_up, on_timeout)
-      msg ->
-        on_wake_up.(msg, conn)
-    end
-  end
+  defp clear_timeout(conn, :keep), do: conn
+  defp clear_timeout(conn, _),     do: clear_timeout(conn)
 
   defp clear_timeout(conn) do
     ref = conn.private[@key]
     ref && :erlang.cancel_timer(ref)
   end
 
-  defp set_timeout(conn, :infinity), do: conn
+  defp set_timeout(conn, timeout) when timeout in [:infinity, :keep], do: conn
 
   defp set_timeout(conn, timeout) do
     ref = :erlang.start_timer(timeout, self(), __MODULE__)

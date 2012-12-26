@@ -6,6 +6,18 @@ defmodule Dynamo.HTTP.HibernateTest do
   use Dynamo.HTTP.Case
   import Dynamo.HTTP.Hibernate
 
+  def setup(_) do
+    flush
+  end
+
+  def flush do
+    receive do
+      _ -> flush
+    after
+      0 -> :done
+    end
+  end
+
   test "hibernates and invokes wake up callback" do
     conn = conn(:GET, "/").assign(:parent, self())
 
@@ -43,6 +55,20 @@ defmodule Dynamo.HTTP.HibernateTest do
       hibernate conn, 10, on_wake_up(&1, &2), on_timeout(&1)
     end
 
+    assert_timeout
+  end
+
+  test "hibernates with timeout and invokes time out callback even with received message" do
+    conn = conn(:GET, "/").assign(:parent, self())
+
+    pid = spawn_link fn ->
+      hibernate conn, 500, fn(msg, conn) ->
+        on_wake_up(msg, conn)
+        hibernate conn, :keep, on_wake_up(&1, &2), on_timeout(&1)
+      end, on_timeout(&1)
+    end
+
+    assert await_wake_up(pid)
     assert_timeout
   end
 
