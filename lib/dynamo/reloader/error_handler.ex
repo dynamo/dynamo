@@ -12,9 +12,11 @@ defmodule Dynamo.Reloader.ErrorHandler do
   end
 
   defp ensure_loaded(module) do
-    case Code.ensure_loaded(module) do
-      { :module, _ } -> :ok
-      { :error, _ }  -> Dynamo.Reloader.load_missing(module)
+    if Process.whereis(:code_server) do
+      case Code.ensure_loaded(module) do
+        { :module, _ } -> :ok
+        { :error, _ }  -> Dynamo.Reloader.load_missing(module)
+      end
     end
   end
 end
