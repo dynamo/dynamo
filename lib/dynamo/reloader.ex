@@ -68,9 +68,10 @@ defmodule Dynamo.Reloader do
             try do
               Code.require_file(file) || []
             catch
-              kind, reason, stack ->
+              kind, reason ->
+                stacktrace = System.stacktrace
                 Code.unload_files [file]
-                :erlang.raise(kind, reason, stack)
+                :erlang.raise(kind, reason, stacktrace)
             end
           modules = lc { mod, _ } inlist tuples, do: mod
           :gen_server.cast(__MODULE__, { :loaded, file, modules })
