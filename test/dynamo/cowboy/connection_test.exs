@@ -16,7 +16,7 @@ defmodule Dynamo.Cowboy.ConnectionTest do
     apply __MODULE__, function, [conn]
   rescue
     exception ->
-      conn.send(500, exception.message <> "\n" <> Exception.formatted_stacktrace)
+      conn.send(500, exception.message <> "\n" <> Exception.format_stacktrace)
   end
 
   # Request API
