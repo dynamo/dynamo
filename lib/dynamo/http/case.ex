@@ -84,6 +84,8 @@ defmodule Dynamo.HTTP.Case do
     quote do
       @endpoint Dynamo.under_test
       import unquote(__MODULE__)
+      import Dynamo.HTTP.Cookies
+      import Dynamo.HTTP.Session
     end
   end
 
@@ -148,6 +150,19 @@ defmodule Dynamo.HTTP.Case do
     quote do
       unquote(__MODULE__).process @endpoint, unquote(arg1), unquote(method), unquote(arg2)
     end
+  end
+
+  @doc """
+  Writes a session cookie according to the current store to
+  be used in the next request. This is the preferred way to
+  set the session before a request.
+  """
+  def put_session_cookie(conn, session) do
+    dynamo = conn.app.config[:dynamo]
+    store  = dynamo[:session_store]
+    opts   = store.setup dynamo[:session_options]
+    value  = store.put_session(nil, session, opts)
+    conn.put_req_cookie(opts[:key], value)
   end
 
   @doc """

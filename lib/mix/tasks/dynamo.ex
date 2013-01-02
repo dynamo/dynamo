@@ -215,7 +215,7 @@ defmodule Mix.Tasks.Dynamo do
 
     # Uncomment the lines below to enable the cookie session store
     # config :dynamo,
-    #   session_store: CookieStore,
+    #   session_store: Session.CookieStore,
     #   session_options:
     #     [ key: "_<%= @app %>_session",
     #       secret: "<%= :crypto.strong_rand_bytes(48) /> :base64.encode %>"]

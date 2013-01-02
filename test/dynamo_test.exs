@@ -18,7 +18,7 @@ defmodule DynamoTest do
 
     # Test session compilation as well
     config :dynamo,
-      session_store: CookieStore,
+      session_store: Session.CookieStore,
       session_options:
         [ key: "_foo_session",
           secret: "8RR6p7LJ6YN+vn8br/qZ6R0A1UXWIYRLNuvqvmJw7eLf6/ZTDXljAdNpHQhIzIRF"]

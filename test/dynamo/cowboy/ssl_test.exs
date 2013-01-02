@@ -4,8 +4,8 @@ defmodule Dynamo.Cowboy.SSLTest do
   use ExUnit.Case, async: true
 
   defmodule App do
-    use Dynamo.Router
     use Dynamo
+    use Dynamo.Router
 
     get "/scheme" do
       conn.send(200, "scheme: " <> atom_to_binary(conn.scheme))

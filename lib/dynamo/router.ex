@@ -57,11 +57,6 @@ defmodule Dynamo.Router do
   defmacro __using__(_) do
     quote do
       @dynamo_router true
-
-      if @is_dynamo do
-        raise "use Dynamo needs to be defined after Dynamo.Router"
-      end
-
       use Dynamo.Utils.Once
 
       use_once Dynamo.Router.Base

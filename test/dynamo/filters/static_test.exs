@@ -2,8 +2,8 @@ Code.require_file "../../../test_helper.exs", __FILE__
 
 defmodule Dynamo.Filters.StaticTest do
   defmodule StaticApp do
-    use Dynamo.Router
     use Dynamo
+    use Dynamo.Router
 
     filter Dynamo.Filters.Static.new("/public", File.expand_path("../../..", __FILE__))
 

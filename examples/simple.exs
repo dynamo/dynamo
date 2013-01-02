@@ -3,10 +3,11 @@
 #     mix run -r examples/simple.exs --no-halt
 #
 defmodule MyDynamo do
-  use Dynamo.Router
   use Dynamo
+  use Dynamo.Router
 
   config :dynamo,
+    templates_paths: [],
     compile_on_demand: false
 
   config :server,

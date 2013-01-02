@@ -116,81 +116,93 @@ defmodule Dynamo do
   defmacro __using__(_) do
     Dynamo.App.start
 
-    quote location: :keep do
-      @is_dynamo true
+    setup =
+      quote do
+        if @dynamo_router do
+          raise "Dynamo needs to be used before Dynamo.Router"
+        end
 
-      @before_compile { unquote(__MODULE__), :load_env_file }
-      @before_compile { unquote(__MODULE__), :define_endpoint }
-      @before_compile { unquote(__MODULE__), :define_filters }
-      @before_compile { unquote(__MODULE__), :define_templates_paths }
-      @before_compile { unquote(__MODULE__), :define_static }
-      @before_compile { unquote(__MODULE__), :define_root }
+        @before_compile { unquote(__MODULE__), :load_env_file }
+        @before_compile { unquote(__MODULE__), :define_endpoint }
+        @before_compile { unquote(__MODULE__), :define_filters }
+        @before_compile { unquote(__MODULE__), :define_templates_paths }
+        @before_compile { unquote(__MODULE__), :define_static }
+        @before_compile { unquote(__MODULE__), :define_root }
 
-      use Dynamo.Utils.Once
+        use Dynamo.Utils.Once
+        alias Dynamo.Filters.Session, as: Session
 
-      use_once Dynamo.Base
-      use_once Dynamo.Router.Filters
+        use_once Dynamo.Base
+        use_once Dynamo.Router.Filters
 
-      config :dynamo, unquote(default_dynamo_config(__CALLER__))
-      config :server, [handler: Dynamo.Cowboy, port: 4000]
-
-      @doc """
-      Starts the application supervisor and run all
-      registered initializers.
-      """
-      def start_link(opts // []) do
-        info = Dynamo.Supervisor.start_link(config[:dynamo][:supervisor], opts)
-        run_initializers
-        info
+        config :dynamo, unquote(default_dynamo_config(__CALLER__))
+        config :server, [handler: Dynamo.Cowboy, port: 4000]
       end
 
-      @doc """
-      Runs the app in the configured web server.
-      """
-      def run(options // []) do
-        dynamo  = config[:dynamo]
-        options = Keyword.put(options, :ssl, config[:ssl])
-        options = Keyword.put(options, :env, dynamo[:env])
-        options = Keyword.put(options, :otp_app, dynamo[:otp_app])
-        options = Keyword.merge(config[:server], options)
-        options[:handler].run(__MODULE__, options)
-      end
+    definitions =
+      quote location: :keep do
+        @doc """
+        Starts the application supervisor and run all
+        registered initializers.
+        """
+        def start_link(opts // []) do
+          info = Dynamo.Supervisor.start_link(config[:dynamo][:supervisor], opts)
+          run_initializers
+          info
+        end
 
-      initializer :start_dynamo_reloader do
-        dynamo = config[:dynamo]
+        @doc """
+        Runs the app in the configured web server.
+        """
+        def run(options // []) do
+          dynamo  = config[:dynamo]
+          options = Keyword.put(options, :ssl, config[:ssl])
+          options = Keyword.put(options, :env, dynamo[:env])
+          options = Keyword.put(options, :otp_app, dynamo[:otp_app])
+          options = Keyword.merge(config[:server], options)
+          options[:handler].run(__MODULE__, options)
+        end
 
-        if dynamo[:compile_on_demand] do
-          callback = fn
-            path, acc when is_binary(path) ->
-              (path /> File.expand_path(root) /> File.wildcard) ++ acc
-            _, acc ->
-              acc
+        initializer :start_dynamo_reloader do
+          dynamo = config[:dynamo]
+
+          if dynamo[:compile_on_demand] do
+            callback = fn
+              path, acc when is_binary(path) ->
+                (path /> File.expand_path(root) /> File.wildcard) ++ acc
+              _, acc ->
+                acc
+            end
+
+            source    = Enum.reduce dynamo[:source_paths], [], callback
+            templates = Enum.reduce dynamo[:templates_paths], [], callback
+
+            Dynamo.Reloader.append_paths(source -- templates)
+            Dynamo.Reloader.enable
+
+            if Code.ensure_loaded?(IEx) and IEx.started? do
+              IEx.after_spawn(fn -> Dynamo.Reloader.enable end)
+            end
           end
+        end
 
-          source    = Enum.reduce dynamo[:source_paths], [], callback
-          templates = Enum.reduce dynamo[:templates_paths], [], callback
+        initializer :start_dynamo_renderer do
+          precompiled = Enum.all?(templates_paths, Dynamo.Templates.Finder.precompiled?(&1))
+          unless precompiled do
+            supervisor = config[:dynamo][:supervisor]
+            renderer   = templates_server()
+            Dynamo.Supervisor.start_child(supervisor, Dynamo.Templates.Renderer, [renderer])
 
-          Dynamo.Reloader.append_paths(source -- templates)
-          Dynamo.Reloader.enable
-
-          if Code.ensure_loaded?(IEx) and IEx.started? do
-            IEx.after_spawn(fn -> Dynamo.Reloader.enable end)
+            if config[:dynamo][:compile_on_demand] do
+              Dynamo.Reloader.on_purge(fn -> Dynamo.Templates.Renderer.clear(renderer) end)
+            end
           end
         end
       end
 
-      initializer :start_dynamo_renderer do
-        precompiled = Enum.all?(templates_paths, Dynamo.Templates.Finder.precompiled?(&1))
-        unless precompiled do
-          supervisor = config[:dynamo][:supervisor]
-          renderer   = templates_server()
-          Dynamo.Supervisor.start_child(supervisor, Dynamo.Templates.Renderer, [renderer])
-
-          if config[:dynamo][:compile_on_demand] do
-            Dynamo.Reloader.on_purge(fn -> Dynamo.Templates.Renderer.clear(renderer) end)
-          end
-        end
-      end
+    quote do
+      unquote(setup)
+      unquote(definitions)
     end
   end
 
@@ -249,8 +261,7 @@ defmodule Dynamo do
     end
 
     if dynamo[:session_store] && dynamo[:session_options] do
-      store   = Module.concat(Dynamo.Filters.Session, dynamo[:session_store])
-      session = Dynamo.Filters.Session.new(store, dynamo[:session_options])
+      session = Dynamo.Filters.Session.new(dynamo[:session_store], dynamo[:session_options])
       filters = [session|filters]
     end
 
@@ -279,14 +290,14 @@ defmodule Dynamo do
     dynamo = Module.get_attribute(module, :config)[:dynamo]
     templates_paths = dynamo[:templates_paths]
 
-    { runtime, compiled } =
+    { runtime, to_compile } =
       if dynamo[:compile_on_demand] do
         { templates_paths, [] }
       else
         Enum.partition(templates_paths, Dynamo.Templates.Finder.precompiled?(&1))
       end
 
-    if compiled != [] do
+    if to_compile != [] do
       module = dynamo[:compiled_templates]
       templates_paths = [module|runtime]
     end
