@@ -123,10 +123,10 @@ defmodule Dynamo.Reloader do
     { :reply, config.paths, config }
   end
 
-  def handle_call(:conditional_purge, _from, Config[] = config) do
-    last_modified = last_modified(config)
+  def handle_call(:conditional_purge, _from, Config[paths: paths, updated_at: updated_at] = config) do
+    last_modified = last_modified(paths, updated_at)
 
-    if last_modified == config.updated_at do
+    if last_modified == updated_at do
       { :reply, :ok, config }
     else
       purge_all(config)
@@ -136,8 +136,8 @@ defmodule Dynamo.Reloader do
     end
   end
 
-  def handle_call(:stop, _from, state) do
-    { :stop, :normal, :ok, state }
+  def handle_call(:stop, _from, config) do
+    { :stop, :normal, :ok, config }
   end
 
   def handle_call(_arg, _from, _config) do
@@ -145,16 +145,17 @@ defmodule Dynamo.Reloader do
   end
 
   @doc false
-  def handle_cast({ :loaded, file, modules }, config) do
+  def handle_cast({ :loaded, file, modules }, Config[] = config) do
     { :noreply, config.update_loaded_modules(modules ++ &1).update_loaded_files([file|&1]) }
   end
 
-  def handle_cast({ :on_purge, fun }, config) do
+  def handle_cast({ :on_purge, fun }, Config[] = config) do
     { :noreply, config.update_on_purge([fun|&1]) }
   end
 
-  def handle_cast({ :append_paths, paths }, config) do
-    { :noreply, config.update_paths(&1 ++ paths) }
+  def handle_cast({ :append_paths, paths }, Config[] = config) do
+    updated_at = last_modified(paths, config.updated_at)
+    { :noreply, config.update_paths(&1 ++ paths).updated_at(updated_at) }
   end
 
   def handle_cast(_arg, _config) do
@@ -174,13 +175,13 @@ defmodule Dynamo.Reloader do
     Code.unload_files config.loaded_files
   end
 
-  defp last_modified(Config[paths: paths, updated_at: updated_at]) do
+  defp last_modified(paths, updated_at) do
     Enum.reduce paths, updated_at, fn(path, acc) ->
-      Enum.reduce File.wildcard("#{path}/**/*.ex"), acc, last_modified(&1, &2)
+      Enum.reduce File.wildcard("#{path}/**/*.ex"), acc, max_last_modified(&1, &2)
     end
   end
 
-  defp last_modified(path, latest) do
+  defp max_last_modified(path, latest) do
     case File.stat(path) do
       { :ok, File.Stat[mtime: mtime] } -> max(latest, mtime)
       { :error, _ } -> latest
