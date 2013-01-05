@@ -10,7 +10,7 @@ defmodule Mix.Tasks.Server do
     Mix.Task.run Mix.project[:prepare_task], args
 
     dynamos = Mix.project[:dynamos]
-    Dynamo.Reloader.enable
+    Dynamo.Loader.enable
 
     Enum.each dynamos, fn(dynamo) ->
       validate_dynamo(dynamo)

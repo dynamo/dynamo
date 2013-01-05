@@ -1,4 +1,4 @@
-defmodule Dynamo.Reloader.ErrorHandler do
+defmodule Dynamo.Loader.ErrorHandler do
   @moduledoc false
 
   def undefined_function(module, fun, args) do
@@ -15,7 +15,7 @@ defmodule Dynamo.Reloader.ErrorHandler do
     if Process.whereis(:code_server) do
       case Code.ensure_loaded(module) do
         { :module, _ } -> :ok
-        { :error, _ }  -> Dynamo.Reloader.load_missing(module)
+        { :error, _ }  -> Dynamo.Loader.load_missing(module)
       end
     end
   end

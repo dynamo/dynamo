@@ -1,13 +1,13 @@
-defmodule Dynamo.Reloader do
+defmodule Dynamo.Loader do
   @moduledoc """
   This module is responsible for managing code reloading used
   in development environments in Dynamo.
 
   The reloader is enabled per Elixir process, so each process
   which requires reloading semantics must explicitly enabled
-  it with `Dynamo.Reloader.enable`.
+  it with `Dynamo.Loader.enable`.
 
-  The `Dynamo.Reloader` is part of the Dynamo application
+  The `Dynamo.Loader` is part of the Dynamo application
   and one is started per node, regardless the number of
   dynamos in the node.
   """
@@ -22,7 +22,7 @@ defmodule Dynamo.Reloader do
   def enable do
     if Process.whereis(__MODULE__) do
       Process.put(:elixir_ensure_compiled, true)
-      Process.flag(:error_handler, Dynamo.Reloader.ErrorHandler)
+      Process.flag(:error_handler, Dynamo.Loader.ErrorHandler)
       :ok
     else
       :error
@@ -30,12 +30,12 @@ defmodule Dynamo.Reloader do
   end
 
   @doc """
-  Starts the `Dynamo.Reloader` server. Usually called
+  Starts the `Dynamo.Loader` server. Usually called
   internally by Dynamo. The given `paths` must be expanded.
   """
   def append_paths(paths) do
     unless Process.whereis(__MODULE__) do
-      { :module, _ } = Code.ensure_loaded(Dynamo.Reloader.ErrorHandler)
+      { :module, _ } = Code.ensure_loaded(Dynamo.Loader.ErrorHandler)
       Dynamo.Supervisor.start_child(Dynamo.Supervisor, __MODULE__, [])
     end
 

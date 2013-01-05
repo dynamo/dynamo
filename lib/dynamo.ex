@@ -57,7 +57,7 @@ defmodule Dynamo do
   * `Dynamo.Filters.Static` - when a static_route and static_root are set,
      this filter is added to serve static assets;
   * `Dynamo.Filters.Head` - converts HEAD requests to GET;
-  * `Dynamo.Reloader.Filter` - when `:compile_on_demand` or `:reload_modules`
+  * `Dynamo.Filters.Loader` - when `:compile_on_demand` or `:reload_modules`
     configs are set to true, this filter is added to compiled and reloaded
     code on demand;
 
@@ -177,11 +177,11 @@ defmodule Dynamo do
             source    = Enum.reduce dynamo[:source_paths], [], callback
             templates = Enum.reduce dynamo[:templates_paths], [], callback
 
-            Dynamo.Reloader.append_paths(source -- templates)
-            Dynamo.Reloader.enable
+            Dynamo.Loader.append_paths(source -- templates)
+            Dynamo.Loader.enable
 
             if Code.ensure_loaded?(IEx) and IEx.started? do
-              IEx.after_spawn(fn -> Dynamo.Reloader.enable end)
+              IEx.after_spawn(fn -> Dynamo.Loader.enable end)
             end
           end
         end
@@ -194,7 +194,7 @@ defmodule Dynamo do
             Dynamo.Supervisor.start_child(supervisor, Dynamo.Templates.Renderer, [renderer])
 
             if config[:dynamo][:compile_on_demand] do
-              Dynamo.Reloader.on_purge(fn -> Dynamo.Templates.Renderer.clear(renderer) end)
+              Dynamo.Loader.on_purge(fn -> Dynamo.Templates.Renderer.clear(renderer) end)
             end
           end
         end
@@ -252,7 +252,7 @@ defmodule Dynamo do
     end
 
     if dynamo[:compile_on_demand] || dynamo[:reload_modules] do
-      reloader = Dynamo.Reloader.Filter.new(dynamo[:compile_on_demand], dynamo[:reload_modules])
+      reloader = Dynamo.Filters.Loader.new(dynamo[:compile_on_demand], dynamo[:reload_modules])
       filters  = [reloader|filters]
     end
 

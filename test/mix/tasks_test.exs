@@ -36,7 +36,7 @@ defmodule Mix.TasksTest do
 
       output = System.cmd "mix dynamo.filters"
       assert output =~ %r(filter Dynamo.Filters.Head)
-      assert output =~ %r(filter \{Dynamo.Reloader.Filter,true,true\})
+      assert output =~ %r(filter \{Dynamo.Filters.Loader,true,true\})
       assert output =~ %r(ApplicationRouter.service/1)
 
       # TODO: Get rid of this
@@ -44,12 +44,12 @@ defmodule Mix.TasksTest do
 
       # Check it works with first compilation in prod
       output = System.cmd "MIX_ENV=prod mix do compile, dynamo.filters"
-      refute output =~ %r(Dynamo.Reloader.Filter)
+      refute output =~ %r(Dynamo.Filters.Loader)
       assert output =~ %r(ApplicationRouter.service/1)
 
       # Check that noop compile also works
       output = System.cmd "MIX_ENV=prod mix do compile, dynamo.filters"
-      refute output =~ %r(Dynamo.Reloader.Filter)
+      refute output =~ %r(Dynamo.Filters.Loader)
       assert output =~ %r(ApplicationRouter.service/1)
     end
   end

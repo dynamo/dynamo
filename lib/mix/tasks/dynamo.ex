@@ -306,12 +306,12 @@ defmodule Mix.Tasks.Dynamo do
 
   embed_template :test_helper, """
   Dynamo.under_test(<%= @mod %>.Dynamo)
-  Dynamo.Reloader.enable
+  Dynamo.Loader.enable
   ExUnit.start
 
   # Enable reloading in each ExUnit process
   ExUnit.after_spawn fn ->
-    Dynamo.Reloader.enable
+    Dynamo.Loader.enable
   end
   """
 end

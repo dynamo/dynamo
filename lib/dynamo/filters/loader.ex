@@ -1,4 +1,4 @@
-defmodule Dynamo.Reloader.Filter do
+defmodule Dynamo.Filters.Loader do
   @moduledoc """
   A simple module that handles compilation on demand
   and automatic code loading. This filter is automatically
@@ -13,11 +13,11 @@ defmodule Dynamo.Reloader.Filter do
   @doc false
   def prepare(conn, { __MODULE__, compile_on_demand, reload_modules }) do
     if compile_on_demand do
-      Dynamo.Reloader.enable
+      Dynamo.Loader.enable
     end
 
     if reload_modules do
-      if Dynamo.Reloader.conditional_purge == :purged do
+      if Dynamo.Loader.conditional_purge == :purged do
         IO.puts "[Dynamo] Changes detected, reloading modules..."
       end
     end

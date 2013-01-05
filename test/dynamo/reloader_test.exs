@@ -1,6 +1,6 @@
 Code.require_file "../../test_helper.exs", __FILE__
 
-defmodule Dynamo.ReloaderTest do
+defmodule Dynamo.LoaderTest do
   use ExUnit.Case
 
   defp fixture_path do
@@ -8,12 +8,12 @@ defmodule Dynamo.ReloaderTest do
   end
 
   def setup_all do
-    Dynamo.Reloader.append_paths([fixture_path])
-    Dynamo.Reloader.enable
+    Dynamo.Loader.append_paths([fixture_path])
+    Dynamo.Loader.enable
   end
 
   def teardown_all do
-    Dynamo.Reloader.stop
+    Dynamo.Loader.stop
   end
 
   test "automatically loads code" do
@@ -27,13 +27,13 @@ defmodule Dynamo.ReloaderTest do
     assert Process.get(:purge_callback) == nil
 
     # Prepare a callback
-    Dynamo.Reloader.on_purge(fn -> Process.put(:purge_callback, :ok) end)
+    Dynamo.Loader.on_purge(fn -> Process.put(:purge_callback, :ok) end)
 
     # Update file
     File.touch!("#{fixture_path}/foo.ex")
 
     # Purge it!
-    assert Dynamo.Reloader.conditional_purge == :purged
+    assert Dynamo.Loader.conditional_purge == :purged
 
     # Check state changed
     assert Process.get(:purge_callback) == :ok
@@ -44,6 +44,6 @@ defmodule Dynamo.ReloaderTest do
   end
 
   test "does not search for erlang modules" do
-    assert Dynamo.Reloader.load_missing(:cowboy) == :notfound
+    assert Dynamo.Loader.load_missing(:cowboy) == :notfound
   end
 end
