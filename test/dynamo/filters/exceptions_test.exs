@@ -1,10 +1,10 @@
 Code.require_file "../../../test_helper.exs", __FILE__
 
-defmodule Dynamo.Filters.CatcherTest do
-  defmodule CatcherApp do
+defmodule Dynamo.Filters.ExceptionsTest do
+  defmodule ExceptionsApp do
     use Dynamo.Router
 
-    filter Dynamo.Filters.Catcher
+    filter Dynamo.Filters.Exceptions.new Dynamo.Filters.Exceptions.Public
 
     get "/halt" do
       halt! conn.resp(200, "HALT")
@@ -22,7 +22,7 @@ defmodule Dynamo.Filters.CatcherTest do
   use ExUnit.Case, async: true
   use Dynamo.HTTP.Case
 
-  @endpoint CatcherApp
+  @endpoint ExceptionsApp
 
   test "halts and catches the request" do
     conn = get("/halt")

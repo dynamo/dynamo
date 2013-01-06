@@ -35,6 +35,8 @@ defmodule Dynamo do
   * `:compile_on_demand` - Compiles modules as they are needed
   * `:env` - The environment this Dynamo runs on
   * `:endpoint` - The endpoint to dispatch requests too
+  * `:exception_editor` - Some exception handlers show editors information to help debugging
+  * `:exception_handler` - How to handle and display exceptions (defaults to `Exceptions.Public`)
   * `:reload_modules` - Reload modules after they are changed
   * `:session_store` - The session store to be used, may be `CookieStore` and `ETSStore`
   * `:session_options` - The session options to be used
@@ -60,6 +62,9 @@ defmodule Dynamo do
   * `Dynamo.Filters.Loader` - when `:compile_on_demand` or `:reload_modules`
     configs are set to true, this filter is added to compiled and reloaded
     code on demand;
+  * `Dynamo.Filters.Session` - when a `:session_store` is configured, it adds
+    session functionality to the Dynamo;
+  * `Dynamo.Filters.Exceptions` - responsible for logging and handling exceptions;
 
   Filters can be added and removed using `filter` and `remove_filter`
   macros. You can get the list of all dynamos filters using:
@@ -130,7 +135,8 @@ defmodule Dynamo do
         @before_compile { unquote(__MODULE__), :define_root }
 
         use Dynamo.Utils.Once
-        alias Dynamo.Filters.Session, as: Session
+        alias Dynamo.Filters.Session,    as: Session
+        alias Dynamo.Filters.Exceptions, as: Exceptions
 
         use_once Dynamo.Base
         use_once Dynamo.Router.Filters
@@ -209,17 +215,19 @@ defmodule Dynamo do
   ## Helpers
 
   defp default_dynamo_config(env) do
-    [ env: "prod",
-      static_root: "priv/static",
-      cache_static: true,
+    [ cache_static: true,
       compile_on_demand: true,
-      reload_modules: false,
-      source_paths: ["app/*"],
+      compiled_templates: env.module.CompiledTemplates,
+      env: "prod",
       environments_path: File.expand_path("../environments", env.file),
-      templates_paths: ["app/templates"],
-      supervisor: env.module.Supervisor,
+      exceptions_editor: "txmt://open?url=file://__FILE__&line=__LINE__",
+      exceptions_handler: Dynamo.Filter.Exceptions.Public,
+      reload_modules: false,
       session_options: [],
-      compiled_templates: env.module.CompiledTemplates ]
+      source_paths: ["app/*"],
+      static_root: "priv/static",
+      supervisor: env.module.Supervisor,
+      templates_paths: ["app/templates"] ]
   end
 
   ## __before_compile__ callbacks
@@ -265,7 +273,12 @@ defmodule Dynamo do
       filters = [session|filters]
     end
 
-    filters = [Dynamo.Filters.Head, Dynamo.Filters.Catcher|filters]
+    if dynamo[:exceptions_handler] do
+      exceptions = Dynamo.Filters.Exceptions.new(dynamo[:exceptions_handler])
+      filters    = [exceptions|filters]
+    end
+
+    filters = [Dynamo.Filters.Head|filters]
     filters
   end
 

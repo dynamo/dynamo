@@ -241,7 +241,11 @@ defmodule Mix.Tasks.Dynamo do
 
     # Do not cache static assets, so they
     # are reloaded every page in development
-    cache_static: false
+    cache_static: false,
+
+    # Show a nice debugging exception page
+    # in development
+    exceptions_handler: Exceptions.Debug
 
   # Run on port 4000 for development
   config :server, port: 4000

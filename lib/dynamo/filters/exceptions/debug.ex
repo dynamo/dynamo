@@ -21,19 +21,21 @@
 # OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-defmodule Dynamo.Filters.Catcher.Debug do
+defmodule Dynamo.Filters.Exceptions.Debug do
   defrecord Frame, [:module, :function, :file, :line, :context, :index, :snippet, :link]
 
   import Dynamo.Helpers.Escaping
 
-  def render(conn, kind, value, stacktrace) do
+  def service(conn) do
+    { status, kind, value, stacktrace } = conn.assigns[:exception]
+
     assigns = [
       frames: frames(conn, stacktrace),
       title: title(kind, value),
       message: message(kind, value)
     ]
 
-    conn.resp(500, template(conn, assigns))
+    conn.resp(status, template(conn, assigns))
   end
 
   defp title(:exception, value), do: inspect value.__record__(:name)
@@ -48,7 +50,7 @@ defmodule Dynamo.Filters.Catcher.Debug do
     app     = conn.app
     root    = app.root <> "/"
     dynamo  = app.config[:dynamo]
-    editor  = dynamo[:editor]
+    editor  = dynamo[:exception_editor]
     sources = dynamo[:source_paths] ++ dynamo[:templates_paths]
     sources = lc source inlist sources, path inlist File.wildcard(source), do: path
 
