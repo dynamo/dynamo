@@ -2,7 +2,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title><%= @title %> at <strong><%= conn.method %></strong> <%= conn.path %></title>
+    <title><%= @title %> at <%= conn.method %> <%= conn.path %></title>
     <style>
     /* Basic reset */
     * {
@@ -593,7 +593,7 @@
 <body>
     <div class="top">
         <header class="exception">
-            <h2><strong><%= @title %></strong> <span>at <%= conn.path %></span></h2>
+            <h2><strong><%= @title %></strong> <span>at <%= conn.method %> <%= conn.path %></span></h2>
             <p><%= @message %></p>
         </header>
     </div>
