@@ -2,7 +2,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title><%= @title %> at <%= conn.path %></title>
+    <title><%= @title %> at <strong><%= conn.method %></strong> <%= conn.path %></title>
     <style>
     /* Basic reset */
     * {

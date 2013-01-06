@@ -218,13 +218,13 @@ defmodule Dynamo.Connection.TestTest do
 
   test :private do
     conn  = conn(:GET, "/")
-    assert conn.private == []
+    assert is_list conn.private
 
     conn = conn.put_private :foo, "bar"
-    assert conn.private == [foo: "bar"]
+    assert conn.private[:foo] == "bar"
 
     conn = conn.put_private :foo, "baz"
-    assert conn.private == [foo: "baz"]
+    assert conn.private[:foo] == "baz"
   end
 
   test :forward_to do

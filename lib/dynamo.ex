@@ -221,7 +221,7 @@ defmodule Dynamo do
       env: "prod",
       environments_path: File.expand_path("../environments", env.file),
       exceptions_editor: "txmt://open?url=file://__FILE__&line=__LINE__",
-      exceptions_handler: Dynamo.Filter.Exceptions.Public,
+      exceptions_handler: Dynamo.Filters.Exceptions.Public,
       reload_modules: false,
       session_options: [],
       source_paths: ["app/*"],

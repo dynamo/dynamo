@@ -184,6 +184,13 @@ defmodule Dynamo.Connection.Test do
   ## Test only API
 
   @doc """
+  Sets the application under test.
+  """
+  def app(app, conn) do
+    connection(conn, app: app)
+  end
+
+  @doc """
   Prepares the connection to do a new request on the
   given `path` with the given `method` and `body`.
 
@@ -248,7 +255,7 @@ defmodule Dynamo.Connection.Test do
       before_send: Dynamo.Connection.default_before_send,
       fetchable: [],
       fetched: [],
-      private: [],
+      private: [dynamo_handle_exceptions: false],
       req_cookies: nil,
       req_headers: nil,
       resp_body: "",
