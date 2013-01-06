@@ -33,8 +33,7 @@ defmodule Dynamo.Connection.Test do
       raw_req_cookies: Binary.Dict.new(),
       raw_req_headers: Binary.Dict.new([{ "host", "127.0.0.1" }]),
       scheme: :http,
-      port: 80,
-      sent_body: "force recycle"
+      port: 80
     ).recycle.req(method, path, body)
   end
 
@@ -87,9 +86,24 @@ defmodule Dynamo.Connection.Test do
 
   ## Response API
 
+  @send_flag { :dynamo_req, :resp_sent }
+
+  def already_sent?(_conn) do
+    receive do
+      @send_flag ->
+        self <- @send_flag
+        true
+    after
+      0 ->
+        false
+    end
+  end
+
   @doc false
   def send(status, body, connection(state: state) = conn) when is_integer(status)
       and state in [:unset, :set] and is_binary(body) do
+    self() <- @send_flag
+
     connection(run_before_send(conn),
       state: :sent,
       status: status,
@@ -101,6 +115,8 @@ defmodule Dynamo.Connection.Test do
   @doc false
   def send_chunked(status, connection(state: state) = conn) when is_integer(status)
       and state in [:unset, :set] do
+    self() <- @send_flag
+
     connection(run_before_send(conn),
       state: :chunked,
       status: status,
@@ -179,6 +195,9 @@ defmodule Dynamo.Connection.Test do
     segments = Dynamo.Router.Utils.split(uri.path)
     method   = Dynamo.Router.Utils.normalize_verb(method)
 
+    # Clear up any existing send flag.
+    flush_send
+
     conn = connection(conn,
       method: method,
       original_method: method,
@@ -204,6 +223,14 @@ defmodule Dynamo.Connection.Test do
     end
 
     conn
+  end
+
+  defp flush_send do
+    receive do
+      @send_flag -> flush_send
+    after
+      0 -> :ok
+    end
   end
 
   @doc """

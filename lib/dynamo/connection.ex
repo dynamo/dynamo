@@ -220,6 +220,13 @@ defmodule Dynamo.Connection do
   ## Response API
 
   @doc """
+  Returns a boolean if the connection was already sent or not.
+  This must return the correct result regardless if we have an
+  updated copy of the connection or not.
+  """
+  defcallback already_sent?(conn) :: boolean
+
+  @doc """
   Sends to the client the given status and body.
   An updated connection is returned with `:sent` state,
   the given status and response body set to nil.

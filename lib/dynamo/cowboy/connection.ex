@@ -94,6 +94,17 @@ defmodule Dynamo.Cowboy.Connection do
 
   ## Response API
 
+  def already_sent?(_conn) do
+    receive do
+      { :cowboy_req, :resp_sent } = flag ->
+        self <- flag
+        true
+    after
+      0 ->
+        false
+    end
+  end
+
   @doc false
   def send(status, body, connection(state: state) = conn) when is_integer(status)
       and state in [:unset, :set] and (is_binary(body) or is_tuple(body)) do

@@ -319,10 +319,13 @@ defmodule Dynamo.Cowboy.ConnectionTest do
 
   def send(conn) do
     assert conn.state == :unset
+    refute conn.already_sent?
 
     conn = conn.send(201, "OK")
     assert conn.state  == :sent
     assert conn.status == 201
+    assert conn.already_sent?
+    assert conn.already_sent?
 
     conn
   end

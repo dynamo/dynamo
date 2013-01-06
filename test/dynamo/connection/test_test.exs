@@ -118,10 +118,13 @@ defmodule Dynamo.Connection.TestTest do
   test :send do
     conn = conn(:GET, "/")
     assert conn.state == :unset
+    refute conn.already_sent?
 
     conn = conn.send(201, "OK")
     assert conn.state  == :sent
     assert conn.status == 201
+    assert conn.already_sent?
+    assert conn.already_sent?
   end
 
   test :send_with_head do
