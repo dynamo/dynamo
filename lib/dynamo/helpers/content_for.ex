@@ -22,7 +22,7 @@ defmodule Dynamo.Helpers.ContentFor do
 
   And the following template:
 
-      <% content_for :title, fn -> %>
+      <% content_for :title do %>
         Title from template
       <% end %>
 
@@ -36,6 +36,19 @@ defmodule Dynamo.Helpers.ContentFor do
   `content_for` chunks used and then finally assigning
   the whole template to a `:template` chunk. The layout
   can later retrieve any chunk by calling `content_for(key)`.
+
+  ## Implementation details
+
+  Whenever `content_for` is called, the contents are stored
+  in `conn`, which is then reassigned. The connection is
+  passed transparently to `content_for` via a macro. The
+  decision to make this transparent is because different
+  templates implementations may use other mechanisms to pass
+  the data around, which does not require mangling with the
+  connection.
+
+  Manual interaction with the connection can be done via
+  `append_content` and `get_content` functions.
   """
 
   @key :dynamo_contents
@@ -43,19 +56,16 @@ defmodule Dynamo.Helpers.ContentFor do
   @doc """
   Stores the given `value` under the given `key`. This value
   can later be retrieved by calling `content_for(key)`.
-
-  ## Implementation details
-
-  Whenever `content_for` is called, the contents are stored
-  in `conn`, which is then reassigned. The connection is passed
-  transparently to `content_for` via a macro. The decision to make
-  this transparent is because different templates implementations
-  may use other mechanisms to pass the data around, which does
-  not require mangling with the connection.
   """
+  defmacro content_for(key, do: value) do
+    quote hygiene: false do
+      conn = unquote(__MODULE__).append_content(conn, unquote(key), unquote(value))
+    end
+  end
+
   defmacro content_for(key, value) do
     quote hygiene: false do
-      conn = unquote(__MODULE__).put_content(conn, unquote(key), unquote(value))
+      conn = unquote(__MODULE__).append_content(conn, unquote(key), unquote(value))
     end
   end
 
@@ -71,18 +81,25 @@ defmodule Dynamo.Helpers.ContentFor do
   end
 
   @doc """
-  A simple function that stores a content chunk in the connection.
+  Appends a content chunk to the connection.
   """
-  def put_content(conn, key, value) when is_atom(key) and (is_binary(value) or is_function(value)) do
+  def append_content(conn, key, value) when is_atom(key) and is_binary(value) do
+    value = Keyword.update(conn.private[@key] || [], key, value, &1 <> value)
+    conn.put_private(@key, value)
+  end
+
+  @doc """
+  Puts a content chunk to the connection replacing previous entries.
+  """
+  def put_content(conn, key, value) when is_atom(key) and is_binary(value) do
     value = Keyword.put(conn.private[@key] || [], key, value)
     conn.put_private(@key, value)
   end
 
   @doc """
-  A simple function that reads a content chunk from the connection.
+  Gets a content chunk from the connection.
   """
   def get_content(conn, key) when is_atom(key) do
-    contents = conn.private[@key][key]
-    if is_function(contents), do: contents.(), else: contents
+    conn.private[@key][key]
   end
 end

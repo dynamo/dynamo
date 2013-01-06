@@ -1,5 +1,6 @@
-<% content_for :title, fn -> %>
+<% content_for :title do %>
   My Title
 <% end %>
 Template body
-<% content_for :footer, "My footer" %>
+<% content_for :footer, "My " %>
+<% content_for :footer, "footer" %>
