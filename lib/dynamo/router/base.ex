@@ -78,7 +78,7 @@ defmodule Dynamo.Router.Base do
 
   ## Hooks
 
-  This module is provides both `prepare/1` and `finalize/1` hooks to
+  This module alsi provides both `prepare/1` and `finalize/1` hooks to
   routers. Such hooks are useful to check conditions, fetch aspects
   or updating the connection:
 
@@ -86,7 +86,7 @@ defmodule Dynamo.Router.Base do
         conn.assign :layout, "hello.html"
       end
 
-      prepare :check_authentication
+      prepare :require_authentication
 
       defp check_authentication do
         unless conn.session[:user_id] do
@@ -110,24 +110,41 @@ defmodule Dynamo.Router.Base do
 
   ## Per-route hooks
 
-  Besides the hooks define above which runs right after any match happens,
-  per route hooks can be added using `@prepare` and `@finalize` annotations:
+  Besides the hooks define above which runs right after any route match,
+  per route hooks can be added using `@prepare` and `@finalize` attributes:
 
-      @prepare :check_authentication
-      get "/sign_in" do
+      @prepare :require_authentication
+      get "/account/info" do
         # ...
       end
 
   Annotations works similarly to `prepare` and `finalize` macros, except
   annotations do not support the `do` syntax.
+
+  Finally, Dynamo also provides `@skip_prepare` and `@skip_finalize`
+  attributes, which is useful for whitelisting some filters:
+
+      # Require authentication for all routes
+      prepare :require_authentication
+
+      # Except the sign in route
+      @skip_prepare :require_authentication
+      get "/sign_in" do
+        # Sign in the user
+      end
+
   """
 
   @doc false
   defmacro __using__(_) do
     [ quote do
-        Enum.each [:dynamo_prepare, :dynamo_finalize, :prepare, :finalize],
+        Enum.each [:prepare, :finalize, :skip_prepare, :skip_finalize],
           Module.register_attribute(__MODULE__, &1, accumulate: true, persist: false)
         @before_compile unquote(__MODULE__)
+        @dynamo_prepare []
+        @dynamo_finalize []
+
+        require Bitwise
         import unquote(__MODULE__)
       end,
 
@@ -148,18 +165,18 @@ defmodule Dynamo.Router.Base do
 
   @doc false
   defmacro __before_compile__(module) do
-    prepare  = compile_hooks Module.get_attribute(module, :dynamo_prepare),
-                 quote(do: var!(conn)), :prepare, function(:compile_prepare, 3)
+    prepare  = compile_hooks module, :dynamo_prepare,
+                 quote(do: var!(conn)), :prepare, function(:compile_prepare, 4), true
 
-    finalize = compile_hooks Module.get_attribute(module, :dynamo_finalize),
-                 quote(do: var!(conn)), :finalize, function(:compile_finalize, 3)
+    finalize = compile_hooks module, :dynamo_finalize,
+                 quote(do: var!(conn)), :finalize, function(:compile_finalize, 4), true
 
     quote location: :keep do
       @doc false
-      def run_prepare_hooks(var!(conn)),  do: unquote(prepare)
+      def run_prepare_hooks(var!(conn), key),  do: unquote(prepare)
 
       @doc false
-      def run_finalize_hooks(var!(conn)), do: unquote(finalize)
+      def run_finalize_hooks(var!(conn), key), do: unquote(finalize)
 
       @doc false
       def dispatch(_, _, conn) do
@@ -373,13 +390,13 @@ defmodule Dynamo.Router.Base do
       args   = quote do: [var!(conn)]
       guards = quote do: [is_tuple(var!(conn))]
       defp name, args, guards, do: unquote(Macro.escape block)
-      @dynamo_prepare name
+      @dynamo_prepare [{ name, nil }|@dynamo_prepare]
     end
   end
 
   defmacro prepare(spec) do
     quote do
-      @dynamo_prepare unquote(spec)
+      @dynamo_prepare [{ unquote(spec), nil }|@dynamo_prepare]
     end
   end
 
@@ -392,13 +409,13 @@ defmodule Dynamo.Router.Base do
       args   = quote do: [var!(conn)]
       guards = quote do: [is_tuple(var!(conn))]
       defp name, args, guards, do: unquote(Macro.escape block)
-      @dynamo_finalize name
+      @dynamo_finalize [{ name, nil }|@dynamo_finalize]
     end
   end
 
   defmacro finalize(spec) do
     quote do
-      @dynamo_finalize unquote(spec)
+      @dynamo_finalize [{ unquote(spec), nil }|@dynamo_finalize]
     end
   end
 
@@ -407,8 +424,8 @@ defmodule Dynamo.Router.Base do
   # Used to retrieve hooks at function definition.
   @doc false
   def __hooks__(module, vars, contents) do
-    hooks = compile_hooks Module.get_attribute(module, :finalize),
-              quote(do: var!(conn)), :finalize, function(:compile_finalize, 3)
+    hooks = compile_hooks module, :finalize, quote(do: var!(conn)),
+              :finalize, function(:compile_finalize, 4), false
 
     hooks = quote do
       var!(conn) = unquote(contents)
@@ -423,45 +440,61 @@ defmodule Dynamo.Router.Base do
       end
     end
 
-    hooks = compile_hooks Module.get_attribute(module, :prepare),
-      hooks, :prepare, function(:compile_prepare, 3)
+    hooks = compile_hooks module, :prepare, hooks,
+              :prepare, function(:compile_prepare, 4), false
+
+    prepare_key  = compile_skip_hooks module, :skip_prepare,  :dynamo_prepare
+    finalize_key = compile_skip_hooks module, :skip_finalize, :dynamo_finalize
 
     hooks =
       quote do
-        var!(conn) = run_prepare_hooks(var!(conn))
-        run_finalize_hooks(unquote(hooks))
+        var!(conn) = run_prepare_hooks(var!(conn), unquote(prepare_key))
+        run_finalize_hooks(unquote(hooks), unquote(finalize_key))
       end
 
-    Enum.each [:prepare, :finalize], Module.delete_attribute(module, &1)
+    Enum.each [:prepare, :finalize, :skip_prepare, :skip_finalize],
+      Module.delete_attribute(module, &1)
     hooks
   end
 
-  defp compile_hooks(hooks, acc, kind, fun) do
-    Enum.reduce hooks, acc, fn(hook, acc) ->
-      compile_hook(hook, acc, kind, fun)
+  # The boolean argument is if the set of hooks are
+  # tuples with a mod value or not. The mod values
+  # are a bit system to check if a hook should be
+  # run or not.
+  defp compile_hooks(module, attr, acc, kind, fun, true) do
+    hooks = Module.get_attribute(module, attr)
+    Enum.reduce hooks, acc, fn({ hook, key }, acc) ->
+      compile_hook(hook, key, acc, kind, fun)
     end
   end
 
-  defp compile_hook(ref, acc, kind, fun) when is_atom(ref) do
+  defp compile_hooks(module, attr, acc, kind, fun, false) do
+    hooks = Module.get_attribute(module, attr)
+    Enum.reduce hooks, acc, fn(hook, acc) ->
+      compile_hook(hook, nil, acc, kind, fun)
+    end
+  end
+
+  defp compile_hook(ref, key, acc, kind, fun) when is_atom(ref) do
     case atom_to_binary(ref) do
       "Elixir-" <> _ ->
         call = quote(do: unquote(ref).unquote(kind)(var!(conn)))
-        fun.(call, ref, acc)
+        fun.(call, key, ref, acc)
       _ ->
         call = quote(do: unquote(ref).(var!(conn)))
-        fun.(call, ref, acc)
+        fun.(call, key, ref, acc)
     end
   end
 
-  defp compile_hook(ref, acc, kind, fun) when is_tuple(ref) do
+  defp compile_hook(ref, key, acc, kind, fun) when is_tuple(ref) do
     if is_mod_fun?(ref, kind) do
       { mod, modfun } = ref
       call = quote(do: unquote(mod).unquote(modfun)(var!(conn)))
-      fun.(call, ref, acc)
+      fun.(call, key, ref, acc)
     else
       ref  = Macro.escape(ref)
       call = quote(do: unquote(ref).unquote(kind)(var!(conn)))
-      fun.(call, ref, acc)
+      fun.(call, key, ref, acc)
     end
   end
 
@@ -471,23 +504,74 @@ defmodule Dynamo.Router.Base do
 
   defp is_mod_fun?(_ref, _kind), do: false
 
-  defp compile_prepare(call, ref, acc) do
+  defp compile_prepare(call, key, ref, acc) do
     quote do
-      case unquote(call) do
+      case unquote(compile_condition(call, key)) do
         var!(conn) when is_tuple(var!(conn)) -> unquote(acc)
-        nil -> unquote(acc)
+        _ in [nil, false] -> unquote(acc)
         actual -> raise Dynamo.Router.InvalidHookError, kind: :prepare, hook: unquote(ref), actual: actual
       end
     end
   end
 
-  defp compile_finalize(call, ref, acc) do
+  defp compile_finalize(call, key, ref, acc) do
     quote do
-      case unquote(call) do
+      case unquote(compile_condition(call, key)) do
         var!(conn) when is_tuple(var!(conn)) -> unquote(acc)
-        nil -> unquote(acc)
+        _ in [nil, false] -> unquote(acc)
         actual -> raise Dynamo.Router.InvalidHookError, kind: :finalize, hook: unquote(ref), actual: actual
       end
     end
+  end
+
+  defp compile_condition(call, nil), do: call
+
+  defp compile_condition(call, key) do
+    quote do: Bitwise.band(unquote(key), key) == 0 and unquote(call)
+  end
+
+  # Compile skip hooks. If any skip hook was given, we
+  # search for it in the chain, add an index if there
+  # isn't one yet and add it to the key.
+  defp compile_skip_hooks(module, skip, chain) do
+    hooks = Module.get_attribute(module, skip)
+    Enum.reduce hooks, 0, fn(hook, acc) ->
+      acc + compile_skip_hook(module, chain, hook)
+    end
+  end
+
+  defp compile_skip_hook(module, chain, name) do
+    hooks = Module.get_attribute(module, chain)
+    hook  = Enum.find(hooks, match?({ ^name, _ }, &1))
+
+    case hook do
+      { _, nil } ->
+        # Hook does not have a key, calculate a new one
+        # and update the hook chain to contain it
+        calculate_skip_hook_key(module, chain, hooks, name)
+      { _, key } ->
+        key
+      nil ->
+        raise ArgumentError, message: "Could not skip hook #{inspect name} because it could not be found in this router"
+    end
+  end
+
+  defp calculate_skip_hook_key(module, chain, hooks, name) do
+    key =
+      Enum.reduce hooks, 1, fn
+        { _, nil }, acc -> acc
+        _, acc -> acc * 2
+      end
+
+    hooks =
+      Enum.map hooks, fn hook ->
+        case hook do
+          { ^name, _ } -> { name, key }
+          other -> other
+        end
+      end
+
+    Module.put_attribute(module, chain, hooks)
+    key
   end
 end
