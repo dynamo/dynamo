@@ -35,8 +35,9 @@ defmodule Dynamo do
   * `:compile_on_demand` - Compiles modules as they are needed
   * `:env` - The environment this Dynamo runs on
   * `:endpoint` - The endpoint to dispatch requests too
-  * `:exception_editor` - Some exception handlers show editors information to help debugging
-  * `:exception_handler` - How to handle and display exceptions (defaults to `Exceptions.Public`)
+  * `:exceptions_editor` - Some exception handlers show editors information
+     to help debugging (defaults to the DYNAMO_EDITOR environment variable)
+  * `:exceptions_handler` - How to handle and display exceptions (defaults to `Exceptions.Public`)
   * `:reload_modules` - Reload modules after they are changed
   * `:session_store` - The session store to be used, may be `CookieStore` and `ETSStore`
   * `:session_options` - The session options to be used
@@ -220,7 +221,7 @@ defmodule Dynamo do
       compiled_templates: env.module.CompiledTemplates,
       env: "prod",
       environments_path: File.expand_path("../environments", env.file),
-      exceptions_editor: "txmt://open?url=file://__FILE__&line=__LINE__",
+      exceptions_editor: System.get_env("DYNAMO_EDITOR"),
       exceptions_handler: Dynamo.Filters.Exceptions.Public,
       reload_modules: false,
       session_options: [],

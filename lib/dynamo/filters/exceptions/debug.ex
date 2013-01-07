@@ -50,9 +50,9 @@ defmodule Dynamo.Filters.Exceptions.Debug do
     app     = conn.app
     root    = app.root <> "/"
     dynamo  = app.config[:dynamo]
-    editor  = dynamo[:exception_editor]
+    editor  = dynamo[:exceptions_editor]
     sources = dynamo[:source_paths] ++ dynamo[:templates_paths]
-    sources = lc source inlist sources, path inlist File.wildcard(source), do: path
+    sources = lc source inlist sources, path inlist File.wildcard(File.join(root, source)), do: path
 
     Enum.map_reduce(stacktrace, 0, each_frame(&1, &2, root, sources, editor)) /> elem(0)
   end
@@ -106,7 +106,7 @@ defmodule Dynamo.Filters.Exceptions.Debug do
   defp file_context(original, line, root, sources) do
     file = :binary.replace(original, root, "")
 
-    if is_dynamo_source?(file, original, sources) do
+    if is_dynamo_source?(original, sources) do
       context = :dynamo
       snippet = is_integer(line) and extract_snippet(original, line)
     else
@@ -116,13 +116,9 @@ defmodule Dynamo.Filters.Exceptions.Debug do
     { file, context, snippet }
   end
 
-  # If the relative is like the original,
-  # it is outside the current application root.
-  defp is_dynamo_source?(original, original, _sources), do: false
-
-  defp is_dynamo_source?(relative, _original, sources) do
+  defp is_dynamo_source?(original, sources) do
     Enum.any? sources, fn(source) ->
-      match? { 0, _ }, :binary.match(relative, source)
+      match? { 0, _ }, :binary.match(original, source)
     end
   end
 
