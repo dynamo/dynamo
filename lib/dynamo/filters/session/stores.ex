@@ -119,7 +119,7 @@ defmodule Session.ETSStore do
   end
 
   def put_session(nil, term, opts) do
-    key = :crypto.strong_rand_bytes(96) /> :base64.encode
+    key = :crypto.strong_rand_bytes(96) |> :base64.encode
 
     if :ets.insert_new(opts[:table], [{key, term}]) do
       key

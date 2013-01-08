@@ -60,7 +60,7 @@ defmodule Dynamo.Cowboy do
     dispatch  = options[:dispatch]  || dispatch_for(app)
     options   = Enum.reduce [:acceptors, :dispatch], options, Keyword.delete(&2, &1)
 
-    ref = Module.concat(app, kind /> to_binary /> String.upcase)
+    ref = Module.concat(app, kind |> to_binary |> String.upcase)
     apply(:cowboy, :"start_#{kind}", [ref, acceptors, options, [dispatch: dispatch]])
   end
 
@@ -90,7 +90,7 @@ defmodule Dynamo.Cowboy do
     if nil?(value) or File.exists?(value) do
       options
     else
-      new = File.expand_path(value, app.root) /> to_char_list
+      new = File.expand_path(value, app.root) |> to_char_list
       Keyword.put(options, key, new)
     end
   end

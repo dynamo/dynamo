@@ -176,7 +176,7 @@ defmodule Dynamo do
           if dynamo[:compile_on_demand] do
             callback = fn
               path, acc when is_binary(path) ->
-                (path /> File.expand_path(root) /> File.wildcard) ++ acc
+                (path |> File.expand_path(root) |> File.wildcard) ++ acc
               _, acc ->
                 acc
             end
@@ -285,7 +285,7 @@ defmodule Dynamo do
 
   @doc false
   defmacro define_endpoint(module) do
-    endpoint = Module.get_attribute(module, :config)[:dynamo][:endpoint] /> Macro.escape
+    endpoint = Module.get_attribute(module, :config)[:dynamo][:endpoint] |> Macro.escape
 
     if endpoint do
       quote location: :keep do

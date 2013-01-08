@@ -68,7 +68,7 @@ defmodule Dynamo.Router.Utils do
   end
 
   defp generate_match([], vars, acc) do
-    { vars /> Enum.uniq /> Enum.reverse, Enum.reverse(acc) }
+    { vars |> Enum.uniq |> Enum.reverse, Enum.reverse(acc) }
   end
 
   # Handle each segment match. They can either be a

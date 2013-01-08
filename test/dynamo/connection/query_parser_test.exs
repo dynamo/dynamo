@@ -33,8 +33,8 @@ defmodule Dynamo.Connection.QueryParserTest do
     assert parse("x[y][z]=1&x[y][z]=2")["x"]["y"]["z"] == "2"
     assert parse("x[y][z][]=1&x[y][z][]=2")["x"]["y"]["z"] == ["1", "2"]
 
-    assert (parse("x[y][][z]=1")["x"]["y"] /> Enum.first)["z"] == "1"
-    assert (parse("x[y][][z][]=1")["x"]["y"] /> Enum.first)["z"] /> Enum.first == "1"
+    assert (parse("x[y][][z]=1")["x"]["y"] |> Enum.first)["z"] == "1"
+    assert (parse("x[y][][z][]=1")["x"]["y"] |> Enum.first)["z"] |> Enum.first == "1"
   end
 
   test "failure on bad queries" do
