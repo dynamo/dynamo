@@ -394,9 +394,15 @@ defmodule Dynamo do
         def root do
           case :code.lib_dir(unquote(app)) do
             list when is_list(list) ->
-              bin = list_to_binary(list)
-              :binary.replace bin, unquote(tmp),
-                unquote(atom_to_binary(app)), scope: { size(bin), unquote(-size(tmp)) }
+              bin  = list_to_binary(list)
+              size = size(bin)
+
+              if size > unquote(size(tmp)) do
+                :binary.replace bin, unquote(tmp),
+                  unquote(atom_to_binary(app)), scope: { size, unquote(-size(tmp)) }
+              else
+                bin
+              end
             _ ->
               raise "could not find OTP app #{unquote(dynamo[:otp_app])} for #{inspect __MODULE__}. " <>
                 "This may happen if the directory name is different than the application name."
