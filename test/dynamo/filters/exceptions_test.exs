@@ -1,20 +1,46 @@
 Code.require_file "../../../test_helper.exs", __FILE__
 
 defmodule Dynamo.Filters.ExceptionsTest do
-  defexception Unauthorized, message: "Unauthorized"
-
-  defimpl Dynamo.Exception, for: Unauthorized do
-    def status(_exception) do
-      401
+  defexception UnauthorizedError, message: "Unauthorized" do
+    defimpl Dynamo.Exception do
+      def status(_exception) do
+        401
+      end
     end
   end
 
   defmodule ExceptionsApp do
-    use Dynamo
     use Dynamo.Router
+
+    filter Dynamo.Filters.Exceptions.new(Dynamo.Filters.Exceptions.Public)
+
+    def root do
+      __FILE__
+    end
+
+    # Halt
 
     get "/halt" do
       halt! conn.resp(200, "HALT")
+    end
+
+    @finalize :finalizer
+    get "/no_halt" do
+      conn.resp(200, "NO HALT")
+    end
+
+    get "/unset_halt" do
+      halt! conn
+    end
+
+    # Exception
+
+    get "/unset" do
+      conn
+    end
+
+    get "/set" do
+      conn.resp(200, "SET")
     end
 
     get "/error" do
@@ -29,14 +55,10 @@ defmodule Dynamo.Filters.ExceptionsTest do
 
     get "/unauthorized" do
       _ = conn
-      raise Unauthorized
+      raise UnauthorizedError
     end
 
-    get "/no_halt" do
-      conn.resp(200, "NO HALT")
-    end
-
-    finalize do
+    defp finalizer(conn) do
       conn.resp(200, "FINALIZE")
     end
   end
@@ -46,26 +68,46 @@ defmodule Dynamo.Filters.ExceptionsTest do
 
   @endpoint ExceptionsApp
 
-  test "halts and catches the request" do
-    conn = get("/halt")
-    assert conn.status == 200
-    assert conn.sent_body == "HALT"
-  end
+  # Halt
 
-  test "no-op when halt is not invoked" do
+  test "sends the connection if it was only set" do
     conn = get("/no_halt")
     assert conn.status == 200
     assert conn.sent_body == "FINALIZE"
   end
 
+  test "halts the request" do
+    conn = get("/halt")
+    assert conn.status == 200
+    assert conn.sent_body == "HALT"
+  end
+
+  test "raises an exception when halting unset connection" do
+    assert_raise Dynamo.Connection.NotSentError, fn ->
+      get("/unset_halt")
+    end
+  end
+
+  # Exceptions
+
+  test "sends the response on set connections" do
+    assert get("/set").sent_body == "SET"
+  end
+
+  test "raises an exception on unset connection" do
+    assert_raise Dynamo.Connection.NotSentError, fn ->
+      get("/unset")
+    end
+  end
+
   test "invokes handler on exceptions" do
-    conn = get(exceptions_conn, "/error")
+    conn = get(exceptions_conn, "/error").send
     assert conn.status == 500
     assert conn.sent_body == ""
   end
 
   test "requests status code on exceptions" do
-    conn = get(exceptions_conn, "/unauthorized")
+    conn = get(exceptions_conn, "/unauthorized").send
     assert conn.status == 401
     assert conn.sent_body == ""
   end

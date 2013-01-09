@@ -184,7 +184,7 @@ defmodule Dynamo.Cowboy.Connection do
 
   def fetch(aspect, connection(fetchable: fetchable) = conn) when is_atom(aspect) do
     case Keyword.get(fetchable, aspect) do
-      nil -> raise Dynamo.Connection.UnknownAspectError, aspect: aspect
+      nil -> raise Dynamo.Connection.UnknownFetchError, aspect: aspect
       fun -> fun.(conn)
     end
   end

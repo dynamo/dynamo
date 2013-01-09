@@ -176,7 +176,7 @@ defmodule Dynamo.Connection.Test do
 
   def fetch(aspect, connection(fetchable: fetchable, fetched: fetched) = conn) when is_atom(aspect) do
     case Keyword.get(fetchable, aspect) do
-      nil -> raise Dynamo.Connection.UnknownAspectError, aspect: aspect
+      nil -> raise Dynamo.Connection.UnknownFetchError, aspect: aspect
       fun -> connection(fun.(conn), fetched: [aspect|fetched])
     end
   end

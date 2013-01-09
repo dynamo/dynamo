@@ -29,6 +29,6 @@ defmodule Dynamo.Filters.HeadTest do
   test "does not touch non head requests" do
     conn = process @endpoint, :POST, "/hello"
     assert conn.status == 201
-    assert conn.sent_body == "POST"
+    assert conn.resp_body == "POST"
   end
 end

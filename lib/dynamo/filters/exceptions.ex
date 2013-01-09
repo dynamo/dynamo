@@ -12,13 +12,23 @@ defmodule Dynamo.Filters.Exceptions do
 
   def service(conn, fun, { __MODULE__, handler }) do
     try do
-      fun.(conn)
+      conn = fun.(conn)
+
+      case conn.state do
+        :unset -> raise Dynamo.Connection.NotSentError
+        :set   -> conn.send
+        _      -> conn
+      end
     rescue
       e ->
         handle(conn, handler, :error, e, System.stacktrace)
     catch
       { :halt!, conn } ->
-        conn
+        case conn.state do
+          :unset -> handle(conn, handler, :error, Dynamo.Connection.NotSentError[], System.stacktrace)
+          :set   -> conn.send
+          _      -> conn
+        end
       kind, e ->
         handle(conn, handler, kind, e, System.stacktrace)
     end

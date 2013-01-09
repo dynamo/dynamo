@@ -49,38 +49,38 @@ defmodule Dynamo.HTTP.RenderTest do
   @endpoint RenderingRouter
 
   test "sets response body and content type" do
-    conn = get("/hello.html")
+    conn = get("/hello.html").send
     assert conn.status == 200
     assert conn.sent_body == "HELLO!"
     assert conn.resp_content_type == "text/html"
   end
 
   test "ignores content type if one is already set" do
-    conn = get("/set_content_type")
+    conn = get("/set_content_type").send
     assert conn.status == 200
     assert conn.resp_content_type == "application/json"
   end
 
   test "works with assigns" do
-    conn = get("/assigns.html")
+    conn = get("/assigns.html").send
     assert conn.sent_body == "world"
     assert conn.resp_content_type == "text/html"
   end
 
   test "uses app prelude" do
-    conn = get("/prelude.html")
+    conn = get("/prelude.html").send
     assert conn.sent_body == (?H |> integer_to_binary)
     assert conn.resp_content_type == "text/html"
   end
 
   test "returns the updated connection" do
-    conn = get("/updatable.html")
+    conn = get("/updatable.html").send
     assert conn.sent_body == "UPDATE\n\nCONN"
     assert conn.assigns[:template] == :eex
   end
 
   test "works with layouts" do
-    conn = get("/with_layout")
+    conn = get("/with_layout").send
     assert strip_lines(conn.sent_body) == """
     <html>
     <head>
@@ -98,7 +98,7 @@ defmodule Dynamo.HTTP.RenderTest do
   end
 
   test "works with nested rendering and layouts" do
-    conn = get("/with_nested")
+    conn = get("/with_nested").send
     assert strip_lines(conn.sent_body) == """
     <html>
     <head>

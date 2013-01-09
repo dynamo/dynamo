@@ -193,17 +193,10 @@ defmodule Dynamo.HTTP.Case do
       raise "#{inspect endpoint}.service did not return a connection, got #{inspect conn}"
     end
 
-    case conn.state do
-      :unset ->
-        if conn.already_sent? do
-          raise "#{inspect endpoint}.service sent a response back but there was an exception and the response was lost (the exception was logged)"
-        else
-          raise "#{inspect endpoint}.service returned a connection that did not respond yet"
-        end
-      :set ->
-        conn.send
-      _ ->
-        conn
+    if conn.state == :unset and conn.already_sent? do
+      raise "#{inspect endpoint}.service sent a response back but there was an exception and the response was lost (the exception was logged)"
     end
+
+    conn
   end
 end

@@ -175,7 +175,7 @@ defmodule Dynamo.Router.Base do
 
       @doc false
       match _ do
-        raise Dynamo.NotFound, conn: var!(conn)
+        raise Dynamo.NotFoundError, conn: var!(conn)
       end
     end
   end
