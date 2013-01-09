@@ -64,12 +64,12 @@ defmodule Mix.Tasks.Dynamo do
     create_file "mix.lock",   mixlock_text
     create_file "mix.exs",    mixfile_template(assigns)
 
-    create_directory "app"
-    create_directory "app/routers"
-    create_file "app/routers/application_router.ex", app_router_template(assigns)
+    create_directory "web"
+    create_directory "web/routers"
+    create_file "web/routers/application_router.ex", web_router_template(assigns)
 
-    create_directory "app/templates"
-    create_file "app/templates/index.html.eex", app_index_template(assigns)
+    create_directory "web/templates"
+    create_file "web/templates/index.html.eex", web_index_template(assigns)
 
     create_directory "lib"
     create_file "lib/#{lib}.ex", lib_template(assigns)
@@ -145,7 +145,7 @@ defmodule Mix.Tasks.Dynamo do
 
   embed_text :mixlock, from_file("../../../../mix.lock")
 
-  embed_template :app_router, """
+  embed_template :web_router, """
   defmodule ApplicationRouter do
     use Dynamo.Router
 
@@ -167,7 +167,7 @@ defmodule Mix.Tasks.Dynamo do
   end
   """
 
-  embed_template :app_index, """
+  embed_template :web_index, """
   <!DOCTYPE HTML>
   <html>
   <head>

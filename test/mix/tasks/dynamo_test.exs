@@ -33,8 +33,8 @@ defmodule Mix.Tasks.DynamoTest do
         assert file =~ %r(env: Mix.env)
       end
 
-      assert_file "app/routers/application_router.ex"
-      assert_file "app/templates/index.html.eex"
+      assert_file "web/routers/application_router.ex"
+      assert_file "web/templates/index.html.eex"
 
       assert_file "lib/my_app/environments/dev.exs"
       assert_file "lib/my_app/environments/test.exs"

@@ -9,7 +9,7 @@ defmodule Mix.TasksTest do
       app_with_dynamo_deps_path
 
       output = System.cmd "MIX_ENV=prod mix compile"
-      assert output =~ %r(Compiled app/routers/application_router.ex)
+      assert output =~ %r(Compiled web/routers/application_router.ex)
       assert output =~ %r(Compiled lib/my_app.ex)
       assert output =~ %r(Compiled lib/my_app/dynamo.ex)
       assert output =~ %r(Generated my_compiled_app.app)
@@ -17,9 +17,9 @@ defmodule Mix.TasksTest do
       assert File.regular?("ebin/Elixir-MyApp-Dynamo-CompiledTemplates.beam")
 
       # Can recompile after changes
-      File.touch!("app/routers/application_router.ex", { { 2030, 1, 1 }, { 0, 0, 0 } })
+      File.touch!("web/routers/application_router.ex", { { 2030, 1, 1 }, { 0, 0, 0 } })
       output = System.cmd "MIX_ENV=prod mix compile"
-      assert output =~ %r(Compiled app/routers/application_router.ex)
+      assert output =~ %r(Compiled web/routers/application_router.ex)
 
       # TODO: Get rid of this
       File.rm_rf "ebin"
@@ -107,7 +107,7 @@ defmodule Mix.TasksTest do
     File.write! "mix.exs",
       Regex.replace(%r"deps: deps", File.read!("mix.exs"), %b(deps: deps, deps_path: "../../deps"))
 
-    File.write! "app/routers/hello_router.ex", """
+    File.write! "web/routers/hello_router.ex", """
     defmodule HelloRouter do
       use Dynamo.Router
     end

@@ -225,10 +225,10 @@ defmodule Dynamo do
       exceptions_handler: Dynamo.Filters.Exceptions.Public,
       reload_modules: false,
       session_options: [],
-      source_paths: ["app/*"],
+      source_paths: ["web/*"],
       static_root: "priv/static",
       supervisor: env.module.Supervisor,
-      templates_paths: ["app/templates"] ]
+      templates_paths: ["web/templates"] ]
   end
 
   ## __before_compile__ callbacks
