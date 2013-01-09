@@ -383,14 +383,20 @@ defmodule Dynamo do
         def root, do: unquote(root)
       end
     else
+      app = dynamo[:otp_app]
+      tmp = "#{app}/tmp/#{dynamo[:env]}/#{app}"
+
       quote location: :keep do
         @doc """
         Returns the root path for this Dynamo
         based on the OTP app directory.
         """
         def root do
-          case :code.lib_dir(unquote(dynamo[:otp_app])) do
-            list when is_list(list) -> list_to_binary(list)
+          case :code.lib_dir(unquote(app)) do
+            list when is_list(list) ->
+              bin = list_to_binary(list)
+              :binary.replace bin, unquote(tmp),
+                unquote(atom_to_binary(app)), scope: { size(bin), unquote(-size(tmp)) }
             _ ->
               raise "could not find OTP app #{unquote(dynamo[:otp_app])} for #{inspect __MODULE__}. " <>
                 "This may happen if the directory name is different than the application name."

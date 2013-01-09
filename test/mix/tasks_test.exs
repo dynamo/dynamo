@@ -39,9 +39,6 @@ defmodule Mix.TasksTest do
       assert output =~ %r(filter \{Dynamo.Filters.Loader,true,true\})
       assert output =~ %r(ApplicationRouter.service/1)
 
-      # TODO: Get rid of this
-      File.rm_rf "ebin"
-
       # Check it works with first compilation in prod
       output = System.cmd "MIX_ENV=prod mix do compile, dynamo.filters"
       refute output =~ %r(Dynamo.Filters.Loader)
