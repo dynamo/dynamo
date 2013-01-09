@@ -4,6 +4,7 @@ defmodule Dynamo.Cowboy.RouterTest do
   use ExUnit.Case, async: true
 
   defmodule RouterApp do
+    use Dynamo
     use Dynamo.Router
 
     get "/foo/bar" do
@@ -34,7 +35,7 @@ defmodule Dynamo.Cowboy.RouterTest do
   end
 
   test "404 response a router app" do
-    assert { 404, _, "Not found" } = request :get, "/other"
+    assert { 404, _, _ } = request :get, "/other"
   end
 
   defp request(verb, path) do

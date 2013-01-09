@@ -26,7 +26,6 @@ defmodule Dynamo.Filters.Exceptions do
 
   defp handle(conn, handler, kind, value, stacktrace) do
     if conn.private[@key] == false do
-      if kind == :exception, do: kind = :error
       :erlang.raise(kind, value, stacktrace)
     end
 
@@ -38,9 +37,20 @@ defmodule Dynamo.Filters.Exceptions do
     if conn.already_sent? do
       conn
     else
-      status = Dynamo.Exception.status(value)
+      { status, conn } = status(kind, value, conn)
       handler.service conn.assign(:exception, { status, kind, value, stacktrace })
     end
+  end
+
+  defp status(:error, value, conn) do
+    case Dynamo.Exception.status(value) do
+      { status, conn } when is_integer(status) and is_tuple(conn) -> { status, conn }
+      status when is_integer(status) -> { status, conn }
+    end
+  end
+
+  defp status(_, _, conn) do
+    { 500, conn }
   end
 
   defp logger_conn(conn) do
@@ -52,7 +62,7 @@ defmodule Dynamo.Filters.Exceptions do
   end
 
   defp logger_reason(kind, value) do
-    "Reason: (#{kind}) #{inspect(value)}\n"
+    "    Reason: (#{kind}) #{inspect(value)}\n"
   end
 
   defp logger_stacktrace(stacktrace, root) do

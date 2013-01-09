@@ -48,7 +48,7 @@ defmodule Dynamo.Router.BaseTest do
       conn.resp_body("OK").assign :value, foo
     end
 
-    match "/8/foo" do
+    match ["8", "foo"] do
       conn.resp_body("OK").assign :value, 8
     end
 
@@ -58,7 +58,7 @@ defmodule Dynamo.Router.BaseTest do
     forward ["11", "deep"], to: Sample0
     forward "/12/:var", to: Sample0
 
-    def not_found(conn) do
+    match _ do
       conn.status(404).resp_body("OOPS")
     end
   end

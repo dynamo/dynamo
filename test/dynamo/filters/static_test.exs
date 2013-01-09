@@ -11,7 +11,7 @@ defmodule Dynamo.Filters.StaticTest do
       conn.send(200, "Fallback")
     end
 
-    def not_found(conn) do
+    match _ do
       conn.send(404, "File not served")
     end
   end

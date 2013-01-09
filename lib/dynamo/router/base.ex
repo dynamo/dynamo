@@ -154,12 +154,7 @@ defmodule Dynamo.Router.Base do
           dispatch(conn.method, conn.path_info_segments, conn)
         end
 
-        @doc false
-        def not_found(conn) do
-          conn.resp(404, "Not found")
-        end
-
-        defoverridable [not_found: 1, service: 1]
+        defoverridable [service: 1]
       end ]
   end
 
@@ -179,8 +174,8 @@ defmodule Dynamo.Router.Base do
       def run_finalize_hooks(var!(conn), key), do: unquote(finalize)
 
       @doc false
-      def dispatch(_, _, conn) do
-        not_found(conn)
+      match _ do
+        raise Dynamo.NotFound, conn: var!(conn)
       end
     end
   end

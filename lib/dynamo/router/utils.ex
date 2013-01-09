@@ -19,12 +19,12 @@ defmodule Dynamo.Router.Utils do
       generate_match("/foo/:id") => ["foo", { :id, 0, nil }]
 
   """
-  def generate_match([h|_] = match) when not is_integer(h) do
-    { [], match }
-  end
-
   def generate_match(spec) when is_binary(spec) do
     generate_match list_split(spec), [], []
+  end
+
+  def generate_match(match) do
+    { [], match }
   end
 
   @doc """
@@ -36,7 +36,11 @@ defmodule Dynamo.Router.Utils do
       generate_forward("/foo/:id") => ["foo", { :id, 0, nil } | _glob]
 
   """
-  def generate_forward([h|_] = list) when not is_integer(h) do
+  def generate_forward({ :_, _, _ }) do
+    generate_forward ""
+  end
+
+  def generate_forward(list) when is_list(list) do
     [h|t] = Enum.reverse(list)
     glob  = { :glob, 0, nil }
     { [], Enum.reverse [ { :|, 0, [h, glob] } | t ] }
