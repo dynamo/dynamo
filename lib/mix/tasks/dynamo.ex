@@ -110,7 +110,8 @@ defmodule Mix.Tasks.Dynamo do
    embed_text :gitignore, """
    /ebin
    /deps
-   /tmp/ebin
+   /tmp/dev
+   /tmp/test
    erl_crash.dump
    """
 
