@@ -43,15 +43,15 @@ defimpl Dynamo.Templates.Finder, for: BitString do
   end
 
   def all(root) do
-    lc path inlist File.wildcard("#{root}/**/*.*") do
+    lc path inlist Path.wildcard("#{root}/**/*.*") do
       key = :binary.replace(path, root <> "/", "")
-      build(root, File.rootname(key), path)
+      build(root, Path.rootname(key), path)
     end
   end
 
   def find(root, key) do
-    query = File.join(root, key <> ".*")
-    path  = Enum.first File.wildcard(query)
+    query = Path.join(root, key <> ".*")
+    path  = Enum.first Path.wildcard(query)
     if path, do: build(root, key, path)
   end
 
@@ -65,13 +65,13 @@ defimpl Dynamo.Templates.Finder, for: BitString do
       updated_at: File.stat!(path).mtime,
       identifier: path,
       handler: Dynamo.Templates.Handler.get!(extname(path)),
-      format: extname(File.rootname(path)),
+      format: extname(Path.rootname(path)),
       finder: root
     ]
   end
 
   defp extname(path) do
-    case File.extname(path) do
+    case Path.extname(path) do
       "." <> ext -> ext
       ""  -> nil
       ext -> ext

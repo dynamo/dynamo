@@ -90,7 +90,7 @@ defmodule Dynamo.Cowboy do
     if nil?(value) or File.exists?(value) do
       options
     else
-      new = File.expand_path(value, app.root) |> to_char_list
+      new = Path.expand(value, app.root) |> to_char_list
       Keyword.put(options, key, new)
     end
   end

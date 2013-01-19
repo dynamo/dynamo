@@ -53,7 +53,7 @@ defmodule Mix.Tasks.Compile.Dynamo do
     # Source files + Mix setup + Dynamo config + Templates
     to_watch = Mix.Utils.extract_files(source_paths, watch_exts)
     to_watch = Mix.Project.sources ++ to_watch
-    to_watch = [File.join(compile_path, "#{mod}.beam")|to_watch]
+    to_watch = [Path.join(compile_path, "#{mod}.beam")|to_watch]
     to_watch = to_watch ++ Enum.map(templates, template_mtime(&1))
 
     stale = Mix.Utils.extract_stale(to_watch, [compile_path])
@@ -101,7 +101,7 @@ defmodule Mix.Tasks.Compile.Dynamo do
   defp compile_templates(mod, name, templates, compile_path) do
     binary = Dynamo.Templates.compile_module(name, templates, [:conn],
                fn -> mod.templates_prelude end)
-    File.write! File.join(compile_path, "#{name}.beam"), binary
+    File.write! Path.join(compile_path, "#{name}.beam"), binary
     Mix.shell.info "Generated #{inspect name}"
   end
 end

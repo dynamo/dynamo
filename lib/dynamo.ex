@@ -176,7 +176,7 @@ defmodule Dynamo do
           if dynamo[:compile_on_demand] do
             callback = fn
               path, acc when is_binary(path) ->
-                (path |> File.expand_path(root) |> File.wildcard) ++ acc
+                (path |> Path.expand(root) |> Path.wildcard) ++ acc
               _, acc ->
                 acc
             end
@@ -220,7 +220,7 @@ defmodule Dynamo do
       compile_on_demand: true,
       compiled_templates: env.module.CompiledTemplates,
       env: "prod",
-      environments_path: File.expand_path("../environments", env.file),
+      environments_path: Path.expand("../environments", env.file),
       exceptions_editor: System.get_env("DYNAMO_EDITOR"),
       exceptions_handler: Dynamo.Filters.Exceptions.Public,
       reload_modules: false,
@@ -320,7 +320,7 @@ defmodule Dynamo do
 
     templates_paths  = lc path inlist templates_paths do
       if is_binary(path) do
-        quote do: File.expand_path(unquote(path), root)
+        quote do: Path.expand(unquote(path), root)
       else
         Macro.escape(path)
       end

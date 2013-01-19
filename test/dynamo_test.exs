@@ -7,14 +7,14 @@ defmodule DynamoTest do
     use Dynamo
 
     config :dynamo,
-      root: File.expand_path("../fixtures", __FILE__),
+      root: Path.expand("../fixtures", __FILE__),
       endpoint: DynamoTest,
-      static_root: File.expand_path("../fixtures/public", __FILE__),
+      static_root: Path.expand("../fixtures/public", __FILE__),
       static_route: "/public",
       compile_on_demand: false,
       reload_modules: false,
-      source_paths: [File.expand_path("../fixtures/*", __FILE__)],
-      templates_paths: [File.expand_path("../fixtures/templates", __FILE__)]
+      source_paths: [Path.expand("../fixtures/*", __FILE__)],
+      templates_paths: [Path.expand("../fixtures/templates", __FILE__)]
 
     # Test session compilation as well
     config :dynamo,
@@ -39,17 +39,17 @@ defmodule DynamoTest do
   ## Config
 
   test "defines root based on otp app" do
-    assert ReloadApp.root == File.expand_path("../..", __FILE__)
+    assert ReloadApp.root == Path.expand("../..", __FILE__)
   end
 
   test "defines root based on user config" do
-    assert App.root == File.expand_path("../fixtures", __FILE__)
+    assert App.root == Path.expand("../fixtures", __FILE__)
   end
 
   ## Filters
 
   test "adds public filter" do
-    file = File.expand_path("../fixtures/public", __FILE__)
+    file = Path.expand("../fixtures/public", __FILE__)
     assert Enum.first(App.__filters__) == Dynamo.Filters.Static.new("/public", file)
   end
 
@@ -69,7 +69,7 @@ defmodule DynamoTest do
 
   test "defines templates paths" do
     assert App.templates_paths == [DynamoTest.App.CompiledTemplates]
-    templates = File.expand_path("../fixtures/templates", __FILE__)
+    templates = Path.expand("../fixtures/templates", __FILE__)
     assert ReloadApp.templates_paths == [templates]
   end
 end

@@ -34,7 +34,7 @@ defmodule Dynamo.Filters.Static do
     if segments == nil or invalid_path?(segments) do
       fun.(conn)
     else
-      path = File.join([conn.app.root, root|segments])
+      path = Path.join([conn.app.root, root|segments])
       if File.regular?(path) do
         mimes = :mimetypes.filename(path)
         conn

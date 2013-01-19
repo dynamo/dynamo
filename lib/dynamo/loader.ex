@@ -60,10 +60,10 @@ defmodule Dynamo.Loader do
       "Elixir-" <> _ ->
         path = Mix.Utils.underscore(module) <> ".ex"
         dirs = :gen_server.call(__MODULE__, :paths)
-        dir  = Enum.find dirs, fn(dir) -> File.regular?(File.join(dir, path)) end
+        dir  = Enum.find dirs, fn(dir) -> File.regular?(Path.join(dir, path)) end
 
         if dir do
-          file   = File.join(dir, path)
+          file   = Path.join(dir, path)
           tuples =
             try do
               Code.require_file(file) || []
@@ -177,7 +177,7 @@ defmodule Dynamo.Loader do
 
   defp last_modified(paths, updated_at) do
     Enum.reduce paths, updated_at, fn(path, acc) ->
-      Enum.reduce File.wildcard("#{path}/**/*.ex"), acc, max_last_modified(&1, &2)
+      Enum.reduce Path.wildcard("#{path}/**/*.ex"), acc, max_last_modified(&1, &2)
     end
   end
 
