@@ -28,8 +28,8 @@ defmodule Dynamo.Cowboy.SSLTest do
     config :ssl,
       port: 8022,
       password: "cowboy",
-      keyfile: File.expand_path("../../../fixtures/ssl/key.pem", __FILE__),
-      certfile: File.expand_path("../../../fixtures/ssl/cert.pem", __FILE__)
+      keyfile: Path.expand("../../../fixtures/ssl/key.pem", __FILE__),
+      certfile: Path.expand("../../../fixtures/ssl/cert.pem", __FILE__)
   end
 
   def setup_all do

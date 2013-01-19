@@ -26,7 +26,7 @@ defmodule Dynamo.HTTP.RenderTest do
 
     config :dynamo,
       endpoint: RenderingRouter,
-      templates_paths: [File.expand_path("../../../fixtures/templates", __FILE__)]
+      templates_paths: [Path.expand("../../../fixtures/templates", __FILE__)]
 
     templates do
       import List, only: [flatten: 1]

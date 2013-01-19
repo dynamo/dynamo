@@ -8,7 +8,7 @@ defmodule Dynamo.Filters.Exceptions.DebugTest do
     config :dynamo,
       source_paths: ["filters/exceptions"],
       exceptions_editor: "editor://__FILE__:__LINE__",
-      root: File.expand_path("../../..", __FILE__) # test/dynamo
+      root: Path.expand("../../..", __FILE__) # test/dynamo
   end
 
   use ExUnit.Case, async: true

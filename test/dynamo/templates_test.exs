@@ -4,7 +4,7 @@ defmodule Dynamo.TemplatesTest do
   use ExUnit.Case, async: true
 
   @renderer __MODULE__.Renderer
-  @fixture_path File.expand_path("../../fixtures/templates", __FILE__)
+  @fixture_path Path.expand("../../fixtures/templates", __FILE__)
 
   def setup_all() do
     Dynamo.Templates.Renderer.start_link(@renderer)
@@ -31,7 +31,7 @@ defmodule Dynamo.TemplatesTest do
     cached = render "module.html"
     assert module == cached
 
-    template = File.expand_path("../../fixtures/templates/module.html.eex", __FILE__)
+    template = Path.expand("../../fixtures/templates/module.html.eex", __FILE__)
 
     try do
       File.touch!(template, { { 2030, 1, 1 }, { 0, 0, 0 } })
@@ -59,7 +59,7 @@ defmodule Dynamo.TemplatesTest do
     all = Dynamo.Templates.Finder.all(@fixture_path)
     Dynamo.Templates.compile_module(CompileTest.CompiledTemplates, all, [:conn], prelude)
 
-    path     = File.join(@fixture_path, "hello.html.eex")
+    path     = Path.join(@fixture_path, "hello.html.eex")
     template = CompileTest.CompiledTemplates.find "hello.html"
 
     assert Dynamo.Template[identifier: ^path, key: "hello.html",

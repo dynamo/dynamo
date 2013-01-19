@@ -3,10 +3,10 @@ Code.require_file "../../../test_helper.exs", __FILE__
 defmodule Dynamo.Templates.FinderTest do
   use ExUnit.Case, async: true
 
-  @fixture_path File.expand_path("../../../fixtures/templates", __FILE__)
+  @fixture_path Path.expand("../../../fixtures/templates", __FILE__)
 
   test "finds available template" do
-    path = File.join(@fixture_path, "hello.html.eex")
+    path = Path.join(@fixture_path, "hello.html.eex")
 
     assert Dynamo.Template[identifier: ^path, key: "hello.html",
       handler: Dynamo.Templates.EEXHandler, format: "html",

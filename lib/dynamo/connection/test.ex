@@ -305,6 +305,6 @@ end
 
 defimpl Binary.Inspect, for: Dynamo.Connection.Test do
   def inspect(conn, _) do
-    "Dynamo.Connection.Test[#{conn.method} #{conn.path}]"
+    "#Dynamo.Connection.Test<#{conn.method} #{conn.path}>"
   end
 end

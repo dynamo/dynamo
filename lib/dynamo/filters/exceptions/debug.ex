@@ -52,7 +52,7 @@ defmodule Dynamo.Filters.Exceptions.Debug do
     dynamo  = app.config[:dynamo]
     editor  = dynamo[:exceptions_editor]
     sources = dynamo[:source_paths] ++ dynamo[:templates_paths]
-    sources = lc source inlist sources, path inlist File.wildcard(File.join(root, source)), do: path
+    sources = lc source inlist sources, path inlist Path.wildcard(Path.join(root, source)), do: path
 
     Enum.map_reduce(stacktrace, 0, each_frame(&1, &2, root, sources, editor)) |> elem(0)
   end
@@ -150,5 +150,5 @@ defmodule Dynamo.Filters.Exceptions.Debug do
   require EEx
 
   EEx.function_from_file :defp, :template,
-    File.expand_path("../template.eex", __FILE__), [:conn, :assigns]
+    Path.expand("../template.eex", __FILE__), [:conn, :assigns]
 end

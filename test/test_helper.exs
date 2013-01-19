@@ -12,11 +12,11 @@ defmodule MixHelpers do
   import ExUnit.Assertions
 
   def tmp_path do
-    File.expand_path("../../tmp", __FILE__)
+    Path.expand("../../tmp", __FILE__)
   end
 
   def tmp_path(extension) do
-    File.join tmp_path, extension
+    Path.join tmp_path, extension
   end
 
   def in_tmp(which, function) do

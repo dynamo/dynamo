@@ -40,7 +40,7 @@ defmodule Dynamo.Static do
   @doc false
   def init(app) do
     dynamo  = app.config[:dynamo]
-    root    = File.expand_path(dynamo[:static_root], app.root)
+    root    = Path.expand(dynamo[:static_root], app.root)
     route   = dynamo[:static_route]
     cache   = dynamo[:cache_static]
 
@@ -67,12 +67,12 @@ defmodule Dynamo.Static do
   ## Server helpers
 
   defp static_path(path, Config[] = config) do
-    case File.stat(File.join(config.root, path)) do
+    case File.stat(Path.join(config.root, path)) do
       { :ok, File.Stat[mtime: mtime, type: type] } when type != :directory and is_tuple(mtime) ->
         seconds = :calendar.datetime_to_gregorian_seconds(mtime)
-        File.join(config.route, [path, ??, integer_to_list(seconds)])
+        Path.join(config.route, [path, ??, integer_to_list(seconds)])
       _ ->
-        File.join(config.route, path)
+        Path.join(config.route, path)
     end
   end
 end

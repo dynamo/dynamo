@@ -13,14 +13,14 @@ defmodule Dynamo.Connection.Utils do
       write_env_tmp_dir('TMP', dir)  ||
       write_env_tmp_dir('TEMP', dir) ||
       write_tmp_dir("/tmp/" <> dir)  ||
-      write_tmp_dir(File.expand_path(dir)) ||
+      write_tmp_dir(Path.expand(dir)) ||
       raise "cannot create temporary directory"
   end
 
   defp write_env_tmp_dir(env, dir) do
     case System.get_env(env) do
       nil -> nil
-      tmp -> write_tmp_dir File.join(tmp, dir)
+      tmp -> write_tmp_dir Path.join(tmp, dir)
     end
   end
 
@@ -47,7 +47,7 @@ defmodule Dynamo.Connection.Utils do
 
   defp random_file(prefix, tmp_dir, callback, attempts) when attempts < @max_attempts do
     { mega, sec, mili } = :erlang.now()
-    name = File.join(tmp_dir, "#{prefix}-#{mega}-#{sec}-#{mili}")
+    name = Path.join(tmp_dir, "#{prefix}-#{mega}-#{sec}-#{mili}")
     case :file.open(name, [:write, :exclusive, :binary]) do
       { :error, :eaccess } -> random_file(prefix, tmp_dir, callback, attempts + 1)
       { :ok, file } ->

@@ -352,7 +352,7 @@ defmodule Dynamo.Cowboy.ConnectionTest do
   end
 
   def sendfile(conn) do
-    file = File.expand_path("../../../fixtures/static/file.txt", __FILE__)
+    file = Path.expand("../../../fixtures/static/file.txt", __FILE__)
     conn = conn.sendfile(file)
     assert conn.state  == :sent
     assert conn.status == 200
@@ -397,7 +397,7 @@ defmodule Dynamo.Cowboy.ConnectionTest do
   end
 
   test :inspect do
-    assert { 200, _, "Dynamo.Connection[GET /conn_inspect (cowboy)]" } = request :get, "/conn_inspect"
+    assert { 200, _, "#Dynamo.Connection<GET /conn_inspect (cowboy)>" } = request :get, "/conn_inspect"
   end
 
   def forward_to(conn) do

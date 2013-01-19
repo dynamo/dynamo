@@ -61,7 +61,7 @@ defmodule Dynamo.Templates do
     (format = template.format) ||
       raise ArgumentError, message: "cannot find layout #{layout} for template #{template.identifier} since it has no format"
 
-    find File.join("layouts", layout) <> ".#{format}", tmpl_paths
+    find Path.join("layouts", layout) <> ".#{format}", tmpl_paths
   end
 
   @doc """

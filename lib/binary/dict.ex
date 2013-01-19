@@ -161,6 +161,6 @@ defimpl Binary.Inspect, for: Binary.Dict do
   import Kernel, except: [inspect: 2]
 
   def inspect({ Binary.Dict, data }, opts) do
-    "Binary.Dict" <> Binary.Inspect.inspect(data, opts)
+    "#Binary.Dict<" <> Binary.Inspect.inspect(data, opts) <> ">"
   end
 end
