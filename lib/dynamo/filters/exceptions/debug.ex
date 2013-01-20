@@ -104,7 +104,7 @@ defmodule Dynamo.Filters.Exceptions.Debug do
   @radius 5
 
   defp file_context(original, line, root, sources) do
-    file = :binary.replace(original, root, "")
+    file = Path.relative_to(original, root)
 
     if is_dynamo_source?(original, sources) do
       context = :dynamo
