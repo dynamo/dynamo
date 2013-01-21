@@ -352,7 +352,7 @@ defmodule Dynamo.Router.Base do
 
   # Extract the path and guards from the path.
   defp extract_path_and_guards({ :when, _, [path, guards] }, extra_guard) do
-    { path, [{ :and, 0, [guards, extra_guard] }] }
+    { path, [{ :and, [], [guards, extra_guard] }] }
   end
 
   defp extract_path_and_guards(path, extra_guard) do
@@ -367,7 +367,7 @@ defmodule Dynamo.Router.Base do
   end
 
   defp default_guards(other) do
-    { :and, 0, [other, default_guard] }
+    { :and, [], [other, default_guard] }
   end
 
   defp default_guard do
@@ -428,7 +428,7 @@ defmodule Dynamo.Router.Base do
     end
 
     unless vars == [] do
-      route_params = lc var inlist vars, do: { var, { var, 0, nil } }
+      route_params = lc var inlist vars, do: { var, { var, [], nil } }
       hooks = quote do
         var!(conn) = var!(conn).route_params(unquote(route_params))
         unquote(hooks)

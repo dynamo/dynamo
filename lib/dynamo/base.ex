@@ -33,7 +33,7 @@ defmodule Dynamo.Base do
   defmacro initializer(name, do: block) do
     quote do
       name = :"initializer_#{unquote(name)}"
-      @initializers { name, unquote(__CALLER__.line), [] }
+      @initializers { name, [line: unquote(__CALLER__.line)], [] }
       defp name, [], [], do: unquote(Macro.escape block)
     end
   end

@@ -53,7 +53,7 @@ defmodule Dynamo.Templates.EEXHandler do
 
   def compile(Dynamo.Template[identifier: identifier], source, locals) do
     vars   = vars(locals)
-    args   = [{ :assigns, 0, nil }|vars]
+    args   = [{ :assigns, [], nil }|vars]
     match  = match(args)
     source = EEx.compile_string(source, file: identifier)
 
@@ -69,10 +69,10 @@ defmodule Dynamo.Templates.EEXHandler do
   end
 
   defp vars(locals) do
-    lc name inlist locals, do: { name, 0, nil }
+    lc name inlist locals, do: { name, [], nil }
   end
 
   defp match(locals) do
-    lc var inlist locals, do: { :=, 0, [{ :_, 0, nil }, var] }
+    lc var inlist locals, do: { :=, [], [{ :_, [], nil }, var] }
   end
 end

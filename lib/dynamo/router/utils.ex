@@ -16,7 +16,7 @@ defmodule Dynamo.Router.Utils do
 
   ## Examples
 
-      generate_match("/foo/:id") => ["foo", { :id, 0, nil }]
+      generate_match("/foo/:id") => ["foo", { :id, [], nil }]
 
   """
   def generate_match(spec) when is_binary(spec) do
@@ -33,7 +33,7 @@ defmodule Dynamo.Router.Utils do
 
   ## Examples
 
-      generate_forward("/foo/:id") => ["foo", { :id, 0, nil } | _glob]
+      generate_forward("/foo/:id") => ["foo", { :id, [], nil } | _glob]
 
   """
   def generate_forward({ :_, _, _ }) do
@@ -42,8 +42,8 @@ defmodule Dynamo.Router.Utils do
 
   def generate_forward(list) when is_list(list) do
     [h|t] = Enum.reverse(list)
-    glob  = { :glob, 0, nil }
-    { [], Enum.reverse [ { :|, 0, [h, glob] } | t ] }
+    glob  = { :glob, [], nil }
+    { [], Enum.reverse [ { :|, [], [h, glob] } | t ] }
   end
 
   def generate_forward(spec) when is_binary(spec) do
@@ -93,7 +93,7 @@ defmodule Dynamo.Router.Utils do
 
     case acc do
       [hs|ts] ->
-        acc = [{ :|, 0, [hs, expr] } | ts]
+        acc = [{ :|, [], [hs, expr] } | ts]
         generate_match([], [identifier|vars], acc)
       _ ->
         { vars, expr } = generate_match([], [identifier|vars], [expr])
@@ -105,17 +105,17 @@ defmodule Dynamo.Router.Utils do
 
   defp segment_match([?:|argument], []) do
     identifier = list_to_atom(argument)
-    { :identifier, identifier, { identifier, 0, nil } }
+    { :identifier, identifier, { identifier, [], nil } }
   end
 
   defp segment_match([?*|argument], []) do
     identifier = list_to_atom(argument)
-    { :glob, identifier, { identifier, 0, nil } }
+    { :glob, identifier, { identifier, [], nil } }
   end
 
   defp segment_match([?:|argument], buffer) do
     identifier = list_to_atom(argument)
-    var = { identifier, 0, nil }
+    var = { identifier, [], nil }
     expr = quote do
       unquote(binary_from_buffer(buffer)) <> unquote(var)
     end
@@ -124,7 +124,7 @@ defmodule Dynamo.Router.Utils do
 
   defp segment_match([?*|argument], buffer) do
     identifier = list_to_atom(argument)
-    var = { identifier, 0, nil }
+    var = { identifier, [], nil }
     expr = quote hygiene: false do
       [unquote(binary_from_buffer(buffer)) <> _ | _] = unquote(var)
     end
