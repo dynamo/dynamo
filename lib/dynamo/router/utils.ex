@@ -125,7 +125,7 @@ defmodule Dynamo.Router.Utils do
   defp segment_match([?*|argument], buffer) do
     identifier = list_to_atom(argument)
     var = { identifier, [], nil }
-    expr = quote hygiene: false do
+    expr = quote var_context: nil do
       [unquote(binary_from_buffer(buffer)) <> _ | _] = unquote(var)
     end
     { :glob, identifier, expr }

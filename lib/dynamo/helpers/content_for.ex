@@ -58,14 +58,14 @@ defmodule Dynamo.Helpers.ContentFor do
   can later be retrieved by calling `content_for(key)`.
   """
   defmacro content_for(key, do: value) do
-    quote hygiene: false do
-      conn = unquote(__MODULE__).append_content(conn, unquote(key), unquote(value))
+    quote do
+      var!(conn) = unquote(__MODULE__).append_content(var!(conn), unquote(key), unquote(value))
     end
   end
 
   defmacro content_for(key, value) do
-    quote hygiene: false do
-      conn = unquote(__MODULE__).append_content(conn, unquote(key), unquote(value))
+    quote do
+      var!(conn) = unquote(__MODULE__).append_content(var!(conn), unquote(key), unquote(value))
     end
   end
 
@@ -75,8 +75,8 @@ defmodule Dynamo.Helpers.ContentFor do
   returns the raw value.
   """
   defmacro content_for(key) do
-    quote hygiene: false do
-      unquote(__MODULE__).get_content(conn, unquote(key))
+    quote do
+      unquote(__MODULE__).get_content(var!(conn), unquote(key))
     end
   end
 

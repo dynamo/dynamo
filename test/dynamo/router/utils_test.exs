@@ -7,7 +7,7 @@ defmodule Dynamo.Router.UtilsTest do
 
   defmacrop assert_quoted(left, right) do
     quote do
-      assert quote(hygiene: false, do: unquote(left)) == unquote(right)
+      assert quote(var_context: nil, do: unquote(left)) == unquote(right)
     end
   end
 
