@@ -110,7 +110,9 @@ defmodule Dynamo.Cowboy.Connection do
       and state in [:unset, :set] and (is_binary(body) or is_tuple(body)) do
     conn = run_before_send(conn)
     connection(resp_headers: headers, resp_cookies: cookies, req: req) = conn
-    { :ok, req } = R.reply(status, get_resp_headers(headers, cookies), body, req)
+    merged_resp_headers = Dynamo.Connection.Utils.merge_resp_headers(headers, cookies)
+
+    { :ok, req } = R.reply(status, merged_resp_headers, body, req)
 
     connection(conn,
       req: req,
@@ -124,7 +126,9 @@ defmodule Dynamo.Cowboy.Connection do
       and state in [:unset, :set] do
     conn = run_before_send(conn)
     connection(resp_headers: headers, resp_cookies: cookies, req: req) = conn
-    { :ok, req } = R.chunked_reply(status, get_resp_headers(headers, cookies), req)
+    merged_resp_headers = Dynamo.Connection.Utils.merge_resp_headers(headers, cookies)
+
+    { :ok, req } = R.chunked_reply(status, merged_resp_headers, req)
 
     connection(conn,
       req: req,
@@ -201,11 +205,6 @@ defmodule Dynamo.Cowboy.Connection do
     end
   end
 
-  defp get_resp_headers(headers, resp_cookies) do
-    Enum.reduce resp_cookies, Binary.Dict.to_list(headers), fn({ key, value, opts }, acc) ->
-      [{ "set-cookie", Dynamo.Connection.Utils.cookie_header(key, value, opts) }|acc]
-    end
-  end
 end
 
 defimpl Binary.Inspect, for: Dynamo.Cowboy.Connection do
