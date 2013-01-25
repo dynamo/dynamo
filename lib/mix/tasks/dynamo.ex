@@ -84,6 +84,7 @@ defmodule Mix.Tasks.Dynamo do
 
     create_directory "priv"
     create_directory "priv/static"
+    create_file "priv/static/favicon.ico", ""
 
     create_directory "test"
     create_file "test/test_helper.exs", test_helper_template(assigns)
