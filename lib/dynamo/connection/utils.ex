@@ -64,6 +64,10 @@ defmodule Dynamo.Connection.Utils do
     raise "Could not create random file at #{tmp_dir} after #{attempts} attempts. What gives?"
   end
 
+  @doc """
+  Receives response headers and cookies {key, value, options} list and returns
+  merged headers with cookies headers.
+  """
   def merge_resp_headers(headers, cookies) do
     Enum.reduce cookies, Binary.Dict.to_list(headers), fn({ key, value, opts }, acc) ->
       [{ "set-cookie", cookie_header(key, value, opts) }|acc]
