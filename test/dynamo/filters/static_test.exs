@@ -5,7 +5,9 @@ defmodule Dynamo.Filters.StaticTest do
     use Dynamo
     use Dynamo.Router
 
-    filter Dynamo.Filters.Static.new("/public", Path.expand("../../..", __FILE__))
+    config :dynamo, root: Path.expand("../../..", __FILE__)
+
+    filter Dynamo.Filters.Static.new("/public", "")
 
     get "/public/fixtures/fallback" do
       conn.send(200, "Fallback")
