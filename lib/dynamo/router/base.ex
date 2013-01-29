@@ -476,7 +476,7 @@ defmodule Dynamo.Router.Base do
         call = quote(do: unquote(ref).unquote(kind)(var!(conn)))
         fun.(call, key, ref, acc)
       _ ->
-        call = quote(do: unquote(ref).(var!(conn)))
+        call = quote(do: unquote(ref)(var!(conn)))
         fun.(call, key, ref, acc)
     end
   end

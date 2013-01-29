@@ -67,7 +67,7 @@ defmodule Dynamo.Connection.QueryParser do
   # We always assign the value in the last segment.
   # `age=17` would match here.
   defp assign_parts([key], acc, value) do
-    Dict.update(acc, key, value, function do
+    Binary.Dict.update(acc, key, value, function do
       x when is_list(x) or is_record(x, Binary.Dict) ->
         raise ParseError, message: "expected string at #{key}"
       x -> x
@@ -79,15 +79,15 @@ defmodule Dynamo.Connection.QueryParser do
   # not yet. This assumes that items are iterated in
   # reverse order.
   defp assign_parts([key,""|t], acc, value) do
-    case Dict.get(acc, key, []) do
+    case Binary.Dict.get(acc, key, []) do
       current when is_list(current) -> current
       _   -> raise ParseError, message: "expected list at #{key}"
     end
 
     if value = assign_list_parts(t, value) do
-      Dict.put(acc, key, [value|current])
+      Binary.Dict.put(acc, key, [value|current])
     else
-      Dict.put(acc, key, current)
+      Binary.Dict.put(acc, key, current)
     end
   end
 
