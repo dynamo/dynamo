@@ -63,8 +63,8 @@ defmodule Dynamo.Base do
   end
 
   @doc false
-  defmacro __before_compile__(mod) do
-    initializers = Module.get_attribute(mod, :initializers)
+  defmacro __before_compile__(env) do
+    initializers = Module.get_attribute(env.module, :initializers)
 
     quote location: :keep do
       @doc """

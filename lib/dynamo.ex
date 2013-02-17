@@ -284,8 +284,8 @@ defmodule Dynamo do
   end
 
   @doc false
-  defmacro define_endpoint(module) do
-    endpoint = Module.get_attribute(module, :config)[:dynamo][:endpoint] |> Macro.escape
+  defmacro define_endpoint(env) do
+    endpoint = Module.get_attribute(env.module, :config)[:dynamo][:endpoint] |> Macro.escape
 
     if endpoint do
       quote location: :keep do
@@ -300,7 +300,8 @@ defmodule Dynamo do
   end
 
   @doc false
-  defmacro define_templates_paths(module) do
+  defmacro define_templates_paths(env) do
+    module = env.module
     dynamo = Module.get_attribute(module, :config)[:dynamo]
     templates_paths = dynamo[:templates_paths]
 
@@ -344,7 +345,8 @@ defmodule Dynamo do
   end
 
   @doc false
-  defmacro define_static(module) do
+  defmacro define_static(env) do
+    module = env.module
     dynamo = Module.get_attribute(module, :config)[:dynamo]
     supervisor = dynamo[:supervisor]
 
@@ -366,7 +368,8 @@ defmodule Dynamo do
   end
 
   @doc false
-  defmacro define_root(module) do
+  defmacro define_root(env) do
+    module = env.module
     dynamo = Module.get_attribute(module, :config)[:dynamo]
     root   =
       cond do

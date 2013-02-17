@@ -159,8 +159,10 @@ defmodule Dynamo.Router.Base do
   end
 
   @doc false
-  defmacro __before_compile__(module) do
-    prepare  = compile_hooks module, :dynamo_prepare,
+  defmacro __before_compile__(env) do
+    module = env.module
+
+    prepare = compile_hooks module, :dynamo_prepare,
                  quote(do: var!(conn)), :prepare, function(:compile_prepare, 4), true
 
     finalize = compile_hooks module, :dynamo_finalize,

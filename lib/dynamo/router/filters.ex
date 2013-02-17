@@ -68,7 +68,8 @@ defmodule Dynamo.Router.Filters do
   end
 
   @doc false
-  defmacro __before_compile__(module) do
+  defmacro __before_compile__(env) do
+    module  = env.module
     filters = Module.get_attribute(module, :dynamo_filters)
     escaped = Macro.escape(Enum.reverse(filters))
 

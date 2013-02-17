@@ -21,7 +21,7 @@ defmodule Dynamo.Cowboy.Handler do
             conn.cowboy_request.set_meta(:websocket_handler, mod), conn }
         :set ->
           { :ok, conn.send.cowboy_request, nil }
-        other ->
+        _other ->
           { :ok, conn.cowboy_request, nil }
       end
     else
