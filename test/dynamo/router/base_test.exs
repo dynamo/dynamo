@@ -74,7 +74,7 @@ defmodule Dynamo.Router.BaseTest do
   use ExUnit.Case, async: true
   use Dynamo.HTTP.Case
 
-  def test_dispatch_root do
+  test "dispatch root" do
     assert process(Sample1, :GET, "/").assigns[:value] == :root
     assert process(RootSample, :GET, "/").assigns[:value] == :root
     assert process(RootSample, :GET, "/8/foo").assigns[:value] == 8
@@ -82,39 +82,39 @@ defmodule Dynamo.Router.BaseTest do
 
   @endpoint Sample1
 
-  def test_dispatch_single_segment do
+  test "dispatch single segment" do
     assert get("/1/bar").assigns[:value] == 1
   end
 
-  def test_dispatch_dynamic_segment do
+  test "dispatch dynamic segment" do
     conn = get("/2/value")
     assert conn.assigns[:value] == "value"
     assert conn.route_params[:bar] == "value"
   end
 
-  def test_dispatch_dynamic_segment_with_prefix do
+  test "dispatch dynamic segment with prefix" do
     assert get("/3/bar-baz").assigns[:value] == "baz"
   end
 
-  def test_dispatch_glob_segment do
+  test "dispatch glob segment" do
     assert get("/4/baz/baaz").assigns[:value] == ["baz", "baaz"]
   end
 
-  def test_dispatch_glob_segment_with_prefix do
+  test "dispatch glob segment with prefix" do
     assert get("/5/bar-baz/baaz").assigns[:value] == ["bar-baz", "baaz"]
   end
 
-  def test_dispatch_custom_route do
+  test "dispatch custom route" do
     assert get("/6/foo").assigns[:value] == 200
   end
 
-  def test_dispatch_not_found do
+  test "dispatch not found" do
     conn = post("/100/foo")
     assert conn.status == 404
     assert conn.resp_body == "OOPS"
   end
 
-  def test_dispatch_with_guards do
+  test "dispatch with guards" do
     assert get("/7/a").assigns[:value]    == "a"
     assert get("/7/ab").assigns[:value]   == "ab"
     assert get("/7/abc").assigns[:value]  == "abc"
@@ -124,29 +124,29 @@ defmodule Dynamo.Router.BaseTest do
     assert conn.resp_body == "OOPS"
   end
 
-  def test_dispatch_wrong_verb do
+  test "dispatch wrong verb" do
     conn = post("/1/bar")
     assert conn.status == 404
     assert conn.resp_body == "OOPS"
   end
 
-  def test_dispatch_any_verb do
+  test "dispatch any verb" do
     assert get("/8/foo").assigns[:value] == 8
     assert post("/8/foo").assigns[:value] == 8
     assert put("/8/foo").assigns[:value] == 8
     assert delete("/8/foo").assigns[:value] == 8
   end
 
-  def test_forwarding_to_another_endpoint do
+  test "forwarding to another endpoint" do
     assert get("/10").assigns[:value] == :root
     assert get("/10/nested/match").assigns[:value] == "match"
   end
 
-  def test_forwarding_to_another_endpoint_with_explicit_path do
+  test "forwarding to another endpoint with explicit path" do
     assert get("/11/deep/nested/match").assigns[:value] == "match"
   end
 
-  def test_forwarding_to_another_endpoint_with_dynamic_path do
+  test "forwarding to another endpoint with dynamic path" do
     conn = get("/12/hello")
     assert conn.assigns[:value] == :root
     assert conn.route_params[:var] == "hello"
@@ -160,11 +160,11 @@ defmodule Dynamo.Router.BaseTest do
 
   @endpoint RootSample
 
-  def test_forwarding_on_root do
+  test "forwarding on root" do
     assert get("/1/bar").assigns[:value] == 1
   end
 
-  def test_forwarding_on_root_with_dynamic_path_and_params do
+  test "forwarding on root with dynamic path and params" do
     conn = get("/12/hello")
     assert conn.assigns[:value] == :root
     assert conn.route_params[:var] == "hello"

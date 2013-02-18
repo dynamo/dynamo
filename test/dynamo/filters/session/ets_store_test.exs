@@ -6,12 +6,14 @@ defmodule Dynamo.Filters.Session.ETSStoreTest do
 
   import Dynamo.HTTP.Session
 
-  def setup(_) do
+  setup do
     :ets.new(:dynamo_session_store, [:set, :public, :named_table])
+    :ok
   end
 
-  def teardown(_) do
+  teardown do
     :ets.delete(:dynamo_session_store)
+    :ok
   end
 
   @key "_session"

@@ -21,12 +21,14 @@ defmodule Dynamo.Filters.StaticTest do
   use ExUnit.Case
   use Dynamo.HTTP.Case
 
-  def setup_all do
+  setup_all do
     Dynamo.under_test(StaticApp)
+    :ok
   end
 
-  def teardown_all(_) do
+  teardown_all do
     Dynamo.under_test(nil)
+    :ok
   end
 
   @endpoint StaticApp

@@ -74,7 +74,7 @@ defmodule Mix.TasksTest do
       Code.require_file "../../test_helper.exs", __FILE__
 
       defmodule HelloRouterTest do
-        use ExUnit.Case
+        use MyApp.TestCase
 
         test "hello router is autoloaded" do
           assert HelloRouter.__info__(:module)

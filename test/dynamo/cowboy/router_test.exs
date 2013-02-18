@@ -18,12 +18,14 @@ defmodule Dynamo.Cowboy.RouterTest do
     forward "/baz", to: __MODULE__
   end
 
-  def setup_all do
+  setup_all do
     Dynamo.Cowboy.run RouterApp, port: 8012, verbose: false
+    :ok
   end
 
-  def teardown_all do
+  teardown_all do
     Dynamo.Cowboy.shutdown RouterApp
+    :ok
   end
 
   test "basic request on a router app" do

@@ -6,15 +6,13 @@ defmodule Dynamo.HTTP.HibernateTest do
   use Dynamo.HTTP.Case
   import Dynamo.HTTP.Hibernate
 
-  def setup(_) do
-    flush
-  end
+  setup do: flush
 
   def flush do
     receive do
       _ -> flush
     after
-      0 -> :done
+      0 -> :ok
     end
   end
 

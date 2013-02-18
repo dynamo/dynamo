@@ -37,13 +37,15 @@ defmodule Dynamo.HTTP.RenderTest do
   use ExUnit.Case
   use Dynamo.HTTP.Case
 
-  def setup_all do
+  setup_all do
     RenderingApp.start_link
     Dynamo.under_test(RenderingApp)
+    :ok
   end
 
-  def teardown_all do
+  teardown_all do
     Dynamo.under_test(nil)
+    :ok
   end
 
   @endpoint RenderingRouter

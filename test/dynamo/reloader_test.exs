@@ -7,13 +7,15 @@ defmodule Dynamo.LoaderTest do
     Path.expand("../../fixtures/reloader", __FILE__)
   end
 
-  def setup_all do
+  setup_all do
     Dynamo.Loader.append_paths([fixture_path])
     Dynamo.Loader.enable
+    :ok
   end
 
-  def teardown_all do
+  teardown_all do
     Dynamo.Loader.stop
+    :ok
   end
 
   test "automatically loads code" do

@@ -3,12 +3,14 @@ Code.require_file "../../../test_helper.exs", __FILE__
 defmodule Dynamo.Cowboy.ConnectionTest do
   use ExUnit.Case, async: true
 
-  def setup_all do
+  setup_all do
     Dynamo.Cowboy.run __MODULE__, port: 8011, verbose: false
+    :ok
   end
 
-  def teardown_all do
+  teardown_all do
     Dynamo.Cowboy.shutdown __MODULE__
+    :ok
   end
 
   def service(conn) do

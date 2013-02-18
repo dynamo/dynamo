@@ -6,12 +6,14 @@ defmodule Dynamo.TemplatesTest do
   @renderer __MODULE__.Renderer
   @fixture_path Path.expand("../../fixtures/templates", __FILE__)
 
-  def setup_all() do
+  setup_all do
     Dynamo.Templates.Renderer.start_link(@renderer)
+    :ok
   end
 
-  def teardown_all(_) do
+  teardown_all do
     Dynamo.Templates.Renderer.stop(@renderer)
+    :ok
   end
 
   test "renders a template" do

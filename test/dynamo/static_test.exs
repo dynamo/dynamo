@@ -33,13 +33,15 @@ defmodule Dynamo.StaticTest do
 
   @asset "test/fixtures/static/file.txt"
 
-  def setup(_) do
+  setup do
     File.touch!(@asset, { { 2010, 1, 1 }, { 0, 0, 0 } })
     Dynamo.Static.start_link(App)
+    :ok
   end
 
-  def teardown(_) do
+  teardown do
     Dynamo.Static.stop(App)
+    :ok
   end
 
   test "looks up a file" do

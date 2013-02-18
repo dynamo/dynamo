@@ -11,42 +11,42 @@ defmodule Dynamo.Router.UtilsTest do
     end
   end
 
-  def test_root do
+  test "root" do
     assert R.split("/") == []
     assert R.split("") == []
   end
 
-  def test_split_single_segment do
+  test "split single segment" do
     assert R.split("/foo") == ["foo"]
     assert R.split("foo") == ["foo"]
   end
 
-  def test_split_with_more_than_one_segment do
+  test "split with more than one segment" do
     assert R.split("/foo/bar") == ["foo", "bar"]
     assert R.split("foo/bar") == ["foo", "bar"]
   end
 
-  def test_split_removes_trailing_slash do
+  test "split removes trailing slash" do
     assert R.split("/foo/bar/") == ["foo", "bar"]
     assert R.split("foo/bar/") == ["foo", "bar"]
   end
 
-  def test_generate_match_with_literal do
+  test "generate match with literal" do
     assert_quoted { [], ["foo"] }, R.generate_match("/foo")
     assert_quoted { [], ["foo"] }, R.generate_match("foo")
   end
 
-  def test_generate_match_with_identifier do
+  test "generate match with identifier" do
     assert_quoted { [:id], ["foo", id] }, R.generate_match("/foo/:id")
     assert_quoted { [:username], ["foo", username] }, R.generate_match("foo/:username")
   end
 
-  def test_generate_match_with_literal_plus_identifier do
+  test "generate match with literal plus identifier" do
     assert_quoted { [:id], ["foo", "bar-" <> id] }, R.generate_match("/foo/bar-:id")
     assert_quoted { [:username], ["foo", "bar" <> username] }, R.generate_match("foo/bar:username")
   end
 
-  def test_generate_match_only_with_glob do
+  test "generate match only with glob" do
     assert_quoted { [:bar], bar }, R.generate_match("*bar")
     assert_quoted { [:glob], glob }, R.generate_match("/*glob")
 
@@ -54,17 +54,17 @@ defmodule Dynamo.Router.UtilsTest do
     assert_quoted { [:glob], ["id-" <> _ | _] = glob }, R.generate_match("/id-*glob")
   end
 
-  def test_generate_match_with_glob do
+  test "generate match with glob" do
     assert_quoted { [:bar], ["foo" | bar] }, R.generate_match("/foo/*bar")
     assert_quoted { [:glob], ["foo" | glob] }, R.generate_match("foo/*glob")
   end
 
-  def test_generate_match_with_literal_plus_glob do
+  test "generate match with literal plus glob" do
     assert_quoted { [:bar], ["foo" | ["id-" <> _ | _] = bar] }, R.generate_match("/foo/id-*bar")
     assert_quoted { [:glob], ["foo" | ["id-" <> _ | _] = glob] }, R.generate_match("foo/id-*glob")
   end
 
-  def test_generate_invalid_match_with_segments_after_glob do
+  test "generate invalid match with segments after glob" do
     R.generate_match("/foo/*bar/baz")
     flunk "generate_match should have failed"
   rescue

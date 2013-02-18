@@ -32,12 +32,14 @@ defmodule Dynamo.Cowboy.SSLTest do
       certfile: Path.expand("../../../fixtures/ssl/cert.pem", __FILE__)
   end
 
-  def setup_all do
+  setup_all do
     App.run(verbose: false)
+    :ok
   end
 
-  def teardown_all do
+  teardown_all do
     Dynamo.Cowboy.shutdown App
+    :ok
   end
 
   test :http_scheme do
