@@ -1,6 +1,6 @@
-Run, Dynamo, Run!
-
 # Dynamo
+
+Run, Dynamo, Run!
 
 Dynamo is a web framework that runs on [Elixir](http://elixir-lang.org/). Its goals is performance and simplicity. It is currently alpha software and it supports:
 
@@ -18,9 +18,11 @@ Before becoming beta, we want to add the following to Dynamo:
 * Built-in JSON encoding
 * Database adapters
 
-This README will go into Dynamo installation and a basic walk-through. Documentation for Dynamo is available at [elixir-lang.org/docs/dynamo](http://elixir-lang.org/docs/dynamo).
+This README will go into Dynamo installation and a basic walk-through.
 
-## Installation
+Documentation for Dynamo is available at [elixir-lang.org/docs/dynamo](http://elixir-lang.org/docs/dynamo).
+
+# Installation
 
 As an alpha-software, Dynamo installation is a bit manual but can be done in few steps:
 
@@ -46,11 +48,11 @@ Static content is served from `priv/static/` folder and from the `/static` route
 
 The application can be compiled and used in production with: `MIX_ENV=prod mix do compile, server`. This is also the best environment to benchmark Dynamo and see its amazing results. ;)
 
-## Basic walk-through
+# Basic walk-through
 
 This walk-through is going to put you in touch with the four main elements in Dynamo: routers, connection, OTP and the Dynamo itself.
 
-### Routers
+## Routers
 
 A Dynamo application is organized in routers. Routers are kept in the `web/routers` directory and by default a project contains an `ApplicationRouter`, which is your Dynamo main entry point:
 
@@ -110,23 +112,23 @@ TODO
 
 TODO
 
-### Connection
+## Connection
 
 TODO
 
-### OTP support
+## OTP support
 
 TODO
 
-### Dynamo
+## Dynamo
 
 TODO
 
-## Learn more
+# Learn more
 
 TODO
 
-## License
+# License
 
 Dynamo source code is released under Apache 2 License.
 Check LICENSE file for more information.
