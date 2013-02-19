@@ -274,7 +274,7 @@ defmodule Mix.Tasks.Dynamo do
   config :server,
     port: 8888,
     acceptors: 100,
-    max_connections: 100_000
+    max_connections: 10000
   """
 
   embed_template :test_features, """
