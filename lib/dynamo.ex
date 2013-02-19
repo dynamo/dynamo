@@ -1,10 +1,12 @@
 defmodule Dynamo do
   @moduledoc """
-  This module allows developers to configure the Dynamo
-  framework and define Dynamos.
+  Run, Dynamo, Run!
 
-  A Dynamo is nothing more than a module with a `start`
-  and `run` functions and can be easily defined as follow:
+  This is the main module in the Dynamo repository. It allows
+  users to configure the Dynamo framework and define their
+  own Dynamos.
+
+  A very simple Dynamo can be defined as follow:
 
       defmodule MyDynamo do
         use Dynamo

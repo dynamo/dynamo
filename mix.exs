@@ -27,3 +27,27 @@ defmodule Dynamo.Mixfile do
       mod: { Dynamo.App, [] } ]
   end
 end
+
+defmodule Mix.Tasks.Docs do
+  @shortdoc "Generates docs"
+
+  def run(_) do
+    Mix.Task.run "loadpaths"
+
+	  Mix.shell.cmd %b[elixir -pa ebin ../exdoc/bin/exdoc "Dynamo" "#{Mix.project[:version]}" ] <>
+	    %b[-m Dynamo -u "https://github.com/elixir-lang/dynamo/blob/master/%{path}#L%{line}"]
+  end
+end
+
+defmodule Mix.Tasks.Release_docs do
+  @shortdoc "Releases docs"
+
+  def run(_) do
+    Mix.Task.run "docs"
+
+    File.cd! "../elixir-lang.github.com", fn -> System.cmd "git checkout master" end
+    File.rm_rf "../elixir-lang.github.com/docs/dynamo"
+    File.cp_r "docs/.", "../elixir-lang.github.com/docs/dynamo/"
+    File.rm_rf "docs"
+  end
+end
