@@ -2,25 +2,25 @@
 
 Run, Dynamo, Run!
 
-Dynamo is a web framework that runs on [Elixir](http://elixir-lang.org/). It leverages the power of the Erlang VM to build highly performand and concurrent web applications.
+Dynamo is a web framework that runs on [Elixir](http://elixir-lang.org/). It leverages the power of the Erlang VM to build highly performant and concurrent web applications.
 
 Dynamo goals are performance and simplicity. It provides a bare stack with the minimum required for a team to be productive but also allows them to easily include features as and when they see fit.
 
 It is currently alpha software and it supports:
 
-* Light-weight connections with streaming
-* Code organization in environments
-* Code reloading for fast development cycles
-* Lazy parsing and handling of cookies, sessions, params and headers
-* Handling of static assets
-* Template rendering
-* Integration with Erlang OTP applications
+* Light-weight connections with streaming.
+* Code organization in environments.
+* Code reloading for fast development cycles.
+* Lazy parsing and handling of cookies, sessions, params and headers.
+* Handling of static assets.
+* Template rendering.
+* Integration with Erlang OTP applications.
 
 Before becoming beta, we want to add the following to Dynamo:
 
-* Websockets support
-* Built-in JSON encoding
-* Database adapters
+* Websockets support.
+* Built-in JSON encoding.
+* Database adapters.
 
 This README will go into Dynamo installation and a basic walk-through.
 
