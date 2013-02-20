@@ -18,7 +18,7 @@ defmodule Mix.Tasks.DynamoTest do
         assert file =~ %r(app: :my_app)
         assert file =~ %r(version: "0.0.1")
         assert file =~ %r({ :dynamo)
-        assert file =~ %r(github: "josevalim/dynamo")
+        assert file =~ %r(github: "elixir-lang/dynamo")
       end
 
       assert_file "README.md", %r(# MyApp)
