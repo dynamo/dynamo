@@ -30,7 +30,7 @@ Documentation for Dynamo is available at [elixir-lang.org/docs/dynamo](http://el
 
 As an alpha-software, Dynamo installation is a bit manual but can be done in few steps:
 
-1. Ensure you are on Elixir v0.8.1 and you have [rebar](https://github.com/basho/rebar) (available on homebrew) installed
+1. Ensure you are on Elixir v0.8.1 and you have [rebar](https://github.com/basho/rebar) installed (both available on homebrew)
 
 2. Clone this repository and go to its directory
 
@@ -52,9 +52,9 @@ Static content is served from `priv/static/` folder and from the `/static` route
 
 Your project can be compiled and used in production with: `MIX_ENV=prod mix do compile, server`.
 
-# Basic walk-through
+# Walk-through
 
-This walk-through is going to put you in touch with the four main elements in Dynamo: routers, connection, OTP and the Dynamo itself.
+This walk-through is going to put you in touch with the four main elements in Dynamo: routers, connection, OTP and the Dynamo itself. This walk-through requires you to be familiar with Elixir, so please read [Elixir's getting started guide](http://elixir-lang.org/getting_started/1.html) if you haven't yet.
 
 ## Routers
 
