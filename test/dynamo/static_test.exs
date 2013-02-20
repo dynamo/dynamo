@@ -1,7 +1,7 @@
 Code.require_file "../../test_helper.exs", __FILE__
 
 defmodule Dynamo.StaticTest do
-  use ExUnit.Case, async: true
+  use ExUnit.Case
 
   defmodule App do
     use Dynamo

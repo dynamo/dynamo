@@ -87,11 +87,14 @@ defmodule Dynamo.Cowboy do
   defp normalize_ssl_file(app, options, key) do
     value = options[key]
 
-    if nil?(value) or File.exists?(value) do
-      options
-    else
-      new = Path.expand(value, app.root) |> to_char_list
-      Keyword.put(options, key, new)
+    cond do
+      nil?(value) ->
+        options
+      File.exists?(value) ->
+        Keyword.put(options, key, to_char_list(value))
+      true ->
+        new = Path.expand(value, app.root) |> to_char_list
+        Keyword.put(options, key, new)
     end
   end
 

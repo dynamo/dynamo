@@ -6,6 +6,10 @@ defmodule Dynamo.Templates.Handler do
   A template handler is a module that is capable
   to compile Dynamo templates into executable elixir
   code.
+
+  A template handler must be necessarily named as
+  Dynamo.Templates.EXTHandler where EXT is the handler
+  extension.
   """
 
   @type  template :: Dynamo.Template.t
@@ -15,22 +19,17 @@ defmodule Dynamo.Templates.Handler do
   use Behaviour
 
   @doc """
-  A template handler must simply implement
-  compile, receiving a Dynamo.Template
-  record. It must return the arguments and
-  a source, which will then be compiled to
-  a function.
-
-  A template handler must be necessarily
-  named as Dynamo.Templates.EXTHandler where
-  EXT is the handler extension.
+  A template handler must implement compile, receiving a
+  Dynamo.Template record. It must return the AST of the
+  compiled source with the set of arguments required
+  for the proper evaluation of the AST.
   """
   defcallback compile(template, source :: binary, locals :: list) :: { args :: list, term }
 
   @doc """
   Receives a module and function in which the compiled
-  template is stored plus the locals and assigns
-  to be used on dispatch.
+  template is stored plus the locals and assigns to be
+  used on rendering.
   """
   defcallback render(module, function :: atom, locals, assigns) :: binary
 

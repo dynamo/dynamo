@@ -6,13 +6,13 @@ defprotocol Dynamo.Templates.Finder do
   @only [Atom, Record, BitString]
 
   @doc """
-  Returns true if templates are already precompiled.
+  Returns true if templates require precompilation.
   """
-  @spec precompiled?(t) :: boolean
-  def precompiled?(finder)
+  @spec requires_precompilation?(t) :: boolean
+  def requires_precompilation?(finder)
 
   @doc """
-  Attempts to find a template given by `query` in the
+  Attempts to find a template given by name in the
   current finder.
 
   Returns a `Dynamo.Template` or nil in case a template
@@ -25,7 +25,7 @@ defprotocol Dynamo.Templates.Finder do
   Returns all templates available in this finder.
   This is used for precompilation of templates.
   Must return nil if this finder already holds
-  precompiled templates (i.e. `precompiled?` is true).
+  precompiled templates (i.e. `requires_precompilation?` is true).
   """
   @spec all(t) :: [Dynamo.Template.t] | nil
   def all(finder)
@@ -38,25 +38,35 @@ defprotocol Dynamo.Templates.Finder do
 end
 
 defimpl Dynamo.Templates.Finder, for: BitString do
-  def precompiled?(_) do
-    false
+  def requires_precompilation?(string) do
+    not File.exists?(string)
   end
 
   def all(root) do
     lc path inlist Path.wildcard("#{root}/**/*.*") do
-      key = :binary.replace(path, root <> "/", "")
+      key = Path.relative_to path, root
       build(root, Path.rootname(key), path)
     end
   end
 
   def find(root, key) do
-    query = Path.join(root, key <> ".*")
+    query = Path.join(root, escape(key) <> ".*")
     path  = Enum.first Path.wildcard(query)
     if path, do: build(root, key, path)
   end
 
   def source(_root, Dynamo.Template[identifier: path]) do
     File.read!(path)
+  end
+
+  defp escape(key) do
+    bc <<code>> inbits key do
+      << if code in [?[, ?], ?{, ?}, ?*, ??] do
+           << ?\\, code >>
+         else
+           << code >>
+         end :: binary >>
+    end
   end
 
   defp build(root, key, path) do
@@ -80,8 +90,8 @@ defimpl Dynamo.Templates.Finder, for: BitString do
 end
 
 defimpl Dynamo.Templates.Finder, for: Atom do
-  def precompiled?(atom), do: atom.precompiled?
-  def all(atom),          do: atom.all
-  def find(atom, key),    do: atom.find(key)
-  def source(atom, key),  do: atom.source(key)
+  def all(atom),                      do: atom.all
+  def find(atom, key),                do: atom.find(key)
+  def source(atom, key),              do: atom.source(key)
+  def requires_precompilation?(atom), do: atom.requires_precompilation?
 end

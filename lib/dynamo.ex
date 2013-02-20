@@ -196,7 +196,7 @@ defmodule Dynamo do
         end
 
         initializer :start_dynamo_renderer do
-          precompiled = Enum.all?(templates_paths, Dynamo.Templates.Finder.precompiled?(&1))
+          precompiled = Enum.all?(templates_paths, Dynamo.Templates.Finder.requires_precompilation?(&1))
           unless precompiled do
             supervisor = config[:dynamo][:supervisor]
             renderer   = templates_server()
@@ -311,7 +311,7 @@ defmodule Dynamo do
       if dynamo[:compile_on_demand] do
         { templates_paths, [] }
       else
-        Enum.partition(templates_paths, Dynamo.Templates.Finder.precompiled?(&1))
+        Enum.partition(templates_paths, Dynamo.Templates.Finder.requires_precompilation?(&1))
       end
 
     if to_compile != [] do

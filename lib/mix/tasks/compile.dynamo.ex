@@ -81,7 +81,7 @@ defmodule Mix.Tasks.Compile.Dynamo do
 
   defp extract_templates(paths) do
     lc path inlist paths,
-       not Dynamo.Templates.Finder.precompiled?(path),
+       not Dynamo.Templates.Finder.requires_precompilation?(path),
        templates = Dynamo.Templates.Finder.all(path),
        template inlist templates, do: template
   end

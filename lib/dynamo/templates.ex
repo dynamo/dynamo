@@ -117,7 +117,7 @@ defmodule Dynamo.Templates do
           nil
         end
 
-        def precompiled? do
+        def requires_precompilation? do
           true
         end
       end

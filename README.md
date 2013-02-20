@@ -2,9 +2,11 @@
 
 Run, Dynamo, Run!
 
-Dynamo is a web framework that runs on [Elixir](http://elixir-lang.org/). It leverages the power of the Erlang VM to build highly performant and concurrent web applications.
+Dynamo is a web framework that runs on [Elixir](http://elixir-lang.org/). It leverages the power of the Erlang VM to build highly performant and concurrent web applications. Dynamo goals are performance, robustness and simplicity.
 
-Dynamo goals are performance and simplicity. It provides a bare stack with the minimum required for a team to be productive but also allows them to easily include features as and when they see fit.
+Dynamo shows excellent performance out of the box beating similar frameworks like Sinatra and Express, available in other languages, in a callback-free programming fashion. By using the Erlang VM all of the network I/O is asynchronous but your code appears to be synchronous. The Erlang VM also allows you to use all cores available by default, without a need to start many instances of your web server, and performs well under heavy load with many concurrent open connections.
+
+On the developer side, Dynamo focuses on simplicity by shipping with a bare stack, allowing a team to get started quickly while making it easy to extend the application as and when they see fit.
 
 It is currently alpha software and it supports:
 
@@ -272,7 +274,6 @@ Finally, Dynamo also builds many functionalities on top of this low-level connec
 
 * [Dynamo.HTTP.Cookies](http://elixir-lang.org/docs/dynamo/Dynamo.HTTP.Cookies.html) - conveniences for working with cookies
 * [Dynamo.HTTP.Halt](http://elixir-lang.org/docs/dynamo/Dynamo.HTTP.Halt.html) - conveniences for halting a connection, as the function `halt!` we saw in some examples
-* [Dynamo.HTTP.Hibernate](http://elixir-lang.org/docs/dynamo/Dynamo.HTTP.Hibernate.html) - conveniences for awaiting and hibernating a connection
 * [Dynamo.HTTP.Redirect](http://elixir-lang.org/docs/dynamo/Dynamo.HTTP.Redirect.html) - conveniences for redirecting a connection
 * [Dynamo.HTTP.Render](http://elixir-lang.org/docs/dynamo/Dynamo.HTTP.Render.html) - conveniences for rendering templates
 * [Dynamo.HTTP.Session](http://elixir-lang.org/docs/dynamo/Dynamo.HTTP.Session.html) - conveniences for working with session
@@ -415,7 +416,9 @@ That's all. If you haven't built an OTP application before, you may be a bit ove
 
 ## Learn more
 
-Coming soon...
+In the [guides](guides) directory, we contain a bunch of small, simple guides that teach you how to achieve something in Dynamo. We have the following guides:
+
+* [How to create single file Dynamos](guides/how-to-single-file-dynamos.md), although not recommended for production use, many guides use single file Dynamos to show how to easily achieve something;
 
 # License
 

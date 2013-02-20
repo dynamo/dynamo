@@ -16,6 +16,10 @@ defmodule Dynamo.TemplatesTest do
     :ok
   end
 
+  test "escapes wildcard characters" do
+    assert nil? Dynamo.Templates.find("hello?html", [@fixture_path])
+  end
+
   test "renders a template" do
     body = render "hello.html"
     assert body == "HELLO!"
