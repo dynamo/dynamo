@@ -35,7 +35,7 @@ defmodule Dynamo.Filters.Exceptions.Debug do
       message: message(kind, value)
     ]
 
-    conn.resp(status, template(conn, assigns))
+    conn.send(status, template(conn, assigns))
   end
 
   defp title(:error, value), do: inspect value.__record__(:name)

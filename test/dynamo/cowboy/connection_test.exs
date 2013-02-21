@@ -385,7 +385,7 @@ defmodule Dynamo.Cowboy.ConnectionTest do
     assert conn.status    == 302
     assert conn.resp_body == "Redirected"
 
-    conn
+    conn.send
   end
 
   test :resp do
@@ -395,7 +395,7 @@ defmodule Dynamo.Cowboy.ConnectionTest do
   ## Misc
 
   def conn_inspect(conn) do
-    conn.resp(200, inspect(conn))
+    conn.send(200, inspect(conn))
   end
 
   test :inspect do

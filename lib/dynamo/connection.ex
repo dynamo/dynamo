@@ -74,12 +74,11 @@ defmodule Dynamo.Connection do
   @type   main          :: module
   @type   assigns      :: Keyword.t
   @type   private      :: Keyword.t
-  @type   upgrades     :: :websocket
   @type   scheme       :: :http | :https
   @type   host         :: binary
   @type   port_number  :: :inet.port_number()
   @type   host_url     :: binary
-  @type   state        :: :unset | :set | :chunked | :sent | { :upgrade, upgrades, module }
+  @type   state        :: :unset | :set | :chunked | :sent
 
   use Behaviour
 
@@ -324,24 +323,6 @@ defmodule Dynamo.Connection do
 
   """
   defcallback state(conn) :: state
-
-  @doc """
-  Upgrades the connection. The connection is sent
-  back to the server which encapsulates all the
-  communication with the desired handler.
-
-  Dynamo does not intermediate any connection upgrade.
-  This means you need to consult the underlying web
-  server in order to interact with the upgraded connection.
-
-  The only supported upgrade so far is `:websocket`.
-
-  ## Examples
-
-      conn.upgrade(:websocket, GameRoom)
-
-  """
-  defcallback upgrade(upgrades, module, conn) :: conn
 
   @doc """
   Returns the response headers as `Binary.Dict`.

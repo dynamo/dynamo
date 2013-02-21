@@ -211,11 +211,6 @@ defmodule Dynamo.Connection.TestTest do
     assert conn.assigns == [foo: "baz"]
   end
 
-  test :upgrade do
-    conn = conn(:GET, "/").upgrade(:websocket, Sample)
-    assert conn.state == { :upgrade, :websocket, Sample }
-  end
-
   test :private do
     conn  = conn(:GET, "/")
     assert is_list conn.private

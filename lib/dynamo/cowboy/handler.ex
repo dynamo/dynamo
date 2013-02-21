@@ -15,15 +15,7 @@ defmodule Dynamo.Cowboy.Handler do
     conn = main.service(Dynamo.Cowboy.Connection.new(main, req, scheme(transport)))
 
     if is_record(conn, Dynamo.Cowboy.Connection) do
-      case conn.state do
-        { :handler, :websocket, mod } ->
-          { :upgrade, :protocol, :cowboy_websocket,
-            conn.cowboy_request.set_meta(:websocket_handler, mod), conn }
-        :set ->
-          { :ok, conn.send.cowboy_request, nil }
-        _other ->
-          { :ok, conn.cowboy_request, nil }
-      end
+      { :ok, conn.cowboy_request, nil }
     else
       raise "Expected service to return a Dynamo.Cowboy.Connection, got #{inspect conn}"
     end

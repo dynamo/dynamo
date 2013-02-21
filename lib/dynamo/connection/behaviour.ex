@@ -223,12 +223,6 @@ defmodule Dynamo.Connection.Behaviour do
       ## Response
 
       @doc false
-      def upgrade(upgrade, mod, connection(state: state) = conn) when
-          state in [:unset, :set] and upgrade in [:websocket] do
-        connection(conn, state: { :upgrade, upgrade, mod })
-      end
-
-      @doc false
       def status(connection(status: status)) do
         status
       end

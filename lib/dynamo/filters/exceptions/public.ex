@@ -5,6 +5,6 @@ defmodule Dynamo.Filters.Exceptions.Public do
   """
   def service(conn) do
     { status, _kind, _value, _stacktrace } = conn.assigns[:exception]
-    conn.resp(status, "")
+    conn.send(status, "")
   end
 end

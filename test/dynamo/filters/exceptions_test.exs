@@ -63,10 +63,20 @@ defmodule Dynamo.Filters.ExceptionsTest do
     end
   end
 
-  use ExUnit.Case, async: true
+  use ExUnit.Case
   use Dynamo.HTTP.Case
 
   @endpoint ExceptionsApp
+
+  setup_all do
+    :error_logger.tty(false)
+    :ok
+  end
+
+  teardown_all do
+    :error_logger.tty(true)
+    :ok
+  end
 
   # Halt
 
@@ -101,13 +111,13 @@ defmodule Dynamo.Filters.ExceptionsTest do
   end
 
   test "invokes handler on exceptions" do
-    conn = get(exceptions_conn, "/error").send
+    conn = get(exceptions_conn, "/error")
     assert conn.status == 500
     assert conn.sent_body == ""
   end
 
   test "requests status code on exceptions" do
-    conn = get(exceptions_conn, "/unauthorized").send
+    conn = get(exceptions_conn, "/unauthorized")
     assert conn.status == 401
     assert conn.sent_body == ""
   end
