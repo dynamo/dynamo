@@ -104,9 +104,11 @@ defmodule Dynamo.Connection.Test do
       and state in [:unset, :set] and is_binary(body) do
     self() <- @send_flag
 
-    connection(run_before_send(conn),
+    conn = run_before_send(connection(conn, state: :set, status: status, resp_body: body))
+    connection(resp_body: body) = conn
+
+    connection(conn,
       state: :sent,
-      status: status,
       sent_body: check_sent_body(conn, body),
       resp_body: nil
     )
@@ -116,10 +118,9 @@ defmodule Dynamo.Connection.Test do
   def send_chunked(status, connection(state: state) = conn) when is_integer(status)
       and state in [:unset, :set] do
     self() <- @send_flag
+    conn = run_before_send(connection(conn, state: :chunked, status: status))
 
-    connection(run_before_send(conn),
-      state: :chunked,
-      status: status,
+    connection(conn,
       sent_body: "",
       resp_body: nil
     )
@@ -134,8 +135,15 @@ defmodule Dynamo.Connection.Test do
   defp check_sent_body(_conn, body),                                do: body
 
   @doc false
-  def sendfile(path, conn) do
-    send(200, File.read!(path), conn)
+  def sendfile(status, path, conn) when is_integer(status) and is_binary(path) do
+    self() <- @send_flag
+    conn = run_before_send(connection(conn, state: :sendfile, status: status))
+
+    connection(conn,
+      state: :sent,
+      sent_body: check_sent_body(conn, File.read!(path)),
+      resp_body: nil
+    )
   end
 
   @doc false
@@ -202,7 +210,7 @@ defmodule Dynamo.Connection.Test do
     segments = Dynamo.Router.Utils.split(uri.path)
     method   = Dynamo.Router.Utils.normalize_verb(method)
 
-    # Clear up any existing send flag.
+    # Clear up any existing send flag
     flush_send
 
     conn = connection(conn,

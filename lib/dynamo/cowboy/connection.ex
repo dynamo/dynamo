@@ -107,34 +107,34 @@ defmodule Dynamo.Cowboy.Connection do
 
   @doc false
   def send(status, body, connection(state: state) = conn) when is_integer(status)
-      and state in [:unset, :set] and (is_binary(body) or is_tuple(body)) do
-    conn = run_before_send(conn)
-    connection(resp_headers: headers, resp_cookies: cookies, req: req) = conn
-    merged_resp_headers = Dynamo.Connection.Utils.merge_resp_headers(headers, cookies)
+      and state in [:unset, :set] and is_binary(body) do
+    conn = run_before_send(connection(conn, status: status, resp_body: body, state: :set))
+    connection(req: req, status: status, resp_body: body,
+               resp_headers: headers, resp_cookies: cookies) = conn
 
+    merged_resp_headers = Dynamo.Connection.Utils.merge_resp_headers(headers, cookies)
     { :ok, req } = R.reply(status, merged_resp_headers, body, req)
 
     connection(conn,
       req: req,
       resp_body: nil,
-      status: status,
-      state: :sent)
+      state: :sent
+    )
   end
 
   @doc false
-  def send_chunked(status, connection(state: state) = conn) when is_integer(status)
-      and state in [:unset, :set] do
-    conn = run_before_send(conn)
-    connection(resp_headers: headers, resp_cookies: cookies, req: req) = conn
+  def send_chunked(status, connection(state: state) = conn)
+      when is_integer(status) and state in [:unset, :set] do
+    conn = run_before_send(connection(conn, status: status, state: :chunked))
+    connection(status: status, req: req,
+               resp_headers: headers, resp_cookies: cookies) = conn
     merged_resp_headers = Dynamo.Connection.Utils.merge_resp_headers(headers, cookies)
 
     { :ok, req } = R.chunked_reply(status, merged_resp_headers, req)
 
     connection(conn,
       req: req,
-      resp_body: nil,
-      status: status,
-      state: :chunked)
+      resp_body: nil)
   end
 
   @doc false
@@ -146,10 +146,23 @@ defmodule Dynamo.Cowboy.Connection do
   end
 
   @doc false
-  def sendfile(path, connection(req: req) = conn) do
+  def sendfile(status, path, connection(req: req) = conn) do
     File.Stat[type: :regular, size: size] = File.stat!(path)
     { :ok, :ranch_tcp, socket } = R.transport(req)
-    send(200, { size, fn -> :file.sendfile(path, socket) end }, conn)
+    body = { size, fn -> :file.sendfile(path, socket) end }
+
+    conn = run_before_send(connection(conn, status: status, state: :sendfile))
+    connection(req: req, status: status,
+               resp_headers: headers, resp_cookies: cookies) = conn
+
+    merged_resp_headers = Dynamo.Connection.Utils.merge_resp_headers(headers, cookies)
+    { :ok, req } = R.reply(status, merged_resp_headers, body, req)
+
+    connection(conn,
+      req: req,
+      resp_body: nil,
+      state: :sent
+    )
   end
 
   ## Misc

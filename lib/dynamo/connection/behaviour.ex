@@ -229,7 +229,7 @@ defmodule Dynamo.Connection.Behaviour do
 
       @doc false
       def status(status, connection(state: state) = conn) when
-          is_integer(status) and state in [:unset, :set] do
+          is_integer(status) and state in [:unset, :set, :sendfile, :chunked] do
         connection(conn, status: status, state: :set)
       end
 
@@ -267,7 +267,8 @@ defmodule Dynamo.Connection.Behaviour do
       end
 
       @doc false
-      def resp(status, body, conn) when is_integer(status) do
+      def resp(status, body, connection(state: state) = conn)
+          when is_integer(status) and state in [:unset, :set] do
         connection(conn,
           status: status,
           resp_body: body,

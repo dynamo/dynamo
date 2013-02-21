@@ -33,7 +33,7 @@ defmodule Dynamo.Cowboy.BodyParser do
         { body, req } = parse_multipart_body(R.multipart_data(req), "")
         parse_multipart(R.multipart_data(req), tmp_dir, [{ name, body }|acc])
 
-      { name, file } ->
+      { name, Dynamo.Connection.File[] = file } ->
         tmp_dir = get_tmp_dir(tmp_dir)
 
         { path, { :ok, req } } = Dynamo.Connection.Utils.random_file("uploaded",

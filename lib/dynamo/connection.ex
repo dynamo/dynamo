@@ -78,7 +78,7 @@ defmodule Dynamo.Connection do
   @type   host         :: binary
   @type   port_number  :: :inet.port_number()
   @type   host_url     :: binary
-  @type   state        :: :unset | :set | :chunked | :sent
+  @type   state        :: :unset | :set | :chunked | :sendfile | :sent
 
   use Behaviour
 
@@ -311,7 +311,7 @@ defmodule Dynamo.Connection do
   given path exists and it points to a regular file. The
   file is sent straight away.
   """
-  defcallback sendfile(path :: binary, conn) :: conn
+  defcallback sendfile(status, path :: binary, conn) :: conn
 
   @doc """
   Returns the response state. It can be:
@@ -326,17 +326,20 @@ defmodule Dynamo.Connection do
 
   @doc """
   Returns the response headers as `Binary.Dict`.
+  Header names are all downcased.
   """
   defcallback resp_headers(conn) :: Binary.Dict.t
 
   @doc """
   Puts a response header, overriding any previous value.
   Both `key` and `value` are converted to binary.
+  The header key must be downcased.
   """
   defcallback put_resp_header(key :: Binary.Chars.t, value :: Binary.Chars.t, conn) :: conn
 
   @doc """
   Deletes a response header.
+  The header key must be downcased.
   """
   defcallback delete_resp_header(key :: Binary.Chars.t, conn) :: conn
 

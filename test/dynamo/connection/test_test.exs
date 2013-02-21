@@ -123,8 +123,23 @@ defmodule Dynamo.Connection.TestTest do
     conn = conn.send(201, "OK")
     assert conn.state  == :sent
     assert conn.status == 201
+
+    # Call already_sent? twice to ensure it won't change.
     assert conn.already_sent?
     assert conn.already_sent?
+  end
+
+  test :before_send_with_send do
+    conn = conn(:GET, "/").before_send(fn(conn) ->
+      assert conn.state == :set
+      assert conn.status == 201
+      assert conn.resp_body == "CREATED"
+      conn.resp(200, "OK")
+    end).send(201, "CREATED")
+
+    assert conn.state  == :sent
+    assert conn.status == 200
+    assert conn.sent_body == "OK"
   end
 
   test :send_with_head do
@@ -165,7 +180,7 @@ defmodule Dynamo.Connection.TestTest do
 
   test :sendfile do
     file = Path.expand("../../../fixtures/static/file.txt", __FILE__)
-    conn = conn(:GET, "/").sendfile(file)
+    conn = conn(:GET, "/").sendfile(200, file)
     assert conn.state     == :sent
     assert conn.status    == 200
     assert conn.sent_body == "HELLO"

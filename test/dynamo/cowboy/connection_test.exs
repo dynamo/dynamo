@@ -355,14 +355,14 @@ defmodule Dynamo.Cowboy.ConnectionTest do
 
   def sendfile(conn) do
     file = Path.expand("../../../fixtures/static/file.txt", __FILE__)
-    conn = conn.sendfile(file)
+    conn = conn.sendfile(200, file)
     assert conn.state  == :sent
     assert conn.status == 200
     conn
   end
 
   def invalid_sendfile(conn) do
-    conn.sendfile("unknown.file")
+    conn.sendfile(200, "unknown.file")
   end
 
   test :sendfile do
@@ -370,6 +370,32 @@ defmodule Dynamo.Cowboy.ConnectionTest do
     assert List.keyfind(headers, "content-length", 0) == { "content-length", "5" }
 
     assert { 500, _, _ } = request :get, "/invalid_sendfile"
+  end
+
+  def before_send_with_send(conn) do
+    conn.before_send(fn(conn) ->
+      assert conn.state == :set
+      assert conn.status == 201
+      assert conn.resp_body == "CREATED"
+      conn.resp(200, "OK")
+    end).send(201, "CREATED")
+  end
+
+  test :before_send_with_send do
+    assert { 200, _, "OK" } = request :get, "/before_send_with_send"
+  end
+
+  def before_send_with_sendfile(conn) do
+    file = Path.expand("../../../fixtures/static/file.txt", __FILE__)
+    conn.before_send(fn(conn) ->
+      assert conn.state == :sendfile
+      assert conn.status == 201
+      conn.status(200)
+    end).sendfile(201, file)
+  end
+
+  test :before_send_with_sendfile do
+    { 200, _, "HELLO" } = request :get, "/before_send_with_sendfile"
   end
 
   def resp(conn) do

@@ -40,7 +40,7 @@ defmodule Dynamo.Filters.Static do
         conn
           .put_resp_header("content-type", hd(mimes))
           .put_resp_header("cache-control", "public, max-age=31536000")
-          .sendfile(path)
+          .sendfile(200, path)
       else
         fun.(conn)
       end
