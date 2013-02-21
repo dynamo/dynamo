@@ -75,8 +75,4 @@ For a ready to use example, check [examples/layouts.exs](../examples/layouts.exs
 
 ### Other helpers
 
-Both `content_for` and `render` macros used in this guide are part of Dynamo helpers. Dynamo ships with a couple helpers that make programming templates a bit easier:
-
-* [Dynamo.Helpers.ContentFor](http://elixir-lang.org/docs/dynamo/Dynamo.Helpers.ContentFor.html) - helpers for passing data in between templates
-* [Dynamo.Helpers.Escaping](http://elixir-lang.org/docs/dynamo/Dynamo.Helpers.Escaping.html) - helpers for escaping html inside templates
-* [Dynamo.Helpers.Render](http://elixir-lang.org/docs/dynamo/Dynamo.Helpers.Render.html) - helpers for rendering templates inside templates
+Both `content_for` and `render` macros used in this guide are part of Dynamo helpers. Dynamo ships with a couple helpers that make programming templates a bit easier, check the [helpers guide](../how-to-helpers.md) for more information.

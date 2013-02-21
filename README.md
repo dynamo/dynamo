@@ -422,6 +422,8 @@ In the [guides](guides) directory, we contain a bunch of small, simple guides th
 
 * [How to render templates with layouts](guides/how-to-layouts.md)
 
+* [How to import functions (helpers) into templates](guides/how-to-helpers.md)
+
 * [How to use SSL](guides/how-to-ssl.md)
 
 # License
