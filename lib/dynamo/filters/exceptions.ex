@@ -39,10 +39,9 @@ defmodule Dynamo.Filters.Exceptions do
       :erlang.raise(kind, value, stacktrace)
     end
 
-    :error_logger.error_msg(
-      logger_conn(conn) <>
-      logger_reason(kind, value) <>
-      logger_stacktrace(stacktrace, conn.app.root))
+    message = logger_conn(conn) <> logger_reason(kind, value) <> logger_stacktrace(stacktrace, conn.app.root)
+    message = binary_to_list(message)
+    :error_logger.error_msg(message)
 
     if conn.already_sent? do
       conn

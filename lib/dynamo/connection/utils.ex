@@ -65,6 +65,16 @@ defmodule Dynamo.Connection.Utils do
   end
 
   @doc """
+  Receives response headers and cookies {key, value, options} list and returns
+  merged headers with cookies headers.
+  """
+  def merge_resp_headers(headers, cookies) do
+    Enum.reduce cookies, Binary.Dict.to_list(headers), fn({ key, value, opts }, acc) ->
+      [{ "set-cookie", cookie_header(key, value, opts) }|acc]
+    end
+  end
+
+  @doc """
   Receives a cookie key, value, options and returns
   a cookie header.
   """
