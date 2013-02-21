@@ -71,7 +71,7 @@ Hello from template!
 
 Assuming you have a file named `web/templates/another.html.eex`, it will also be rendered and printed in the final template.
 
-For a ready to use example, check [examples/layouts.exs](examples/layouts.exs).
+For a ready to use example, check [examples/layouts.exs](../examples/layouts.exs).
 
 ### Other helpers
 
