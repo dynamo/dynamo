@@ -5,7 +5,7 @@ Using Dynamo with SSL is easy. Dynamo by default uses a web server called `cowbo
 ```elixir
 def application do
   [ applications: [:crypto, :public_key, :ssl, :cowboy, :dynamo],
-    mod: { <%= @mod %>, [] } ]
+    mod: { PROJECT, [] } ]
 end
 ```
 
@@ -27,14 +27,16 @@ Before we go, a couple notes:
 
 1. For production, it is likely the SSL certificates won't be in the repository but directly in the deploy machines. You can point to them directly simply by using full paths:
 
-```elixir
-config :ssl,
-  port: 443,
-  keyfile: "/var/www/key.pem",
-  certfile: "/var/www/cert.pem",
-  password: "..."
-```
+    ```elixir
+    config :ssl,
+      port: 443,
+      keyfile: "/var/www/key.pem",
+      certfile: "/var/www/cert.pem",
+      password: "..."
+    ```
 
 2. Your SSL configuration may require other options. Check the section "SSL OPTION DESCRIPTIONS" in the [Erlang `ssl` application](http://www.erlang.org/doc/man/ssl.html) for descriptions and other options.
 
 3. Currently, there isn't a way to enforce SSL only access to the web application. In case this feature is desired, please open up an issue or a pull request to add this feature.
+
+For a ready to use example, check [examples/ssl.exs](../examples/ssl.exs).
