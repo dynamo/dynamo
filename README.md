@@ -422,6 +422,8 @@ In the [guides](guides) directory, we contain a bunch of small, simple guides th
 
 * [How to render templates with layouts](guides/how-to-layouts.md)
 
+* [How to use SSL](guides/how-to-ssl.md)
+
 # License
 
 Dynamo source code is released under Apache 2 License.
