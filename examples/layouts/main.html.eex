@@ -1,0 +1,7 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+  <title><%= content_for(:title) || "Default title" %></title>
+</head>
+<body><%= content_for(:template) %></body>
+</html>

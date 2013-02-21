@@ -50,7 +50,7 @@ defmodule Dynamo.Templates.Renderer do
           raise_too_busy(template)
       end
 
-    handler.render(module, :render, locals, assigns)
+    handler.render(module, :dynamo_template_0, locals, assigns)
   end
 
   ## Helpers
@@ -71,7 +71,7 @@ defmodule Dynamo.Templates.Renderer do
     contents = quote do
       unquote(prelude.())
       @file unquote(identifier)
-      def render(unquote_splicing(args)) do
+      def dynamo_template_0(unquote_splicing(args)) do
         unquote(source)
       end
     end

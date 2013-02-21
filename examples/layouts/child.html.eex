@@ -1,0 +1,7 @@
+<% content_for :title do %>
+  Dynamo layouts
+<% end %>
+
+<p>Hello from child template!</p>
+
+<%= render "third.html", msg: "nested render" %>

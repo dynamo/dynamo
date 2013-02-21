@@ -418,7 +418,9 @@ That's all. If you haven't built an OTP application before, you may be a bit ove
 
 In the [guides](guides) directory, we contain a bunch of small, simple guides that teach you how to achieve something in Dynamo. We have the following guides:
 
-* [How to create single file Dynamos](guides/how-to-single-file-dynamos.md), although not recommended for production use, many guides use single file Dynamos to show how to easily achieve something;
+* [How to create single file Dynamos](guides/how-to-single-file-dynamos.md), although not recommended for production use many guides use single file Dynamos to show how to easily achieve something;
+
+* [How to render templates with layouts](guides/how-to-layouts.md)
 
 # License
 

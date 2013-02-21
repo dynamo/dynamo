@@ -1,4 +1,4 @@
-# Run this app from root with:
+# Run this app from Dynamo root with:
 #
 #     mix run -r examples/hello_world.exs --no-halt
 #
