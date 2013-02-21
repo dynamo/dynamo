@@ -28,4 +28,4 @@ When using single file Dynamos, some features like code reloading does not work.
 config :dynamo, compile_on_demand: false
 ```
 
-For a ready to use example, check [examples/hello_world.exs](../examples/hello_world.exs).
+For a ready to use example, check [examples/hello_world.exs](examples/hello_world.exs).
