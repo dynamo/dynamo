@@ -9,10 +9,10 @@
 # distribute, sublicense, and/or sell copies of the Software, and to
 # permit persons to whom the Software is furnished to do so, subject to
 # the following conditions:
-# 
+#
 # The above copyright notice and this permission notice shall be
 # included in all copies or substantial portions of the Software.
-# 
+#
 # THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
 # EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
 # MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
@@ -126,11 +126,15 @@ defmodule Dynamo.Filters.Exceptions.Debug do
     case File.iterator(original) do
       { :ok, iterator } ->
         to_discard = max(line - @radius - 1, 0)
-        Enum.take iterator, to_discard
+        lines = iterator |> Enum.take(line + 5) |> Enum.drop(to_discard)
+        File.close(iterator)
 
-        first_five = with_line_number Enum.take(iterator, line - to_discard - 1), to_discard + 1, false
-        center     = with_line_number Enum.take(iterator, 1), line, true
-        last_five  = with_line_number Enum.take(iterator, 5), line + 1, false
+        { first_five, lines } = Enum.split(lines, line - to_discard - 1)
+        first_five = with_line_number first_five, to_discard + 1, false
+
+        { center, last_five } = Enum.split(lines, 1)
+        center = with_line_number center, line, true
+        last_five = with_line_number last_five, line + 1, false
 
         File.close(iterator)
         first_five ++ center ++ last_five

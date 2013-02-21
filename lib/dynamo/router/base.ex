@@ -168,18 +168,20 @@ defmodule Dynamo.Router.Base do
     finalize = compile_hooks module, :dynamo_finalize,
                  quote(do: var!(conn)), :finalize, function(:compile_finalize, 4), true
 
-    quote location: :keep do
-      @doc false
-      def run_prepare_hooks(var!(conn), key),  do: unquote(prepare)
+    [ quote location: :keep do
+        @doc false
+        def run_prepare_hooks(var!(conn), key),  do: unquote(prepare)
 
-      @doc false
-      def run_finalize_hooks(var!(conn), key), do: unquote(finalize)
+        @doc false
+        def run_finalize_hooks(var!(conn), key), do: unquote(finalize)
+      end,
 
-      @doc false
-      match _ do
-        raise Dynamo.NotFoundError, conn: var!(conn)
-      end
-    end
+      quote do
+        @doc false
+        match _ do
+          raise Dynamo.NotFoundError, conn: var!(conn)
+        end
+      end ]
   end
 
   ## Match

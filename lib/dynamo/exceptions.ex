@@ -11,11 +11,10 @@ defprotocol Dynamo.Exception do
   @only [Record, Any]
 
   @doc """
-  Receives the exception and the connection. It must
-  return an integer representing the exception status
-  code or a tuple containing the forementioned integer
-  and a connection in case the exception holds a
-  connection.
+  Receives the exception. It must return an integer
+  representing the exception status code or a tuple
+  containing the forementioned integer and a connection
+  in case the exception holds a connection.
   """
   def status(exception)
 end
