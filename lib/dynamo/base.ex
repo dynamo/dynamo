@@ -28,7 +28,7 @@ defmodule Dynamo.Base do
 
   @doc """
   Defines an initializer that will be invoked when
-  the application starts.
+  the dynamo starts.
   """
   defmacro initializer(name, do: block) do
     quote do
@@ -68,7 +68,7 @@ defmodule Dynamo.Base do
 
     quote location: :keep do
       @doc """
-      Returns the configuration for this application.
+      Returns the configuration for this dynamo.
       """
       def config do
         @config

@@ -113,6 +113,6 @@ defmodule Dynamo.Filters.ExceptionsTest do
   end
 
   defp exceptions_conn do
-    conn(:get, "/").put_private(:dynamo_handle_exceptions, true).app(ExceptionsApp)
+    conn(:get, "/").put_private(:dynamo_handle_exceptions, true).main(ExceptionsApp)
   end
 end

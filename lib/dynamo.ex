@@ -28,8 +28,8 @@ defmodule Dynamo do
 
       config :dynamo,
         env: "prod",
-        endpoint: ApplicationRouter,
-        static_root:  :myapp,
+        otp_app: :myapp,
+        static_root:  "priv/static",
         static_route: "/static"
 
   The available `:dynamo` configurations are:
@@ -45,7 +45,7 @@ defmodule Dynamo do
   * `:session_options` - The session options to be used
   * `:source_paths` - The paths to search when compiling modules on demand
   * `:static_route` - The route to serve static assets
-  * `:static_root` - The location static assets are defined
+  * `:static_root` - The location static assets are defined. It is a path from the otp_app root
   * `:supervisor` - The supervisor local node name
   * `:templates_paths` - The paths to find templates
 
@@ -55,19 +55,20 @@ defmodule Dynamo do
   ## Filters
 
   A Dynamo also contains a set of filters that are meant
-  to be used throughout your whole application. Some of these
-  filters are added based on the configuration options above.
-  The filters included by default and when they are included are:
+  to be used on all requests. Some of these filters are added
+  based on the configuration options above. Others are included by
+  default under the following conditions:
 
   * `Dynamo.Filters.Static` - when a static_route and static_root are set,
      this filter is added to serve static assets;
-  * `Dynamo.Filters.Head` - converts HEAD requests to GET;
+  * `Dynamo.Filters.Head` - converts HEAD requests to GET, added by default;
   * `Dynamo.Filters.Loader` - when `:compile_on_demand` or `:reload_modules`
     configs are set to true, this filter is added to compiled and reloaded
     code on demand;
   * `Dynamo.Filters.Session` - when a `:session_store` is configured, it adds
     session functionality to the Dynamo;
-  * `Dynamo.Filters.Exceptions` - responsible for logging and handling exceptions;
+  * `Dynamo.Filters.Exceptions` - responsible for logging and handling
+    exceptions, added by default;
 
   Filters can be added and removed using `filter` and `remove_filter`
   macros. You can get the list of all dynamos filters using:
@@ -81,8 +82,8 @@ defmodule Dynamo do
   invoked when the dynamo starts. A Dynamo is initialized
   in three steps:
 
-  * The `:dynamo` application needs to be started
-  * All dynamos needs to be loaded via `DYNAMO.start_link`
+  * The `:dynamos` registered in your project are compiled
+  * The dynamos supervision trees are started via `DYNAMO.start_link`
   * A dynamo is hooked into a web server via `DYNAMO.run`
 
   The step 2 can be extended via initializers. For example:
@@ -94,14 +95,6 @@ defmodule Dynamo do
           # Connect to the database
         end
       end
-
-  By default, the application ships with some initializers:
-
-  * `:start_dynamo_reloader` - starts the code reloader, usually
-    used in development and test
-
-  * `:start_dynamo_renderer` - starts dynamo renderer if there
-    are templates to be compiled on demand
 
   """
 
@@ -151,7 +144,7 @@ defmodule Dynamo do
     definitions =
       quote location: :keep do
         @doc """
-        Starts the application supervisor and run all
+        Starts the Dynamo supervisor and run all
         registered initializers.
         """
         def start_link(opts // []) do
@@ -161,7 +154,7 @@ defmodule Dynamo do
         end
 
         @doc """
-        Runs the app in the configured web server.
+        Runs the Dynamo in the configured web server.
         """
         def run(options // []) do
           dynamo  = config[:dynamo]

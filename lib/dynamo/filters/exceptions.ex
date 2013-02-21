@@ -39,7 +39,7 @@ defmodule Dynamo.Filters.Exceptions do
       :erlang.raise(kind, value, stacktrace)
     end
 
-    message = logger_conn(conn) <> logger_reason(kind, value) <> logger_stacktrace(stacktrace, conn.app.root)
+    message = logger_conn(conn) <> logger_reason(kind, value) <> logger_stacktrace(stacktrace, conn.main.root)
     message = binary_to_list(message)
     :error_logger.error_msg(message)
 

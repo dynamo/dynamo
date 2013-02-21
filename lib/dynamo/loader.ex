@@ -7,7 +7,7 @@ defmodule Dynamo.Loader do
   which requires reloading semantics must explicitly enabled
   it with `Dynamo.Loader.enable`.
 
-  The `Dynamo.Loader` is part of the Dynamo application
+  The `Dynamo.Loader` is part of the Dynamo OTP application
   and one is started per node, regardless the number of
   dynamos in the node.
   """

@@ -22,7 +22,7 @@ defmodule Dynamo.Connection.Behaviour do
   fields, but it expects those fields to be set when the
   connection is initialized with the following contents:
 
-  * app - with the app invoked
+  * main - the entry point module for the connection
   * before_send - a call to `Dynamo.Connection.default_before_send`
   * method - the current request method
   * original_method - the current request method
@@ -41,10 +41,10 @@ defmodule Dynamo.Connection.Behaviour do
       @behaviour Dynamo.Connection
 
       defrecordp :connection,
-        [ app: nil,
-          assigns: [],
+        [ assigns: [],
           before_send: [],
           fetchable: [],
+          main: nil,
           method: nil,
           original_method: nil,
           params: nil,
@@ -91,8 +91,8 @@ defmodule Dynamo.Connection.Behaviour do
       end
 
       @doc false
-      def app(connection(app: app)) do
-        app
+      def main(connection(main: main)) do
+        main
       end
 
       ## Fetch

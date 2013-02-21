@@ -76,7 +76,7 @@ defmodule Dynamo.HTTP.Case do
 
   Finally, notice that all `get`/`post`/`put`/`delete` macros
   are simply a proxy to `process/4`. So in case you want to dispatch
-  to different apps at the same time, `process/4` may be useful.
+  to different dynamos at the same time, `process/4` may be useful.
   """
 
   @doc false
@@ -158,9 +158,9 @@ defmodule Dynamo.HTTP.Case do
   set the session before a request.
   """
   def put_session_cookie(conn, session) do
-    dynamo = conn.app.config[:dynamo]
-    store  = dynamo[:session_store]
-    opts   = store.setup dynamo[:session_options]
+    config = conn.main.config[:dynamo]
+    store  = config[:session_store]
+    opts   = store.setup config[:session_options]
     value  = store.put_session(nil, session, opts)
     conn.put_req_cookie(opts[:key], value)
   end

@@ -1,8 +1,7 @@
 defmodule Dynamo.Filters.Session do
   @moduledoc """
-  The session filter. When added to your application,
-  this filter allows you to fetch the session and to
-  serialize it back.
+  The session filter. When added to your Dynamo, this filter allows
+  you to fetch the session and to serialize it back.
 
   When initialized, this filter supports a set of options:
 

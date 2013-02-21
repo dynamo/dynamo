@@ -2,12 +2,12 @@ defmodule Dynamo.Filters.Static do
   @moduledoc """
   A Dynamo filter capable of serving static assets.
 
-  It must be initialized passing the root option,
-  which may be a directory of an atom representing
-  an application to use the root directory.
+  It must be initialized passing the path to watch
+  for assets and path to the assets from the Dynamo
+  root.
 
   If an assets cannot be found, it simply forwards
-  the request to the underlying application.
+  the request to the underlying service.
 
   ## Examples
 
@@ -15,7 +15,7 @@ defmodule Dynamo.Filters.Static do
 
       defmodule MyDynamo do
         use Dynamo.Router
-        filter Dynamo.Filters.Static.new("/public", "priv/app")
+        filter Dynamo.Filters.Static.new("/public", "priv/static")
       end
 
   By default, a Dynamo already inserts this filter which
@@ -34,7 +34,7 @@ defmodule Dynamo.Filters.Static do
     if segments == nil or invalid_path?(segments) do
       fun.(conn)
     else
-      path = Path.join([conn.app.root, root|segments])
+      path = Path.join([conn.main.root, root|segments])
       if File.regular?(path) do
         mimes = :mimetypes.filename(path)
         conn

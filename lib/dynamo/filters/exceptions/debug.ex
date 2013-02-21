@@ -47,11 +47,11 @@ defmodule Dynamo.Filters.Exceptions.Debug do
   # Frames
 
   defp frames(conn, stacktrace) do
-    app     = conn.app
-    root    = app.root <> "/"
-    dynamo  = app.config[:dynamo]
-    editor  = dynamo[:exceptions_editor]
-    sources = dynamo[:source_paths] ++ dynamo[:templates_paths]
+    dynamo  = conn.main
+    root    = dynamo.root <> "/"
+    config  = dynamo.config[:dynamo]
+    editor  = config[:exceptions_editor]
+    sources = config[:source_paths] ++ config[:templates_paths]
     sources = lc source inlist sources, path inlist Path.wildcard(Path.join(root, source)), do: path
 
     Enum.map_reduce(stacktrace, 0, each_frame(&1, &2, root, sources, editor)) |> elem(0)

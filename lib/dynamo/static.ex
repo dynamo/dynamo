@@ -4,14 +4,14 @@ defmodule Dynamo.Static do
   use GenServer.Behaviour
 
   @doc """
-  Looks up a static asset in the given application.
-  If the static asset exists, it returns the asset
-  path appended with a query string containing the
-  last modification time of the asset.
+  Looks up a static asset in the given Dynamo. If the
+  static asset exists, it returns the asset path appended
+  with a query string containing the last modification
+  time of the asset.
   """
-  def lookup(app, path) do
+  def lookup(dynamo, path) do
     path = normalize_path(path)
-    { ets, server } = app.static_cache
+    { ets, server } = dynamo.static_cache
     case :ets.lookup(ets, path) do
       [{ ^path, result }] -> result
       _ -> :gen_server.call(server, { :lookup, path })
@@ -24,27 +24,27 @@ defmodule Dynamo.Static do
   ## Backend
 
   @doc false
-  def start_link(app) do
-    { _ets, server } = app.static_cache
-    :gen_server.start({ :local, server }, __MODULE__, app, [])
+  def start_link(dynamo) do
+    { _ets, server } = dynamo.static_cache
+    :gen_server.start({ :local, server }, __MODULE__, dynamo, [])
   end
 
   @doc false
-  def stop(app) do
-    { _ets, server } = app.static_cache
+  def stop(dynamo) do
+    { _ets, server } = dynamo.static_cache
     :gen_server.call(server, :stop)
   end
 
   defrecord Config, [:ets, :route, :root, :cache]
 
   @doc false
-  def init(app) do
-    dynamo  = app.config[:dynamo]
-    root    = Path.expand(dynamo[:static_root], app.root)
-    route   = dynamo[:static_route]
-    cache   = dynamo[:cache_static]
+  def init(dynamo) do
+    config = dynamo.config[:dynamo]
+    root   = Path.expand(config[:static_root], dynamo.root)
+    route  = config[:static_route]
+    cache  = config[:cache_static]
 
-    { ets, _server } = app.static_cache
+    { ets, _server } = dynamo.static_cache
     :ets.new(ets, [:set, :protected, :named_table, { :read_concurrency, true }])
     { :ok, Config[ets: ets, route: route, root: root, cache: cache] }
   end

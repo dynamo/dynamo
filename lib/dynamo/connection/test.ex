@@ -29,7 +29,7 @@ defmodule Dynamo.Connection.Test do
   """
   def new(method, path, body // "") do
     connection(
-      app: Dynamo.under_test,
+      main: Dynamo.under_test,
       raw_req_cookies: Binary.Dict.new(),
       raw_req_headers: Binary.Dict.new([{ "host", "127.0.0.1" }]),
       scheme: :http,
@@ -184,10 +184,10 @@ defmodule Dynamo.Connection.Test do
   ## Test only API
 
   @doc """
-  Sets the application under test.
+  Sets the main module under test.
   """
-  def app(app, conn) do
-    connection(conn, app: app)
+  def main(main, conn) do
+    connection(conn, main: main)
   end
 
   @doc """

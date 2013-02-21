@@ -247,7 +247,7 @@ defmodule Mix.Tasks.Dynamo do
     # need to explicitly compile files.
     compile_on_demand: true,
 
-    # Every time a module in app changes, we
+    # Every time a module in web/ changes, we
     # will clean up defined modules and pick
     # up the latest versions.
     reload_modules: true,

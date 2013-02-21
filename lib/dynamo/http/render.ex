@@ -10,18 +10,17 @@ defmodule Dynamo.HTTP.Render do
   If the connection is in streaming mode, the template
   is streamed after it is rendered as a whole chunk.
 
-  Besides the connection and the template name,
-  this function also receives extra assigns as
-  arguments. Assigns are used by the application
-  developer to pass information from the router
-  to the template.
+  Besides the connection and the template name, this function
+  also receives extra assigns as arguments. Assigns are used
+  by the developer to pass information from the router to the
+  template.
 
   It raises `Dynamo.TemplateNotFound` if the given
   template can't be found.
 
   ## Examples
 
-      # Renders the template usually at app/templates/hello.html
+      # Renders the template usually at web/templates/hello.html
       render conn, "hello.html"
 
       # Assign to data (accessible as @data in the template)
@@ -48,10 +47,10 @@ defmodule Dynamo.HTTP.Render do
 
   """
   def render(conn, template, assigns // []) do
-    app        = conn.app
-    renderer   = app.templates_server
-    tmpl_paths = app.templates_paths
-    prelude    = fn -> app.templates_prelude end
+    dynamo     = conn.main
+    renderer   = dynamo.templates_server
+    tmpl_paths = dynamo.templates_paths
+    prelude    = fn -> dynamo.templates_prelude end
     template   = Dynamo.Templates.find!(template, tmpl_paths)
     format     = template.format
 

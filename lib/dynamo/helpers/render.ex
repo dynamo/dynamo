@@ -26,10 +26,10 @@ defmodule Dynamo.Helpers.Rendering do
   to render a template inside a helper.
   """
   def render(conn, template, assigns) do
-    app        = conn.app
-    renderer   = app.templates_server
-    tmpl_paths = app.templates_paths
-    prelude    = fn -> app.templates_prelude end
+    dynamo     = conn.main
+    renderer   = dynamo.templates_server
+    tmpl_paths = dynamo.templates_paths
+    prelude    = fn -> dynamo.templates_prelude end
     template   = Dynamo.Templates.find!(template, tmpl_paths)
 
     layout  = assigns[:layout]

@@ -88,7 +88,7 @@ defmodule Session.ETSStore do
   @moduledoc """
   Stores the session in an ETS table (i.e. in memory).
 
-  Useful for single server applications which do not want
+  Useful for single server Dynamos which do not want
   to write their session down to a cookie.
 
   This store does not create the ETS table, it is expected

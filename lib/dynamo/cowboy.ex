@@ -5,7 +5,7 @@ defmodule Dynamo.Cowboy do
   """
 
   @doc """
-  Runs the given app with the given options:
+  Runs the given module with the given options:
 
   * `port` - the port to run the server (defaults to 4000)
 
@@ -23,7 +23,7 @@ defmodule Dynamo.Cowboy do
       Dynamo.Cowboy.run MyApp, port: 80
 
   """
-  def run(app, options // []) do
+  def run(main, options // []) do
     :application.start(:ranch)
     :application.start(:cowboy)
 
@@ -35,19 +35,19 @@ defmodule Dynamo.Cowboy do
       :application.start(:crypto)
       :application.start(:public_key)
       :application.start(:ssl)
-      https = https_options(app, Keyword.merge(options, ssl))
-      log(app, :https, env, https)
-      start_listener(:https, app, https)
+      https = https_options(main, Keyword.merge(options, ssl))
+      log(main, :https, env, https)
+      start_listener(:https, main, https)
     end
 
-    http = http_options(app, options)
-    log(app, :http, env, http)
-    start_listener(:http, app, http)
+    http = http_options(main, options)
+    log(main, :http, env, http)
+    start_listener(:http, main, http)
   end
 
-  def shutdown(app) do
-    :cowboy.stop_listener(app.HTTP)
-    :cowboy.stop_listener(app.HTTPS)
+  def shutdown(main) do
+    :cowboy.stop_listener(main.HTTP)
+    :cowboy.stop_listener(main.HTTPS)
     :ok
   end
 
@@ -56,42 +56,42 @@ defmodule Dynamo.Cowboy do
   @http_options  [port: 4000]
   @https_options [port: 4040]
 
-  defp start_listener(kind, app, options) do
+  defp start_listener(kind, main, options) do
     acceptors = options[:acceptors] || 100
-    dispatch  = options[:dispatch]  || dispatch_for(app)
+    dispatch  = options[:dispatch]  || dispatch_for(main)
     options   = Enum.reduce [:acceptors, :dispatch], options, Keyword.delete(&2, &1)
 
-    ref = Module.concat(app, kind |> to_binary |> String.upcase)
+    ref = Module.concat(main, kind |> to_binary |> String.upcase)
     apply(:cowboy, :"start_#{kind}", [ref, acceptors, options, [dispatch: dispatch]])
   end
 
-  defp http_options(_app, options) do
+  defp http_options(_main, options) do
     Keyword.merge @http_options, options
   end
 
-  defp https_options(app, options) do
+  defp https_options(main, options) do
     options = Keyword.merge @https_options, options
-    Enum.reduce [:keyfile, :certfile, :cacertfile], options, normalize_ssl_file(app, &2, &1)
+    Enum.reduce [:keyfile, :certfile, :cacertfile], options, normalize_ssl_file(main, &2, &1)
     Enum.reduce [:password], options, to_char_list(&2, &1)
   end
 
-  defp log(app, kind, env, options) do
+  defp log(main, kind, env, options) do
     unless options[:verbose] == false do
-      IO.puts "Running #{inspect app} at #{kind}://localhost:#{options[:port]} with Cowboy on #{env}"
+      IO.puts "Running #{inspect main} at #{kind}://localhost:#{options[:port]} with Cowboy on #{env}"
     end
   end
 
-  defp dispatch_for(app) do
-    [{ :_, [ {:_, Dynamo.Cowboy.Handler, app } ] }]
+  defp dispatch_for(main) do
+    [{ :_, [ {:_, Dynamo.Cowboy.Handler, main } ] }]
   end
 
-  defp normalize_ssl_file(app, options, key) do
+  defp normalize_ssl_file(main, options, key) do
     value = options[key]
 
     if nil?(value) do
       options
     else
-      new = Path.expand(value, app.root) |> to_char_list
+      new = Path.expand(value, main.root) |> to_char_list
       Keyword.put(options, key, new)
     end
   end

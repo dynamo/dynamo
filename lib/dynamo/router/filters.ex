@@ -1,13 +1,11 @@
 defmodule Dynamo.Router.Filters do
   @moduledoc """
-  This module is responsible for providing filters to a router or Dynamo
-  application. A filter is a module that is invoked before, during or
-  after a service match.
+  This module is responsible for providing filters to a router or a Dynamo.
+  A filter is a module that is invoked before, during or after a service match.
 
   While hooks are executed only if a route match, filters are always
-  executed. Hooks also abort in case a response is set, while filters
-  do not halt their execution. In other words, filters are a more low-level
-  mechanism, with less conveniences compared to hooks.
+  executed. In general, filters are a more low-level mechanism, with
+  less conveniences compared to hooks.
 
   There is also a difference regarding ordering. While filters are invoked
   in the order they are declared, regardless of their behaviour, hooks
@@ -15,7 +13,7 @@ defmodule Dynamo.Router.Filters do
 
   ## Usage
 
-      defmodule MyApp do
+      defmodule MyDynamo do
         use Dynamo.Router
         filter Dynamo.Static.new("/public", :myapp)
       end
@@ -34,7 +32,7 @@ defmodule Dynamo.Router.Filters do
 
     defmodule ChromeFrameFilter do
       def prepare(conn) do
-        conn.put_resp_header("X-UA-Compatible", "chrome=1")
+        conn.put_resp_header("x-ua-compatible", "chrome=1")
       end
     end
 
@@ -48,7 +46,7 @@ defmodule Dynamo.Router.Filters do
 
       defmodule JSONFilter do
         def service(conn, fun) do
-          conn = conn.put_resp_header("Content-Type", "application/json")
+          conn = conn.put_resp_header("content-type", "application/json")
           conn = fun.(conn)
           conn.resp_body(to_json(conn.resp_body))
         end

@@ -21,14 +21,14 @@ defmodule Dynamo.Cowboy.Connection do
   end
 
   @doc false
-  def new(app, req, scheme) do
+  def new(main, req, scheme) do
     { verb, req } = R.method req
     { path, _ }   = R.path req
 
     segments = split_path(path)
 
     connection(
-      app: app,
+      main: main,
       before_send: Dynamo.Connection.default_before_send,
       method: verb,
       path_info_segments: segments,

@@ -71,7 +71,7 @@ defmodule Dynamo.Connection do
   @type   charset      :: binary
   @type   content_type :: binary
   @type   fetch_aspect :: :headers | :params | :cookies | :body | atom
-  @type   app          :: module
+  @type   main          :: module
   @type   assigns      :: Keyword.t
   @type   private      :: Keyword.t
   @type   upgrades     :: :websocket
@@ -425,7 +425,7 @@ defmodule Dynamo.Connection do
   defcallback put_private(key :: atom, value :: term, conn) :: conn
 
   @doc """
-  Returns the application that received the request.
+  Returns the main module that started the connection the request.
   """
-  defcallback app(conn) :: app
+  defcallback main(conn) :: main
 end

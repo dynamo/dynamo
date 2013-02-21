@@ -56,7 +56,7 @@ defmodule Dynamo.Router.Base do
   ## Forwarding
 
   A Dynamo router can also forward a specific route to any other
-  router, allowing a developer to scope its application instead of
+  router, allowing split a Dynamo into many routers instead of
   having a big monolitic routes handler:
 
       defmodule ApplicationRouter do

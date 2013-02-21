@@ -1,8 +1,8 @@
 defmodule Dynamo.Supervisor do
   @moduledoc """
-  Dynamo's base supervisor. Each application starts its
-  own copy of the `Dynamo.Supervisor` and attach children
-  to it throught the boot process.
+  Dynamo's base supervisor. Each Dynamo starts its own copy of
+  the `Dynamo.Supervisor` and attach children to it throught
+  the boot process.
 
   The local name, `:max_restarts` and `:max_seconds` can
   be configured on `start_link`.
