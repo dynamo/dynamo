@@ -34,8 +34,8 @@ defmodule Mix.Tasks.Docs do
   def run(_) do
     Mix.Task.run "loadpaths"
 
-	  Mix.shell.cmd %b[elixir -pa ebin ../exdoc/bin/exdoc "Dynamo" "#{Mix.project[:version]}" ] <>
-	    %b[-m Dynamo -u "https://github.com/elixir-lang/dynamo/blob/master/%{path}#L%{line}"]
+    Mix.shell.cmd %b[elixir -pa ebin ../exdoc/bin/exdoc "Dynamo" "#{Mix.project[:version]}" ] <>
+      %b[-m Dynamo -u "https://github.com/elixir-lang/dynamo/blob/master/%{path}#L%{line}"]
   end
 end
 
