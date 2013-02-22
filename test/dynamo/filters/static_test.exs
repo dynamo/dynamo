@@ -59,9 +59,13 @@ defmodule Dynamo.Filters.StaticTest do
     assert conn.sent_body == "File not served"
   end
 
-  test "returns 404 for unsecure paths" do
+  test "returns 400 for unsecure paths" do
     conn = get("/public/fixtures/../fixtures/static/file.txt")
-    assert conn.status    == 404
-    assert conn.sent_body == "File not served"
+    assert conn.status    == 400
+    assert conn.sent_body == ""
+
+    conn = get("/public/c:\\foo.txt")
+    assert conn.status    == 400
+    assert conn.sent_body == ""
   end
 end

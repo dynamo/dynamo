@@ -31,19 +31,22 @@ defmodule Dynamo.Filters.Static do
   @doc false
   def service(conn, fun, { __MODULE__, path, root }) do
     segments = subset(path, conn.path_info_segments)
-    if segments == nil or invalid_path?(segments) do
-      fun.(conn)
-    else
-      path = Path.join([conn.main.root, root|segments])
-      if File.regular?(path) do
-        mimes = :mimetypes.filename(path)
-        conn
-          .put_resp_header("content-type", hd(mimes))
-          .put_resp_header("cache-control", "public, max-age=31536000")
-          .sendfile(200, path)
-      else
+    cond do
+      segments in [nil, []] ->
         fun.(conn)
-      end
+      invalid_path?(segments) ->
+        conn.send(400, "")
+      true ->
+        path = Path.join([conn.main.root, root|segments])
+        if File.regular?(path) do
+          mimes = :mimetypes.filename(path)
+          conn
+            .put_resp_header("content-type", hd(mimes))
+            .put_resp_header("cache-control", "public, max-age=31536000")
+            .sendfile(200, path)
+        else
+          fun.(conn)
+        end
     end
   end
 
@@ -59,7 +62,12 @@ defmodule Dynamo.Filters.Static do
     nil
   end
 
-  defp invalid_path?(segments) do
-    Enum.any?(segments, &1 in [".", ".."])
+  defp invalid_path?([h|_]) when h in [".", "..", ""], do: true
+  defp invalid_path?([h|t]) do
+    case :binary.match(h, ["/", "\\", ":"]) do
+      { _, _ } -> true
+      :nomatch -> invalid_path?(t)
+    end
   end
+  defp invalid_path?([]), do: false
 end
