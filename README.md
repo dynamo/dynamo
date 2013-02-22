@@ -86,7 +86,7 @@ defmodule ApplicationRouter do
 end
 ```
 
-All routers must use the `Dynamo.Router` module. By using this module, we have access to the macros `get`, `post`, `put` and `delete` that allows developers to generate routes. Here is a simple route:
+All routers must use the `Dynamo.Router` module. By using this module, we have access to the macros `get`, `post`, `put`, `patch` and `delete` that allows developers to generate routes. Here is a simple route:
 
 ```elixir
 get "/hello/world" do
