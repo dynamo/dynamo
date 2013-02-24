@@ -42,6 +42,7 @@ defmodule Mix.Tasks.Dynamo do
       [path|_] ->
         name = opts[:app] || Path.basename(Path.expand(path))
         check_project_name!(name)
+        check_project_path!(path)
         File.mkdir_p!(path)
         File.cd!(path, fn -> do_generate(underscore(name), opts) end)
     end
@@ -99,6 +100,13 @@ defmodule Mix.Tasks.Dynamo do
   defp check_project_name!(name) do
     unless name =~ %r/^[a-z][\w_]+$/i do
       raise Mix.Error, message: "project path must start with a letter and have only letters, numbers and underscore"
+    end
+  end
+
+  defp check_project_path!(path) do
+    path = Path.basename(Path.expand(path))
+    if path == camelize(path) do
+      raise Mix.Error, message: "project path must be underscore and match module name. Try: mix dynamo #{underscore(path)}"
     end
   end
 
