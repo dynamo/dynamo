@@ -61,13 +61,4 @@ defmodule Mix.Tasks.DynamoTest do
       assert_received { :mix_shell, :info, ["* creating lib/my_dev_app.ex"] }
     end
   end
-
-  test "raises exception if is camel case" do
-    in_tmp "my_dev_app", fn ->
-      assert_raise Mix.Error, fn ->
-        Mix.Tasks.Dynamo.run ["MyApp"]
-      end
-    end
-  end
-
 end

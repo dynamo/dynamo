@@ -40,9 +40,9 @@ defmodule Mix.Tasks.Dynamo do
       [] ->
         raise Mix.Error, message: "expected PATH to be given, please use `mix dynamo PATH`"
       [path|_] ->
+        path = validate_path(path)
         name = opts[:app] || Path.basename(Path.expand(path))
         check_project_name!(name)
-        check_project_path!(path)
         File.mkdir_p!(path)
         File.cd!(path, fn -> do_generate(underscore(name), opts) end)
     end
@@ -103,10 +103,16 @@ defmodule Mix.Tasks.Dynamo do
     end
   end
 
-  defp check_project_path!(path) do
-    path = Path.basename(Path.expand(path))
-    if path == camelize(path) do
-      raise Mix.Error, message: "project path must be underscore and match module name. Try: mix dynamo #{underscore(path)}"
+  defp validate_path(path) do
+    basename = Path.basename(Path.expand(path))
+    if basename == camelize(basename) do
+      if Mix.Shell.IO.yes?("Project path must be snake_case and match module name. Would you like to use #{underscore(basename)} instead?") do
+        Path.join(Path.dirname(path), underscore(basename))
+      else
+        raise Mix.Error, message: "Invalid project path name, please use snake_case"
+      end
+    else
+      path
     end
   end
 
