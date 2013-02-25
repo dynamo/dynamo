@@ -106,7 +106,7 @@ defmodule Mix.Tasks.Dynamo do
   defp validate_path(path) do
     basename = Path.basename(Path.expand(path))
     if basename == camelize(basename) do
-      if Mix.Shell.IO.yes?("Project path must be snake_case and match module name. Would you like to use #{underscore(basename)} instead?") do
+      if Mix.shell.yes?("Project path #{inspect basename} is invalid (it must match the application name). Would you like to use #{underscore(basename)} instead?") do
         Path.join(Path.dirname(path), underscore(basename))
       else
         raise Mix.Error, message: "Invalid project path name, please use snake_case"
