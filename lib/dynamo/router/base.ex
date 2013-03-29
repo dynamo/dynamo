@@ -50,8 +50,8 @@ defmodule Dynamo.Router.Base do
       end
 
   A `match` will match any route regardless of the HTTP verb.
-  Check `match/3` for more information on how routes compilation
-  work and a list of supported options.
+  Check `match/3` for more information on how route compilation
+  works and a list of supported options.
 
   ## Forwarding
 
