@@ -2,7 +2,7 @@ defmodule Dynamo.Router do
   @moduledoc """
   A Dynamo is made of many routers that redirect a connection
   between endpoints. Those endpoints are usually built with
-  `Dynamo.Routes` which are responsible to brings routing
+  `Dynamo.Routes` which are responsible for bringing routing
   semantics to your modules.
 
   Here is a minimal router:
