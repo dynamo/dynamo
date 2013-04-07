@@ -17,7 +17,9 @@ defmodule Mix.Tasks.Server do
       dynamo.run
     end
 
-    :timer.sleep(:infinity)
+    unless Code.ensure_loaded?(IEx) && IEx.started? do
+      :timer.sleep(:infinity)
+    end
   end
 
   defp validate_dynamo(dynamo) do
