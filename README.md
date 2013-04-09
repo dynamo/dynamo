@@ -102,6 +102,12 @@ put "/users/:user_id" do
 end
 ```
 
+```elixir
+get "/hello/*glob" do
+  conn.resp 200, "Wildcard matched on all remaining segments after /hello/: #{conn.params[:glob]}"
+end
+```
+
 Each route is compiled down to a function clause, this makes routes matching extremely fast and also allow the use of guard constraints:
 
 ```elixir
