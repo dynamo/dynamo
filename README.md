@@ -103,8 +103,8 @@ end
 ```
 
 ```elixir
-get "/hello/*glob" do
-  conn.resp 200, "Wildcard matched on all remaining segments after /hello/: #{conn.params[:glob]}"
+get "/hello/*" do
+  conn.resp 200, "Match all routes starting with /hello"
 end
 ```
 

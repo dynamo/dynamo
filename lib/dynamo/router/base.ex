@@ -44,11 +44,15 @@ defmodule Dynamo.Router.Base do
       end
 
   Routes allow for globbing which will match the remaining parts
-  of a route and will be available as a parameter in the function
-  body, also note that *glob can't be followed by other segments:
+  of a route and can be available as a parameter in the function
+  body, also note that a glob can't be followed by other segments:
+
+      get "/hello/*" do
+        conn.resp 200, "match all routes starting with /hello"
+      end
 
       get "/hello/*glob" do
-        conn.resp 200, "hello \#{glob}"
+        conn.resp 200, "route after /hello: \#{glob}"
       end
 
   Finally, a general `match` function is also supported:
