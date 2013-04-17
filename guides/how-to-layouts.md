@@ -75,4 +75,4 @@ For a ready to use example, check [examples/layouts.exs](../examples/layouts.exs
 
 ### Other helpers
 
-Both `content_for` and `render` macros used in this guide are part of Dynamo helpers. Dynamo ships with a couple helpers that make programming templates a bit easier, check the [helpers guide](../how-to-helpers.md) for more information.
+Both `content_for` and `render` macros used in this guide are part of Dynamo helpers. Dynamo ships with a couple helpers that make programming templates a bit easier, check the [helpers guide](how-to-helpers.md) for more information.
