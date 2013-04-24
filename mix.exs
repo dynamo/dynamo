@@ -4,19 +4,24 @@ defmodule Dynamo.Mixfile do
   def project do
     [ app: :dynamo,
       version: "0.1.0.dev",
-      deps: deps,
-      env:
-        [test: [deps: test_deps]] ]
+      name: "Dynamo",
+      source_url: "https://github.com/elixir-lang/dynamo",
+      deps: deps(Mix.env) ]
   end
 
-  def deps do
+  def deps(:prod) do
     [ { :mimetypes, github: "spawngrid/mimetypes" },
       { :ranch,     github: "extend/ranch" },
       { :cowboy,    github: "extend/cowboy" } ]
   end
 
-  def test_deps do
-    deps ++
+  def deps(:dev) do
+    deps(:prod) ++
+      [ { :ex_doc, github: "elixir-lang/ex_doc" } ]
+  end
+
+  def deps(:test) do
+    deps(:dev) ++
       [ { :edown,   github: "esl/edown" }, ## Hackney dependency
         { :hackney, github: "benoitc/hackney" } ]
   end
@@ -25,17 +30,6 @@ defmodule Dynamo.Mixfile do
     [ applications: [:crypto, :mimetypes],
       env: [under_test: nil],
       mod: { Dynamo.App, [] } ]
-  end
-end
-
-defmodule Mix.Tasks.Docs do
-  @shortdoc "Generates docs"
-
-  def run(_) do
-    Mix.Task.run "loadpaths"
-
-    Mix.shell.cmd %b[elixir -pa ebin ../exdoc/bin/exdoc "Dynamo" "#{Mix.project[:version]}" ] <>
-      %b[-m Dynamo -u "https://github.com/elixir-lang/dynamo/blob/master/%{path}#L%{line}"]
   end
 end
 

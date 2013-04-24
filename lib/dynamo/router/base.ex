@@ -163,10 +163,10 @@ defmodule Dynamo.Router.Base do
     module = env.module
 
     prepare = compile_hooks module, :dynamo_prepare,
-                 quote(do: var!(conn)), :prepare, function(:compile_prepare, 4), true
+                 quote(do: var!(conn)), :prepare, function(compile_prepare/4), true
 
     finalize = compile_hooks module, :dynamo_finalize,
-                 quote(do: var!(conn)), :finalize, function(:compile_finalize, 4), true
+                 quote(do: var!(conn)), :finalize, function(compile_finalize/4), true
 
     [ quote location: :keep do
         @doc false
@@ -432,7 +432,7 @@ defmodule Dynamo.Router.Base do
   @doc false
   def __hooks__(module, vars, contents) do
     hooks = compile_hooks module, :finalize, quote(do: var!(conn)),
-              :finalize, function(:compile_finalize, 4), false
+              :finalize, function(compile_finalize/4), false
 
     hooks = quote do
       var!(conn) = unquote(contents)
@@ -448,7 +448,7 @@ defmodule Dynamo.Router.Base do
     end
 
     hooks = compile_hooks module, :prepare, hooks,
-              :prepare, function(:compile_prepare, 4), false
+              :prepare, function(compile_prepare/4), false
 
     prepare_key  = compile_skip_hooks module, :skip_prepare,  :dynamo_prepare
     finalize_key = compile_skip_hooks module, :skip_finalize, :dynamo_finalize
