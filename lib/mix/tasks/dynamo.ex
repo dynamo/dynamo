@@ -335,7 +335,7 @@ defmodule Mix.Tasks.Dynamo do
     use ExUnit.CaseTemplate
 
     # Enable code reloading on test cases
-    setup_all do
+    setup do
       Dynamo.Loader.enable
       :ok
     end

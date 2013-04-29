@@ -9,12 +9,16 @@ defmodule Dynamo.LoaderTest do
 
   setup_all do
     Dynamo.Loader.append_paths([fixture_path])
-    Dynamo.Loader.enable
     :ok
   end
 
   teardown_all do
     Dynamo.Loader.stop
+    :ok
+  end
+
+  setup do
+    Dynamo.Loader.enable
     :ok
   end
 
