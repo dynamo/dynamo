@@ -7,7 +7,7 @@ defmodule Mix.Tasks.Dynamo.Filters do
   Prints all dynamos filters
   """
   def run(args) do
-    Mix.Task.run Mix.project[:prepare_task], args
+    Mix.Task.run "app.start", args
     shell = Mix.shell
 
     Enum.each Mix.project[:dynamos], fn(dynamo) ->

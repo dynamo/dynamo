@@ -7,7 +7,7 @@ defmodule Mix.Tasks.Server do
   Runs all registered Dynamos in their servers.
   """
   def run(args) do
-    Mix.Task.run Mix.project[:prepare_task], args
+    Mix.Task.run "app.start", args
 
     dynamos = Mix.project[:dynamos]
     Dynamo.Loader.enable
