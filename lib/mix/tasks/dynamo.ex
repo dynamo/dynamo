@@ -40,11 +40,10 @@ defmodule Mix.Tasks.Dynamo do
       [] ->
         raise Mix.Error, message: "expected PATH to be given, please use `mix dynamo PATH`"
       [path|_] ->
-        path = validate_path(path)
-        name = Path.basename(path)
+        name = Path.basename(Path.expand(path))
         check_project_name!(name)
         File.mkdir_p!(path)
-        File.cd!(path, fn -> do_generate(underscore(name), opts) end)
+        File.cd!(path, fn -> do_generate(name, opts) end)
     end
   end
 
@@ -98,47 +97,33 @@ defmodule Mix.Tasks.Dynamo do
   end
 
   defp check_project_name!(name) do
-    unless name =~ %r/^[a-z][\w_]+$/i do
-      raise Mix.Error, message: "project path must start with a letter and have only letters, numbers and underscore"
+    unless name =~ %r/^[a-z][\w_]+$/ do
+      raise Mix.Error, message: "project path must start with a letter and have only lowercase letters, numbers and underscore"
     end
   end
 
-  defp validate_path(path) do
-    path = Path.expand(path)
-    basename = Path.basename(path)
-    if basename == camelize(basename) do
-      if Mix.shell.yes?("Project path #{inspect basename} is invalid (it must match the application name). Would you like to use #{underscore(basename)} instead?") do
-        Path.join(Path.dirname(path), underscore(basename))
-      else
-        raise Mix.Error, message: "Invalid project path name, please use snake_case"
-      end
-    else
-      path
-    end
-  end
+  embed_template :readme, """
+  # <%= @mod %>
 
-   embed_template :readme, """
-   # <%= @mod %>
+  This is a project built with Elixir that uses Dynamo to serve web requests.
 
-   This is a project built with Elixir that uses Dynamo to serve web requests.
+  Resources:
 
-   Resources:
+  * [Elixir website](http://elixir-lang.org/)
+  * [Elixir getting started guide](http://elixir-lang.org/getting_started/1.html)
+  * [Elixir docs](http://elixir-lang.org/docs)
+  * [Dynamo source code](https://github.com/elixir-lang/dynamo)
+  * [Dynamo guides](https://github.com/elixir-lang/dynamo#learn-more)
+  * [Dynamo docs](http://elixir-lang.org/docs/dynamo)
+  """
 
-   * [Elixir website](http://elixir-lang.org/)
-   * [Elixir getting started guide](http://elixir-lang.org/getting_started/1.html)
-   * [Elixir docs](http://elixir-lang.org/docs)
-   * [Dynamo source code](https://github.com/elixir-lang/dynamo)
-   * [Dynamo guides](https://github.com/elixir-lang/dynamo#learn-more)
-   * [Dynamo docs](http://elixir-lang.org/docs/dynamo)
-   """
-
-   embed_text :gitignore, """
-   /ebin
-   /deps
-   /tmp/dev
-   /tmp/test
-   erl_crash.dump
-   """
+  embed_text :gitignore, """
+  /ebin
+  /deps
+  /tmp/dev
+  /tmp/test
+  erl_crash.dump
+  """
 
   embed_template :mixfile, %B"""
   defmodule <%= @mod %>.Mixfile do
