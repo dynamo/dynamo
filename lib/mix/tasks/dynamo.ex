@@ -11,11 +11,11 @@ defmodule Mix.Tasks.Dynamo do
   Creates a new Dynamo project.
   It expects the path of the project as argument.
 
-      mix dynamo [-v] PATH [--app APP] [--module MODULE]
+      mix dynamo [-v] PATH [--module MODULE]
 
   A project at the given PATH  will be created. The
   application name and module name will be retrieved
-  from the path, unless `-app` or `--module` is given.
+  from the path, unless `--module` is given.
 
   ## Examples
 
@@ -23,7 +23,7 @@ defmodule Mix.Tasks.Dynamo do
 
   Is equivalent to:
 
-      mix dynamo hello_world --app hello_world --module HelloWorld
+      mix dynamo hello_world --module HelloWorld
 
   Use -v to print mix version:
 
@@ -40,7 +40,8 @@ defmodule Mix.Tasks.Dynamo do
       [] ->
         raise Mix.Error, message: "expected PATH to be given, please use `mix dynamo PATH`"
       [path|_] ->
-        name = opts[:app] || Path.basename(Path.expand(path))
+        path = validate_path(path)
+        name = Path.basename(path)
         check_project_name!(name)
         File.mkdir_p!(path)
         File.cd!(path, fn -> do_generate(underscore(name), opts) end)
@@ -99,6 +100,20 @@ defmodule Mix.Tasks.Dynamo do
   defp check_project_name!(name) do
     unless name =~ %r/^[a-z][\w_]+$/i do
       raise Mix.Error, message: "project path must start with a letter and have only letters, numbers and underscore"
+    end
+  end
+
+  defp validate_path(path) do
+    path = Path.expand(path)
+    basename = Path.basename(path)
+    if basename == camelize(basename) do
+      if Mix.shell.yes?("Project path #{inspect basename} is invalid (it must match the application name). Would you like to use #{underscore(basename)} instead?") do
+        Path.join(Path.dirname(path), underscore(basename))
+      else
+        raise Mix.Error, message: "Invalid project path name, please use snake_case"
+      end
+    else
+      path
     end
   end
 
