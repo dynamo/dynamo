@@ -71,6 +71,14 @@ defmodule Binary.Dict do
   end
 
   @doc false
+  def fetch(dict(data), key) do
+    case :lists.keyfind(to_binary(key), 1, data) do
+      { _, value } -> { :ok, value }
+      false -> :error
+    end
+  end
+
+  @doc false
   def put(dict(data), key, value) do
     key = to_binary(key)
     dict [{key, value}|keydelete(data, key)]
@@ -144,8 +152,10 @@ defmodule Binary.Dict do
 end
 
 defimpl Enum.Iterator, for: Binary.Dict do
-  def iterator({ Binary.Dict, data }), do: data
-  def count({ Binary.Dict, data }),    do: length(data)
+  def iterator({ Binary.Dict, data }),   do: data
+  def count({ Binary.Dict, data }),      do: length(data)
+  def empty?({ Binary.Dict, data }),     do: data == []
+  def member?({ Binary.Dict, data }, v), do: :lists.member(v, data)
 end
 
 defimpl Access, for: Binary.Dict do

@@ -20,7 +20,7 @@ defmodule Dynamo.Utils.Once do
     target   = __CALLER__.module
     expanded = Macro.expand module, __CALLER__
 
-    unless List.member?(Module.get_attribute(target, :__use_once), expanded) do
+    unless Enum.member?(Module.get_attribute(target, :__use_once), expanded) do
       Module.put_attribute(target, :__use_once, expanded)
 
       quote do
