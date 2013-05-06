@@ -102,6 +102,12 @@ put "/users/:user_id" do
 end
 ```
 
+```elixir
+get "/hello/*" do
+  conn.resp 200, "Match all routes starting with /hello"
+end
+```
+
 Each route is compiled down to a function clause, this makes routes matching extremely fast and also allow the use of guard constraints:
 
 ```elixir
