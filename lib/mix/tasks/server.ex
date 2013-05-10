@@ -5,16 +5,27 @@ defmodule Mix.Tasks.Server do
 
   @moduledoc """
   Runs all registered Dynamos in their servers.
+
+  ## Command line options
+
+    * `-p`, `--port` - the port to listen to.
+
   """
   def run(args) do
+    { opts, _ } = OptionParser.parse(args, aliases: [p: :port])
     Mix.Task.run "app.start", args
 
     dynamos = Mix.project[:dynamos]
+
+    if opts[:port] && length(dynamos) != 1 do
+      raise "cannot pass port when serving more than one dynamo"
+    end
+
     Dynamo.Loader.enable
 
     Enum.each dynamos, fn(dynamo) ->
       validate_dynamo(dynamo)
-      dynamo.run
+      dynamo.run(opts)
     end
 
     unless Code.ensure_loaded?(IEx) && IEx.started? do
