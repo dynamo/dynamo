@@ -30,11 +30,13 @@ This README will go into Dynamo installation and a basic walk-through.
 
 Documentation for Dynamo is available at [elixir-lang.org/docs/dynamo](http://elixir-lang.org/docs/dynamo).
 
+**WARNING:** Dynamo is currently alpha-software.
+
 # Installation
 
 As an alpha-software, Dynamo installation is a bit manual but can be done in few steps:
 
-1. Ensure you are on Elixir v0.8.1 and you have [rebar](https://github.com/basho/rebar) installed (both available on homebrew)
+1. Ensure you are on Elixir master and you have [rebar](https://github.com/basho/rebar) installed (both available on homebrew)
 
 2. Clone this repository and go to its directory
 
