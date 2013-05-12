@@ -2,6 +2,7 @@ defmodule Mix.Tasks.Server do
   use Mix.Task
 
   @shortdoc "Run all Dynamos in a web server"
+  @recursive true
 
   @moduledoc """
   Runs all registered Dynamos in their servers.

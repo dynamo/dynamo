@@ -2,6 +2,7 @@ defmodule Mix.Tasks.Dynamo.Filters do
   use Mix.Task
 
   @shortdoc "Print all dynamos filters"
+  @recursive true
 
   @moduledoc """
   Prints all dynamos filters

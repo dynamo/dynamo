@@ -3,6 +3,8 @@ defmodule Mix.Tasks.Compile.Dynamo do
 
   @hidden true
   @shortdoc "Compile Dynamo source files"
+  @recursive true
+  @manifest ".compile.dynamo"
 
   @moduledoc """
   A task to compile Dynamo source files.
@@ -56,7 +58,8 @@ defmodule Mix.Tasks.Compile.Dynamo do
     to_watch = [Path.join(compile_path, "#{mod}.beam")|to_watch]
     to_watch = to_watch ++ Enum.map(templates, template_mtime(&1))
 
-    stale = Mix.Utils.extract_stale(to_watch, [compile_path])
+    manifest = Path.join(compile_path, @manifest)
+    stale = Mix.Utils.extract_stale(to_watch, [manifest])
 
     if opts[:force] or stale != [] do
       if elixir_opts = project[:elixirc_options] do
@@ -64,14 +67,19 @@ defmodule Mix.Tasks.Compile.Dynamo do
       end
 
       to_compile = Mix.Utils.extract_files(source_paths, compile_exts)
+      File.mkdir_p!(compile_path)
+      Code.delete_path compile_path
 
-      Mix.Utils.preserving_mtime(compile_path, fn ->
-        File.mkdir_p!(compile_path)
-        Code.delete_path compile_path
-        compile_files to_compile, compile_path, root
-        compile_templates mod, dynamo[:compiled_templates], templates, compile_path
-        Code.prepend_path compile_path
-      end)
+      { _current, to_remove } =
+        Mix.Utils.manifest manifest, fn ->
+          compiled = compile_files to_compile, compile_path, root
+          lc { mod, _ } inlist compiled, do: atom_to_binary(mod)
+        end
+
+      compile_templates mod, dynamo[:compiled_templates], templates, compile_path
+
+      lc f inlist to_remove, do: File.rm(Path.join(compile_path, f) <> ".beam")
+      Code.prepend_path compile_path
 
       :ok
     else
