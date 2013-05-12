@@ -29,7 +29,7 @@ defmodule Dynamo.HTTP.RenderTest do
       templates_paths: [Path.expand("../../../fixtures/templates", __FILE__)]
 
     templates do
-      import List, only: [flatten: 1]
+      import List, only: [flatten: 1], warn: false
       use Dynamo.Helpers
     end
   end

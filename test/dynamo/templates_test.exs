@@ -87,7 +87,7 @@ defmodule Dynamo.TemplatesTest do
   defp prelude do
     fn ->
       quote do
-        import List, only: [flatten: 1]
+        import List, only: [flatten: 1], warn: false
         use Dynamo.Helpers
       end
     end
