@@ -27,21 +27,31 @@ defmodule Dynamo.Cowboy do
     :application.start(:ranch)
     :application.start(:cowboy)
 
-    env     = options[:env]
-    ssl     = options[:ssl]
-    options = Enum.reduce [:env, :ssl], options, Keyword.delete(&2, &1)
+    env  = options[:env]
+    ssl  = options[:ssl]
+    host = options[:host] || "localhost"
+
+    options = Enum.reduce [:env, :ssl, :host], options, Keyword.delete(&2, &1)
+
+    case host do
+      _ in ["localhost", nil] ->
+        :ok
+      host when is_binary(host) ->
+        ip = host |> String.split(".") |> Enum.map(binary_to_integer(&1)) |> list_to_tuple
+        options = Keyword.put(options, :ip, ip)
+    end
 
     if ssl do
       :application.start(:crypto)
       :application.start(:public_key)
       :application.start(:ssl)
       https = https_options(main, Keyword.merge(options, ssl))
-      log(main, :https, env, https)
+      log(main, :https, env, host, https)
       start_listener(:https, main, https)
     end
 
     http = http_options(main, options)
-    log(main, :http, env, http)
+    log(main, :http, env, host, http)
     start_listener(:http, main, http)
   end
 
@@ -71,13 +81,14 @@ defmodule Dynamo.Cowboy do
 
   defp https_options(main, options) do
     options = Keyword.merge @https_options, options
-    Enum.reduce [:keyfile, :certfile, :cacertfile], options, normalize_ssl_file(main, &2, &1)
-    Enum.reduce [:password], options, to_char_list(&2, &1)
+    options = Enum.reduce [:keyfile, :certfile, :cacertfile], options, normalize_ssl_file(main, &2, &1)
+    options = Enum.reduce [:password], options, to_char_list(&2, &1)
+    options
   end
 
-  defp log(main, kind, env, options) do
+  defp log(main, kind, env, host, options) do
     unless options[:verbose] == false do
-      IO.puts "Running #{inspect main} at #{kind}://localhost:#{options[:port]} with Cowboy on #{env}"
+      IO.puts "Running #{inspect main} at #{kind}://#{host}:#{options[:port]} with Cowboy on #{env}"
     end
   end
 

@@ -23,7 +23,6 @@ defmodule Dynamo.Filters.SessionTest do
 
   use ExUnit.Case, async: true
   use Dynamo.HTTP.Case
-  import Dynamo.HTTP.Session
 
   @endpoint SessionApp
 

@@ -8,17 +8,22 @@ defmodule Mix.Tasks.Server do
 
   ## Command line options
 
-    * `-p`, `--port` - the port to listen to.
+    * `-h`, `--host` - bind to the given ip
+    * `-p`, `--port` - the port to listen to
 
   """
   def run(args) do
-    { opts, _ } = OptionParser.parse(args, aliases: [p: :port])
+    { opts, _ } = OptionParser.parse(args, aliases: [h: :host, p: :port])
     Mix.Task.run "app.start", args
 
     dynamos = Mix.project[:dynamos]
 
-    if opts[:port] && length(dynamos) != 1 do
-      raise "cannot pass port when serving more than one dynamo"
+    if length(dynamos) != 1 && (opts[:host] || opts[:port]) do
+      raise "cannot pass host/port when serving more than one dynamo"
+    end
+
+    if opts[:port] do
+      opts = Keyword.update(opts, :port, binary_to_integer(&1))
     end
 
     Dynamo.Loader.enable
