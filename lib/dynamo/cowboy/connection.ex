@@ -146,17 +146,20 @@ defmodule Dynamo.Cowboy.Connection do
   end
 
   @doc false
-  def sendfile(status, path, connection(req: req) = conn) do
+  def sendfile(status, path, conn) do
     File.Stat[type: :regular, size: size] = File.stat!(path)
-    { :ok, :ranch_tcp, socket } = R.transport(req)
-    body = { size, fn -> :file.sendfile(path, socket) end }
+    body_fun = fn (socket, _transport) ->
+                    {:ok, sent} = :file.sendfile(path, socket)
+                    {:sent, sent}
+               end
 
     conn = run_before_send(connection(conn, status: status, state: :sendfile))
     connection(req: req, status: status,
                resp_headers: headers, resp_cookies: cookies) = conn
 
     merged_resp_headers = Dynamo.Connection.Utils.merge_resp_headers(headers, cookies)
-    { :ok, req } = R.reply(status, merged_resp_headers, body, req)
+    req = R.set_resp_body_fun(size, body_fun, req)
+    { :ok, req } = R.reply(status, merged_resp_headers, req)
 
     connection(conn,
       req: req,
