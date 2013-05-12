@@ -25,7 +25,7 @@ defmodule Dynamo.Cowboy.Handler do
     { :ok, req, nil }
   end
 
-  def terminate(_req, nil) do
+  def terminate(_reason, _req, nil) do
     :ok
   end
 
