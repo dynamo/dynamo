@@ -15,13 +15,13 @@ defmodule Dynamo.Mixfile do
       { :cowboy,    github: "extend/cowboy" } ]
   end
 
-  def deps(:dev) do
+  def deps(:docs) do
     deps(:prod) ++
       [ { :ex_doc, github: "elixir-lang/ex_doc" } ]
   end
 
-  def deps(:test) do
-    deps(:dev) ++
+  def deps(_) do
+    deps(:prod) ++
       [ { :edown,   github: "esl/edown" }, ## Hackney dependency
         { :hackney, github: "benoitc/hackney" } ]
   end
