@@ -32,7 +32,7 @@ defmodule Dynamo.TemplatesTest do
 
   test "uses cached template unless it changes" do
     module = render "module.html"
-    assert "Elixir-" <> _ = module
+    assert "Elixir." <> _ = module
 
     cached = render "module.html"
     assert module == cached
@@ -50,7 +50,7 @@ defmodule Dynamo.TemplatesTest do
 
   test "uses cached template unless it is cleared" do
     module = render "module.html"
-    assert "Elixir-" <> _ = module
+    assert "Elixir." <> _ = module
 
     cached = render "module.html"
     assert module == cached

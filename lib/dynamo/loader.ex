@@ -57,7 +57,7 @@ defmodule Dynamo.Loader do
   """
   def load_missing(module) do
     case atom_to_binary(module) do
-      "Elixir-" <> _ ->
+      "Elixir." <> _ ->
         path = Mix.Utils.underscore(module) <> ".ex"
         dirs = :gen_server.call(__MODULE__, :paths)
         dir  = Enum.find dirs, fn(dir) -> File.regular?(Path.join(dir, path)) end

@@ -3,7 +3,7 @@ defmodule Dynamo.Filters.Exceptions do
   A filter that is responsible to catch, log and handle exceptions.
   """
 
-  import Exception, only: [format_entry: 2]
+  import Exception, only: [format_stacktrace_entry: 2]
   @key :dynamo_handle_exceptions
 
   def new(handler) do
@@ -76,7 +76,7 @@ defmodule Dynamo.Filters.Exceptions do
 
   defp logger_stacktrace(stacktrace, root) do
     Enum.reduce stacktrace, "Stacktrace:\n", fn(trace, acc) ->
-      acc <> "  " <> format_entry(trace, root) <> "\n"
+      acc <> "  " <> format_stacktrace_entry(trace, root) <> "\n"
     end
   end
 end

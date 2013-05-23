@@ -496,7 +496,7 @@ defmodule Dynamo.Router.Base do
 
   defp compile_hook(ref, key, acc, kind, fun) when is_atom(ref) do
     case atom_to_binary(ref) do
-      "Elixir-" <> _ ->
+      "Elixir." <> _ ->
         call = quote(do: unquote(ref).unquote(kind)(var!(conn)))
         fun.(call, key, ref, acc)
       _ ->

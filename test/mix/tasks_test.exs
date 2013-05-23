@@ -14,7 +14,7 @@ defmodule Mix.TasksTest do
       assert output =~ %r(Compiled lib/my_app/dynamo.ex)
       assert output =~ %r(Generated my_compiled_app.app)
       assert output =~ %r(Generated MyApp.Dynamo.CompiledTemplates)
-      assert File.regular?("ebin/Elixir-MyApp-Dynamo-CompiledTemplates.beam")
+      assert File.regular?("ebin/Elixir.MyApp.Dynamo.CompiledTemplates.beam")
 
       # Can recompile after changes
       File.touch!("web/routers/application_router.ex", { { 2030, 1, 1 }, { 0, 0, 0 } })
