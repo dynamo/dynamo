@@ -151,11 +151,10 @@ defmodule Binary.Dict do
   end
 end
 
-defimpl Enum.Iterator, for: Binary.Dict do
-  def iterator({ Binary.Dict, data }),   do: data
-  def count({ Binary.Dict, data }),      do: length(data)
-  def empty?({ Binary.Dict, data }),     do: data == []
-  def member?({ Binary.Dict, data }, v), do: :lists.member(v, data)
+defimpl Enumerable, for: Binary.Dict do
+  def reduce({ Binary.Dict, data }, acc, fun), do: :lists.foldl(fun, acc, data)
+  def count({ Binary.Dict, data }),            do: length(data)
+  def member?({ Binary.Dict, data }, v),       do: :lists.member(v, data)
 end
 
 defimpl Access, for: Binary.Dict do

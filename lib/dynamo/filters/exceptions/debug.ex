@@ -123,23 +123,18 @@ defmodule Dynamo.Filters.Exceptions.Debug do
   end
 
   def extract_snippet(original, line) do
-    case File.iterator(original) do
-      { :ok, iterator } ->
-        to_discard = max(line - @radius - 1, 0)
-        lines = iterator |> Enum.take(line + 5) |> Enum.drop(to_discard)
-        File.close(iterator)
+    if File.regular?(original) do
+      to_discard = max(line - @radius - 1, 0)
+      lines = File.iterator!(original) |> Enum.take(line + 5) |> Enum.drop(to_discard)
 
-        { first_five, lines } = Enum.split(lines, line - to_discard - 1)
-        first_five = with_line_number first_five, to_discard + 1, false
+      { first_five, lines } = Enum.split(lines, line - to_discard - 1)
+      first_five = with_line_number first_five, to_discard + 1, false
 
-        { center, last_five } = Enum.split(lines, 1)
-        center = with_line_number center, line, true
-        last_five = with_line_number last_five, line + 1, false
+      { center, last_five } = Enum.split(lines, 1)
+      center = with_line_number center, line, true
+      last_five = with_line_number last_five, line + 1, false
 
-        File.close(iterator)
-        first_five ++ center ++ last_five
-      _ ->
-        nil
+      first_five ++ center ++ last_five
     end
   end
 
