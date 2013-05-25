@@ -11,9 +11,11 @@ defmodule Mix.Tasks.DynamoTest do
   end
 
   test "throws an error if the designated app name is a module used by dynamo" do
-    error = %r(the name is already used by a dynamo module)
-    output = System.cmd "mix dynamo /tmp/dynamo"
-    assert output =~ error
+    in_tmp "wrong_name", fn ->
+      assert_raise Mix.Error, "the name is already used by a dynamo module", fn ->
+        Mix.Tasks.Dynamo.run ["dynamo"]
+      end
+    end
   end
 
   test "generates a new dynamo app" do
