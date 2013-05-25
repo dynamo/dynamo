@@ -100,6 +100,9 @@ defmodule Mix.Tasks.Dynamo do
     unless name =~ %r/^[a-z][\w_]+$/ do
       raise Mix.Error, message: "project path must start with a letter and have only lowercase letters, numbers and underscore"
     end
+    if Code.ensure_loaded?(Module.concat([String.capitalize(name)])) do
+      raise Mix.Error, message: "the name is already used by a dynamo module"
+    end
   end
 
   embed_template :readme, """

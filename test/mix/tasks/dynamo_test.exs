@@ -10,6 +10,12 @@ defmodule Mix.Tasks.DynamoTest do
     assert_received { :mix_shell, :info, ["Dynamo v" <> _] }
   end
 
+  test "throws an error if the designated app name is a module used by dynamo" do
+    error = %r(the name is already used by a dynamo module)
+    output = System.cmd "mix dynamo /tmp/dynamo"
+    assert output =~ error
+  end
+
   test "generates a new dynamo app" do
     in_tmp "my_app", fn ->
       Mix.Tasks.Dynamo.run ["."]
