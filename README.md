@@ -1,3 +1,5 @@
+[![Build Status](https://travis-ci.org/elixir-lang/dynamo.png?branch=master)](https://travis-ci.org/elixir-lang/dynamo)
+
 # Dynamo
 
 Run, Dynamo, Run!
