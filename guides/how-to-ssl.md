@@ -9,7 +9,7 @@ def application do
 end
 ```
 
-Now all we need to do is to configure SSL. Open up the development configuration at `lib/PROJECT/environments/development.rb` and add the following:
+Now all we need to do is to configure SSL. Open up the development configuration at `lib/PROJECT/environments/dev.exs` and add the following:
 
 ```elixir
 config :ssl,
@@ -19,7 +19,7 @@ config :ssl,
   password: "cowboy"
 ```
 
-In this particular exmaple, we are using the [key.pem](../examples/ssl/key.pem) and [cert.pem](../examples/ssl/cert.pem) inside the [examples](../examples/ssl) directory. Please copy both files to the `priv/ssl` directory inside your project.
+In this particular example, we are using the [key.pem](../examples/ssl/key.pem) and [cert.pem](../examples/ssl/cert.pem) inside the [examples](../examples/ssl) directory. Please copy both files to the `priv/ssl` directory inside your project.
 
 Run `mix server` and you should be able to access `https://localhost:4001`, after bypassing the SSL warnings from your browser. And that is it!
 
