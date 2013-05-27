@@ -292,7 +292,7 @@ Finally, Dynamo also builds many functionalities on top of this low-level connec
 
 All those functions in `Dynamo.HTTP.*` are imported by default into your `Dynamo.Router`.
 
-## Templating
+### Templating
 
 Dynamo templates uses [EEx](http://elixir-lang.org/docs/stable/EEx.html) to
 let you embed Elixir logic into your HTML templates. For example, if you had
@@ -305,19 +305,22 @@ get "/fruits" do
 end
 ```
 
-To display the list of fruits, fruits.html.eex might look like:
+To display the list of fruits, `fruits.html.eex` might look like:
 
 ```
 <html>
 <body>
   <ul>
-  <%= Enum.map @fruits, fn ({id, name}) -> %>
+  <%= lc { id, name } inlist @fruits do %>
     <li><a href="/fruit/<%= id %>"><%= name %></a></li>
   <% end %>
   </ul>
 </body>
 </html>
 ```
+
+Notice we have used list comprehensions but any of the `Enum` functions,
+like `Enum.filter/2` and `Enum.map/2` are also available.
 
 ## OTP application
 
