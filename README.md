@@ -292,6 +292,33 @@ Finally, Dynamo also builds many functionalities on top of this low-level connec
 
 All those functions in `Dynamo.HTTP.*` are imported by default into your `Dynamo.Router`.
 
+## Templating
+
+Dynamo templates uses [EEx](http://elixir-lang.org/docs/stable/EEx.html) to
+let you embed Elixir logic into your HTML templates. For example, if you had
+this route:
+
+```elixir
+get "/fruits" do
+  conn = conn.assign(:fruits, [{0, "Apple"}, {1, "Orange"}, {2, "Banana"}])
+  render conn, "fruits.html"
+end
+```
+
+To display the list of fruits, fruits.html.eex might look like:
+
+```
+<html>
+<body>
+  <ul>
+  <%= Enum.map @fruits, fn ({id, name}) -> %>
+    <li><a href="/fruit/<%= id %>"><%= name %></a></li>
+  <% end %>
+  </ul>
+</body>
+</html>
+```
+
 ## OTP application
 
 The next two sections will focus on the Dynamo integration with OTP, which is a set of tools and libraries for building robust, fault-tolerant applications. Talking about "applications", you may have noticed throughout this tutorial we haven't used the word "application" a lot so far. This is intentional as there is no such thing as a "Dynamo application"!
