@@ -22,8 +22,7 @@ defmodule Dynamo.Mixfile do
 
   def deps(_) do
     deps(:prod) ++
-      [ { :edown,   github: "esl/edown" }, ## Hackney dependency
-        { :hackney, github: "benoitc/hackney" } ]
+      [ { :hackney, github: "benoitc/hackney" } ]
   end
 
   def application do
