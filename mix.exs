@@ -11,7 +11,6 @@ defmodule Dynamo.Mixfile do
 
   def deps(:prod) do
     [ { :mimetypes, github: "spawngrid/mimetypes" },
-      { :ranch,     github: "extend/ranch" },
       { :cowboy,    github: "extend/cowboy" } ]
   end
 
