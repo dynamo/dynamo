@@ -90,7 +90,7 @@ defmodule Dynamo.Router.Base do
 
   ## Hooks
 
-  This module alsi provides both `prepare/1` and `finalize/1` hooks to
+  This module also provides both `prepare/1` and `finalize/1` hooks to
   routers. Such hooks are useful to check conditions, fetch aspects
   or updating the connection:
 
