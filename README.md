@@ -1,6 +1,6 @@
-[![Build Status](https://travis-ci.org/elixir-lang/dynamo.png?branch=master)](https://travis-ci.org/elixir-lang/dynamo)
-
 # Dynamo
+
+[![Build Status](https://travis-ci.org/elixir-lang/dynamo.png?branch=master)](https://travis-ci.org/elixir-lang/dynamo)
 
 Run, Dynamo, Run!
 
@@ -463,6 +463,8 @@ That's all. If you haven't built an OTP application before, you may be a bit ove
 In the [guides](guides) directory, we contain a bunch of small, simple guides that teach you how to achieve something in Dynamo. We have the following guides:
 
 * [How to create single file Dynamos](guides/how-to-single-file-dynamos.md), although not recommended for production, the [examples](examples) directory usually use single file Dynamos to easily show how to achieve something;
+
+* [How to run a Dynamo on Heroku](guides/how-to-heroku.md)
 
 * [How to render templates with layouts](guides/how-to-layouts.md)
 
