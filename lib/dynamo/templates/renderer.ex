@@ -109,8 +109,8 @@ defmodule Dynamo.Templates.Renderer do
     { :stop, :normal, :ok, config }
   end
 
-  def handle_call(_arg, _from, _config) do
-    super
+  def handle_call(arg, from, config) do
+    super(arg, from, config)
   end
 
   def handle_cast(:clear, { name, dict }) do
@@ -126,8 +126,8 @@ defmodule Dynamo.Templates.Renderer do
     { :noreply, { name, Dict.put(dict, identifier, { module, updated_at }) } }
   end
 
-  def handle_cast(_arg, _config) do
-    super
+  def handle_cast(arg, config) do
+    super(arg, config)
   end
 
   ## Server Helpers

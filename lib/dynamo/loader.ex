@@ -140,8 +140,8 @@ defmodule Dynamo.Loader do
     { :stop, :normal, :ok, config }
   end
 
-  def handle_call(_arg, _from, _config) do
-    super
+  def handle_call(arg, from, config) do
+    super(arg, from, config)
   end
 
   @doc false
@@ -158,8 +158,8 @@ defmodule Dynamo.Loader do
     { :noreply, config.update_paths(&1 ++ paths).updated_at(updated_at) }
   end
 
-  def handle_cast(_arg, _config) do
-    super
+  def handle_cast(arg, config) do
+    super(arg, config)
   end
 
   ## Helpers

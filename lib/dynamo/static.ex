@@ -60,8 +60,8 @@ defmodule Dynamo.Static do
     { :stop, :normal, :ok, config }
   end
 
-  def handle_call(_msg, _from, _config) do
-    super
+  def handle_call(msg, from, config) do
+    super(msg, from, config)
   end
 
   ## Server helpers
