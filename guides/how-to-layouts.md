@@ -18,7 +18,7 @@ end
 
 Notice that the rendering a template requires the extension, in this case, `hello.html` but setting a layout does not. This is because the layout extension is retrieved from the rendered template.
 
-The layout should be placed in your templates path, usually at `web/templates/main.html.eex`:
+The layout should be placed in your templates path, usually at `web/templates/layouts/main.html.eex`:
 
 ```erb
 <!DOCTYPE HTML>
