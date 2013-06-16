@@ -2,4 +2,4 @@
   "ex_doc": {:git,"https://github.com/elixir-lang/ex_doc.git","4bc1e9af619fd98e51479cbe09157ff831b0d4e1",[]},
   "hackney": {:git,"https://github.com/benoitc/hackney.git","6f9b403602371bc3d4aa0b67b1e253b105075bcf",[]},
   "mimetypes": {:git,"https://github.com/spawngrid/mimetypes.git","e9dfab5aec98963589ecf13bdfcf0490667a730d",[]},
-  "ranch": {:git,"https://github.com/extend/ranch.git","935c7c94673027c3940a771c6e8b32f77152f1c9",[]} ]
+  "ranch": {:git,"git://github.com/extend/ranch.git","935c7c94673027c3940a771c6e8b32f77152f1c9",[ref: "0.8.2"]} ]
