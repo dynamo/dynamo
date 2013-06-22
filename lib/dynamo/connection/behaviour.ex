@@ -36,32 +36,34 @@ defmodule Dynamo.Connection.Behaviour do
 
   @doc false
   defmacro __using__(opts) do
+    fields = [
+      assigns: [],
+      before_send: [],
+      fetchable: [],
+      main: nil,
+      method: nil,
+      original_method: nil,
+      params: nil,
+      path_info_segments: nil,
+      private: [],
+      req_body: nil,
+      req_cookies: nil,
+      req_headers: nil,
+      resp_body: "",
+      resp_charset: "utf-8",
+      resp_cookies: [],
+      resp_content_type: nil,
+      resp_headers: Binary.Dict.new([{"cache-control", "max-age=0, private, must-revalidate"}]),
+      route_params: [],
+      state: :unset,
+      status: nil,
+      script_name_segments: []
+    ] ++ opts
 
     quote location: :keep do
       @behaviour Dynamo.Connection
 
-      defrecordp :connection,
-        [ assigns: [],
-          before_send: [],
-          fetchable: [],
-          main: nil,
-          method: nil,
-          original_method: nil,
-          params: nil,
-          path_info_segments: nil,
-          private: [],
-          req_body: nil,
-          req_cookies: nil,
-          req_headers: nil,
-          resp_body: "",
-          resp_charset: "utf-8",
-          resp_cookies: [],
-          resp_content_type: nil,
-          resp_headers: Binary.Dict.new([{"cache-control", "max-age=0, private, must-revalidate"}]),
-          route_params: [],
-          state: :unset,
-          status: nil,
-          script_name_segments: [] ] ++ unquote(opts)
+      defrecordp :connection, unquote(fields)
 
       ## Assigns
 
