@@ -119,7 +119,7 @@ defmodule Dynamo do
 
     setup =
       quote do
-        if @dynamo_router do
+        if Module.get_attribute(__MODULE__, :dynamo_router) do
           raise "Dynamo needs to be used before Dynamo.Router"
         end
 
