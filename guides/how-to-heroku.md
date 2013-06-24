@@ -39,3 +39,7 @@ Add and commit your changes, then push to Heroku:
     $ git add Procfile .preferred_otp_version .preferred_elixir_version  
     $ git commit -m "Setup for Heroku"  
     $ git push heroku master
+    
+Don't forget to start a web process if you don't already have one:
+
+    $ heroku ps:scale web=1
