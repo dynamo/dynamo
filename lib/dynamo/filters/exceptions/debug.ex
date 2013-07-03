@@ -125,7 +125,7 @@ defmodule Dynamo.Filters.Exceptions.Debug do
   def extract_snippet(original, line) do
     if File.regular?(original) do
       to_discard = max(line - @radius - 1, 0)
-      lines = File.iterator!(original) |> Enum.take(line + 5) |> Enum.drop(to_discard)
+      lines = File.stream!(original) |> Stream.take(line + 5) |> Stream.drop(to_discard)
 
       { first_five, lines } = Enum.split(lines, line - to_discard - 1)
       first_five = with_line_number first_five, to_discard + 1, false
