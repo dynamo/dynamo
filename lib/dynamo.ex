@@ -235,7 +235,7 @@ defmodule Dynamo do
     env = dynamo[:env]
     if dir && File.dir?(dir) do
       file = "#{dir}/#{env}.exs"
-      Code.string_to_ast! File.read!(file), file: file
+      Code.string_to_quoted! File.read!(file), file: file
     end
   end
 
