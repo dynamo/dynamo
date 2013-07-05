@@ -90,7 +90,7 @@ defmodule Mix.TasksTest do
   test "warns on missing dependencies" do
     in_tmp "missing_deps", fn ->
       Mix.Tasks.Dynamo.run [".", "--dev"]
-      error = %r(Some dependencies are out of date)
+      error = %r(Can't continue due to errors on dependencies)
 
       output = System.cmd "mix server"
       assert output =~ error
