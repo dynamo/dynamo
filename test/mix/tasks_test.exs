@@ -36,7 +36,7 @@ defmodule Mix.TasksTest do
 
       output = System.cmd "mix dynamo.filters"
       assert output =~ %r(filter Dynamo.Filters.Head)
-      assert output =~ %r(filter \{Dynamo.Filters.Loader,true,true\})
+      assert output =~ %r(filter \{Dynamo.Filters.Loader, *true, *true\})
       assert output =~ %r(ApplicationRouter.service/1)
 
       # Check it works with first compilation in prod
