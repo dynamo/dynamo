@@ -166,10 +166,10 @@ defimpl Access, for: Binary.Dict do
   end
 end
 
-defimpl Binary.Inspect, for: Binary.Dict do
-  import Kernel, except: [inspect: 2]
+defimpl Inspect, for: Binary.Dict do
+  import Inspect.Algebra
 
   def inspect({ Binary.Dict, data }, opts) do
-    "#Binary.Dict<" <> Binary.Inspect.inspect(data, opts) <> ">"
+    concat ["#Binary.Dict<", Inspect.List.inspect(data, opts), ">"]
   end
 end

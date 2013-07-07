@@ -223,7 +223,7 @@ defmodule Dynamo.Cowboy.Connection do
 
 end
 
-defimpl Binary.Inspect, for: Dynamo.Cowboy.Connection do
+defimpl Inspect, for: Dynamo.Cowboy.Connection do
   def inspect(conn, _) do
     "#Dynamo.Connection<#{conn.method} #{conn.path} (cowboy)>"
   end
