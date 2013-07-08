@@ -63,7 +63,7 @@ defmodule Dynamo.Connection.Behaviour do
     quote location: :keep do
       @behaviour Dynamo.Connection
 
-      defrecordp :connection, unquote(fields)
+      defrecordp :connection, __MODULE__, unquote(fields)
 
       ## Assigns
 
