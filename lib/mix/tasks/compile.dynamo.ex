@@ -29,12 +29,14 @@ defmodule Mix.Tasks.Compile.Dynamo do
 
   """
 
-  @switches [force: :boolean, quick: :boolean, docs: :boolean,
-             ignore_module_conflict: :boolean, debug_info: :boolean,
-             warnings_as_errors: :boolean]
+  @switches [ force: :boolean, docs: :boolean, ignore_module_conflict: :boolean,
+              debug_info: :boolean, warnings_as_errors: :boolean ]
 
+  @doc """
+  Runs this task.
+  """
   def run(args) do
-    { opts, _ } = OptionParser.parse(args, aliases: [q: :quick], switches: @switches)
+    { opts, _ } = OptionParser.parse(args, switches: @switches)
 
     Enum.reduce Mix.project[:dynamos], :noop, fn(dynamo, acc) ->
       if dynamo.config[:dynamo][:compile_on_demand] do
@@ -43,6 +45,13 @@ defmodule Mix.Tasks.Compile.Dynamo do
         do_compile(dynamo, opts, acc)
       end
     end
+  end
+
+  @doc """
+  The manifest for this compiler.
+  """
+  def manifest do
+    Path.join(Mix.project[:compile_path], @manifest)
   end
 
   defp do_compile(mod, opts, acc) do
@@ -58,13 +67,12 @@ defmodule Mix.Tasks.Compile.Dynamo do
 
     # Source files + Mix setup + Dynamo config + Templates
     to_watch = Mix.Utils.extract_files(source_paths, watch_exts)
-    to_watch = Mix.Project.config_files ++ to_watch
-    to_watch = [Path.join(compile_path, "#{mod}.beam")|to_watch]
+    to_watch = [Mix.Tasks.Compile.Elixir.manifest|to_watch]
     to_watch = to_watch ++ Enum.map(templates, template_mtime(&1))
 
-    manifest = Path.join(compile_path, @manifest)
+    manifest = manifest()
 
-    if opts[:force] or Mix.Utils.stale?(to_watch, [manifest]) do
+    if opts[:force] || Mix.Utils.stale?(to_watch, [manifest]) do
       set_compiler_opts(project, opts)
 
       to_compile = Mix.Utils.extract_files(source_paths, compile_exts)
@@ -107,7 +115,7 @@ defmodule Mix.Tasks.Compile.Dynamo do
 
   defp compile_files(files, to, root) do
     Kernel.ParallelCompiler.files_to_path files, to, each_file: fn(original) ->
-      relative = :binary.replace original, root <> "/", ""
+      relative = Path.relative_to(original, root)
       Mix.shell.info "Compiled #{relative}"
       original
     end
