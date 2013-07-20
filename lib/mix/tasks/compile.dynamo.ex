@@ -79,7 +79,7 @@ defmodule Mix.Tasks.Compile.Dynamo do
       compiled = compile_files to_compile, compile_path, root
       compiled = lc { mod, _ } inlist compiled, do: atom_to_binary(mod)
 
-      Mix.Utils.update_manifest(manifest, compiled)
+      Mix.Utils.write_manifest(manifest, compiled)
       compile_templates mod, dynamo[:compiled_templates], templates, compile_path
 
       :ok
@@ -106,7 +106,7 @@ defmodule Mix.Tasks.Compile.Dynamo do
   end
 
   defp compile_files(files, to, root) do
-    Kernel.ParallelCompiler.files_to_path files, to, fn(original) ->
+    Kernel.ParallelCompiler.files_to_path files, to, each_file: fn(original) ->
       relative = :binary.replace original, root <> "/", ""
       Mix.shell.info "Compiled #{relative}"
       original
