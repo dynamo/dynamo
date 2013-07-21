@@ -18,9 +18,9 @@ defmodule Dynamo.Connection.Utils do
   end
 
   defp write_env_tmp_dir(env, dir) do
-    case System.get_env(env) do
-      nil -> nil
-      tmp -> write_tmp_dir Path.join(tmp, dir)
+    case :os.getenv(env) do
+      false -> nil
+      tmp   -> write_tmp_dir Path.join(tmp, dir)
     end
   end
 
