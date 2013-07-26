@@ -102,7 +102,7 @@ defmodule ApplicationRouter do
 end
 ```
 
-All routers must use the `Dynamo.Router` module. By using this module, we have access to the macros `get`, `post`, `put`, `patch` and `delete` that allows developers to generate routes. Here is a simple route:
+All routers must use the `Dynamo.Router` module. By using this module you have access to the macros `get`, `post`, `put`, `patch` and `delete` that allows developers to generate routes. Here is a simple route:
 
 ```elixir
 get "/hello/world" do
@@ -110,7 +110,7 @@ get "/hello/world" do
 end
 ```
 
-The `conn` value above represents a connection which we are going to get into more details soon. In the example above in particular, we are setting the connection to have response status 200 with the body `"Hello world"`. Routes can also contain dynamic segments:
+The `conn` value above represents a connection which we are going to get into more details soon. In the example above in particular, we are setting the connection to have response status `200` with the body `"Hello world"`. Routes can also contain dynamic segments:
 
 ```elixir
 put "/users/:user_id" do
@@ -124,7 +124,7 @@ get "/hello/*" do
 end
 ```
 
-Each route is compiled down to a function clause, this makes routes matching extremely fast and also allow the use of guard constraints:
+Each route is compiled down to a function clause, making route matching extremely fast and also allows the use of guard constraints:
 
 ```elixir
 get "/section/:section" when section in ["contact", "about"] do
@@ -200,7 +200,7 @@ defmodule ApplicationRouter do
 end
 ```
 
-In the example above, all routes starting with `/posts` will be automatically routed to the `PostsRouter`. Furthermore, the `PostsRouter` will receive on the trailing part of the url. For instance, a request to `/posts/recent`, it will be seen by the `PostsRouter` as `/recent`:
+In the example above, all routes starting with `/posts` will be automatically routed to the `PostsRouter`. Furthermore, the `PostsRouter` will receive on the trailing part of the url. A request to `/posts/recent` will be seen by the `PostsRouter` as `/recent`:
 
 ```elixir
 defmodule PostsRouter do
@@ -249,7 +249,7 @@ There are no dirty hacks nor work-around required. You get a fast and clean API 
 
 One common confusion for developers starting with Dynamo (and to certain extent functional programming too) is immutability.
 
-Elixir data structures are immutable, this means that, if you have a tuple, you can't modify this tuple in place. Adding or removing elements will actually return a new tuple:
+Elixir data structures are immutable. If you have a tuple, you can't modify this tuple in place. Adding or removing elements will actually return a new tuple:
 
 ```elixir
 first  = { 1, 2, 3 }
@@ -292,9 +292,9 @@ get "/" do
 end
 ```
 
-For example, a `prepare` hook may also set the a `current_user` assign which could then be retrieved in any router as `conn.assigns[:current_user]`. You can find more information about assigns and other connection functions in [Dynamo.Connection](http://elixir-lang.org/docs/dynamo/Dynamo.Connection.html).
+A `prepare` hook may also set the a `current_user` assign which could then be retrieved in any router as `conn.assigns[:current_user]`. You can find more information about assigns and other connection functions in [Dynamo.Connection](http://elixir-lang.org/docs/dynamo/Dynamo.Connection.html).
 
-Finally, Dynamo also builds many functionalities on top of this low-level connection API:
+Dynamo also builds many functionalities on top of this low-level connection API:
 
 * [Dynamo.HTTP.Cookies](http://elixir-lang.org/docs/dynamo/Dynamo.HTTP.Cookies.html) - conveniences for working with cookies
 * [Dynamo.HTTP.Halt](http://elixir-lang.org/docs/dynamo/Dynamo.HTTP.Halt.html) - conveniences for halting a connection, as the function `halt!` we saw in some examples
@@ -418,7 +418,7 @@ def init(stack) do
 end
 ```
 
-Now, all we need to do is to change the `Stacker` module to initialize the new supervisor tree instead of the Dynamo directly:
+Now all we need to do is to change the `Stacker` module to initialize the new supervisor tree instead of the Dynamo directly:
 
 ```elixir
 defmodule Stacker do
@@ -430,7 +430,7 @@ defmodule Stacker do
 end
 ```
 
-This shows that your application is the one in **control** and a Dynamo is simply embeded into it.
+This shows that your application is the one in **control** and a Dynamo is simply embedded into it.
 
 ## Dynamo
 
@@ -448,9 +448,9 @@ defmodule Stacker.Dynamo do
 end
 ```
 
-When you run `mix compile`, this Dynamo is compiled and becomes functional when you start your application supervision tree, as we just discussed. The Dynamo is responsible to handle requests, compile and manage the files under the `web` directory and each Dynamo also has its own supervisor tree.
+When you run `mix compile`, this Dynamo is compiled and becomes functional when you start your application supervision tree, as we just discussed. The Dynamo is responsible for handling requests, compiling and managing the files under the `web` directory, and each Dynamo also has its own supervisor tree.
 
-Finally, notice that in the same directory you find your Dynamo, you can also find an `environments` directory which contains configuration specific for each environment. Take a look at them for examples on the available configuration options.
+Finally, notice that in the same directory you find your Dynamo you can also find an `environments` directory which contains configuration specific for each environment. Take a look at them for examples on the available configuration options.
 
 Summing up, when you run `mix dynamo stacker` to create a project and then fetch its dependencies, this is the final structure you get:
 
@@ -468,13 +468,13 @@ Summing up, when you run `mix dynamo stacker` to create a project and then fetch
     - web                         # Files managed and compiled by the Dynamo
       + web/routers               # Your application routers
 
-That's all. If you haven't built an OTP application before, you may be a bit overwhelmed but there is nothing stop you from diving into the `web` directory and learning about OTP just when you need it. Before you see it, you be leveraging the power of the Erlang VM to build robust, high performance and concurrent web applications!
+That's all. If you haven't built an OTP application before, you may be a bit overwhelmed but there is nothing stop you from diving into the `web` directory and learning about OTP just when you need it. Before you know it, you be leveraging the power of the Erlang VM to build robust, high performance and concurrent web applications!
 
 ## Learn more
 
-In the [guides](guides) directory, we contain a bunch of small, simple guides that teach you how to achieve something in Dynamo. We have the following guides:
+In the [guides](guides) directory we include a bunch of small, simple guides that teach you how to achieve something in Dynamo: 
 
-* [How to create single file Dynamos](guides/how-to-single-file-dynamos.md), although not recommended for production, the [examples](examples) directory usually use single file Dynamos to easily show how to achieve something;
+* [How to create single file Dynamos](guides/how-to-single-file-dynamos.md), (although not recommended for production, the [examples](examples) directory usually uses single file Dynamos to easily show how to achieve something)
 
 * [How to run a Dynamo on Heroku](guides/how-to-heroku.md)
 
