@@ -29,6 +29,7 @@ defmodule Dynamo.Connection.TestTest do
 
     assert conn(:GET, "/foo/bar").path == "/foo/bar"
     assert conn(:GET, "/").path == "/"
+    assert conn(:GET, "/foo/bar/").path == "/foo/bar/"
   end
 
   test :query_string do

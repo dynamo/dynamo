@@ -22,7 +22,7 @@ defmodule Dynamo.Connection.Test do
 
   use Dynamo.Connection.Behaviour,
     [ :query_string, :raw_req_headers, :raw_req_body, :raw_req_cookies, :fetched,
-      :path_segments, :sent_body, :original_method, :scheme, :port ]
+      :path, :path_segments, :sent_body, :original_method, :scheme, :port ]
 
   @doc """
   Initializes a connection to be used in tests.
@@ -60,8 +60,8 @@ defmodule Dynamo.Connection.Test do
   end
 
   @doc false
-  def path(connection(path_segments: path_segments)) do
-    to_path path_segments
+  def path(connection(path: path)) do
+    path
   end
 
   @doc false
@@ -217,6 +217,7 @@ defmodule Dynamo.Connection.Test do
       method: method,
       original_method: method,
       params: nil,
+      path: uri.path,
       path_info_segments: segments,
       path_segments: segments,
       query_string: uri.query || "",

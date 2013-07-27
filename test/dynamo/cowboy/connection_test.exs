@@ -72,9 +72,15 @@ defmodule Dynamo.Cowboy.ConnectionTest do
     conn
   end
 
+  def path_2(conn) do
+    assert conn.path == "/path_2/foo/bar/baz/"
+    conn
+  end
+
   test :path do
     assert_success request :get, "/path_0"
     assert_success request :get, "/path_1/foo/bar/baz"
+    assert_success request :get, "/path_2/foo/bar/baz/"
   end
 
   def query_string_0(conn) do
