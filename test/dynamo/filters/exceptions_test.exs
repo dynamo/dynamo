@@ -1,5 +1,3 @@
-Code.require_file "../../../test_helper.exs", __FILE__
-
 defmodule Dynamo.Filters.ExceptionsTest do
   defexception UnauthorizedError, message: "Unauthorized" do
     defimpl Dynamo.Exception do

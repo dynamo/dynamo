@@ -1,5 +1,3 @@
-Code.require_file "../../../test_helper.exs", __FILE__
-
 defmodule Dynamo.Router.UtilsTest do
   require Dynamo.Router.Utils, as: R
 

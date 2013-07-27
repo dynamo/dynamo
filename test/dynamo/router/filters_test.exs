@@ -1,5 +1,3 @@
-Code.require_file "../../../test_helper.exs", __FILE__
-
 defmodule Dynamo.Router.FiltersTest do
   use ExUnit.Case, async: true
   import Dynamo.HTTP.Case, only: [process: 3]

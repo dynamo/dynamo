@@ -294,8 +294,6 @@ defmodule Mix.Tasks.Dynamo do
   """
 
   embed_template :test_features, """
-  Code.require_file "../../test_helper.exs", __FILE__
-
   # Feature tests goes through the Dynamo.under_test
   # and are meant to test the full stack.
   defmodule HomeTest do
@@ -310,8 +308,6 @@ defmodule Mix.Tasks.Dynamo do
   """
 
   embed_template :test_routers, """
-  Code.require_file "../../test_helper.exs", __FILE__
-
   defmodule ApplicationRouterTest do
     use <%= @mod %>.TestCase
     use Dynamo.HTTP.Case

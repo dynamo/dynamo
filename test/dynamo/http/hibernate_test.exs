@@ -1,5 +1,3 @@
-Code.require_file "../../../test_helper.exs", __FILE__
-
 defmodule Dynamo.HTTP.HibernateTest do
   use ExUnit.Case, async: true
 

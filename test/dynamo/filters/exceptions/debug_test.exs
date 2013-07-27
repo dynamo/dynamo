@@ -1,5 +1,3 @@
-Code.require_file "../../../../test_helper.exs", __FILE__
-
 defmodule Dynamo.Filters.Exceptions.DebugTest do
   defmodule ExceptionsApp do
     use Dynamo

@@ -1,5 +1,3 @@
-Code.require_file "../../../test_helper.exs", __FILE__
-
 defmodule Dynamo.Filters.HeadTest do
   defmodule HeadApp do
     use Dynamo.Router

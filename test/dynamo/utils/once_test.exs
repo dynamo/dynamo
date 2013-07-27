@@ -1,5 +1,3 @@
-Code.require_file "../../../test_helper.exs", __FILE__
-
 defmodule Dynamo.Utils.Incrementer do
   defmacro __using__(_) do
     quote do

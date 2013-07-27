@@ -1,5 +1,3 @@
-Code.require_file "../../test_helper.exs", __FILE__
-
 defmodule Mix.TasksTest do
   use ExUnit.Case
   import MixHelpers
@@ -71,8 +69,6 @@ defmodule Mix.TasksTest do
       app_with_dynamo_deps_path
 
       File.write! "test/routers/hello_router_test.exs", """
-      Code.require_file "../../test_helper.exs", __FILE__
-
       defmodule HelloRouterTest do
         use MyApp.TestCase
 

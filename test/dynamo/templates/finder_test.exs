@@ -1,5 +1,3 @@
-Code.require_file "../../../test_helper.exs", __FILE__
-
 defmodule Dynamo.Templates.FinderTest do
   use ExUnit.Case, async: true
 

@@ -1,5 +1,3 @@
-Code.require_file "../../../test_helper.exs", __FILE__
-
 defmodule Dynamo.Router.BaseTest do
   defmodule Sample0 do
     use Dynamo.Router
