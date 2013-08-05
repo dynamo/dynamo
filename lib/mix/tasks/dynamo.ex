@@ -184,6 +184,7 @@ defmodule Mix.Tasks.Dynamo do
   <html>
   <head>
     <title><%%= @title %></title>
+    <link rel="shortcut icon" href="/static/favicon.ico" />
   </head>
   <body>
     <h3>Welcome to Dynamo!</h3>
