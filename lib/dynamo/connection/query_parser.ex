@@ -67,7 +67,7 @@ defmodule Dynamo.Connection.QueryParser do
   # We always assign the value in the last segment.
   # `age=17` would match here.
   defp assign_parts([key], acc, value) do
-    Binary.Dict.update(acc, key, value, function do
+    Binary.Dict.update(acc, key, value, fn
       x when is_list(x) or is_record(x, Binary.Dict) ->
         raise ParseError, message: "expected string at #{key}"
       x -> x
