@@ -3,7 +3,8 @@ defmodule Dynamo.Mixfile do
 
   def project do
     [ app: :dynamo,
-      version: "0.1.0.dev",
+      elixir: "~> 0.10.2-dev",
+      version: "0.1.0-dev",
       name: "Dynamo",
       source_url: "https://github.com/elixir-lang/dynamo",
       deps: deps(Mix.env) ]
