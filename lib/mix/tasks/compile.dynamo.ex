@@ -36,7 +36,7 @@ defmodule Mix.Tasks.Compile.Dynamo do
   Runs this task.
   """
   def run(args) do
-    { opts, _ } = OptionParser.parse(args, switches: @switches)
+    opts = OptionParser.parse(args, switches: @switches) |> elem(0)
 
     Enum.reduce Mix.project[:dynamos], :noop, fn(dynamo, acc) ->
       if dynamo.config[:dynamo][:compile_on_demand] do

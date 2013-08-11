@@ -35,15 +35,16 @@ defmodule Mix.Tasks.Dynamo do
   end
 
   def run(argv) do
-    { opts, argv } = OptionParser.parse(argv, switches: [dev: :boolean])
-    case argv do
+    parsed = OptionParser.parse(argv, switches: [dev: :boolean])
+
+    case elem(parsed, 1) do
       [] ->
         raise Mix.Error, message: "expected PATH to be given, please use `mix dynamo PATH`"
       [path|_] ->
         name = Path.basename(Path.expand(path))
         check_project_name!(name)
         File.mkdir_p!(path)
-        File.cd!(path, fn -> do_generate(name, opts) end)
+        File.cd!(path, fn -> do_generate(name, elem(parsed, 0)) end)
     end
   end
 
