@@ -9,13 +9,13 @@ defmodule Dynamo.HTTP.SessionTest do
     assert get_session(conn, :test_get_session) == "123"
   end
 
-  test :del_session do
-    conn = conn(:GET, "/").put_private(:dynamo_session, [test_del_session: "123"])
+  test :delete_session do
+    conn = conn(:GET, "/").put_private(:dynamo_session, [test_delete_session: "123"])
     conn = conn.put_private(:dynamo_session_opts, {0, false, []})
     
-    assert get_session(conn, :test_del_session) == "123"
-    conn = del_session(conn, :test_del_session)
-    assert get_session(conn, :test_del_session) == nil
+    assert get_session(conn, :test_delete_session) == "123"
+    conn = delete_session(conn, :test_delete_session)
+    assert get_session(conn, :test_delete_session) == nil
 
   end
 

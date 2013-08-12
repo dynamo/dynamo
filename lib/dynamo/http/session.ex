@@ -27,7 +27,7 @@ defmodule Dynamo.HTTP.Session do
   @doc """
   Removes the session for the given key
   """
-  def del_session(conn, key) do    
+  def delete_session(conn, key) do    
     private = conn.private
     session = List.keydelete(get_session(conn), key, 0)
     mark_as_writen conn.put_private(@session, session), private
