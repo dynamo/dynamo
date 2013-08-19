@@ -140,10 +140,10 @@ defmodule Dynamo.Router.Utils do
   end
 
   defp list_split(bin) do
-    lc segment inlist String.split(bin, "/"), segment != "", do: binary_to_list(segment)
+    lc segment inlist String.split(bin, "/"), segment != "", do: String.to_char_list!(segment)
   end
 
   defp binary_from_buffer(buffer) do
-    list_to_binary(Enum.reverse(buffer))
+    iolist_to_binary(Enum.reverse(buffer))
   end
 end
