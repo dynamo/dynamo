@@ -392,7 +392,7 @@ defmodule Dynamo do
         def root do
           case :code.lib_dir(unquote(app)) do
             list when is_list(list) ->
-              bin  = list_to_binary(list)
+              bin  = String.from_char_list!(list)
               size = size(bin)
 
               if size > unquote(size(tmp)) do

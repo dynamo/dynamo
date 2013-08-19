@@ -40,7 +40,7 @@ defmodule Dynamo.Filters.Exceptions do
     end
 
     message = logger_conn(conn) <> logger_reason(kind, value) <> logger_stacktrace(stacktrace, conn.main.root)
-    message = binary_to_list(message)
+    message = String.to_char_list!(message)
     :error_logger.error_msg(message)
 
     if conn.already_sent? do
