@@ -4,11 +4,11 @@
 
 Run, Dynamo, Run!
 
-Dynamo is a web framework that runs on [Elixir](http://elixir-lang.org/). It leverages the power of the Erlang VM to build highly performant and concurrent web applications. Dynamo goals are performance, robustness and simplicity.
+Dynamo is a web framework that runs on [Elixir](http://elixir-lang.org/). It leverages the power of the Erlang VM to build highly performant and concurrent web applications. Dynamo's goals are performance, robustness and simplicity.
 
 **WARNING:** Dynamo is currently alpha-software and its API will suffer major changes. The current version is an experiment that showcases Elixir's flexibility for building frameworks and its excellent performance.
 
-Dynamo shows excellent performance out of the box beating similar frameworks like Sinatra and Express, available in other languages, in a callback-free programming fashion. By using the Erlang VM all of the network I/O is asynchronous but your code appears to be synchronous. The Erlang VM also allows you to use all cores available by default, without a need to start many instances of your web server, and performs well under heavy load with many concurrent open connections.
+Dynamo shows excellent performance out of the box, beating similar frameworks like Sinatra and Express, available in other languages, in a callback-free programming fashion. By using the Erlang VM, all of the network I/O is asynchronous but your code appears to be synchronous. The Erlang VM also allows you to use all cores available by default, without a need to start many instances of your web server, and performs well under heavy load with many concurrent open connections.
 
 On the developer side, Dynamo focuses on simplicity by shipping with a bare stack, allowing a team to get started quickly while making it easy to extend the application as and when they see fit.
 
@@ -54,7 +54,7 @@ Congratulations! You created your first project with Dynamo! Let's run it:
 
 3. Run it: `mix server`
 
-Check `lib/` and `web/` folders for more information. Changes done in the `web` directory are picked up without a need to reload the server.
+Check the `lib/` and `web/` folders for more information. Changes done in the `web` directory are picked up without a need to reload the server.
 
 Static content is served from `priv/static/` folder and from the `/static` route.
 
@@ -367,7 +367,7 @@ def application do
 end
 ```
 
-This **application specifiation** declares it depends on other two applications, in this case `:cowboy` (the web server) and `:dynamo` (this web framework). It also specifies an **application callback**. The application callback is the module `Stacker` and it will be initialized receiving an empty list as argument.
+This **application specification** declares it depends on two other applications, in this case `:cowboy` (the web server) and `:dynamo` (this web framework). It also specifies an **application callback**. The application callback is the module `Stacker` and it will be initialized receiving an empty list as the argument.
 
 If we open up the `lib/hello.ex` file, we can see the application callback implementation:
 
@@ -460,7 +460,7 @@ Summing up, when you run `mix dynamo stacker` to create a project and then fetch
       - lib/stacker/dynamo.ex     # The Dynamo definition
       + lib/stacker/environments  # Dynamo environment related configuration
     - mix.exs                     # Your project specification
-    - priv                        # Application files that are needed on runtime
+    - priv                        # Application files that are needed at runtime
       + priv/static               # Static assets (they are needed on runtime!)
     - test                        # Your test files
       + test/features             # End-to-end tests
@@ -468,7 +468,7 @@ Summing up, when you run `mix dynamo stacker` to create a project and then fetch
     - web                         # Files managed and compiled by the Dynamo
       + web/routers               # Your application routers
 
-That's all. If you haven't built an OTP application before, you may be a bit overwhelmed but there is nothing stop you from diving into the `web` directory and learning about OTP just when you need it. Before you know it, you be leveraging the power of the Erlang VM to build robust, high performance and concurrent web applications!
+That's all. If you haven't built an OTP application before, you may be a bit overwhelmed but there is nothing stop you from diving into the `web` directory and learning about OTP just when you need it. Before you know it, you will be leveraging the power of the Erlang VM to build robust, high performance and concurrent web applications!
 
 ## Learn more
 
