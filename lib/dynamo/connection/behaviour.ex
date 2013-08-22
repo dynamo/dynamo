@@ -295,7 +295,7 @@ defmodule Dynamo.Connection.Behaviour do
 
       @doc false
       def put_resp_header(key, value, connection(resp_headers: resp_headers) = conn) do
-        connection(conn, resp_headers: Binary.Dict.put(resp_headers, key, to_binary(value)))
+        connection(conn, resp_headers: Binary.Dict.put(resp_headers, key, to_string(value)))
       end
 
       @doc false

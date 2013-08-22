@@ -7,7 +7,7 @@ defmodule Dynamo.Router.Utils do
   Convert a given verb to its connection representation.
   """
   def normalize_verb(verb) do
-    String.upcase(to_binary(verb))
+    String.upcase(to_string(verb))
   end
 
   @doc """
