@@ -48,11 +48,10 @@ defmodule Mix.Tasks.Compile.Dynamo do
   end
 
   @doc """
-  The manifest for this compiler.
+  The manifests for this compiler.
   """
-  def manifest do
-    Path.join(Mix.project[:compile_path], @manifest)
-  end
+  def manifests, do: [manifest]
+  defp manifest, do: Path.join(Mix.project[:compile_path], @manifest)
 
   defp do_compile(mod, opts, acc) do
     root    = File.cwd!
@@ -67,7 +66,7 @@ defmodule Mix.Tasks.Compile.Dynamo do
 
     # Source files + Mix setup + Dynamo config + Templates
     to_watch = Mix.Utils.extract_files(source_paths, watch_exts)
-    to_watch = [Mix.Tasks.Compile.Elixir.manifest|to_watch]
+    to_watch = Mix.Tasks.Compile.Elixir.manifests ++ to_watch
     to_watch = to_watch ++ Enum.map(templates, template_mtime(&1))
 
     manifest = manifest()
