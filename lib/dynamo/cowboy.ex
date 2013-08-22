@@ -71,7 +71,7 @@ defmodule Dynamo.Cowboy do
     dispatch  = :cowboy_router.compile(options[:dispatch]  || dispatch_for(main))
     options   = Enum.reduce [:acceptors, :dispatch], options, Keyword.delete(&2, &1)
 
-    ref = Module.concat(main, kind |> to_binary |> String.upcase)
+    ref = Module.concat(main, kind |> to_string |> String.upcase)
     apply(:cowboy, :"start_#{kind}", [ref, acceptors, options, [env: [dispatch: dispatch]]])
   end
 
