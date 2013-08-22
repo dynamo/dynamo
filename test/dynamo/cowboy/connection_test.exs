@@ -160,7 +160,7 @@ defmodule Dynamo.Cowboy.ConnectionTest do
   end
 
   def req_cookies_1(conn) do
-    import :functions, Dynamo.HTTP.Cookies
+    import Dynamo.HTTP.Cookies, only: :functions
 
     conn = conn.fetch(:cookies)
     assert get_cookie(conn, "foo") == "bar"
@@ -169,7 +169,7 @@ defmodule Dynamo.Cowboy.ConnectionTest do
   end
 
   def req_cookies_2(conn) do
-    import :functions, Dynamo.HTTP.Cookies
+    import Dynamo.HTTP.Cookies, only: :functions
 
     conn = conn.fetch(:cookies)
     assert get_cookie(conn, "foo") == "bar=baz"
@@ -177,7 +177,7 @@ defmodule Dynamo.Cowboy.ConnectionTest do
   end
 
   def resp_cookies_0(conn) do
-    import :functions, Dynamo.HTTP.Cookies
+    import Dynamo.HTTP.Cookies, only: :functions
 
     assert conn.resp_cookies == []
 
@@ -189,7 +189,7 @@ defmodule Dynamo.Cowboy.ConnectionTest do
   end
 
   def req_resp_cookies(conn) do
-    import :functions, Dynamo.HTTP.Cookies
+    import Dynamo.HTTP.Cookies, only: :functions
 
     conn = conn.fetch(:cookies)
     assert get_cookie(conn, "foo") == "bar"
