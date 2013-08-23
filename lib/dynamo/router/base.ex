@@ -342,13 +342,12 @@ defmodule Dynamo.Router.Base do
     { vars, match } = apply Dynamo.Router.Utils, generator, [path]
     args  = quote do: [_verb, unquote(match), var!(conn)]
 
-    quote do
-      args   = unquote(Macro.escape args)
-      guards = unquote(Macro.escape guards)
-      body   = unquote(__MODULE__).__hooks__(__MODULE__,
-                 unquote(Macro.escape(vars)), unquote(Macro.escape(contents)))
-
-      def :dispatch, args, guards, do: body
+    quote bind_quoted: [args: Macro.escape(args),
+                        guards: Macro.escape(guards),
+                        vars: Macro.escape(vars),
+                        contents: Macro.escape(contents)] do
+      body = Dynamo.Router.Base.__hooks__(__MODULE__, vars, contents)
+      def dispatch(unquote_splicing(args)) when unquote(guards), do: unquote(body)
     end
   end
 
@@ -376,11 +375,11 @@ defmodule Dynamo.Router.Base do
 
   # Extract the path and guards from the path.
   defp extract_path_and_guards({ :when, _, [path, guards] }, extra_guard) do
-    { path, [{ :and, [], [guards, extra_guard] }] }
+    { path, { :and, [], [guards, extra_guard] } }
   end
 
   defp extract_path_and_guards(path, extra_guard) do
-    { path, [extra_guard] }
+    { path, extra_guard }
   end
 
   # Generate a default guard that is mean to avoid warnings
@@ -404,11 +403,9 @@ defmodule Dynamo.Router.Base do
   Defines a prepare hook that is executed before any route matches.
   """
   defmacro prepare(do: block) do
-    quote do
-      name   = :"__dynamo_prepare_hook_#{length(@dynamo_prepare)}"
-      args   = quote do: [var!(conn)]
-      guards = quote do: [is_tuple(var!(conn))]
-      defp name, args, guards, do: unquote(Macro.escape block)
+    quote bind_quoted: [block: Macro.escape(block)] do
+      name = :"__dynamo_prepare_hook_#{length(@dynamo_prepare)}"
+      defp unquote(name)(var!(conn)) when is_tuple(var!(conn)), do: unquote(block)
       @dynamo_prepare [{ name, nil }|@dynamo_prepare]
     end
   end
@@ -423,11 +420,9 @@ defmodule Dynamo.Router.Base do
   Defines an after hook that is executed after dispatch.
   """
   defmacro finalize(do: block) do
-    quote do
-      name   = :"__dynamo_finalize_hook_#{length(@dynamo_finalize)}"
-      args   = quote do: [var!(conn)]
-      guards = quote do: [is_tuple(var!(conn))]
-      defp name, args, guards, do: unquote(Macro.escape block)
+    quote bind_quoted: [block: Macro.escape(block)] do
+      name  = :"__dynamo_finalize_hook_#{length(@dynamo_finalize)}"
+      defp unquote(name)(var!(conn)) when is_tuple(var!(conn)), do: unquote(block)
       @dynamo_finalize [{ name, nil }|@dynamo_finalize]
     end
   end

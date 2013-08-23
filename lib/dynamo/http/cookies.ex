@@ -19,7 +19,7 @@ defmodule Dynamo.HTTP.Cookies do
   on the request or set as part of the response.
   """
   def get_cookie(conn, key) do
-    key = to_binary(key)
+    key = to_string(key)
     case List.keyfind(conn.resp_cookies, key, 0) do
       { ^key, value, _ } -> value
       nil -> conn.req_cookies[key]
@@ -45,7 +45,7 @@ defmodule Dynamo.HTTP.Cookies do
 
   """
   def put_cookie(conn, key, value, opts // []) do
-    conn.put_resp_cookie(to_binary(key), to_binary(value), opts)
+    conn.put_resp_cookie(to_string(key), to_string(value), opts)
   end
 
   @doc """
@@ -55,6 +55,6 @@ defmodule Dynamo.HTTP.Cookies do
   def delete_cookie(conn, key, opts // []) do
     unix = { { 1970, 1, 1 }, { 12, 0, 0 } }
     opts = [max_age: 0, universal_time: unix] ++ opts
-    conn.put_resp_cookie(to_binary(key), nil, opts)
+    conn.put_resp_cookie(to_string(key), nil, opts)
   end
 end

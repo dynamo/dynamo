@@ -31,10 +31,11 @@ defmodule Dynamo.Base do
   the dynamo starts.
   """
   defmacro initializer(name, do: block) do
-    quote do
-      name = :"initializer_#{unquote(name)}"
-      @initializers { name, [line: unquote(__CALLER__.line)], [] }
-      defp name, [], [], do: unquote(Macro.escape block)
+    block = Macro.escape(block)
+    quote bind_quoted: binding do
+      name = :"initializer_#{name}"
+      @initializers { name, [line: __ENV__.line], [] }
+      defp unquote(name)(), do: unquote(block)
     end
   end
 

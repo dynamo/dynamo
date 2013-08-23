@@ -335,13 +335,13 @@ defmodule Dynamo.Connection do
   Both `key` and `value` are converted to binary.
   The header key must be downcased.
   """
-  defcallback put_resp_header(key :: Binary.Chars.t, value :: Binary.Chars.t, conn) :: conn
+  defcallback put_resp_header(key :: String.Chars.t, value :: String.Chars.t, conn) :: conn
 
   @doc """
   Deletes a response header.
   The header key must be downcased.
   """
-  defcallback delete_resp_header(key :: Binary.Chars.t, conn) :: conn
+  defcallback delete_resp_header(key :: String.Chars.t, conn) :: conn
 
   ## Cookies
 

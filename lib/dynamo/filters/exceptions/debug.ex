@@ -59,7 +59,7 @@ defmodule Dynamo.Filters.Exceptions.Debug do
 
   defp each_frame({ module, function, args_or_arity, opts }, index, root, sources, editor) do
     { mod, fun } = mod_fun(module, function, args_or_arity)
-    { file, line } = { to_binary(opts[:file] || "nofile"), opts[:line] }
+    { file, line } = { to_string(opts[:file] || "nofile"), opts[:line] }
     { relative, context, snippet } = file_context(file, line, root, sources)
 
     { Frame[
@@ -95,7 +95,7 @@ defmodule Dynamo.Filters.Exceptions.Debug do
 
   defp editor_link("/" <> _ = file, line, editor) when not nil?(editor) do
     editor = :binary.replace(editor, "__FILE__", URI.encode(file))
-    editor = :binary.replace(editor, "__LINE__", to_binary(line))
+    editor = :binary.replace(editor, "__LINE__", to_string(line))
     h(editor)
   end
 

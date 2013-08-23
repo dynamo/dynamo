@@ -301,7 +301,7 @@ defmodule Dynamo.Connection.Test do
   Both `key` and `value` are converted to binary.
   """
   def put_req_header(key, value, connection(raw_req_headers: raw_req_headers) = conn) do
-    connection(conn, raw_req_headers: Dict.put(raw_req_headers, String.downcase(key), to_binary(value)))
+    connection(conn, raw_req_headers: Dict.put(raw_req_headers, String.downcase(key), to_string(value)))
   end
 
   @doc """

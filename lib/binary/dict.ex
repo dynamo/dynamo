@@ -12,7 +12,7 @@ defmodule Binary.Dict do
   @compile { :inline, to_binary: 1 }
 
   defp to_binary(key) do
-    if is_binary(key), do: key, else: Binary.Chars.to_binary(key)
+    if is_binary(key), do: key, else: String.Chars.to_string(key)
   end
 
   defmacrop dict(data) do
@@ -159,7 +159,7 @@ end
 
 defimpl Access, for: Binary.Dict do
   def access({ Binary.Dict, data }, key) do
-    case :lists.keyfind(to_binary(key), 1, data) do
+    case :lists.keyfind(to_string(key), 1, data) do
       { _, value } -> value
       false -> nil
     end
