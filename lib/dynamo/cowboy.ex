@@ -46,13 +46,13 @@ defmodule Dynamo.Cowboy do
       :application.start(:public_key)
       :application.start(:ssl)
       https = https_options(main, Keyword.merge(options, ssl))
-      log(main, :https, env, host, https)
       start_listener(:https, main, https)
+      |> log(main, :https, env, host, https)
     end
 
     http = http_options(main, options)
-    log(main, :http, env, host, http)
     start_listener(:http, main, http)
+    |> log(main, :http, env, host, http)
   end
 
   def shutdown(main) do
@@ -86,10 +86,15 @@ defmodule Dynamo.Cowboy do
     options
   end
 
-  defp log(main, kind, env, host, options) do
+  defp log({:ok, _}, main, kind, env, host, options) do
     unless options[:verbose] == false do
       IO.puts "Running #{inspect main} at #{kind}://#{host}:#{options[:port]} with Cowboy on #{env}"
     end
+  end
+
+  defp log({:error, reason}, main, kind, env, host, options) do
+    IO.puts "Failed to run #{inspect main} at #{kind}://#{host}:#{options[:port]} with Cowboy on #{env}"
+    IO.puts inspect(reason)
   end
 
   defp dispatch_for(main) do
