@@ -169,8 +169,8 @@ defmodule Mix.Tasks.Dynamo do
       conn.fetch([:cookies, :params])
     end
 
-    # It is common to break your Dynamo in many
-    # routers forwarding the requests between them
+    # It is common to break your Dynamo into many
+    # routers, forwarding the requests between them:
     # forward "/posts", to: PostsRouter
 
     get "/" do
@@ -220,13 +220,13 @@ defmodule Mix.Tasks.Dynamo do
       # The environment this Dynamo runs on
       env: Mix.env,
 
-      # The OTP application associated to this Dynamo
+      # The OTP application associated with this Dynamo
       otp_app: :<%= @app %>,
 
       # The endpoint to dispatch requests to
       endpoint: ApplicationRouter,
 
-      # The route from where static assets are served
+      # The route from which static assets are served
       # You can turn off static assets by setting it to false
       static_route: "/static"
 
@@ -257,7 +257,7 @@ defmodule Mix.Tasks.Dynamo do
     reload_modules: true,
 
     # Do not cache static assets, so they
-    # are reloaded every page in development
+    # are reloaded for every page in development
     cache_static: false,
 
     # Show a nice debugging exception page
@@ -280,7 +280,7 @@ defmodule Mix.Tasks.Dynamo do
 
   embed_template :lib_prod, """
   config :dynamo,
-    # On production, modules are compiled up-front.
+    # In production, modules are compiled up-front.
     compile_on_demand: false,
     reload_modules: false
 
@@ -296,7 +296,7 @@ defmodule Mix.Tasks.Dynamo do
   """
 
   embed_template :test_features, """
-  # Feature tests goes through the Dynamo.under_test
+  # Feature tests go through the Dynamo.under_test
   # and are meant to test the full stack.
   defmodule HomeTest do
     use <%= @mod %>.TestCase
