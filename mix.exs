@@ -22,7 +22,7 @@ defmodule Dynamo.Mixfile do
   def deps(_) do
     deps(:prod) ++
       [ { :hackney, github: "benoitc/hackney" },
-        { :cowboy,    github: "extend/cowboy" } ]
+        { :cowboy,  github: "extend/cowboy" } ]
   end
 
   def application do

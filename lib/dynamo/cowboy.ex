@@ -42,7 +42,7 @@ defmodule Dynamo.Cowboy do
     end
 
     if ssl do
-      :application.start(:crypto)
+      :application.start(:asn1)
       :application.start(:public_key)
       :application.start(:ssl)
       https = https_options(main, Keyword.merge(options, ssl))

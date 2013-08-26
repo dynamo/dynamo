@@ -22,7 +22,7 @@ defmodule Dynamo.Cowboy.ConnectionTest do
   # Request API
 
   def version(conn) do
-    assert conn.version == { 1, 1 }
+    assert conn.version == :"HTTP/1.1"
     conn
   end
 
