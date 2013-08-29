@@ -39,6 +39,14 @@ defmodule Dynamo.Filters.StaticTest do
     assert conn.resp_headers["cache-control"] == "public, max-age=31536000"
   end
 
+  test "serves the file with a urlencoded filename" do
+    conn = get("/public/fixtures/static/file+with%20spaces.txt")
+    assert conn.status == 200
+    assert conn.sent_body == "HELLO"
+    assert conn.resp_headers["content-type"]  == "text/plain"
+    assert conn.resp_headers["cache-control"] == "public, max-age=31536000"
+  end
+
   test "hits the fallback" do
     conn = get("/public/fixtures/fallback")
     assert conn.status == 200
