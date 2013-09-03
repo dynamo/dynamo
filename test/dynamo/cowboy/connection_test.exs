@@ -208,9 +208,9 @@ defmodule Dynamo.Cowboy.ConnectionTest do
   end
 
   test :req_cookies do
-    assert_success request :get, "/req_cookies_0", [{ "Cookie", %b(foo=bar; baz=bat) }]
-    assert_success request :get, "/req_cookies_1", [{ "Cookie", %b(foo=bar; baz=bat) }]
-    assert_success request :get, "/req_cookies_2", [{ "Cookie", %b(foo=bar=baz) }]
+    assert_success request :get, "/req_cookies_0", [{ "Cookie", %s(foo=bar; baz=bat) }]
+    assert_success request :get, "/req_cookies_1", [{ "Cookie", %s(foo=bar; baz=bat) }]
+    assert_success request :get, "/req_cookies_2", [{ "Cookie", %s(foo=bar=baz) }]
   end
 
   test :resp_cookies do
@@ -225,7 +225,7 @@ defmodule Dynamo.Cowboy.ConnectionTest do
   end
 
   test :req_resp_cookies do
-    response = request :get, "/req_resp_cookies", [{ "Cookie", %b(foo=bar; baz=bat) }]
+    response = request :get, "/req_resp_cookies", [{ "Cookie", %s(foo=bar; baz=bat) }]
     assert_success response
 
     { _, headers, _ } = response

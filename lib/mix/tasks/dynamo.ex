@@ -53,9 +53,9 @@ defmodule Mix.Tasks.Dynamo do
     lib = underscore(mod)
 
     dynamo = if opts[:dev] do
-      %b(path: "#{Path.expand("../../../..", __FILE__)}")
+      %s(path: "#{Path.expand("../../../..", __FILE__)}")
     else
-      %b(github: "elixir-lang/dynamo")
+      %s(github: "elixir-lang/dynamo")
     end
 
     assigns = [app: app, mod: mod, dynamo: dynamo, version: @version]
@@ -129,7 +129,7 @@ defmodule Mix.Tasks.Dynamo do
   erl_crash.dump
   """
 
-  embed_template :mixfile, %B"""
+  embed_template :mixfile, %S"""
   defmodule <%= @mod %>.Mixfile do
     use Mix.Project
 

@@ -1,5 +1,5 @@
 defmodule Dynamo.HTTP.Case do
-  @moduledoc %B"""
+  @moduledoc %S"""
   A bunch of helpers to make it easy to test Dynamos and routers.
 
   By default, these helpers are macros that dispatch directly

@@ -53,13 +53,13 @@ defmodule Mix.TasksTest do
     in_tmp "my_run_app", fn ->
       app_with_dynamo_deps_path
 
-      output = System.cmd %b{mix run -e "IO.inspect HelloRouter.__info__(:module)"}
+      output = System.cmd %s{mix run -e "IO.inspect HelloRouter.__info__(:module)"}
       assert output =~ %r(HelloRouter)
 
       # TODO: Get rid of this
       File.rm_rf "ebin"
 
-      output = System.cmd %b{MIX_ENV=prod mix do compile, run "IO.inspect HelloRouter.__info__(:module)"}
+      output = System.cmd %s{MIX_ENV=prod mix do compile, run "IO.inspect HelloRouter.__info__(:module)"}
       assert output =~ %r(HelloRouter)
     end
   end
@@ -78,7 +78,7 @@ defmodule Mix.TasksTest do
       end
       """
 
-      output = System.cmd %b{mix test}
+      output = System.cmd %s{mix test}
       assert output =~ %r(3 tests, 0 failures)
     end
   end
@@ -101,7 +101,7 @@ defmodule Mix.TasksTest do
     File.cp! "../../mix.lock", "mix.lock"
 
     File.write! "mix.exs",
-      Regex.replace(%r"deps: deps", File.read!("mix.exs"), %b(deps: deps, deps_path: "../../deps"))
+      Regex.replace(%r"deps: deps", File.read!("mix.exs"), %s(deps: deps, deps_path: "../../deps"))
 
     File.write! "web/routers/hello_router.ex", """
     defmodule HelloRouter do
