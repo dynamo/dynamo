@@ -118,6 +118,11 @@ defmodule Dynamo.Connection do
   defcallback req_body(conn) :: body | no_return
 
   @doc """
+  The remote host ip address.
+  """
+  defcallback peer(conn) :: tuple
+
+  @doc """
   Returns the HTTP method as a binary.
 
   ## Examples
