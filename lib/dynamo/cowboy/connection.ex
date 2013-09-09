@@ -40,8 +40,8 @@ defmodule Dynamo.Cowboy.Connection do
   ## Request API
 
   @doc false
-  def peer(connection(reqL req)) do
-    {{peer,_}, _}  = conn.cowboy_request
+  def peer(connection(req: req)) do
+    {{peer,_}, _}  = R.peer req
     peer
   end
 
@@ -61,12 +61,6 @@ defmodule Dynamo.Cowboy.Connection do
   def path_segments(connection(req: req)) do
     { path, _ } = R.path req
     split_path path
-  end
-
-  @doc false
-  def path(connection(req: req)) do
-    { binary, _ } = R.path req
-    binary
   end
 
   @doc false
