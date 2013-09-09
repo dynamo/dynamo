@@ -22,19 +22,19 @@ defmodule Dynamo.Connection.Test do
 
   use Dynamo.Connection.Behaviour,
     [ :query_string, :raw_req_headers, :raw_req_body, :raw_req_cookies, :fetched,
-      :path, :path_segments, :sent_body, :original_method, :scheme, :port ]
+      :path, :path_segments, :sent_body, :original_method, :scheme, :port, :peer ]
 
   @doc """
   Initializes a connection to be used in tests.
   """
-  def new(method, path, body // "") do
+  def new(method, path, body // "", peer // {127, 0, 0, 1}) do
     connection(
       main: Dynamo.under_test,
       raw_req_cookies: Binary.Dict.new(),
       raw_req_headers: Binary.Dict.new([{ "host", "127.0.0.1" }]),
       scheme: :http,
       port: 80
-    ).recycle.req(method, path, body)
+    ).recycle.req(method, path, body, peer)
   end
 
   ## Request API
@@ -75,8 +75,8 @@ defmodule Dynamo.Connection.Test do
   end
 
   @doc false
-  def peer(_) do
-    {127,0,0,1}
+  def peer(connection(peer: peer)) do
+    peer
   end
 
   @doc false
@@ -210,7 +210,7 @@ defmodule Dynamo.Connection.Test do
   This can be considered the counter-part of recycle
   (which is used to clean up the response).
   """
-  def req(method, path, body // "", conn) do
+  def req(method, path, body // "", peer // {127, 0, 0, 1}, conn) do
     uri      = URI.parse(path)
     segments = Dynamo.Router.Utils.split(uri.path)
     method   = Dynamo.Router.Utils.normalize_verb(method)
@@ -229,7 +229,8 @@ defmodule Dynamo.Connection.Test do
       raw_req_body: body,
       req_body: nil,
       route_params: [],
-      script_name_segments: [])
+      script_name_segments: [],
+      peer: peer)
 
     if uri.authority do
       conn = conn.put_req_header "host", uri.authority

@@ -92,8 +92,8 @@ defmodule Dynamo.HTTP.Case do
   @doc """
   Returns a connection built with the given method, path and body.
   """
-  def conn(method, path, body // "") do
-    Dynamo.Connection.Test.new(method, path, body)
+  def conn(method, path, body // "", peer // {127, 0, 0, 1}) do
+    Dynamo.Connection.Test.new(method, path, body, peer)
   end
 
   @doc """
