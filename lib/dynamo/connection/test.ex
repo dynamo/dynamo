@@ -210,7 +210,7 @@ defmodule Dynamo.Connection.Test do
   This can be considered the counter-part of recycle
   (which is used to clean up the response).
   """
-  def req(method, path, body // "", peer // {127, 0, 0, 1}, conn) do
+  def req(method, path, body // "", conn) do
     uri      = URI.parse(path)
     segments = Dynamo.Router.Utils.split(uri.path)
     method   = Dynamo.Router.Utils.normalize_verb(method)
