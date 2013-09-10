@@ -10,12 +10,12 @@ defmodule Dynamo.Connection.Test do
 
   Although a new connection can be created via:
 
-      Dynamo.Connection.Test.new(verb, path, body)
+      Dynamo.Connection.Test.new(verb, path, body, peer)
 
   In practice, a developer should simply use `Dynamo.HTTP.Case`,
   which provides some wrappers around testing:
 
-      conn(verb, path, body)
+      conn(verb, path, body, peer)
 
   Check `Dynamo.HTTP.Case` for more information on testing.
   """
