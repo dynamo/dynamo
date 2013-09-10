@@ -15,7 +15,7 @@ defmodule Dynamo.Connection.Test do
   In practice, a developer should simply use `Dynamo.HTTP.Case`,
   which provides some wrappers around testing:
 
-      conn(verb, path, body, peer)
+      conn(verb, path, body)
 
   Check `Dynamo.HTTP.Case` for more information on testing.
   """
@@ -27,7 +27,7 @@ defmodule Dynamo.Connection.Test do
   @doc """
   Initializes a connection to be used in tests.
   """
-  def new(method, path, body // "", peer // {127, 0, 0, 1}) do
+  def new(method, path, body // "") do
     connection(
       main: Dynamo.under_test,
       raw_req_cookies: Binary.Dict.new(),
