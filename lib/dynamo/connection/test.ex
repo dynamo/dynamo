@@ -34,7 +34,7 @@ defmodule Dynamo.Connection.Test do
       raw_req_headers: Binary.Dict.new([{ "host", "127.0.0.1" }]),
       scheme: :http,
       port: 80
-    ).recycle.req(method, path, body, peer)
+    ).recycle.req(method, path, body)
   end
 
   ## Request API
@@ -229,8 +229,7 @@ defmodule Dynamo.Connection.Test do
       raw_req_body: body,
       req_body: nil,
       route_params: [],
-      script_name_segments: [],
-      peer: peer)
+      script_name_segments: [])
 
     if uri.authority do
       conn = conn.put_req_header "host", uri.authority

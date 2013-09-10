@@ -23,8 +23,6 @@ defmodule Dynamo.Connection.TestTest do
 
   test :peer do
     assert conn(:GET, "/foo/bar").peer == {127, 0, 0, 1}
-    assert conn(:GET, "/foo/bar", "", {192, 168, 1, 1}).peer == {192, 168, 1, 1}
-    assert conn(:GET, "/foo/bar", "", {10, 0, 0, 1}).peer == {10, 0, 0, 1}
   end
 
   test :path do
