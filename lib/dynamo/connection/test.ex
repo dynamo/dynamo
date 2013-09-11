@@ -10,7 +10,7 @@ defmodule Dynamo.Connection.Test do
 
   Although a new connection can be created via:
 
-      Dynamo.Connection.Test.new(verb, path, body)
+      Dynamo.Connection.Test.new(verb, path, body, peer)
 
   In practice, a developer should simply use `Dynamo.HTTP.Case`,
   which provides some wrappers around testing:
@@ -22,7 +22,7 @@ defmodule Dynamo.Connection.Test do
 
   use Dynamo.Connection.Behaviour,
     [ :query_string, :raw_req_headers, :raw_req_body, :raw_req_cookies, :fetched,
-      :path, :path_segments, :sent_body, :original_method, :scheme, :port ]
+      :path, :path_segments, :sent_body, :original_method, :scheme, :port, :peer ]
 
   @doc """
   Initializes a connection to be used in tests.
@@ -72,6 +72,15 @@ defmodule Dynamo.Connection.Test do
   @doc false
   def port(connection(port: port)) do
     port
+  end
+
+  @doc false
+  def peer(connection(peer: peer)) do
+    peer
+  end
+
+  def peer(peer, connection = conn) do
+    connection(conn, peer: peer)
   end
 
   @doc false

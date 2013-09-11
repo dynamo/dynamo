@@ -40,6 +40,12 @@ defmodule Dynamo.Cowboy.Connection do
   ## Request API
 
   @doc false
+  def peer(connection(req: req)) do
+    {{peer,_}, _}  = R.peer req
+    peer
+  end
+
+  @doc false
   def original_method(connection(req: req)) do
     { method, _ } = R.method req
     method

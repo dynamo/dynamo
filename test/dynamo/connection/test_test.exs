@@ -21,6 +21,14 @@ defmodule Dynamo.Connection.TestTest do
     assert conn.original_method == "GET"
   end
 
+  test :peer do
+    conn = conn(:GET, "/foo/bar")
+    conn = conn.peer({127, 0, 0, 1})
+    assert conn.peer == {127, 0, 0, 1}
+    assert conn.method == "GET"
+    assert conn.path == "/foo/bar"
+  end
+
   test :path do
     assert conn(:GET, "/foo/bar").path_segments == ["foo", "bar"]
     assert conn(:GET, "/").path_segments == []
