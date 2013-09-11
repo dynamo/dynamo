@@ -79,6 +79,10 @@ defmodule Dynamo.Connection.Test do
     peer
   end
 
+  def peer(peer, connection = conn) do
+    connection(conn, peer: peer)
+  end
+
   @doc false
   def host(connection(raw_req_headers: headers)) do
     hd(:binary.split(headers["host"], ":"))
