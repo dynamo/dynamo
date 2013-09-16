@@ -31,4 +31,4 @@ Sometimes, it may be the case Both `content_for` and `render` macros used in thi
 
 * [Dynamo.Helpers.ContentFor](http://elixir-lang.org/docs/dynamo/Dynamo.Helpers.ContentFor.html) - helpers for passing data in between templates
 * [Dynamo.Helpers.Escaping](http://elixir-lang.org/docs/dynamo/Dynamo.Helpers.Escaping.html) - helpers for escaping html inside templates
-* [Dynamo.Helpers.Render](http://elixir-lang.org/docs/dynamo/Dynamo.Helpers.Render.html) - helpers for rendering templates inside templates
+* [Dynamo.Helpers.Rendering](http://elixir-lang.org/docs/dynamo/Dynamo.Helpers.Rendering.html) - helpers for rendering templates inside templates
