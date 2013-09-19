@@ -96,6 +96,6 @@ defmodule Dynamo.Connection.QueryParserTest do
   end
 
   defp reduce(pairs) do
-    Enum.reduce Enum.reverse(pairs), Binary.Dict.new, Dynamo.Connection.QueryParser.reduce(&1, &2)
+    Enum.reduce Enum.reverse(pairs), Binary.Dict.new, &Dynamo.Connection.QueryParser.reduce(&1, &2)
   end
 end

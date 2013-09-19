@@ -37,7 +37,7 @@ defmodule Dynamo.Connection.QueryParser do
 
   def parse(query, dict) do
     decoder = URI.query_decoder(query)
-    Enum.reduce(Enum.reverse(decoder), dict, reduce(&1, &2))
+    Enum.reduce(Enum.reverse(decoder), dict, &reduce(&1, &2))
   end
 
   @doc """

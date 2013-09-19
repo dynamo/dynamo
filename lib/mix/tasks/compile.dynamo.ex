@@ -67,7 +67,7 @@ defmodule Mix.Tasks.Compile.Dynamo do
     # Source files + Mix setup + Dynamo config + Templates
     to_watch = Mix.Utils.extract_files(source_paths, watch_exts)
     to_watch = Mix.Tasks.Compile.Elixir.manifests ++ to_watch
-    to_watch = to_watch ++ Enum.map(templates, template_mtime(&1))
+    to_watch = to_watch ++ Enum.map(templates, &template_mtime(&1))
 
     manifest = manifest()
 

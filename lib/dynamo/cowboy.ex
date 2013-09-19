@@ -31,13 +31,13 @@ defmodule Dynamo.Cowboy do
     ssl  = options[:ssl]
     host = options[:host] || "localhost"
 
-    options = Enum.reduce [:env, :ssl, :host], options, Keyword.delete(&2, &1)
+    options = Enum.reduce [:env, :ssl, :host], options, &Keyword.delete(&2, &1)
 
     case host do
       _ in ["localhost", nil] ->
         :ok
       host when is_binary(host) ->
-        ip = host |> String.split(".") |> Enum.map(binary_to_integer(&1)) |> list_to_tuple
+        ip = host |> String.split(".") |> Enum.map(&binary_to_integer(&1)) |> list_to_tuple
         options = Keyword.put(options, :ip, ip)
     end
 
@@ -69,7 +69,7 @@ defmodule Dynamo.Cowboy do
   defp start_listener(kind, main, options) do
     acceptors = options[:acceptors] || 100
     dispatch  = :cowboy_router.compile(options[:dispatch]  || dispatch_for(main))
-    options   = Enum.reduce [:acceptors, :dispatch], options, Keyword.delete(&2, &1)
+    options   = Enum.reduce [:acceptors, :dispatch], options, &Keyword.delete(&2, &1)
 
     ref = Module.concat(main, kind |> to_string |> String.upcase)
     apply(:cowboy, :"start_#{kind}", [ref, acceptors, options, [env: [dispatch: dispatch]]])
@@ -81,8 +81,8 @@ defmodule Dynamo.Cowboy do
 
   defp https_options(main, options) do
     options = Keyword.merge @https_options, options
-    options = Enum.reduce [:keyfile, :certfile, :cacertfile], options, normalize_ssl_file(main, &2, &1)
-    options = Enum.reduce [:password], options, to_char_list(&2, &1)
+    options = Enum.reduce [:keyfile, :certfile, :cacertfile], options, &normalize_ssl_file(main, &2, &1)
+    options = Enum.reduce [:password], options, &to_char_list(&2, &1)
     options
   end
 

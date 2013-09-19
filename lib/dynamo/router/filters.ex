@@ -72,7 +72,7 @@ defmodule Dynamo.Router.Filters do
     escaped = Macro.escape(Enum.reverse(filters))
 
     code = quote(do: super(conn))
-    code = Enum.reduce(filters, code, compile_filter(&1, &2))
+    code = Enum.reduce(filters, code, &compile_filter(&1, &2))
 
     quote location: :keep do
       defoverridable [service: 1]

@@ -17,14 +17,14 @@ defmodule Dynamo.HTTP.Hibernate do
   and `await`. They can receive either 2 arguments, with the
   connection and a callback to be invoked on wake up:
 
-    hibernate(conn, on_wake_up(&1, &2))
-    await(conn, on_wake_up(&1, &2))
+    hibernate(conn, &on_wake_up(&1, &2))
+    await(conn, &on_wake_up(&1, &2))
 
   Or 4 arguments, in which a timeout and a callback to be invoked
   on timeout must also be present:
 
-    hibernate(conn, timeout, on_wake_up(&1, &2), on_timeout(&1))
-    await(conn, timeout, on_wake_up(&1, &2), on_timeout(&1))
+    hibernate(conn, timeout, &on_wake_up(&1, &2), &on_timeout(&1))
+    await(conn, timeout, &on_wake_up(&1, &2), &on_timeout(&1))
 
   Besides an positive integer or `:infinity`, this module also
   allows `:keep` as timeout value. This is useful to preserve

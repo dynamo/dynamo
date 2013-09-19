@@ -31,7 +31,7 @@ defmodule MixHelpers do
   end
 
   def assert_file(file, match) when is_regex(match) do
-    assert_file file, &1 =~ match
+    &assert_file(file, &1 =~ match)
   end
 
   def assert_file(file, callback) when is_function(callback, 1) do

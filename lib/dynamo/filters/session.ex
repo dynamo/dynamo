@@ -43,8 +43,8 @@ defmodule Dynamo.Filters.Session do
   @doc false
   def prepare(conn, { __MODULE__, store, key, opts }) do
     conn
-      .fetchable(:session, fetch(&1, store, key, opts))
-      .before_send(serialize(&1, store, key, opts))
+      .fetchable(:session, &fetch(&1, store, key, opts))
+      .before_send(&serialize(&1, store, key, opts))
   end
 
   defp fetch(conn, store, key, opts) do

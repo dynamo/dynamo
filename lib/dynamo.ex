@@ -189,7 +189,7 @@ defmodule Dynamo do
         end
 
         initializer :start_dynamo_renderer do
-          precompiled = Enum.all?(templates_paths, Dynamo.Templates.Finder.requires_precompilation?(&1))
+          precompiled = Enum.all?(templates_paths, &Dynamo.Templates.Finder.requires_precompilation?(&1))
           unless precompiled do
             supervisor = config[:dynamo][:supervisor]
             renderer   = templates_server()
@@ -242,7 +242,7 @@ defmodule Dynamo do
   @doc false
   defmacro define_filters(_) do
     quote location: :keep do
-      Enum.each Dynamo.define_filters(__MODULE__, []), prepend_filter(&1)
+      Enum.each Dynamo.define_filters(__MODULE__, []), &prepend_filter(&1)
     end
   end
 
@@ -304,7 +304,7 @@ defmodule Dynamo do
       if dynamo[:compile_on_demand] do
         { templates_paths, [] }
       else
-        Enum.partition(templates_paths, Dynamo.Templates.Finder.requires_precompilation?(&1))
+        Enum.partition(templates_paths, &Dynamo.Templates.Finder.requires_precompilation?(&1))
       end
 
     if to_compile != [] do

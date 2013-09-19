@@ -15,7 +15,7 @@ defmodule Dynamo.Cowboy.BodyParser do
 
   defp parse_body({ "multipart", style, _ }, dict, req) when style in ["form-data", "mixed"] do
     { tuples, req } = parse_multipart(R.multipart_data(req), nil, [])
-    dict = Enum.reduce(tuples, dict, Dynamo.Connection.QueryParser.reduce(&1, &2))
+    dict = Enum.reduce(tuples, dict, &Dynamo.Connection.QueryParser.reduce(&1, &2))
     { dict, req }
   end
 
@@ -37,7 +37,7 @@ defmodule Dynamo.Cowboy.BodyParser do
         tmp_dir = get_tmp_dir(tmp_dir)
 
         { path, { :ok, req } } = Dynamo.Connection.Utils.random_file("uploaded",
-          tmp_dir, parse_multipart_file(R.multipart_data(req), &1))
+          tmp_dir, &parse_multipart_file(R.multipart_data(req), &1))
 
         parse_multipart(R.multipart_data(req), tmp_dir, [{ name, file.path(path) }|acc])
 

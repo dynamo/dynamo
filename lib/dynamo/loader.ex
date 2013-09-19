@@ -146,16 +146,16 @@ defmodule Dynamo.Loader do
 
   @doc false
   def handle_cast({ :loaded, file, modules }, Config[] = config) do
-    { :noreply, config.update_loaded_modules(modules ++ &1).update_loaded_files([file|&1]) }
+    { :noreply, config.update_loaded_modules(&(modules ++ &1)).update_loaded_files(&([file|&1])) }
   end
 
   def handle_cast({ :on_purge, fun }, Config[] = config) do
-    { :noreply, config.update_on_purge([fun|&1]) }
+    { :noreply, config.update_on_purge(&([fun|&1])) }
   end
 
   def handle_cast({ :append_paths, paths }, Config[] = config) do
     updated_at = last_modified(paths, config.updated_at)
-    { :noreply, config.update_paths(&1 ++ paths).updated_at(updated_at) }
+    { :noreply, config.update_paths(&(&1 ++ paths)).updated_at(updated_at) }
   end
 
   def handle_cast(arg, config) do
@@ -177,7 +177,7 @@ defmodule Dynamo.Loader do
 
   defp last_modified(paths, updated_at) do
     Enum.reduce paths, updated_at, fn(path, acc) ->
-      Enum.reduce Path.wildcard("#{path}/**/*.ex"), acc, max_last_modified(&1, &2)
+      Enum.reduce Path.wildcard("#{path}/**/*.ex"), acc, &max_last_modified(&1, &2)
     end
   end
 

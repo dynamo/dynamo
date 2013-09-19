@@ -54,7 +54,7 @@ defmodule Dynamo.Filters.Exceptions.Debug do
     sources = config[:source_paths] ++ config[:templates_paths]
     sources = lc source inlist sources, path inlist Path.wildcard(Path.join(root, source)), do: path
 
-    Enum.map_reduce(stacktrace, 0, each_frame(&1, &2, root, sources, editor)) |> elem(0)
+    Enum.map_reduce(stacktrace, 0, &each_frame(&1, &2, root, sources, editor)) |> elem(0)
   end
 
   defp each_frame({ module, function, args_or_arity, opts }, index, root, sources, editor) do

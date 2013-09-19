@@ -18,7 +18,7 @@ defmodule Dynamo.HTTP.HibernateTest do
     conn = conn(:GET, "/").assign(:parent, self())
 
     pid = spawn_link fn ->
-      hibernate conn, on_wake_up(&1, &2)
+      hibernate conn, &on_wake_up(&1, &2)
     end
 
     assert await_wake_up(pid)
@@ -28,7 +28,7 @@ defmodule Dynamo.HTTP.HibernateTest do
     conn = conn(:GET, "/").assign(:parent, self())
 
     pid = spawn_link fn ->
-      hibernate conn, 10_000, on_wake_up(&1, &2), on_timeout(&1)
+      hibernate conn, 10_000, &on_wake_up(&1, &2), &on_timeout(&1)
     end
 
     assert await_wake_up(pid)
@@ -38,7 +38,7 @@ defmodule Dynamo.HTTP.HibernateTest do
     conn = conn(:GET, "/").assign(:parent, self())
 
     pid = spawn_link fn ->
-      hibernate conn, :infinity, on_wake_up(&1, &2), on_timeout(&1)
+      hibernate conn, :infinity, &on_wake_up(&1, &2), &on_timeout(&1)
     end
 
     assert await_wake_up(pid)
@@ -48,7 +48,7 @@ defmodule Dynamo.HTTP.HibernateTest do
     conn = conn(:GET, "/").assign(:parent, self())
 
     spawn_link fn ->
-      hibernate conn, 10, on_wake_up(&1, &2), on_timeout(&1)
+      hibernate conn, 10, &on_wake_up(&1, &2), &on_timeout(&1)
     end
 
     assert_timeout
@@ -60,8 +60,8 @@ defmodule Dynamo.HTTP.HibernateTest do
     pid = spawn_link fn ->
       hibernate conn, 500, fn(msg, conn) ->
         on_wake_up(msg, conn)
-        hibernate conn, :keep, on_wake_up(&1, &2), on_timeout(&1)
-      end, on_timeout(&1)
+        hibernate conn, :keep, &on_wake_up(&1, &2), &on_timeout(&1)
+      end, &on_timeout(&1)
     end
 
     assert await_wake_up(pid)
@@ -72,7 +72,7 @@ defmodule Dynamo.HTTP.HibernateTest do
     conn = conn(:GET, "/").assign(:parent, self())
 
     pid = spawn_link fn ->
-      await conn, on_wake_up(&1, &2)
+      await conn, &on_wake_up(&1, &2)
     end
 
     assert await_wake_up(pid)
@@ -82,7 +82,7 @@ defmodule Dynamo.HTTP.HibernateTest do
     conn = conn(:GET, "/").assign(:parent, self())
 
     pid = spawn_link fn ->
-      await conn, 10_000, on_wake_up(&1, &2), on_timeout(&1)
+      await conn, 10_000, &on_wake_up(&1, &2), &on_timeout(&1)
     end
 
     assert await_wake_up(pid)
@@ -92,7 +92,7 @@ defmodule Dynamo.HTTP.HibernateTest do
     conn = conn(:GET, "/").assign(:parent, self())
 
     spawn_link fn ->
-      await conn, 10, on_wake_up(&1, &2), on_timeout(&1)
+      await conn, 10, &on_wake_up(&1, &2), &on_timeout(&1)
     end
 
     assert_timeout
