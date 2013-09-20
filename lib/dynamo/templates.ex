@@ -38,7 +38,7 @@ defmodule Dynamo.Templates do
 
   def find(query, tmpl_paths) do
     query = normalize_query(query)
-    Enum.find_value(tmpl_paths, Dynamo.Templates.Finder.find(&1, query))
+    Enum.find_value(tmpl_paths, &Dynamo.Templates.Finder.find(&1, query))
   end
 
   defp normalize_query("/" <> query), do: query

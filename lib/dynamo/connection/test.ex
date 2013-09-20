@@ -79,7 +79,7 @@ defmodule Dynamo.Connection.Test do
     peer
   end
 
-  def peer(peer, connection = conn) do
+  def peer(peer, conn) do
     connection(conn, peer: peer)
   end
 

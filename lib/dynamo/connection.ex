@@ -47,7 +47,7 @@ defmodule Dynamo.Connection do
   configure cookies and session.
   """
   def default_before_send do
-    [ put_resp_content_type_header(&1) ]
+    [ &put_resp_content_type_header(&1) ]
   end
 
   defp put_resp_content_type_header(conn) do

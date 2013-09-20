@@ -52,7 +52,7 @@ defmodule DynamoTest do
   end
 
   test "does not add public filter if disabled" do
-    refute Enum.any? ReloadApp.__filters__, match?({ Dynamo.Filters.Static, _, _ }, &1)
+    refute Enum.any? ReloadApp.__filters__, &match?({ Dynamo.Filters.Static, _, _ }, &1)
   end
 
   test "adds reloader filter" do
@@ -60,7 +60,7 @@ defmodule DynamoTest do
   end
 
   test "does not add reloader filter if disabled" do
-    refute Enum.any? App.__filters__, match?({ Dynamo.Filters.Loader, _, _ }, &1)
+    refute Enum.any? App.__filters__, &match?({ Dynamo.Filters.Loader, _, _ }, &1)
   end
 
   ## View paths

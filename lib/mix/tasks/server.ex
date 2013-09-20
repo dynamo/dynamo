@@ -24,7 +24,7 @@ defmodule Mix.Tasks.Server do
     end
 
     if opts[:port] do
-      opts = Keyword.update!(opts, :port, binary_to_integer(&1))
+      opts = Keyword.update!(opts, :port, &binary_to_integer(&1))
     end
 
     Dynamo.Loader.enable

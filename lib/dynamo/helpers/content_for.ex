@@ -84,7 +84,7 @@ defmodule Dynamo.Helpers.ContentFor do
   Appends a content chunk to the connection.
   """
   def append_content(conn, key, value) when is_atom(key) and is_binary(value) do
-    value = Keyword.update(conn.private[@key] || [], key, value, &1 <> value)
+    value = Keyword.update(conn.private[@key] || [], key, value, &(&1 <> value))
     conn.put_private(@key, value)
   end
 

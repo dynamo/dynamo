@@ -151,7 +151,7 @@ defmodule Dynamo.Router.Base do
   defmacro __using__(_) do
     [ quote do
         Enum.each [:prepare, :finalize, :skip_prepare, :skip_finalize],
-          Module.register_attribute(__MODULE__, &1, accumulate: true, persist: false)
+          &Module.register_attribute(__MODULE__, &1, accumulate: true, persist: false)
         @before_compile unquote(__MODULE__)
         @dynamo_prepare []
         @dynamo_finalize []
@@ -467,7 +467,7 @@ defmodule Dynamo.Router.Base do
       end
 
     Enum.each [:prepare, :finalize, :skip_prepare, :skip_finalize],
-      Module.delete_attribute(module, &1)
+      &Module.delete_attribute(module, &1)
     hooks
   end
 
@@ -556,7 +556,7 @@ defmodule Dynamo.Router.Base do
 
   defp compile_skip_hook(module, chain, name) do
     hooks = Module.get_attribute(module, chain)
-    hook  = Enum.find(hooks, match?({ ^name, _ }, &1))
+    hook  = Enum.find(hooks, &match?({ ^name, _ }, &1))
 
     case hook do
       { _, nil } ->
