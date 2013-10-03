@@ -14,7 +14,7 @@ defrecord Dynamo.Template, key: nil, identifier: nil, format: nil,
   * `:updated_at` - The last time the template was updated
   * `:extra` - Used by the finder to put extra information about the template
 
-  Besides, the followig fields are private to Dynamo:
+  Besides, the following fields are private to Dynamo:
 
   * `:ref` - A reference for already compiled templates
   """
