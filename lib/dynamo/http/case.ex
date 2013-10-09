@@ -46,7 +46,7 @@ defmodule Dynamo.HTTP.Case do
       end
 
   The example above will automatically work, since
-  `get`/`post`/`put`/`patch`/`delete` recycles the connection before
+  `get`/`post`/`put`/`patch`/`delete`/`options` recycles the connection before
   each request.
 
   When recycled, all response information previously set in
@@ -74,7 +74,7 @@ defmodule Dynamo.HTTP.Case do
 
   If the connection was already recycled, it won't be recycled once again.
 
-  Finally, notice that all `get`/`post`/`put`/`patch`/`delete` macros
+  Finally, notice that all `get`/`post`/`put`/`patch`/`delete`/`options` macros
   are simply a proxy to `process/4`. So in case you want to dispatch
   to different dynamos at the same time, `process/4` may be useful.
   """
@@ -149,6 +149,17 @@ defmodule Dynamo.HTTP.Case do
   """
   defmacro delete(arg1, arg2 // nil) do
     do_method :DELETE, arg1, arg2
+  end
+
+  @doc """
+  Does a OPTIONS request to the given path:
+
+      options("/foo")
+      options(conn, "/foo")
+
+  """
+  defmacro options(arg1, arg2 // nil) do
+    do_method :OPTIONS, arg1, arg2
   end
 
   defp do_method(method, arg1, nil) do

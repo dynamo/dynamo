@@ -134,6 +134,7 @@ defmodule Dynamo.Router.BaseTest do
     assert put("/8/foo").assigns[:value] == 8
     assert patch("/8/foo").assigns[:value] == 8
     assert delete("/8/foo").assigns[:value] == 8
+    assert options("/8/foo").assigns[:value] == 8
   end
 
   test "forwarding to another endpoint" do
