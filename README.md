@@ -52,7 +52,9 @@ Congratulations! You created your first project with Dynamo! Let's run it:
 
 2. Get dependencies with: `mix deps.get`
 
-3. Run it: `mix server`
+3. Run it: `iex -S mix server`
+
+If you do not want a console, then start the app with `mix server`.
 
 Check the `lib/` and `web/` folders for more information. Changes done in the `web` directory are picked up without a need to reload the server.
 
