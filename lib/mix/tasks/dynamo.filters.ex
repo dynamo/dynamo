@@ -11,7 +11,7 @@ defmodule Mix.Tasks.Dynamo.Filters do
     Mix.Task.run "app.start", args
     shell = Mix.shell
 
-    Enum.each Mix.project[:dynamos], fn(dynamo) ->
+    Enum.each (Mix.project[:dynamos] || []), fn(dynamo) ->
       shell.info "# #{inspect dynamo}"
 
       Enum.each dynamo.__filters__, fn(filter) ->
