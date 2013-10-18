@@ -99,16 +99,11 @@ defmodule Session.ETSStore do
   @behaviour Session.Store
 
   def setup(opts) do
-    if table = opts[:table] do
-      if :ets.info(table, :name) == :undefined do
-        raise ArgumentError, message: "ETSStore expects an exitsting public table, " <>
-          "table #{inspect table} not found"
-      end
-
-      opts
-    else
+    if nil?(opts[:table]) do
       raise ArgumentError, message: "ETSStore expects a table as option"
     end
+
+    opts
   end
 
   def get_session(content, opts) do
