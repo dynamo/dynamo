@@ -522,7 +522,7 @@ defmodule Dynamo.Router.Base do
     quote do
       case unquote(compile_condition(call, key)) do
         var!(conn) when is_tuple(var!(conn)) -> unquote(acc)
-        _ in [nil, false] -> unquote(acc)
+        x when x in [nil, false] -> unquote(acc)
         actual -> raise Dynamo.Router.InvalidHookError, kind: :prepare, hook: unquote(ref), actual: actual
       end
     end
@@ -532,7 +532,7 @@ defmodule Dynamo.Router.Base do
     quote do
       case unquote(compile_condition(call, key)) do
         var!(conn) when is_tuple(var!(conn)) -> unquote(acc)
-        _ in [nil, false] -> unquote(acc)
+        x when x in [nil, false] -> unquote(acc)
         actual -> raise Dynamo.Router.InvalidHookError, kind: :finalize, hook: unquote(ref), actual: actual
       end
     end

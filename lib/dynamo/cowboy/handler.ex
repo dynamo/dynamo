@@ -3,7 +3,7 @@ defmodule Dynamo.Cowboy.Handler do
 
   @behaviour :cowboy_http_handler
 
-  require :cowboy_req, as: R
+  require :cowboy_req
 
   # HTTP
 

@@ -3,8 +3,6 @@ defprotocol Dynamo.Templates.Finder do
   Defines the protocol required for finding templates.
   """
 
-  @only [Atom, Record, BitString]
-
   @doc """
   Returns true if templates require precompilation.
   """

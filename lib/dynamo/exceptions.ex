@@ -8,7 +8,7 @@ defprotocol Dynamo.Exception do
   exception happens.
   """
 
-  @only [Record, Any]
+  @fallback_to_any true
 
   @doc """
   Receives the exception. It must return an integer

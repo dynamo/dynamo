@@ -34,7 +34,7 @@ defmodule Dynamo.Cowboy do
     options = Enum.reduce [:env, :ssl, :host], options, &Keyword.delete(&2, &1)
 
     case host do
-      _ in ["localhost", nil] ->
+      x when x in ["localhost", nil] ->
         :ok
       host when is_binary(host) ->
         ip = host |> String.split(".") |> Enum.map(&binary_to_integer(&1)) |> list_to_tuple
