@@ -11,7 +11,7 @@ defmodule Dynamo.HTTP.Case do
 
         test :root_route do
           conn = get("/")
-          assert conn.resp_body =~ %r/somevalue/
+          assert conn.sent_body =~ %r/somevalue/
         end
       end
 
@@ -26,7 +26,7 @@ defmodule Dynamo.HTTP.Case do
 
         test :route do
           conn = get("/route")
-          assert conn.resp_body =~ %r/somevalue/
+          assert conn.sent_body =~ %r/somevalue/
         end
       end
 
@@ -39,10 +39,10 @@ defmodule Dynamo.HTTP.Case do
 
       test :session do
         conn = get("/put_session")
-        assert conn.resp_body =~ %r/somevalue/
+        assert conn.sent_body =~ %r/somevalue/
 
         conn = get(conn, "/set_session")
-        assert conn.resp_body =~ %r/othervalue/
+        assert conn.sent_body =~ %r/othervalue/
       end
 
   The example above will automatically work, since
@@ -59,11 +59,11 @@ defmodule Dynamo.HTTP.Case do
 
       test :session do
         conn = get("/put_session")
-        assert conn.resp_body =~ %r/somevalue/
+        assert conn.sent_body =~ %r/somevalue/
 
         conn = conn.assign(:foo, :bar)
         conn = get(conn, "/set_session")
-        assert conn.resp_body =~ %r/othervalue/
+        assert conn.sent_body =~ %r/othervalue/
       end
 
   In the example above, the assign `:foo` set before the request
