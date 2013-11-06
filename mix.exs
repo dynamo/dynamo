@@ -11,7 +11,8 @@ defmodule Dynamo.Mixfile do
   end
 
   def deps(:prod) do
-    [ { :mimetypes, github: "spawngrid/mimetypes", override: true } ]
+    [ { :mimetypes, github: "spawngrid/mimetypes", override: true },
+      { :cowboy,  github: "extend/cowboy", optional: true } ]
   end
 
   def deps(:docs) do
@@ -21,8 +22,7 @@ defmodule Dynamo.Mixfile do
 
   def deps(_) do
     deps(:prod) ++
-      [ { :hackney, github: "benoitc/hackney" },
-        { :cowboy,  github: "extend/cowboy" } ]
+      [ { :hackney, github: "benoitc/hackney" } ]
   end
 
   def application do
