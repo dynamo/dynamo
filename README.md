@@ -255,7 +255,7 @@ Elixir data structures are immutable. If you have a tuple, you can't modify this
 
 ```elixir
 first  = { 1, 2, 3 }
-second = setelem(first, 0, :hello)
+second = set_elem(first, 0, :hello)
 
 first  #=> { 1, 2, 3 }
 second #=> { :hello, 2, 3 }
