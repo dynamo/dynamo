@@ -4,7 +4,7 @@ defmodule Mix.TasksTest do
 
   test "compiles an application" do
     in_tmp "my_compiled_app", fn ->
-      app_with_dynamo_deps_path
+      app_with_dynamo_deps_path(:prod)
 
       output = System.cmd "MIX_ENV=prod mix compile"
       assert output =~ %r(Compiled web/routers/application_router.ex)
@@ -12,61 +12,38 @@ defmodule Mix.TasksTest do
       assert output =~ %r(Compiled lib/my_app/dynamo.ex)
       assert output =~ %r(Generated my_compiled_app.app)
       assert output =~ %r(Generated MyApp.Dynamo.CompiledTemplates)
-      assert File.regular?("ebin/Elixir.MyApp.Dynamo.CompiledTemplates.beam")
+      assert File.regular?("_build/prod/lib/my_compiled_app/ebin/Elixir.MyApp.Dynamo.CompiledTemplates.beam")
 
       # Can recompile after changes
       File.touch!("web/routers/application_router.ex", { { 2030, 1, 1 }, { 0, 0, 0 } })
       output = System.cmd "MIX_ENV=prod mix compile"
       assert output =~ %r(Compiled web/routers/application_router.ex)
-
-      # TODO: Get rid of this
-      File.rm_rf "ebin"
-
-      # Can compile for other environments too
-      output = System.cmd "MIX_ENV=dev mix compile"
-      assert output =~ %r(Generated my_compiled_app.app)
     end
   end
 
   test "prints application filters" do
     in_tmp "my_filters_app", fn ->
-      app_with_dynamo_deps_path
+      app_with_dynamo_deps_path(:dev)
 
       output = System.cmd "mix dynamo.filters"
       assert output =~ %r(filter Dynamo.Filters.Head)
       assert output =~ %r(filter \{Dynamo.Filters.Loader, *true, *true\})
-      assert output =~ %r(ApplicationRouter.service/1)
-
-      # Check it works with first compilation in prod
-      output = System.cmd "MIX_ENV=prod mix do compile, dynamo.filters"
-      refute output =~ %r(Dynamo.Filters.Loader)
-      assert output =~ %r(ApplicationRouter.service/1)
-
-      # Check that noop compile also works
-      output = System.cmd "MIX_ENV=prod mix do compile, dynamo.filters"
-      refute output =~ %r(Dynamo.Filters.Loader)
       assert output =~ %r(ApplicationRouter.service/1)
     end
   end
 
   test "runs application code" do
     in_tmp "my_run_app", fn ->
-      app_with_dynamo_deps_path
+      app_with_dynamo_deps_path(:dev)
 
       output = System.cmd %s{mix run -e "IO.inspect HelloRouter.__info__(:module)"}
-      assert output =~ %r(HelloRouter)
-
-      # TODO: Get rid of this
-      File.rm_rf "ebin"
-
-      output = System.cmd %s{MIX_ENV=prod mix do compile, run "IO.inspect HelloRouter.__info__(:module)"}
       assert output =~ %r(HelloRouter)
     end
   end
 
   test "tests application code" do
     in_tmp "my_test_app", fn ->
-      app_with_dynamo_deps_path
+      app_with_dynamo_deps_path(:test)
 
       File.write! "test/routers/hello_router_test.exs", """
       defmodule HelloRouterTest do
@@ -78,27 +55,17 @@ defmodule Mix.TasksTest do
       end
       """
 
-      output = System.cmd %s{mix test}
+      output = System.cmd %s{unset MIX_ENV; mix test}
       assert output =~ %r(3 tests, 0 failures)
     end
   end
 
-  test "warns on missing dependencies" do
-    in_tmp "missing_deps", fn ->
-      Mix.Tasks.Dynamo.run [".", "--dev"]
-      error = %r(Can't continue due to errors on dependencies)
-
-      output = System.cmd "mix server"
-      assert output =~ error
-
-      output = System.cmd "MIX_ENV=prod mix server"
-      assert output =~ error
-    end
-  end
-
-  defp app_with_dynamo_deps_path do
+  defp app_with_dynamo_deps_path(env) do
     Mix.Tasks.Dynamo.run [".", "--module", "MyApp", "--dev"]
     File.cp! "../../mix.lock", "mix.lock"
+
+    File.mkdir_p!("_build/#{env}")
+    File.cp_r!("../../_build/shared/.", "_build/#{env}")
 
     File.write! "mix.exs",
       Regex.replace(%r"deps: deps", File.read!("mix.exs"), %s(deps: deps, deps_path: "../../deps"))

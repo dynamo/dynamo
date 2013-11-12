@@ -127,6 +127,7 @@ defmodule Dynamo do
         @before_compile { unquote(__MODULE__), :define_endpoint }
         @before_compile { unquote(__MODULE__), :define_filters }
         @before_compile { unquote(__MODULE__), :define_templates_paths }
+        @before_compile { unquote(__MODULE__), :define_source_paths }
         @before_compile { unquote(__MODULE__), :define_static }
         @before_compile { unquote(__MODULE__), :define_root }
 
@@ -169,17 +170,7 @@ defmodule Dynamo do
           dynamo = config[:dynamo]
 
           if dynamo[:compile_on_demand] do
-            callback = fn
-              path, acc when is_binary(path) ->
-                (path |> Path.expand(root) |> Path.wildcard) ++ acc
-              _, acc ->
-                acc
-            end
-
-            source    = Enum.reduce dynamo[:source_paths], [], callback
-            templates = Enum.reduce dynamo[:templates_paths], [], callback
-
-            Dynamo.Loader.append_paths(source -- templates)
+            Dynamo.Loader.append_paths(source_paths -- templates_paths)
             Dynamo.Loader.enable
 
             if Code.ensure_loaded?(IEx) and IEx.started? do
@@ -313,10 +304,9 @@ defmodule Dynamo do
     end
 
     templates_server = dynamo[:supervisor].TemplatesServer
-
     templates_paths  = lc path inlist templates_paths do
       if is_binary(path) do
-        quote do: Path.expand(unquote(path), root)
+        Path.expand(path)
       else
         Macro.escape(path)
       end
@@ -336,6 +326,18 @@ defmodule Dynamo do
       The worker responsible for rendering templates.
       """
       def templates_server, do: unquote(templates_server)
+    end
+  end
+
+  defmacro define_source_paths(env) do
+    dynamo = Module.get_attribute(env.module, :config)[:dynamo]
+    source = Enum.flat_map(dynamo[:source_paths], &Path.wildcard/1) |> Enum.map(&Path.expand/1)
+
+    quote location: :keep do
+      @doc """
+      Returns source paths after expansion.
+      """
+      def source_paths, do: unquote(source)
     end
   end
 
@@ -364,48 +366,24 @@ defmodule Dynamo do
 
   @doc false
   defmacro define_root(env) do
-    module = env.module
-    dynamo = Module.get_attribute(module, :config)[:dynamo]
-    root   =
-      cond do
-        dynamo[:root] -> dynamo[:root]
-        nil?(dynamo[:otp_app]) -> File.cwd!
-        true -> nil
-      end
+    dynamo = Module.get_attribute(env.module, :config)[:dynamo]
 
-    if root do
-      quote location: :keep do
-        @doc """
-        Returns the root path for this Dynamo.
-        """
-        def root, do: unquote(root)
-      end
-    else
-      app = dynamo[:otp_app]
-      tmp = "#{app}/tmp/#{dynamo[:env]}/#{app}"
-
+    if app = dynamo[:otp_app] do
       quote location: :keep do
         @doc """
         Returns the root path for this Dynamo
         based on the OTP app directory.
         """
         def root do
-          case :code.lib_dir(unquote(app)) do
-            list when is_list(list) ->
-              bin  = String.from_char_list!(list)
-              size = size(bin)
-
-              if size > unquote(size(tmp)) do
-                :binary.replace bin, unquote(tmp),
-                  unquote(atom_to_binary(app)), scope: { size, unquote(-size(tmp)) }
-              else
-                bin
-              end
-            _ ->
-              raise "could not find OTP app #{unquote(dynamo[:otp_app])} for #{inspect __MODULE__}. " <>
-                "This may happen if the directory name is different than the application name."
-          end
+          :code.lib_dir(unquote(app)) |> String.from_char_list!
         end
+      end
+    else
+      quote location: :keep do
+        @doc """
+        Returns the root path for this Dynamo.
+        """
+        def root, do: unquote(dynamo[:root] || File.cwd!)
       end
     end
   end

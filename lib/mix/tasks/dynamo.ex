@@ -136,10 +136,9 @@ defmodule Mix.Tasks.Dynamo do
     def project do
       [ app: :<%= @app %>,
         version: "0.0.1",
+        build_per_environment: true,
         dynamos: [<%= @mod %>.Dynamo],
         compilers: [:elixir, :dynamo, :app],
-        env: [prod: [compile_path: "ebin"]],
-        compile_path: "tmp/#{Mix.env}/<%= @app %>/ebin",
         deps: deps ]
     end
 
@@ -151,7 +150,7 @@ defmodule Mix.Tasks.Dynamo do
 
     defp deps do
       [ { :cowboy, github: "extend/cowboy" },
-        { :dynamo, "<%= @version %>", <%= @dynamo %> } ]
+        { :dynamo, "~> <%= @version %>", <%= @dynamo %> } ]
     end
   end
   """

@@ -10,7 +10,7 @@ defmodule Dynamo.StaticTest do
 
     config :dynamo,
       otp_app: :dynamo,
-      static_root: "test/fixtures/static",
+      static_root: "../../../../test/fixtures/static",
       static_route: "/static",
       cache_static: true
   end
@@ -24,7 +24,7 @@ defmodule Dynamo.StaticTest do
 
     config :dynamo,
       otp_app: :dynamo,
-      static_root: "test/fixtures/static",
+      static_root: "../../../../test/fixtures/static",
       static_route: "/static",
       cache_static: false
   end
