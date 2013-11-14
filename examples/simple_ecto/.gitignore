@@ -1,0 +1,6 @@
+/ebin
+/deps
+/tmp/dev
+/tmp/test
+/_build
+erl_crash.dump
