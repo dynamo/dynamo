@@ -4,11 +4,11 @@ defmodule Dynamo.Filters.Head do
   `conn.method` will report to be "GET" and
   `conn.original_method` will return "HEAD".
   """
-  def service(conn, fun) do
+  def prepare(conn) do
     if conn.method == "HEAD" do
-      fun.(conn.method("GET"))
+      conn.method("GET")
     else
-      fun.(conn)
+      conn
     end
   end
 end
