@@ -31,16 +31,3 @@ defmodule Dynamo.Mixfile do
       mod: { Dynamo.App, [] } ]
   end
 end
-
-defmodule Mix.Tasks.Release_docs do
-  @shortdoc "Releases docs"
-
-  def run(_) do
-    Mix.Task.run "docs"
-
-    File.cd! "../elixir-lang.github.com", fn -> System.cmd "git checkout master" end
-    File.rm_rf "../elixir-lang.github.com/docs/dynamo"
-    File.cp_r "docs/.", "../elixir-lang.github.com/docs/dynamo/"
-    File.rm_rf "docs"
-  end
-end

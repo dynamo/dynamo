@@ -32,8 +32,6 @@ Before becoming beta, we want to add the following to Dynamo:
 
 This README will go into Dynamo installation and a basic walk-through.
 
-Documentation for Dynamo is available at [elixir-lang.org/docs/dynamo](http://elixir-lang.org/docs/dynamo).
-
 # Installation
 
 As an alpha-software, Dynamo installation is a bit manual but can be done in few steps:
