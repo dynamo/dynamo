@@ -175,7 +175,7 @@ get "/users/:user_id" do
 end
 
 defp authenticate_user(conn) do
-  unless conn.session[:user_id] do
+  unless get_session(conn, :user_id) do
     halt! conn.status(401)
   end
 end
@@ -224,7 +224,7 @@ The connection plays a huge part when building Dynamos. As we have seen above, e
 
 ```elixir
 defp authenticate_user(conn) do
-  unless conn.session[:user_id] do
+  unless get_session(conn, :user_id) do
     halt! conn.status(401)
   end
 end
