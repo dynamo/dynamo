@@ -25,6 +25,7 @@ defmodule Dynamo.Cowboy do
   """
   def run(main, options // []) do
     :application.start(:ranch)
+    :application.start(:cowlib)
     :application.start(:cowboy)
 
     env  = options[:env]
