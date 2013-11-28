@@ -122,10 +122,9 @@ defmodule Mix.Tasks.Dynamo do
   """
 
   embed_text :gitignore, """
-  /ebin
+  /_build
   /deps
-  /tmp/dev
-  /tmp/test
+  /tmp
   erl_crash.dump
   """
 
