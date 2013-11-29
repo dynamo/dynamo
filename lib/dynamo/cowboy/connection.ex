@@ -112,8 +112,7 @@ defmodule Dynamo.Cowboy.Connection do
   end
 
   @doc false
-  def send(status, body, connection(state: state) = conn) when is_integer(status)
-      and state in [:unset, :set] and is_binary(body) do
+  def send(status, body, connection(state: state) = conn) when state in [:unset, :set] and is_binary(body) do
     conn = run_before_send(connection(conn, status: status, resp_body: body, state: :set))
     connection(req: req, status: status, resp_body: body,
                resp_headers: headers, resp_cookies: cookies) = conn
