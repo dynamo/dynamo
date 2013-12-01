@@ -82,7 +82,7 @@ defmodule Dynamo.Templates.Renderer do
   end
 
   defp raise_too_busy(Template[identifier: identifier]) do
-    raise "Compiling template #{inspect identifier} exceeded the max number of attempts #{@max_attemps}. What gives?"
+    raise "Compiling template #{inspect identifier} exceeded the max number of attempts #{@max_attempts}. What gives?"
   end
 
   ## Backend
@@ -137,7 +137,7 @@ defmodule Dynamo.Templates.Renderer do
     :code.purge(module)
   end
 
-  defp generate_suggestion(name, attempts) when attempts < @max_attemps do
+  defp generate_suggestion(name, attempts) when attempts < @max_attempts do
     random = :random.uniform(@slots)
     module = Module.concat(name, "T#{random}")
 
