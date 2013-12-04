@@ -49,7 +49,7 @@ defmodule Dynamo.Connection.Utils do
     { mega, sec, mili } = :erlang.now()
     name = Path.join(tmp_dir, "#{prefix}-#{mega}-#{sec}-#{mili}")
     case :file.open(name, [:write, :exclusive, :binary]) do
-      { :error, :eaccess } -> random_file(prefix, tmp_dir, callback, attempts + 1)
+      { :error, :eacces } -> random_file(prefix, tmp_dir, callback, attempts + 1)
       { :ok, file } ->
         result = try do
           callback.(file)
