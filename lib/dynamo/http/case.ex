@@ -197,6 +197,10 @@ defmodule Dynamo.HTTP.Case do
     do_process endpoint, Dynamo.Connection.Test.new(method, path)
   end
 
+  def process(endpoint, path, method, body) when is_binary(path) do
+    do_process endpoint, conn(method, path, body)
+  end
+
   defp do_process(endpoint, conn) do
     conn = endpoint.service(conn)
 
