@@ -5,8 +5,10 @@ System.put_env("MIX_ENV", "dev")
 
 ExUnit.start
 
-:application.start(:edown)
-:application.start(:hackney)
+:ok = :application.start(:asn1)
+:ok = :application.start(:public_key)
+:ok = :application.start(:ssl)
+:ok = :application.start(:hackney)
 
 defmodule MixHelpers do
   import ExUnit.Assertions

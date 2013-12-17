@@ -42,41 +42,41 @@ defmodule Dynamo.Cowboy.SSLTest do
 
   test :http_scheme do
     assert { :ok, 200, _, client } = :hackney.request(:get, "http://127.0.0.1:8021/scheme", [], "", [])
-    assert { :ok, "scheme: http", _ } = :hackney.body(client)
+    assert { :ok, "scheme: http" } = :hackney.body(client)
   end
 
   test :http_host_url do
     assert { :ok, 200, _, client } = :hackney.request(:get, "http://127.0.0.1:8021/host_url", [], "", [])
-    assert { :ok, "host_url: http://127.0.0.1:8021", _ } = :hackney.body(client)
+    assert { :ok, "host_url: http://127.0.0.1:8021" } = :hackney.body(client)
   end
 
   test :http_host do
     assert { :ok, 200, _, client } = :hackney.request(:get, "http://127.0.0.1:8021/host", [], "", [])
-    assert { :ok, "host: 127.0.0.1", _ } = :hackney.body(client)
+    assert { :ok, "host: 127.0.0.1" } = :hackney.body(client)
   end
 
   test :http_port do
     assert { :ok, 200, _, client } = :hackney.request(:get, "http://127.0.0.1:8021/port", [], "", [])
-    assert { :ok, "port: 8021", _ } = :hackney.body(client)
+    assert { :ok, "port: 8021" } = :hackney.body(client)
   end
 
   test :https_scheme do
     assert { :ok, 200, _, client } = :hackney.request(:get, "https://127.0.0.1:8022/scheme", [], "", [])
-    assert { :ok, "scheme: https", _ } = :hackney.body(client)
+    assert { :ok, "scheme: https" } = :hackney.body(client)
   end
 
   test :https_host_url do
     assert { :ok, 200, _, client } = :hackney.request(:get, "https://127.0.0.1:8022/host_url", [], "", [])
-    assert { :ok, "host_url: https://127.0.0.1:8022", _ } = :hackney.body(client)
+    assert { :ok, "host_url: https://127.0.0.1:8022" } = :hackney.body(client)
   end
 
   test :https_host do
     assert { :ok, 200, _, client } = :hackney.request(:get, "https://127.0.0.1:8022/host", [], "", [])
-    assert { :ok, "host: 127.0.0.1", _ } = :hackney.body(client)
+    assert { :ok, "host: 127.0.0.1" } = :hackney.body(client)
   end
 
   test :https_port do
     assert { :ok, 200, _, client } = :hackney.request(:get, "https://127.0.0.1:8022/port", [], "", [])
-    assert { :ok, "port: 8022", _ } = :hackney.body(client)
+    assert { :ok, "port: 8022" } = :hackney.body(client)
   end
 end
