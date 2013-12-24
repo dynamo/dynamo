@@ -1,6 +1,6 @@
 # Dynamo
 
-[![Build Status](https://travis-ci.org/elixir-lang/dynamo.png?branch=master)](https://travis-ci.org/elixir-lang/dynamo)
+[![Build Status](https://travis-ci.org/dynamo/dynamo.png?branch=master)](https://travis-ci.org/dynamo/dynamo)
 
 Run, Dynamo, Run!
 

@@ -34,7 +34,7 @@ defmodule Dynamo.Router.Base do
 
   In the example above, a request will only match if it is
   a `GET` request and the route "/hello". The supported
-  verbs are `get`, `post`, `put`, `patch` and `delete`.
+  verbs are `get`, `post`, `put`, `patch`, `delete` and `options`.
 
   A route can also specify parameters which will then be
   available in the function body:
@@ -318,6 +318,14 @@ defmodule Dynamo.Router.Base do
   """
   defmacro delete(path, contents) do
     compile(:generate_match, path, Keyword.merge(contents, via: :delete))
+  end
+
+  @doc """
+  Dispatches to the path only if it is options request.
+  See `match/3` for more examples.
+  """
+  defmacro options(path, contents) do
+    compile(:generate_match, path, Keyword.merge(contents, via: :options))
   end
 
   ## Match Helpers

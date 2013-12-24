@@ -41,7 +41,7 @@ defmodule Dynamo.Cowboy.RouterTest do
   defp request(verb, path) do
     { :ok, status, headers, client } =
       :hackney.request(verb, "http://127.0.0.1:8012" <> path, [], "", [])
-    { :ok, body, _ } = :hackney.body(client)
+    { :ok, body } = :hackney.body(client)
     { status, headers, body }
   end
 end
