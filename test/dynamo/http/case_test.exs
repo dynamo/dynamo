@@ -47,4 +47,9 @@ defmodule Dynamo.HTTP.CaseTest do
     conn = post("/test_post", "test body")
     assert conn.sent_body == "test body"
   end
+
+  test "sees the request body from a post with HashDict" do
+    conn = post("/test_post", [{"foo", "bar"}, {"bar", "foo"}])
+    assert conn.sent_body == "foo=bar&bar=foo"
+  end
 end
