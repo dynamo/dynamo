@@ -1,7 +1,7 @@
 language: erlang
 notifications:
   recipients:
-    - jose.valim@plataformatec.com.br
+    - devin@devintorr.es
 otp_release:
   - R16B
 before_install:
