@@ -3,9 +3,12 @@ notifications:
   recipients:
     - devin@devintorr.es
 otp_release:
+  - R16B03
+  - R16B02
+  - R16B01
   - R16B
 before_install:
-  - git clone https://github.com/elixir-lang/elixir
-  - cd elixir && make && cd ..
+  - git clone git://github.com/elixir-lang/elixir --depth 1
+  - make -C elixir
 before_script: "export PATH=`pwd`/elixir/bin:$PATH"
 script: "MIX_ENV=test mix do deps.get, test"
