@@ -108,14 +108,20 @@ defmodule Dynamo.HTTP.Case do
   end
 
   @doc """
-  Does a POST request to the given path:
+  Does a POST request to the given path and optionally body:
 
       post("/foo")
       post(conn, "/foo")
+      post(conn, "/foo", "test body") # POSTs to `/foo` with `test body` body
+      post(conn, "/foo", [{"foo", "bar"}]) # POSTs to `/foo` with `foo=bar` body
 
   """
   defmacro post(arg1, arg2 // nil) do
-    do_method :POST, arg1, arg2
+    if is_list(arg2) do
+      do_method :POST, arg1, URI.encode_query(arg2)
+    else
+      do_method :POST, arg1, arg2
+    end
   end
 
   @doc """
@@ -206,6 +212,10 @@ defmodule Dynamo.HTTP.Case do
 
   def process(endpoint, method, path, nil) do
     do_process endpoint, Dynamo.Connection.Test.new(method, path)
+  end
+
+  def process(endpoint, path, method, body) when is_binary(path) do
+    do_process endpoint, conn(method, path, body)
   end
 
   defp do_process(endpoint, conn) do

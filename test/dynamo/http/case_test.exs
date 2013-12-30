@@ -15,6 +15,11 @@ defmodule Dynamo.HTTP.CaseTest do
     get "/get_session" do
       conn.send(200, get_session(conn, :hello))
     end
+
+    post "/test_post" do
+      conn = conn.fetch :body
+      conn.send 200, conn.req_body
+    end
   end
 
   use ExUnit.Case
@@ -36,5 +41,15 @@ defmodule Dynamo.HTTP.CaseTest do
     conn = put_session_cookie conn(:get, "/"), hello: "world"
     conn = get(conn, "/get_session")
     assert conn.sent_body == "world"
+  end
+
+  test "sees the request body from a post" do
+    conn = post("/test_post", "test body")
+    assert conn.sent_body == "test body"
+  end
+
+  test "sees the request body from a post with HashDict" do
+    conn = post("/test_post", [{"foo", "bar"}, {"bar", "foo"}])
+    assert conn.sent_body == "foo=bar&bar=foo"
   end
 end
