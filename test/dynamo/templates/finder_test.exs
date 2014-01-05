@@ -1,7 +1,7 @@
 defmodule Dynamo.Templates.FinderTest do
   use ExUnit.Case, async: true
 
-  @fixture_path Path.expand("../../../fixtures/templates", __FILE__)
+  @fixture_path Path.expand("../../fixtures/templates", __DIR__)
 
   test "finds available template" do
     path = Path.join(@fixture_path, "hello.html.eex")

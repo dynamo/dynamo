@@ -2,7 +2,7 @@ defmodule Dynamo.LoaderTest do
   use ExUnit.Case
 
   defp fixture_path do
-    Path.expand("../../fixtures/reloader", __FILE__)
+    Path.expand("../fixtures/reloader", __DIR__)
   end
 
   setup_all do

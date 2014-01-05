@@ -3,7 +3,7 @@ defmodule Dynamo.Filters.StaticTest do
     use Dynamo
     use Dynamo.Router
 
-    config :dynamo, root: Path.expand("../../..", __FILE__)
+    config :dynamo, root: Path.expand("../..", __DIR__)
 
     filter Dynamo.Filters.Static.new("/public", "")
 

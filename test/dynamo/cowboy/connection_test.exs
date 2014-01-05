@@ -358,7 +358,7 @@ defmodule Dynamo.Cowboy.ConnectionTest do
   end
 
   def sendfile(conn) do
-    file = Path.expand("../../../fixtures/static/file.txt", __FILE__)
+    file = Path.expand("../../fixtures/static/file.txt", __DIR__)
     conn = conn.sendfile(200, file)
     assert conn.state  == :sent
     assert conn.status == 200
@@ -390,7 +390,7 @@ defmodule Dynamo.Cowboy.ConnectionTest do
   end
 
   def before_send_with_sendfile(conn) do
-    file = Path.expand("../../../fixtures/static/file.txt", __FILE__)
+    file = Path.expand("../../fixtures/static/file.txt", __DIR__)
     conn.before_send(fn(conn) ->
       assert conn.state == :sendfile
       assert conn.status == 201

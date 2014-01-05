@@ -149,5 +149,5 @@ defmodule Dynamo.Filters.Exceptions.Debug do
   require EEx
 
   EEx.function_from_file :defp, :template,
-    Path.expand("../template.eex", __FILE__), [:conn, :assigns]
+    Path.expand("template.eex", __DIR__), [:conn, :assigns]
 end

@@ -6,7 +6,7 @@ defmodule Dynamo.Filters.Exceptions.DebugTest do
     config :dynamo,
       source_paths: ["filters/exceptions"],
       exceptions_editor: "editor://__FILE__:__LINE__",
-      root: Path.expand("../../..", __FILE__) # test/dynamo
+      root: Path.expand("../..", __DIR__) # test/dynamo
   end
 
   use ExUnit.Case, async: true
@@ -35,7 +35,7 @@ defmodule Dynamo.Filters.Exceptions.DebugTest do
 
   test "show editor links" do
     conn = @endpoint.service(conn)
-    assert conn.sent_body =~ %r"editor://#{URI.encode __FILE__}:#{16}"
+    assert conn.sent_body =~ %r"editor://#{URI.encode __ENV__.file}:#{16}"
   end
 
   test "shows snippets if they are part of the source_paths" do
