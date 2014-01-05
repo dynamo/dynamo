@@ -79,10 +79,11 @@ defmodule Dynamo.Connection.QueryParser do
   # not yet. This assumes that items are iterated in
   # reverse order.
   defp assign_parts([key,""|t], acc, value) do
-    case Binary.Dict.get(acc, key, []) do
-      current when is_list(current) -> current
-      _   -> raise ParseError, message: "expected list at #{key}"
-    end
+    current =
+      case Binary.Dict.get(acc, key, []) do
+        current when is_list(current) -> current
+        _   -> raise ParseError, message: "expected list at #{key}"
+      end
 
     if value = assign_list_parts(t, value) do
       Binary.Dict.put(acc, key, [value|current])
