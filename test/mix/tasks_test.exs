@@ -67,6 +67,8 @@ defmodule Mix.TasksTest do
     File.mkdir_p!("_build/#{env}")
     File.cp_r!("../../_build/shared/.", "_build/#{env}")
 
+    :ok = :file.make_symlink("../../deps", "deps")
+
     File.write! "mix.exs",
       Regex.replace(%r"deps: deps", File.read!("mix.exs"), %s(deps: deps, deps_path: "../../deps"))
 
