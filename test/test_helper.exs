@@ -14,7 +14,7 @@ defmodule MixHelpers do
   import ExUnit.Assertions
 
   def tmp_path do
-    Path.expand("../../tmp", __FILE__)
+    Path.expand("../tmp", __DIR__)
   end
 
   def tmp_path(extension) do

@@ -2,7 +2,7 @@ defmodule Dynamo.TemplatesTest do
   use ExUnit.Case, async: true
 
   @renderer __MODULE__.Renderer
-  @fixture_path Path.expand("../../fixtures/templates", __FILE__)
+  @fixture_path Path.expand("../fixtures/templates", __DIR__)
 
   setup_all do
     Dynamo.Templates.Renderer.start_link(@renderer)
@@ -35,7 +35,7 @@ defmodule Dynamo.TemplatesTest do
     cached = render "module.html"
     assert module == cached
 
-    template = Path.expand("../../fixtures/templates/module.html.eex", __FILE__)
+    template = Path.expand("../fixtures/templates/module.html.eex", __DIR__)
 
     try do
       File.touch!(template, { { 2030, 1, 1 }, { 0, 0, 0 } })

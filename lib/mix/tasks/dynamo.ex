@@ -53,7 +53,7 @@ defmodule Mix.Tasks.Dynamo do
     lib = underscore(mod)
 
     dynamo = if opts[:dev] do
-      %s(path: "#{Path.expand("../../../..", __FILE__)}")
+      %s(path: "#{Path.expand("../../..", __DIR__)}")
     else
       %s(github: "elixir-lang/dynamo")
     end

@@ -13,7 +13,7 @@ defmodule Dynamo.Filters.ExceptionsTest do
     filter Dynamo.Filters.Exceptions.new(Dynamo.Filters.Exceptions.Public)
 
     def root do
-      __FILE__
+      __ENV__.file
     end
 
     # Halt

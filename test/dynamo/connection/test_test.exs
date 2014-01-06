@@ -186,7 +186,7 @@ defmodule Dynamo.Connection.TestTest do
   end
 
   test :sendfile do
-    file = Path.expand("../../../fixtures/static/file.txt", __FILE__)
+    file = Path.expand("../../fixtures/static/file.txt", __DIR__)
     conn = conn(:GET, "/").sendfile(200, file)
     assert conn.state     == :sent
     assert conn.status    == 200

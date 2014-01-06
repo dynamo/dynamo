@@ -5,14 +5,14 @@ defmodule DynamoTest do
     use Dynamo
 
     config :dynamo,
-      root: Path.expand("../fixtures", __FILE__),
+      root: Path.expand("fixtures", __DIR__),
       endpoint: DynamoTest,
-      static_root: Path.expand("../fixtures/public", __FILE__),
+      static_root: Path.expand("fixtures/public", __DIR__),
       static_route: "/public",
       compile_on_demand: false,
       reload_modules: false,
-      source_paths: [Path.expand("../fixtures/*", __FILE__)],
-      templates_paths: [Path.expand("../fixtures/templates", __FILE__)]
+      source_paths: [Path.expand("fixtures/*", __DIR__)],
+      templates_paths: [Path.expand("fixtures/templates", __DIR__)]
 
     # Test session compilation as well
     config :dynamo,
@@ -41,13 +41,13 @@ defmodule DynamoTest do
   end
 
   test "defines root based on user config" do
-    assert App.root == Path.expand("../fixtures", __FILE__)
+    assert App.root == Path.expand("fixtures", __DIR__)
   end
 
   ## Filters
 
   test "adds public filter" do
-    file = Path.expand("../fixtures/public", __FILE__)
+    file = Path.expand("fixtures/public", __DIR__)
     assert Enum.first(App.__filters__) == Dynamo.Filters.Static.new("/public", file)
   end
 
@@ -67,7 +67,7 @@ defmodule DynamoTest do
 
   test "defines templates paths" do
     assert App.templates_paths == [DynamoTest.App.CompiledTemplates]
-    templates = Path.expand("../fixtures/templates", __FILE__)
+    templates = Path.expand("fixtures/templates", __DIR__)
     assert ReloadApp.templates_paths == [templates]
   end
 end
