@@ -3,7 +3,6 @@ defmodule Dynamo.Filters.Exceptions do
   A filter that is responsible to catch, log and handle exceptions.
   """
 
-  import Exception, only: [format_stacktrace_entry: 2]
   @key :dynamo_handle_exceptions
 
   def new(handler) do
@@ -76,8 +75,18 @@ defmodule Dynamo.Filters.Exceptions do
 
   defp logger_stacktrace(stacktrace, root) do
     Enum.reduce stacktrace, "Stacktrace:\n", fn(trace, acc) ->
-      acc <> "  " <> format_stacktrace_entry(trace, root) <> "\n"
+      acc <> "  " <> compatible_format_stacktrace_entry(trace, root) <> "\n"
+    end
+  end
+
+  # TODO: Remove when 0.12.2+ is released
+  if Version.match?(System.version, "<= 0.12.1") do
+    defp compatible_format_stacktrace_entry(trace, root) do
+      Exception.format_stacktrace_entry(trace, root)
+    end
+  else
+    defp compatible_format_stacktrace_entry(trace, _) do
+      Exception.format_stacktrace_entry(trace)
     end
   end
 end
-
