@@ -39,4 +39,27 @@ defmodule Dynamo.Filters.MethodOverrideTest do
     assert conn.status == 200
     assert conn.sent_body == "PATCH"
   end
+
+  test "converts POST to DELETE when X-HTTP-Method-Override: DELETE header is specified" do
+    conn = process @endpoint, conn_with_header("DELETE"), :POST, "/hello"
+    assert conn.status == 200
+    assert conn.sent_body == "DELETE"
+  end
+
+  test "converts POST to PUT when when X-HTTP-Method-Override: PUT is specified" do
+    conn = process @endpoint, conn_with_header("PUT"), :POST, "/hello"
+    assert conn.status == 200
+    assert conn.sent_body == "PUT"
+  end
+
+  test "converts POST to PATCH when X-HTTP-Method-Override: PATCH is specified" do
+    conn = process @endpoint, conn_with_header("PATCH"), :POST, "/hello"
+    assert conn.status == 200
+    assert conn.sent_body == "PATCH"
+  end
+
+  defp conn_with_header(method) do
+    conn = Dynamo.Connection.Test.new(:POST, "/hello")
+    conn.put_req_header "X-HTTP-Method-Override", method
+  end
 end

@@ -4,8 +4,7 @@ defmodule Dynamo.Filters.MethodOverride do
   """
   def prepare(conn) do
     if conn.method == "POST" do
-      conn = conn.fetch(:params)
-      case Dict.get(conn.params, :_method) do
+      case method_override(conn) do
         "DELETE" -> conn.method("DELETE")
         "PUT"    -> conn.method("PUT")
         "PATCH"  -> conn.method("PATCH")
@@ -14,5 +13,10 @@ defmodule Dynamo.Filters.MethodOverride do
     else
       conn
     end
+  end
+
+  defp method_override(conn) do
+    conn = conn.fetch([:params, :headers])
+    Dict.get(conn.params, :_method) || Dict.get(conn.req_headers, "x-http-method-override")
   end
 end
