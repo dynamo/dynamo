@@ -38,7 +38,7 @@ defmodule Dynamo.Filters.Exceptions do
       :erlang.raise(kind, value, stacktrace)
     end
 
-    message = logger_conn(conn) <> logger_reason(kind, value) <> logger_stacktrace(stacktrace, conn.main.root)
+    message = logger_conn(conn) <> logger_reason(kind, value) <> logger_stacktrace(stacktrace)
     message = String.to_char_list!(message)
     :error_logger.error_msg(message)
 
@@ -73,20 +73,9 @@ defmodule Dynamo.Filters.Exceptions do
     "    Reason: (#{kind}) #{inspect(value)}\n"
   end
 
-  defp logger_stacktrace(stacktrace, root) do
+  defp logger_stacktrace(stacktrace) do
     Enum.reduce stacktrace, "Stacktrace:\n", fn(trace, acc) ->
-      acc <> "  " <> compatible_format_stacktrace_entry(trace, root) <> "\n"
-    end
-  end
-
-  # TODO: Remove when 0.12.2+ is released
-  if Version.match?(System.version, "<= 0.12.1") do
-    defp compatible_format_stacktrace_entry(trace, root) do
-      Exception.format_stacktrace_entry(trace, root)
-    end
-  else
-    defp compatible_format_stacktrace_entry(trace, _) do
-      Exception.format_stacktrace_entry(trace)
+      acc <> "  " <> Exception.format_stacktrace_entry(trace) <> "\n"
     end
   end
 end
