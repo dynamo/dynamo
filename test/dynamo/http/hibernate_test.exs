@@ -99,7 +99,7 @@ defmodule Dynamo.HTTP.HibernateTest do
   end
 
   defp await_wake_up(pid) do
-    pid <- "hello"
+    send pid, "hello"
 
     receive do
       :awaken -> true
@@ -117,10 +117,10 @@ defmodule Dynamo.HTTP.HibernateTest do
   end
 
   defp on_wake_up("hello", conn) do
-    conn.assigns[:parent] <- :awaken
+    send conn.assigns[:parent], :awaken
   end
 
   defp on_timeout(conn) do
-    conn.assigns[:parent] <- :timedout
+    send conn.assigns[:parent], :timedout
   end
 end

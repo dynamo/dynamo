@@ -103,7 +103,7 @@ defmodule Dynamo.Cowboy.Connection do
   def already_sent?(_conn) do
     receive do
       { :cowboy_req, :resp_sent } = flag ->
-        self <- flag
+        send self, flag
         true
     after
       0 ->

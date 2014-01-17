@@ -49,7 +49,7 @@ defimpl Dynamo.Templates.Finder, for: BitString do
 
   def find(root, key) do
     query = Path.join(root, escape(key) <> ".*")
-    path  = Enum.first Path.wildcard(query)
+    path  = List.first Path.wildcard(query)
     if path, do: build(root, key, path)
   end
 

@@ -100,7 +100,7 @@ defmodule Dynamo.Connection.Test do
   def already_sent?(_conn) do
     receive do
       @send_flag ->
-        self <- @send_flag
+        send self, @send_flag
         true
     after
       0 ->
@@ -111,7 +111,7 @@ defmodule Dynamo.Connection.Test do
   @doc false
   def send(status, body, connection(state: state) = conn) when is_integer(status)
       and state in [:unset, :set] and is_binary(body) do
-    self() <- @send_flag
+    send self, @send_flag
 
     conn = run_before_send(connection(conn, state: :set, status: status, resp_body: body))
     connection(resp_body: body) = conn
@@ -126,7 +126,7 @@ defmodule Dynamo.Connection.Test do
   @doc false
   def send_chunked(status, connection(state: state) = conn) when is_integer(status)
       and state in [:unset, :set] do
-    self() <- @send_flag
+    send self, @send_flag
     conn = run_before_send(connection(conn, state: :chunked, status: status))
 
     connection(conn,
@@ -145,7 +145,7 @@ defmodule Dynamo.Connection.Test do
 
   @doc false
   def sendfile(status, path, conn) when is_integer(status) and is_binary(path) do
-    self() <- @send_flag
+    send self, @send_flag
     conn = run_before_send(connection(conn, state: :sendfile, status: status))
 
     connection(conn,
