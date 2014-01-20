@@ -15,7 +15,7 @@ defmodule Dynamo.Utils.MessageVerifier do
     case :binary.split(encoded, "--") do
       [content, digest] when content != "" and digest != "" ->
         if secure_compare(digest(secret, content), digest) do
-          { :ok, content |> :base64.decode |> binary_to_term }
+          { :ok, content |> :base64.decode |> :erlang.binary_to_term }
         else
           :error
         end
@@ -28,7 +28,7 @@ defmodule Dynamo.Utils.MessageVerifier do
   Generates an encoded and signed binary for the given term.
   """
   def generate(secret, term) do
-    encoded = term |> term_to_binary |> :base64.encode
+    encoded = term |> :erlang.term_to_binary |> :base64.encode
     encoded <> "--" <> digest(secret, encoded)
   end
 
