@@ -71,7 +71,7 @@ defmodule Dynamo.Connection do
   @type   charset      :: binary
   @type   content_type :: binary
   @type   fetch_aspect :: :headers | :params | :cookies | :body | atom
-  @type   main          :: module
+  @type   main         :: module
   @type   assigns      :: Keyword.t
   @type   private      :: Keyword.t
   @type   scheme       :: :http | :https
