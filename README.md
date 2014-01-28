@@ -65,7 +65,7 @@ Your project can be compiled and used in production with: `MIX_ENV=prod mix do c
 Elixir evolves rapidly and Dynamo follows it. If you get build or test errors, please use the
 current **master** branch of elixir before reporting any bugs.
 
-If you're on OSX and use [homebrew](http://mxcl.github.io/homebrew/), this is easily done as follows:
+If you're on OSX and use [homebrew](http://brew.sh/), this is easily done as follows:
 
 ```bash
     $ brew unlink elixir # remove non-head installation of elixir
