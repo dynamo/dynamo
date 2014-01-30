@@ -55,8 +55,8 @@ defmodule Dynamo.HTTP.Render do
     format     = template.format
 
     if format && !conn.resp_content_type do
-      mime = :mimetypes.ext_to_mimes(format)
-      conn = conn.resp_content_type(hd(mime))
+      type = MIME.Types.type(format)
+      conn = conn.resp_content_type(type)
     end
 
     assigns = Keyword.merge(conn.assigns, assigns)

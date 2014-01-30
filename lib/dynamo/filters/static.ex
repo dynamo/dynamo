@@ -41,9 +41,8 @@ defmodule Dynamo.Filters.Static do
       true ->
         path = Path.join([conn.main.root, root|segments])
         if File.regular?(path) do
-          mimes = :mimetypes.filename(path)
           conn
-            .put_resp_header("content-type", hd(mimes))
+            .put_resp_header("content-type", MIME.Types.path(path))
             .put_resp_header("cache-control", "public, max-age=31536000")
             .sendfile(200, path)
         else

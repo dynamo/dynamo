@@ -8,13 +8,7 @@ defmodule Dynamo.App do
   required at compilation time.
   """
   def start do
-    :application.start(:crypto)
-    :application.start(:mimetypes)
-
-    case :application.start(:dynamo) do
-      :ok -> :ok
-      { :error, { :already_started, :dynamo } } -> :ok
-    end
+    Application.Behaviour.start(:dynamo)
   end
 
   @doc """

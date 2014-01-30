@@ -35,8 +35,8 @@ defmodule Dynamo.HTTP.Redirect do
     end
 
     if format = opts[:format] do
-      mime = :mimetypes.ext_to_mimes(to_string(format))
-      conn = conn.resp_content_type(hd(mime))
+      type = MIME.Types.type(to_string(format))
+      conn = conn.resp_content_type(type)
     end
 
     conn
