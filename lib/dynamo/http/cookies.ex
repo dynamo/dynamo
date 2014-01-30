@@ -44,7 +44,7 @@ defmodule Dynamo.HTTP.Cookies do
   * `http_only` - If the cookie is sent only via http. Default to true;
 
   """
-  def put_cookie(conn, key, value, opts // []) do
+  def put_cookie(conn, key, value, opts \\ []) do
     conn.put_resp_cookie(to_string(key), to_string(value), opts)
   end
 
@@ -52,7 +52,7 @@ defmodule Dynamo.HTTP.Cookies do
   Deletes a cookie. The same options given when setting the cookie
   must be given on delete to ensure the browser will pick them up.
   """
-  def delete_cookie(conn, key, opts // []) do
+  def delete_cookie(conn, key, opts \\ []) do
     unix = { { 1970, 1, 1 }, { 12, 0, 0 } }
     opts = [max_age: 0, universal_time: unix] ++ opts
     conn.put_resp_cookie(to_string(key), nil, opts)

@@ -249,7 +249,7 @@ defmodule Dynamo.Router.Base do
       end
 
   """
-  defmacro match(expression, options, contents // []) do
+  defmacro match(expression, options, contents \\ []) do
     compile(:generate_match, expression, Keyword.merge(contents, options))
   end
 

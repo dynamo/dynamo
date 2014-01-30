@@ -91,7 +91,7 @@ defmodule Dynamo.Filters.Session.CookieStoreTest do
     assert other_id != id
   end
 
-  defp session(opts // []) do
+  defp session(opts \\ []) do
     Dynamo.Filters.Session.new(Dynamo.Filters.Session.CookieStore,
       [key: @key, secret: String.duplicate("1234567890", 8)] ++ opts)
   end

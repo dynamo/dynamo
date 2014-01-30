@@ -29,7 +29,7 @@ defmodule Dynamo.Connection.QueryParser do
   Parses a raw query string, decodes it and returns
   a `Binary.Dict` containing nested hashes.
   """
-  def parse(query, dict // Binary.Dict.new)
+  def parse(query, dict \\ Binary.Dict.new)
 
   def parse("", dict) do
     dict

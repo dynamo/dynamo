@@ -23,7 +23,7 @@ defmodule Dynamo.Cowboy do
       Dynamo.Cowboy.run MyApp, port: 80
 
   """
-  def run(main, options // []) do
+  def run(main, options \\ []) do
     :application.start(:ranch)
     :application.start(:cowlib)
     :application.start(:cowboy)

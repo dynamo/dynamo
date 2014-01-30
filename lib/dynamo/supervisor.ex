@@ -27,7 +27,7 @@ defmodule Dynamo.Supervisor do
       Dynamo.Supervisor.start_child MyDynamo.supervisor, Worker, []
 
   """
-  def start_child(supervisor, name, args, opts // []) do
+  def start_child(supervisor, name, args, opts \\ []) do
     :supervisor.start_child(supervisor, worker(name, args, opts))
   end
 

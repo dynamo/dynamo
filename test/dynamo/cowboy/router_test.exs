@@ -35,7 +35,9 @@ defmodule Dynamo.Cowboy.RouterTest do
   end
 
   test "404 response a router app" do
+    :error_logger.tty(false)
     assert { 404, _, _ } = request :get, "/other"
+    :error_logger.tty(true)
   end
 
   defp request(verb, path) do

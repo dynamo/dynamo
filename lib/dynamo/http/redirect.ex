@@ -27,7 +27,7 @@ defmodule Dynamo.HTTP.Redirect do
       # combination of letters, digits, and the plus ("+"),
       # period ("."), or hyphen ("-") characters; and is
       # terminated by a colon (":").
-      unless to =~ %r{^(\w[\w+.-]*:|//).*} do
+      unless String.match?(to, %r{^(\w[\w+.-]*:|//).*}) do
         to = conn.host_url <> to
       end
     else

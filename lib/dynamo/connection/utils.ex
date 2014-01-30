@@ -78,7 +78,7 @@ defmodule Dynamo.Connection.Utils do
   Receives a cookie key, value, options and returns
   a cookie header.
   """
-  def cookie_header(key, value, options // [])
+  def cookie_header(key, value, options \\ [])
 
   def cookie_header(key, nil, options) do
     cookie_header(key, "", options)

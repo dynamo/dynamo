@@ -13,7 +13,7 @@ defmodule Dynamo.Helpers.Rendering do
       <%= render "sidebar.html", header: "Hello" %>
 
   """
-  defmacro render(template, assigns // []) do
+  defmacro render(template, assigns \\ []) do
     quote do
       { var!(conn), body } = unquote(__MODULE__).render(var!(conn), unquote(template), unquote(assigns))
       body

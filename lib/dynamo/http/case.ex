@@ -11,7 +11,7 @@ defmodule Dynamo.HTTP.Case do
 
         test :root_route do
           conn = get("/")
-          assert conn.sent_body =~ %r/somevalue/
+          assert String.match? conn.sent_body, %r/somevalue/
         end
       end
 
@@ -26,7 +26,7 @@ defmodule Dynamo.HTTP.Case do
 
         test :route do
           conn = get("/route")
-          assert conn.sent_body =~ %r/somevalue/
+          assert String.match? conn.sent_body, %r/somevalue/
         end
       end
 
@@ -39,10 +39,10 @@ defmodule Dynamo.HTTP.Case do
 
       test :session do
         conn = get("/put_session")
-        assert conn.sent_body =~ %r/somevalue/
+        assert String.match? conn.sent_body, %r/somevalue/
 
         conn = get(conn, "/set_session")
-        assert conn.sent_body =~ %r/othervalue/
+        assert String.match? conn.sent_body, %r/othervalue/
       end
 
   The example above will automatically work, since
@@ -59,11 +59,11 @@ defmodule Dynamo.HTTP.Case do
 
       test :session do
         conn = get("/put_session")
-        assert conn.sent_body =~ %r/somevalue/
+        assert String.match? conn.sent_body, %r/somevalue/
 
         conn = conn.assign(:foo, :bar)
         conn = get(conn, "/set_session")
-        assert conn.sent_body =~ %r/othervalue/
+        assert String.match? conn.sent_body, %r/othervalue/
       end
 
   In the example above, the assign `:foo` set before the request
@@ -92,7 +92,7 @@ defmodule Dynamo.HTTP.Case do
   @doc """
   Returns a connection built with the given method, path and body.
   """
-  def conn(method, path, body // "") do
+  def conn(method, path, body \\ "") do
     Dynamo.Connection.Test.new(method, path, body)
   end
 
@@ -103,7 +103,7 @@ defmodule Dynamo.HTTP.Case do
       get(conn, "/foo")
 
   """
-  defmacro get(arg1, arg2 // nil) do
+  defmacro get(arg1, arg2 \\ nil) do
     do_method :GET, arg1, arg2
   end
 
@@ -116,7 +116,7 @@ defmodule Dynamo.HTTP.Case do
       post(conn, "/foo", [{"foo", "bar"}]) # POSTs to `/foo` with `foo=bar` body
 
   """
-  defmacro post(arg1, arg2 // nil) do
+  defmacro post(arg1, arg2 \\ nil) do
     if is_list(arg2) do
       do_method :POST, arg1, URI.encode_query(arg2)
     else
@@ -131,7 +131,7 @@ defmodule Dynamo.HTTP.Case do
       put(conn, "/foo")
 
   """
-  defmacro put(arg1, arg2 // nil) do
+  defmacro put(arg1, arg2 \\ nil) do
     do_method :PUT, arg1, arg2
   end
 
@@ -142,7 +142,7 @@ defmodule Dynamo.HTTP.Case do
       patch(conn, "/foo")
 
   """
-  defmacro patch(arg1, arg2 // nil) do
+  defmacro patch(arg1, arg2 \\ nil) do
     do_method :PATCH, arg1, arg2
   end
 
@@ -153,7 +153,7 @@ defmodule Dynamo.HTTP.Case do
       delete(conn, "/foo")
 
   """
-  defmacro delete(arg1, arg2 // nil) do
+  defmacro delete(arg1, arg2 \\ nil) do
     do_method :DELETE, arg1, arg2
   end
 
@@ -164,7 +164,7 @@ defmodule Dynamo.HTTP.Case do
       options(conn, "/foo")
 
   """
-  defmacro options(arg1, arg2 // nil) do
+  defmacro options(arg1, arg2 \\ nil) do
     do_method :OPTIONS, arg1, arg2
   end
 
@@ -203,7 +203,7 @@ defmodule Dynamo.HTTP.Case do
       process MyDynamo, conn, :get, "/foo"
 
   """
-  def process(endpoint, conn, method, path // nil)
+  def process(endpoint, conn, method, path \\ nil)
 
   def process(endpoint, conn, method, path) when is_tuple(conn) do
     conn = if conn.sent_body, do: conn.recycle, else: conn

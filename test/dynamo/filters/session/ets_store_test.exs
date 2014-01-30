@@ -92,7 +92,7 @@ defmodule Dynamo.Filters.Session.ETSStoreTest do
     assert id != other_id
   end
 
-  defp session(opts // []) do
+  defp session(opts \\ []) do
     Dynamo.Filters.Session.new(Dynamo.Filters.Session.ETSStore,
       [key: @key, table: :dynamo_session_store] ++ opts)
   end

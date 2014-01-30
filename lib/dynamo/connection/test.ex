@@ -27,7 +27,7 @@ defmodule Dynamo.Connection.Test do
   @doc """
   Initializes a connection to be used in tests.
   """
-  def new(method, path, body // "") do
+  def new(method, path, body \\ "") do
     connection(
       main: Dynamo.under_test,
       raw_req_cookies: Binary.Dict.new(),
@@ -214,7 +214,7 @@ defmodule Dynamo.Connection.Test do
   This can be considered the counter-part of recycle
   (which is used to clean up the response).
   """
-  def req(method, path, body // "", conn) do
+  def req(method, path, body \\ "", conn) do
     uri      = URI.parse(path)
     segments = Dynamo.Router.Utils.split(uri.path)
     method   = Dynamo.Router.Utils.normalize_verb(method)

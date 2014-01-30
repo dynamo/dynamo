@@ -55,7 +55,7 @@ defmodule Binary.Dict do
   end
 
   @doc false
-  def get(dict(data), key, default // nil) do
+  def get(dict(data), key, default \\ nil) do
     case :lists.keyfind(to_binary(key), 1, data) do
       { _, value } -> value
       false -> default
@@ -95,7 +95,7 @@ defmodule Binary.Dict do
   end
 
   @doc false
-  def merge(dict, enum, fun // fn(_k, _v1, v2) -> v2 end) do
+  def merge(dict, enum, fun \\ fn(_k, _v1, v2) -> v2 end) do
     Enum.reduce enum, dict, fn({ k, v2 }, acc) ->
       k = to_binary(k)
       update(acc, k, v2, fn(v1) -> fun.(k, v1, v2) end)

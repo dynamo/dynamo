@@ -46,7 +46,7 @@ defmodule Dynamo.HTTP.Render do
       end
 
   """
-  def render(conn, template, assigns // []) do
+  def render(conn, template, assigns \\ []) do
     dynamo     = conn.main
     renderer   = dynamo.templates_server
     tmpl_paths = dynamo.templates_paths

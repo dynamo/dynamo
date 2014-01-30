@@ -230,7 +230,7 @@ defmodule Dynamo.Cowboy.ConnectionTest do
 
     { _, headers, _ } = response
     { "set-cookie", contents } = List.keyfind(headers, "set-cookie", 0)
-    assert contents =~ %r"foo=; path=/; expires=Thu, 01 Jan 1970 12:00:00 GMT; max-age=0; HttpOnly"
+    assert String.match? contents, %r"foo=; path=/; expires=Thu, 01 Jan 1970 12:00:00 GMT; max-age=0; HttpOnly"
 
     headers = List.keydelete(headers, "set-cookie", 0)
     assert List.keyfind(headers, "set-cookie", 0) == nil
@@ -488,7 +488,7 @@ defmodule Dynamo.Cowboy.ConnectionTest do
     flunk "Expected successful response, got status #{inspect status} with body #{inspect body}"
   end
 
-  defp request(verb, path, headers // [], body // "") do
+  defp request(verb, path, headers \\ [], body \\ "") do
     { :ok, status, headers, client } =
       :hackney.request(verb, "http://127.0.0.1:8011" <> path, headers, body, [])
     { :ok, body } = :hackney.body(client)

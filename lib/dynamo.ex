@@ -148,7 +148,7 @@ defmodule Dynamo do
         Starts the Dynamo supervisor and run all
         registered initializers.
         """
-        def start_link(opts // []) do
+        def start_link(opts \\ []) do
           info = Dynamo.Supervisor.start_link(config[:dynamo][:supervisor], opts)
           run_initializers
           info
@@ -157,7 +157,7 @@ defmodule Dynamo do
         @doc """
         Runs the Dynamo in the configured web server.
         """
-        def run(options // []) do
+        def run(options \\ []) do
           dynamo  = config[:dynamo]
           options = Keyword.put(options, :ssl, config[:ssl])
           options = Keyword.put(options, :env, dynamo[:env])
