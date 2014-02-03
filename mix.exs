@@ -6,8 +6,9 @@ defmodule Dynamo.Mixfile do
       elixir: "~> 0.12.0",
       version: "0.1.0-dev",
       name: "Dynamo",
-      source_url: "https://github.com/elixir-lang/dynamo",
-      deps: deps(Mix.env) ]
+      source_url: "https://github.com/dynamo/dynamo",
+      deps: deps(Mix.env),
+      docs: [ readme: true, main: "README" ] ]
   end
 
   def deps(:prod) do
