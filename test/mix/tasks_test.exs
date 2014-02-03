@@ -65,7 +65,7 @@ defmodule Mix.TasksTest do
     File.cp! "../../mix.lock", "mix.lock"
 
     File.mkdir_p!("_build/#{env}")
-    File.cp_r!("../../_build/shared/", "_build/#{env}")
+    File.cp_r!("../../_build/test", "_build/#{env}")
 
     :ok = :file.make_symlink("../../deps", "deps")
 
