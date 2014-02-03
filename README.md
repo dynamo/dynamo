@@ -68,8 +68,8 @@ current **master** branch of elixir before reporting any bugs.
 If you're on OSX and use [homebrew](http://brew.sh/), this is easily done as follows:
 
 ```bash
-    $ brew unlink elixir # remove non-head installation of elixir
-    $ brew install elixir --HEAD
+$ brew unlink elixir # remove non-head installation of elixir
+$ brew install elixir --HEAD
 ```
 
 # Walk-through
