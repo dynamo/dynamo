@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Dynamo.Templates.Handler</title>
+    <meta charset="utf-8">
+    <link rel="stylesheet" href="css/style.css" type="text/css" media="screen" charset="utf-8" />
+
+    <script type="text/javascript" charset="utf-8">
+      relpath = '';
+      if (relpath != '') relpath += '/';
+    </script>
+
+    <script type="text/javascript" charset="utf-8" src="js/jquery.js"></script>
+    <script type="text/javascript" charset="utf-8" src="js/app.js"></script>
+  </head>
+
+  <body>
+    <script type="text/javascript" charset="utf-8">
+      if (window.top.frames.main) document.body.className = 'frames';
+    </script>
+
+    <div id="content">
+      <h1>
+        Dynamo.Templates.Handler
+        
+          <small>behaviour</small>
+        
+      </h1>
+
+      
+        <div id="moduledoc" class="docstring">
+          <p>A module that specifies the handler API and
+small conveniences around it.</p>
+
+<p>A template handler is a module that is capable
+to compile Dynamo templates into executable elixir
+code.</p>
+
+<p>A template handler must be necessarily named as
+Dynamo.Templates.EXTHandler where EXT is the handler
+extension.</p>
+
+        </div>
+      
+
+      
+        <a href="https://github.com/dynamo/dynamo/blob/master/lib/dynamo/templates/handler.ex#L1" target="_blank" class="view_source">Source</a>
+      
+
+      
+
+      
+        <h2 id="functions_summary">Functions summary</h2>
+        <table class="summary">
+          <tr>
+  <td class="summary_signature"><a href="#get!/1">get!(extension)</a></td>
+  
+    <td class="summary_synopsis"><p>Get the template handler for the given extension.</p>
+</td>
+  
+</tr>
+
+        </table>
+      
+
+      
+
+      
+        <h2 id="callbacks_summary">Callbacks summary</h2>
+        <table class="summary">
+          <tr>
+  <td class="summary_signature"><a href="#compile/3">compile(template, source, locals)</a></td>
+  
+    <td class="summary_synopsis"><p>A template handler must implement compile, receiving a
+Dynamo.Template record. It must return the AST of the
+compiled source with the set of arguments required
+for the proper evaluation of the AST.</p>
+</td>
+  
+</tr>
+<tr>
+  <td class="summary_signature"><a href="#render/4">render(module, function, locals, assigns)</a></td>
+  
+    <td class="summary_synopsis"><p>Receives a module and function in which the compiled
+template is stored plus the locals and assigns to be
+used on rendering.</p>
+</td>
+  
+</tr>
+
+        </table>
+      
+
+      
+        <div id="types_details" class="details_list">
+          <h2>Types</h2>
+          <div class="type_detail">
+  <p class="typespec" id="t:template/0">
+    <a href="#t:template/0">template</a> :: <a href="Dynamo.Template.html#t:t/0">Dynamo.Template.t</a>
+  </p>
+  
+</div>
+
+        </div>
+      
+
+      
+        <div id="functions_details" class="details_list">
+          <h2>Functions</h2>
+          <div class="detail">
+  <p class="signature" id="get!/1">
+    <strong>get!(extension)</strong>
+  </p>
+  
+  <div class="docstring"><p>Get the template handler for the given extension.</p>
+</div>
+  
+    <a href="https://github.com/dynamo/dynamo/blob/master/lib/dynamo/templates/handler.ex#L39" target="_blank" class="view_source">Source</a>
+  
+</div>
+
+        </div>
+      
+
+      
+
+      
+        <div id="callbacks_details" class="details_list">
+          <h2>Callbacks</h2>
+          <div class="detail">
+  <p class="signature" id="compile/3">
+    <strong>compile(template, source, locals)</strong>
+  </p>
+  
+    <p>Specs:</p>
+    <ul class="spec">
+      
+        <li>compile(<a href="#t:template/0">template</a>, source :: binary, locals :: []) :: {args :: [], term}</li>
+      
+    </ul>
+  
+  <div class="docstring"><p>A template handler must implement compile, receiving a
+Dynamo.Template record. It must return the AST of the
+compiled source with the set of arguments required
+for the proper evaluation of the AST.</p>
+</div>
+  
+    <a href="https://github.com/dynamo/dynamo/blob/master/lib/dynamo/templates/handler.ex#L27" target="_blank" class="view_source">Source</a>
+  
+</div>
+<div class="detail">
+  <p class="signature" id="render/4">
+    <strong>render(module, function, locals, assigns)</strong>
+  </p>
+  
+    <p>Specs:</p>
+    <ul class="spec">
+      
+        <li>render(module, function :: atom, locals, assigns) :: binary</li>
+      
+    </ul>
+  
+  <div class="docstring"><p>Receives a module and function in which the compiled
+template is stored plus the locals and assigns to be
+used on rendering.</p>
+</div>
+  
+    <a href="https://github.com/dynamo/dynamo/blob/master/lib/dynamo/templates/handler.ex#L34" target="_blank" class="view_source">Source</a>
+  
+</div>
+
+        </div>
+      
+    </div>
+  </body>
+</html>

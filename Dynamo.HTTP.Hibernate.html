@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Dynamo.HTTP.Hibernate</title>
+    <meta charset="utf-8">
+    <link rel="stylesheet" href="css/style.css" type="text/css" media="screen" charset="utf-8" />
+
+    <script type="text/javascript" charset="utf-8">
+      relpath = '';
+      if (relpath != '') relpath += '/';
+    </script>
+
+    <script type="text/javascript" charset="utf-8" src="js/jquery.js"></script>
+    <script type="text/javascript" charset="utf-8" src="js/app.js"></script>
+  </head>
+
+  <body>
+    <script type="text/javascript" charset="utf-8">
+      if (window.top.frames.main) document.body.className = 'frames';
+    </script>
+
+    <div id="content">
+      <h1>
+        Dynamo.HTTP.Hibernate
+        
+      </h1>
+
+      
+        <div id="moduledoc" class="docstring">
+          <p>Conveniences that allows a connection to hibernate or wait
+a given amount or an unlimited amount of time.</p>
+
+<p>Such conveniences are useful when a connection needs to be
+kept open (because of long polling, websockets or streaming)
+but you don&#39;t want to keep the current erlang process active
+all times.</p>
+
+<p>As such, waiting through small intervals or hibernating through
+long intervals is convenient.</p>
+
+<h2>Examples</h2>
+
+<p>There are two main functions defined by this module: <code>hibernate</code>
+and <code>await</code>. They can receive either 2 arguments, with the
+connection and a callback to be invoked on wake up:</p>
+
+<p>hibernate(conn, &amp;on<em>wake</em>up(&amp;1, &amp;2))
+  await(conn, &amp;on<em>wake</em>up(&amp;1, &amp;2))</p>
+
+<p>Or 4 arguments, in which a timeout and a callback to be invoked
+on timeout must also be present:</p>
+
+<p>hibernate(conn, timeout, &amp;on<em>wake</em>up(&amp;1, &amp;2), &amp;on<em>timeout(&amp;1))
+  await(conn, timeout, &amp;on</em>wake<em>up(&amp;1, &amp;2), &amp;on</em>timeout(&amp;1))</p>
+
+<p>Besides an positive integer or <code>:infinity</code>, this module also
+allows <code>:keep</code> as timeout value. This is useful to preserve
+a previously set timeout value.</p>
+
+        </div>
+      
+
+      
+        <a href="https://github.com/dynamo/dynamo/blob/master/lib/dynamo/http/hibernate.ex#L1" target="_blank" class="view_source">Source</a>
+      
+
+      
+
+      
+        <h2 id="functions_summary">Functions summary</h2>
+        <table class="summary">
+          <tr>
+  <td class="summary_signature"><a href="#await/2">await(conn, on_wake_up)</a></td>
+  
+    <td class="summary_synopsis"><p>Sleeps the current process until a message is received.
+The <code>on_wake_up</code> callback is invoked with the <code>conn</code> and the
+received message on wake up.</p>
+</td>
+  
+</tr>
+<tr>
+  <td class="summary_signature"><a href="#await/4">await(conn, timeout, on_wake_up, on_timeout)</a></td>
+  
+    <td class="summary_synopsis"><p>Sleeps the current process until a message is received
+but also sets a timeout.</p>
+</td>
+  
+</tr>
+<tr>
+  <td class="summary_signature"><a href="#hibernate/2">hibernate(conn, on_wake_up)</a></td>
+  
+    <td class="summary_synopsis"><p>Hibernates the current process until a message is received.
+The <code>on_wake_up</code> callback is invoked with the <code>conn</code> and the
+received message on wake up.</p>
+</td>
+  
+</tr>
+<tr>
+  <td class="summary_signature"><a href="#hibernate/4">hibernate(conn, timeout, on_wake_up, on_timeout)</a></td>
+  
+    <td class="summary_synopsis"><p>Hibernates the current process until a message is received
+but also sets a timeout for hibernation time.</p>
+</td>
+  
+</tr>
+
+        </table>
+      
+
+      
+
+      
+
+      
+
+      
+        <div id="functions_details" class="details_list">
+          <h2>Functions</h2>
+          <div class="detail">
+  <p class="signature" id="await/2">
+    <strong>await(conn, on_wake_up)</strong>
+  </p>
+  
+  <div class="docstring"><p>Sleeps the current process until a message is received.
+The <code>on_wake_up</code> callback is invoked with the <code>conn</code> and the
+received message on wake up.</p>
+</div>
+  
+    <a href="https://github.com/dynamo/dynamo/blob/master/lib/dynamo/http/hibernate.ex#L76" target="_blank" class="view_source">Source</a>
+  
+</div>
+<div class="detail">
+  <p class="signature" id="await/4">
+    <strong>await(conn, timeout, on_wake_up, on_timeout)</strong>
+  </p>
+  
+  <div class="docstring"><p>Sleeps the current process until a message is received
+but also sets a timeout.</p>
+
+<p>The <code>on_wake_up</code> callback is invoked with the <code>conn</code> and the
+received message on wake up. A <code>on_timeout</code> callback is
+invoked when it times out.</p>
+</div>
+  
+    <a href="https://github.com/dynamo/dynamo/blob/master/lib/dynamo/http/hibernate.ex#L91" target="_blank" class="view_source">Source</a>
+  
+</div>
+<div class="detail">
+  <p class="signature" id="hibernate/2">
+    <strong>hibernate(conn, on_wake_up)</strong>
+  </p>
+  
+  <div class="docstring"><p>Hibernates the current process until a message is received.
+The <code>on_wake_up</code> callback is invoked with the <code>conn</code> and the
+received message on wake up.</p>
+
+<p>For more information on hibernation, check:
+<a href="http://www.erlang.org/doc/man/erlang.html#hibernate-3">http://www.erlang.org/doc/man/erlang.html#hibernate-3</a></p>
+</div>
+  
+    <a href="https://github.com/dynamo/dynamo/blob/master/lib/dynamo/http/hibernate.ex#L44" target="_blank" class="view_source">Source</a>
+  
+</div>
+<div class="detail">
+  <p class="signature" id="hibernate/4">
+    <strong>hibernate(conn, timeout, on_wake_up, on_timeout)</strong>
+  </p>
+  
+  <div class="docstring"><p>Hibernates the current process until a message is received
+but also sets a timeout for hibernation time.</p>
+
+<p>The <code>on_wake_up</code> callback is invoked with the <code>conn</code> and the
+received message on wake up. A <code>on_timeout</code> callback is
+invoked when it times out.</p>
+
+<p>For more information on hibernation, check:
+<a href="http://www.erlang.org/doc/man/erlang.html#hibernate-3">http://www.erlang.org/doc/man/erlang.html#hibernate-3</a></p>
+</div>
+  
+    <a href="https://github.com/dynamo/dynamo/blob/master/lib/dynamo/http/hibernate.ex#L62" target="_blank" class="view_source">Source</a>
+  
+</div>
+
+        </div>
+      
+
+      
+
+      
+    </div>
+  </body>
+</html>

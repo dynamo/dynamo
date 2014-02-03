@@ -1,0 +1,466 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Dynamo.Router.Base</title>
+    <meta charset="utf-8">
+    <link rel="stylesheet" href="css/style.css" type="text/css" media="screen" charset="utf-8" />
+
+    <script type="text/javascript" charset="utf-8">
+      relpath = '';
+      if (relpath != '') relpath += '/';
+    </script>
+
+    <script type="text/javascript" charset="utf-8" src="js/jquery.js"></script>
+    <script type="text/javascript" charset="utf-8" src="js/app.js"></script>
+  </head>
+
+  <body>
+    <script type="text/javascript" charset="utf-8">
+      if (window.top.frames.main) document.body.className = 'frames';
+    </script>
+
+    <div id="content">
+      <h1>
+        Dynamo.Router.Base
+        
+      </h1>
+
+      
+        <div id="moduledoc" class="docstring">
+          <p>This module contains the basic structure for a <a href="Dynamo.Router.html"><code>Dynamo.Router</code></a>.</p>
+
+<p>It provides a set of macros to generate routes as well as
+preparing and finalizing requests. For example:</p>
+
+<pre><code>defmodule HomeRouter do
+  use Dynamo.Router
+
+  prepare do
+    conn.assign :layout, &quot;hello.html&quot;
+  end
+
+  get &quot;/hello&quot; do
+    conn.resp 200, &quot;world&quot;
+  end
+
+  forward &quot;/posts&quot;, to: PostsRouter
+end
+</code></pre>
+
+<h2>Routes</h2>
+
+<pre><code>get &quot;/hello&quot; do
+  conn.resp 200, &quot;world&quot;
+end
+</code></pre>
+
+<p>In the example above, a request will only match if it is
+a <code>GET</code> request and the route &quot;/hello&quot;. The supported
+verbs are <code>get</code>, <code>post</code>, <code>put</code>, <code>patch</code>, <code>delete</code> and <code>options</code>.</p>
+
+<p>A route can also specify parameters which will then be
+available in the function body:</p>
+
+<pre><code>get &quot;/hello/:name&quot; do
+  conn.resp 200, &quot;hello #{name}&quot;
+end
+</code></pre>
+
+<p>Routes allow for globbing which will match the remaining parts
+of a route and can be available as a parameter in the function
+body, also note that a glob can&#39;t be followed by other segments:</p>
+
+<pre><code>get &quot;/hello/*&quot; do
+  conn.resp 200, &quot;match all routes starting with /hello&quot;
+end
+
+get &quot;/hello/*glob&quot; do
+  conn.resp 200, &quot;route after /hello: #{glob}&quot;
+end
+</code></pre>
+
+<p>Finally, a general <code>match</code> function is also supported:</p>
+
+<pre><code>match &quot;/hello&quot; do
+  conn.resp 200, &quot;world&quot;
+end
+</code></pre>
+
+<p>A <code>match</code> will match any route regardless of the HTTP verb.
+Check <a href="#match/3"><code>match/3</code></a> for more information on how route compilation
+works and a list of supported options.</p>
+
+<h2>Forwarding</h2>
+
+<p>A Dynamo router can also forward a specific route to any other
+router, allowing split a Dynamo into many routers instead of
+having a big monolitic routes handler:</p>
+
+<pre><code>defmodule ApplicationRouter do
+  use Dynamo.Router
+  forward &quot;/home&quot;, to: HomeRouter
+end
+</code></pre>
+
+<p>Now any request starting with &quot;/home&quot; in <code>ApplicationRouter</code> router
+will be forwarded to <code>HomeRouter</code>, but without the &quot;/home&quot; prefix.</p>
+
+<p>Therefore a request to &quot;/home/hello&quot; is seen by the <code>HomeRouter</code>
+simply as &quot;/hello&quot;, matching the route we defined at the beginning
+of this section.</p>
+
+<p>Although in the example above we forwarded to another Dynamo router,
+we can forward to any module, as long as it exports the function
+<code>service/1</code>. This function receives the connection as argument and
+must return a (possibly updated) connection.</p>
+
+<h2>Hooks</h2>
+
+<p>This module also provides both <a href="#prepare/1"><code>prepare/1</code></a> and <a href="#finalize/1"><code>finalize/1</code></a> hooks to
+routers. Such hooks are useful to check conditions, fetch aspects
+or updating the connection:</p>
+
+<pre><code>prepare do
+  conn.assign :layout, &quot;hello.html&quot;
+end
+
+prepare :require_authentication
+
+defp check_authentication do
+  unless conn.session[:user_id] do
+    redirect! conn, to: &quot;/&quot;
+  end
+end
+</code></pre>
+
+<p>Such hooks can be defined in the following formats:</p>
+
+<ul>
+<li><p><code>:function_name</code> - the atom denotes the function name to be invoked
+in the current module;</p></li>
+<li><p><code>module_or_tuple</code> - a module or a tuple where <a href="#prepare/1"><code>prepare/1</code></a> or <a href="#finalize/1"><code>finalize/1</code></a>
+will be invoked passing the connection as argument;</p></li>
+<li><p><code>[do: block]</code> - a chunk of code to be executed as hook. The block
+has access to the connection as <code>conn</code>.</p></li>
+</ul>
+
+<p>Hooks receive the connection as argument and must return the updated
+connection (if any change happens).</p>
+
+<h2>Per-route hooks</h2>
+
+<p>Besides the hooks define above which runs right after any route match,
+per route hooks can be added using <code>@prepare</code> and <code>@finalize</code> attributes:</p>
+
+<pre><code>@prepare :require_authentication
+get &quot;/account/info&quot; do
+  # ...
+end
+</code></pre>
+
+<p>Annotations works similarly to <code>prepare</code> and <code>finalize</code> macros, except
+annotations do not support the <code>do</code> syntax.</p>
+
+<p>Finally, Dynamo also provides <code>@skip_prepare</code> and <code>@skip_finalize</code>
+attributes, which is useful for whitelisting some filters:</p>
+
+<pre><code># Require authentication for all routes
+prepare :require_authentication
+
+# Except the sign in route
+@skip_prepare :require_authentication
+get &quot;/sign_in&quot; do
+  # Sign in the user
+end
+</code></pre>
+
+        </div>
+      
+
+      
+        <a href="https://github.com/dynamo/dynamo/blob/master/lib/dynamo/router/base.ex#L8" target="_blank" class="view_source">Source</a>
+      
+
+      
+
+      
+
+      
+        <h2 id="macros_summary">Macros summary</h2>
+        <table class="summary">
+          <tr>
+  <td class="summary_signature"><a href="#delete/2">delete(path, contents)</a></td>
+  
+    <td class="summary_synopsis"><p>Dispatches to the path only if it is delete request.
+See <a href="#match/3"><code>match/3</code></a> for more examples.</p>
+</td>
+  
+</tr>
+<tr>
+  <td class="summary_signature"><a href="#finalize/1">finalize(spec)</a></td>
+  
+    <td class="summary_synopsis"><p>Defines an after hook that is executed after dispatch.</p>
+</td>
+  
+</tr>
+<tr>
+  <td class="summary_signature"><a href="#forward/2">forward(expression, options)</a></td>
+  
+    <td class="summary_synopsis"><p>Forwards the given route to the specified module.</p>
+</td>
+  
+</tr>
+<tr>
+  <td class="summary_signature"><a href="#get/2">get(path, contents)</a></td>
+  
+    <td class="summary_synopsis"><p>Dispatches to the path only if it is get request.
+See <a href="#match/3"><code>match/3</code></a> for more examples.</p>
+</td>
+  
+</tr>
+<tr>
+  <td class="summary_signature"><a href="#match/3">match(expression, options, contents \\ [])</a></td>
+  
+    <td class="summary_synopsis"><p>Main API to define routes. It accepts an expression representing
+the path and many options allowing the match to be configured.</p>
+</td>
+  
+</tr>
+<tr>
+  <td class="summary_signature"><a href="#options/2">options(path, contents)</a></td>
+  
+    <td class="summary_synopsis"><p>Dispatches to the path only if it is options request.
+See <a href="#match/3"><code>match/3</code></a> for more examples.</p>
+</td>
+  
+</tr>
+<tr>
+  <td class="summary_signature"><a href="#patch/2">patch(path, contents)</a></td>
+  
+    <td class="summary_synopsis"><p>Dispatches to the path only if it is patch request.
+See <a href="#match/3"><code>match/3</code></a> for more examples.</p>
+</td>
+  
+</tr>
+<tr>
+  <td class="summary_signature"><a href="#post/2">post(path, contents)</a></td>
+  
+    <td class="summary_synopsis"><p>Dispatches to the path only if it is post request.
+See <a href="#match/3"><code>match/3</code></a> for more examples.</p>
+</td>
+  
+</tr>
+<tr>
+  <td class="summary_signature"><a href="#prepare/1">prepare(spec)</a></td>
+  
+    <td class="summary_synopsis"><p>Defines a prepare hook that is executed before any route matches.</p>
+</td>
+  
+</tr>
+<tr>
+  <td class="summary_signature"><a href="#put/2">put(path, contents)</a></td>
+  
+    <td class="summary_synopsis"><p>Dispatches to the path only if it is put request.
+See <a href="#match/3"><code>match/3</code></a> for more examples.</p>
+</td>
+  
+</tr>
+
+        </table>
+      
+
+      
+
+      
+
+      
+
+      
+        <div id="macros_details" class="details_list">
+          <h2>Macros</h2>
+          <div class="detail">
+  <p class="signature" id="delete/2">
+    <strong>delete(path, contents)</strong>
+  </p>
+  
+  <div class="docstring"><p>Dispatches to the path only if it is delete request.
+See <a href="#match/3"><code>match/3</code></a> for more examples.</p>
+</div>
+  
+    <a href="https://github.com/dynamo/dynamo/blob/master/lib/dynamo/router/base.ex#L319" target="_blank" class="view_source">Source</a>
+  
+</div>
+<div class="detail">
+  <p class="signature" id="finalize/1">
+    <strong>finalize(spec)</strong>
+  </p>
+  
+  <div class="docstring"><p>Defines an after hook that is executed after dispatch.</p>
+</div>
+  
+    <a href="https://github.com/dynamo/dynamo/blob/master/lib/dynamo/router/base.ex#L430" target="_blank" class="view_source">Source</a>
+  
+</div>
+<div class="detail">
+  <p class="signature" id="forward/2">
+    <strong>forward(expression, options)</strong>
+  </p>
+  
+  <div class="docstring"><p>Forwards the given route to the specified module.</p>
+
+<h2>Examples</h2>
+
+<pre><code>forward &quot;/foo/bar&quot;, to: Posts
+</code></pre>
+
+<p>Now all the routes that start with <code>/foo/bar</code> will automatically
+be dispatched to <code>Posts</code> that needs to implement the service API.</p>
+</div>
+  
+    <a href="https://github.com/dynamo/dynamo/blob/master/lib/dynamo/router/base.ex#L266" target="_blank" class="view_source">Source</a>
+  
+</div>
+<div class="detail">
+  <p class="signature" id="get/2">
+    <strong>get(path, contents)</strong>
+  </p>
+  
+  <div class="docstring"><p>Dispatches to the path only if it is get request.
+See <a href="#match/3"><code>match/3</code></a> for more examples.</p>
+</div>
+  
+    <a href="https://github.com/dynamo/dynamo/blob/master/lib/dynamo/router/base.ex#L287" target="_blank" class="view_source">Source</a>
+  
+</div>
+<div class="detail">
+  <p class="signature" id="match/3">
+    <strong>match(expression, options, contents \\ [])</strong>
+  </p>
+  
+  <div class="docstring"><p>Main API to define routes. It accepts an expression representing
+the path and many options allowing the match to be configured.</p>
+
+<h2>Examples</h2>
+
+<pre><code>match &quot;/foo/bar&quot;, via: :get do
+  conn.send 200, &quot;hello world&quot;
+end
+</code></pre>
+
+<h2>Options</h2>
+
+<p><code>match</code> accepts the following options:</p>
+
+<ul>
+<li><code>via:</code> matches the route against some specific verbs</li>
+<li><code>do:</code> contains the implementation to be invoked in case
+    the route matches</li>
+<li><code>to:</code> forward the request to another module that implements
+    the service/1 API</li>
+</ul>
+
+<h2>Routes compilation</h2>
+
+<p>All routes are compiled to a dispatch method that receives
+three arguments: the verb, the request path split on &quot;/&quot;
+and the connection. Consider this example:</p>
+
+<pre><code>match &quot;/foo/bar&quot;, via: :get do
+  conn.send 200, &quot;hello world&quot;
+end
+</code></pre>
+
+<p>It is compiled to:</p>
+
+<pre><code>def dispatch(&quot;GET&quot;, [&quot;foo&quot;, &quot;bar&quot;], conn) do
+  conn.send 200, &quot;hello world&quot;
+end
+</code></pre>
+
+<p>This opens up a few possibilities. First, guards can be given
+to match:</p>
+
+<pre><code>match &quot;/foo/:bar&quot; when size(bar) &lt;= 3, via: :get do
+  conn.send 200, &quot;hello world&quot;
+end
+</code></pre>
+
+<p>Second, a list of splitten paths (which is the compiled result)
+is also allowed:</p>
+
+<pre><code>match [&quot;foo&quot;, bar], via: :get do
+  conn.send 200, &quot;hello world&quot;
+end
+</code></pre>
+</div>
+  
+    <a href="https://github.com/dynamo/dynamo/blob/master/lib/dynamo/router/base.ex#L252" target="_blank" class="view_source">Source</a>
+  
+</div>
+<div class="detail">
+  <p class="signature" id="options/2">
+    <strong>options(path, contents)</strong>
+  </p>
+  
+  <div class="docstring"><p>Dispatches to the path only if it is options request.
+See <a href="#match/3"><code>match/3</code></a> for more examples.</p>
+</div>
+  
+    <a href="https://github.com/dynamo/dynamo/blob/master/lib/dynamo/router/base.ex#L327" target="_blank" class="view_source">Source</a>
+  
+</div>
+<div class="detail">
+  <p class="signature" id="patch/2">
+    <strong>patch(path, contents)</strong>
+  </p>
+  
+  <div class="docstring"><p>Dispatches to the path only if it is patch request.
+See <a href="#match/3"><code>match/3</code></a> for more examples.</p>
+</div>
+  
+    <a href="https://github.com/dynamo/dynamo/blob/master/lib/dynamo/router/base.ex#L311" target="_blank" class="view_source">Source</a>
+  
+</div>
+<div class="detail">
+  <p class="signature" id="post/2">
+    <strong>post(path, contents)</strong>
+  </p>
+  
+  <div class="docstring"><p>Dispatches to the path only if it is post request.
+See <a href="#match/3"><code>match/3</code></a> for more examples.</p>
+</div>
+  
+    <a href="https://github.com/dynamo/dynamo/blob/master/lib/dynamo/router/base.ex#L295" target="_blank" class="view_source">Source</a>
+  
+</div>
+<div class="detail">
+  <p class="signature" id="prepare/1">
+    <strong>prepare(spec)</strong>
+  </p>
+  
+  <div class="docstring"><p>Defines a prepare hook that is executed before any route matches.</p>
+</div>
+  
+    <a href="https://github.com/dynamo/dynamo/blob/master/lib/dynamo/router/base.ex#L413" target="_blank" class="view_source">Source</a>
+  
+</div>
+<div class="detail">
+  <p class="signature" id="put/2">
+    <strong>put(path, contents)</strong>
+  </p>
+  
+  <div class="docstring"><p>Dispatches to the path only if it is put request.
+See <a href="#match/3"><code>match/3</code></a> for more examples.</p>
+</div>
+  
+    <a href="https://github.com/dynamo/dynamo/blob/master/lib/dynamo/router/base.ex#L303" target="_blank" class="view_source">Source</a>
+  
+</div>
+
+        </div>
+      
+
+      
+    </div>
+  </body>
+</html>

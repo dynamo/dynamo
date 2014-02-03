@@ -1,0 +1,357 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Dynamo.HTTP.Case</title>
+    <meta charset="utf-8">
+    <link rel="stylesheet" href="css/style.css" type="text/css" media="screen" charset="utf-8" />
+
+    <script type="text/javascript" charset="utf-8">
+      relpath = '';
+      if (relpath != '') relpath += '/';
+    </script>
+
+    <script type="text/javascript" charset="utf-8" src="js/jquery.js"></script>
+    <script type="text/javascript" charset="utf-8" src="js/app.js"></script>
+  </head>
+
+  <body>
+    <script type="text/javascript" charset="utf-8">
+      if (window.top.frames.main) document.body.className = 'frames';
+    </script>
+
+    <div id="content">
+      <h1>
+        Dynamo.HTTP.Case
+        
+      </h1>
+
+      
+        <div id="moduledoc" class="docstring">
+          <p>A bunch of helpers to make it easy to test Dynamos and routers.</p>
+
+<p>By default, these helpers are macros that dispatch directly
+to the registered endpoint. Here is an example:</p>
+
+<pre><code>defmodule MyAppTest do
+  use ExUnit.Case
+  use Dynamo.HTTP.Case
+
+  test :root_route do
+    conn = get(&quot;/&quot;)
+    assert String.match? conn.sent_body, %r/somevalue/
+  end
+end
+</code></pre>
+
+<p>The default dynamo used in tests is <code>Dynamo.under_Test</code>.
+This can be changed in a specific test case using <code>@endpoint</code>:</p>
+
+<pre><code>defmodule CustomRouterTest do
+  use ExUnit.Case
+  use Dynamo.HTTP.Case
+
+  @endpoint CustomRouter
+
+  test :route do
+    conn = get(&quot;/route&quot;)
+    assert String.match? conn.sent_body, %r/somevalue/
+  end
+end
+</code></pre>
+
+<p>The connection used in such tests is the <a href="Dynamo.Connection.Test.html"><code>Dynamo.Connection.Test</code></a>
+which provides some test specific function.</p>
+
+<h2>Testing with sequential requests</h2>
+
+<p>In some cases, the same test may request different endpoints:</p>
+
+<pre><code>test :session do
+  conn = get(&quot;/put_session&quot;)
+  assert String.match? conn.sent_body, %r/somevalue/
+
+  conn = get(conn, &quot;/set_session&quot;)
+  assert String.match? conn.sent_body, %r/othervalue/
+end
+</code></pre>
+
+<p>The example above will automatically work, since
+<code>get</code>/<code>post</code>/<code>put</code>/<code>patch</code>/<code>delete</code>/<code>options</code> recycles the connection before
+each request.</p>
+
+<p>When recycled, all response information previously set in
+the connection is cleaned and all cookies are moved from
+the response to the request. This allows state to be passed
+in between the different requests.</p>
+
+<p>Notice though that recycling will clean up any information
+set in the connection:</p>
+
+<pre><code>test :session do
+  conn = get(&quot;/put_session&quot;)
+  assert String.match? conn.sent_body, %r/somevalue/
+
+  conn = conn.assign(:foo, :bar)
+  conn = get(conn, &quot;/set_session&quot;)
+  assert String.match? conn.sent_body, %r/othervalue/
+end
+</code></pre>
+
+<p>In the example above, the assign <code>:foo</code> set before the request
+won&#39;t be visible in the endpoint since it will be cleaned up.
+This can be fixed by explicitly cleaning up the request:</p>
+
+<pre><code>conn = conn.recycle.assign(:foo, :bar)
+</code></pre>
+
+<p>If the connection was already recycled, it won&#39;t be recycled once again.</p>
+
+<p>Finally, notice that all <code>get</code>/<code>post</code>/<code>put</code>/<code>patch</code>/<code>delete</code>/<code>options</code> macros
+are simply a proxy to <a href="#process/4"><code>process/4</code></a>. So in case you want to dispatch
+to different dynamos at the same time, <a href="#process/4"><code>process/4</code></a> may be useful.</p>
+
+        </div>
+      
+
+      
+        <a href="https://github.com/dynamo/dynamo/blob/master/lib/dynamo/http/case.ex#L1" target="_blank" class="view_source">Source</a>
+      
+
+      
+
+      
+        <h2 id="functions_summary">Functions summary</h2>
+        <table class="summary">
+          <tr>
+  <td class="summary_signature"><a href="#conn/3">conn(method, path, body \\ &quot;&quot;)</a></td>
+  
+    <td class="summary_synopsis"><p>Returns a connection built with the given method, path and body.</p>
+</td>
+  
+</tr>
+<tr>
+  <td class="summary_signature"><a href="#process/4">process(endpoint, conn, method, path \\ nil)</a></td>
+  
+    <td class="summary_synopsis"><p>Requests the given <code>endpoint</code> with the given <code>method</code> and <code>path</code>.
+And verifies if the endpoint returned a valid connection.</p>
+</td>
+  
+</tr>
+<tr>
+  <td class="summary_signature"><a href="#put_session_cookie/2">put_session_cookie(conn, session)</a></td>
+  
+    <td class="summary_synopsis"><p>Writes a session cookie according to the current store to
+be used in the next request. This is the preferred way to
+set the session before a request.</p>
+</td>
+  
+</tr>
+
+        </table>
+      
+
+      
+        <h2 id="macros_summary">Macros summary</h2>
+        <table class="summary">
+          <tr>
+  <td class="summary_signature"><a href="#delete/2">delete(arg1, arg2 \\ nil)</a></td>
+  
+    <td class="summary_synopsis"><p>Does a DELETE request to the given path:</p>
+</td>
+  
+</tr>
+<tr>
+  <td class="summary_signature"><a href="#get/2">get(arg1, arg2 \\ nil)</a></td>
+  
+    <td class="summary_synopsis"><p>Does a GET request to the given path:</p>
+</td>
+  
+</tr>
+<tr>
+  <td class="summary_signature"><a href="#options/2">options(arg1, arg2 \\ nil)</a></td>
+  
+    <td class="summary_synopsis"><p>Does a OPTIONS request to the given path:</p>
+</td>
+  
+</tr>
+<tr>
+  <td class="summary_signature"><a href="#patch/2">patch(arg1, arg2 \\ nil)</a></td>
+  
+    <td class="summary_synopsis"><p>Does a PATCH request to the given path:</p>
+</td>
+  
+</tr>
+<tr>
+  <td class="summary_signature"><a href="#post/2">post(arg1, arg2 \\ nil)</a></td>
+  
+    <td class="summary_synopsis"><p>Does a POST request to the given path and optionally body:</p>
+</td>
+  
+</tr>
+<tr>
+  <td class="summary_signature"><a href="#put/2">put(arg1, arg2 \\ nil)</a></td>
+  
+    <td class="summary_synopsis"><p>Does a PUT request to the given path:</p>
+</td>
+  
+</tr>
+
+        </table>
+      
+
+      
+
+      
+
+      
+        <div id="functions_details" class="details_list">
+          <h2>Functions</h2>
+          <div class="detail">
+  <p class="signature" id="conn/3">
+    <strong>conn(method, path, body \\ &quot;&quot;)</strong>
+  </p>
+  
+  <div class="docstring"><p>Returns a connection built with the given method, path and body.</p>
+</div>
+  
+    <a href="https://github.com/dynamo/dynamo/blob/master/lib/dynamo/http/case.ex#L95" target="_blank" class="view_source">Source</a>
+  
+</div>
+<div class="detail">
+  <p class="signature" id="process/4">
+    <strong>process(endpoint, conn, method, path \\ nil)</strong>
+  </p>
+  
+  <div class="docstring"><p>Requests the given <code>endpoint</code> with the given <code>method</code> and <code>path</code>.
+And verifies if the endpoint returned a valid connection.</p>
+
+<h2>Examples</h2>
+
+<pre><code>process MyDynamo, :get, &quot;/foo&quot;
+process MyDynamo, conn, :get, &quot;/foo&quot;
+</code></pre>
+</div>
+  
+    <a href="https://github.com/dynamo/dynamo/blob/master/lib/dynamo/http/case.ex#L206" target="_blank" class="view_source">Source</a>
+  
+</div>
+<div class="detail">
+  <p class="signature" id="put_session_cookie/2">
+    <strong>put_session_cookie(conn, session)</strong>
+  </p>
+  
+  <div class="docstring"><p>Writes a session cookie according to the current store to
+be used in the next request. This is the preferred way to
+set the session before a request.</p>
+</div>
+  
+    <a href="https://github.com/dynamo/dynamo/blob/master/lib/dynamo/http/case.ex#L188" target="_blank" class="view_source">Source</a>
+  
+</div>
+
+        </div>
+      
+
+      
+        <div id="macros_details" class="details_list">
+          <h2>Macros</h2>
+          <div class="detail">
+  <p class="signature" id="delete/2">
+    <strong>delete(arg1, arg2 \\ nil)</strong>
+  </p>
+  
+  <div class="docstring"><p>Does a DELETE request to the given path:</p>
+
+<pre><code>delete(&quot;/foo&quot;)
+delete(conn, &quot;/foo&quot;)
+</code></pre>
+</div>
+  
+    <a href="https://github.com/dynamo/dynamo/blob/master/lib/dynamo/http/case.ex#L156" target="_blank" class="view_source">Source</a>
+  
+</div>
+<div class="detail">
+  <p class="signature" id="get/2">
+    <strong>get(arg1, arg2 \\ nil)</strong>
+  </p>
+  
+  <div class="docstring"><p>Does a GET request to the given path:</p>
+
+<pre><code>get(&quot;/foo&quot;)
+get(conn, &quot;/foo&quot;)
+</code></pre>
+</div>
+  
+    <a href="https://github.com/dynamo/dynamo/blob/master/lib/dynamo/http/case.ex#L106" target="_blank" class="view_source">Source</a>
+  
+</div>
+<div class="detail">
+  <p class="signature" id="options/2">
+    <strong>options(arg1, arg2 \\ nil)</strong>
+  </p>
+  
+  <div class="docstring"><p>Does a OPTIONS request to the given path:</p>
+
+<pre><code>options(&quot;/foo&quot;)
+options(conn, &quot;/foo&quot;)
+</code></pre>
+</div>
+  
+    <a href="https://github.com/dynamo/dynamo/blob/master/lib/dynamo/http/case.ex#L167" target="_blank" class="view_source">Source</a>
+  
+</div>
+<div class="detail">
+  <p class="signature" id="patch/2">
+    <strong>patch(arg1, arg2 \\ nil)</strong>
+  </p>
+  
+  <div class="docstring"><p>Does a PATCH request to the given path:</p>
+
+<pre><code>patch(&quot;/foo&quot;)
+patch(conn, &quot;/foo&quot;)
+</code></pre>
+</div>
+  
+    <a href="https://github.com/dynamo/dynamo/blob/master/lib/dynamo/http/case.ex#L145" target="_blank" class="view_source">Source</a>
+  
+</div>
+<div class="detail">
+  <p class="signature" id="post/2">
+    <strong>post(arg1, arg2 \\ nil)</strong>
+  </p>
+  
+  <div class="docstring"><p>Does a POST request to the given path and optionally body:</p>
+
+<pre><code>post(&quot;/foo&quot;)
+post(conn, &quot;/foo&quot;)
+post(conn, &quot;/foo&quot;, &quot;test body&quot;) # POSTs to `/foo` with `test body` body
+post(conn, &quot;/foo&quot;, [{&quot;foo&quot;, &quot;bar&quot;}]) # POSTs to `/foo` with `foo=bar` body
+</code></pre>
+</div>
+  
+    <a href="https://github.com/dynamo/dynamo/blob/master/lib/dynamo/http/case.ex#L119" target="_blank" class="view_source">Source</a>
+  
+</div>
+<div class="detail">
+  <p class="signature" id="put/2">
+    <strong>put(arg1, arg2 \\ nil)</strong>
+  </p>
+  
+  <div class="docstring"><p>Does a PUT request to the given path:</p>
+
+<pre><code>put(&quot;/foo&quot;)
+put(conn, &quot;/foo&quot;)
+</code></pre>
+</div>
+  
+    <a href="https://github.com/dynamo/dynamo/blob/master/lib/dynamo/http/case.ex#L134" target="_blank" class="view_source">Source</a>
+  
+</div>
+
+        </div>
+      
+
+      
+    </div>
+  </body>
+</html>

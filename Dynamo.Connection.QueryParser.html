@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Dynamo.Connection.QueryParser</title>
+    <meta charset="utf-8">
+    <link rel="stylesheet" href="css/style.css" type="text/css" media="screen" charset="utf-8" />
+
+    <script type="text/javascript" charset="utf-8">
+      relpath = '';
+      if (relpath != '') relpath += '/';
+    </script>
+
+    <script type="text/javascript" charset="utf-8" src="js/jquery.js"></script>
+    <script type="text/javascript" charset="utf-8" src="js/app.js"></script>
+  </head>
+
+  <body>
+    <script type="text/javascript" charset="utf-8">
+      if (window.top.frames.main) document.body.className = 'frames';
+    </script>
+
+    <div id="content">
+      <h1>
+        Dynamo.Connection.QueryParser
+        
+      </h1>
+
+      
+        <div id="moduledoc" class="docstring">
+          <p>Conveniences for parsing query strings in Dynamo.</p>
+
+<p>Dynamo allows a developer to build query strings
+that maps to Elixir structures in order to make
+manipulation of such structures easier on the server
+side. Here are some examples:</p>
+
+<pre><code>parse(&quot;foo=bar&quot;)[&quot;foo&quot;] #=&gt; &quot;bar&quot;
+</code></pre>
+
+<p>If a value is given more than once, it is overridden:</p>
+
+<pre><code>parse(&quot;foo=bar&amp;foo=baz&quot;)[&quot;foo&quot;] #=&gt; &quot;baz&quot;
+</code></pre>
+
+<p>Nested structures can be created via <code>[key]</code>:</p>
+
+<pre><code>parse(&quot;foo[bar]=baz&quot;)[&quot;foo&quot;][&quot;bar&quot;] #=&gt; &quot;baz&quot;
+</code></pre>
+
+<p>Lists are created with <code>[]</code>:</p>
+
+<pre><code>parse(&quot;foo[]=bar&amp;foo[]=baz&quot;)[&quot;foo&quot;] #=&gt; [&quot;baz&quot;, &quot;baz&quot;]
+</code></pre>
+
+        </div>
+      
+
+      
+        <a href="https://github.com/dynamo/dynamo/blob/master/lib/dynamo/connection/query_parser.ex#L1" target="_blank" class="view_source">Source</a>
+      
+
+      
+
+      
+        <h2 id="functions_summary">Functions summary</h2>
+        <table class="summary">
+          <tr>
+  <td class="summary_signature"><a href="#parse/2">parse(query, dict \\ Binary.Dict.new())</a></td>
+  
+    <td class="summary_synopsis"><p>Parses a raw query string, decodes it and returns
+a <a href="Binary.Dict.html"><code>Binary.Dict</code></a> containing nested hashes.</p>
+</td>
+  
+</tr>
+<tr>
+  <td class="summary_signature"><a href="#reduce/2">reduce(arg1, acc)</a></td>
+  
+    <td class="summary_synopsis"><p>Receives a raw key, its value and the current accumulator
+and parses the key merging it into the current accumulator.</p>
+</td>
+  
+</tr>
+
+        </table>
+      
+
+      
+
+      
+
+      
+
+      
+        <div id="functions_details" class="details_list">
+          <h2>Functions</h2>
+          <div class="detail">
+  <p class="signature" id="parse/2">
+    <strong>parse(query, dict \\ Binary.Dict.new())</strong>
+  </p>
+  
+  <div class="docstring"><p>Parses a raw query string, decodes it and returns
+a <a href="Binary.Dict.html"><code>Binary.Dict</code></a> containing nested hashes.</p>
+</div>
+  
+    <a href="https://github.com/dynamo/dynamo/blob/master/lib/dynamo/connection/query_parser.ex#L32" target="_blank" class="view_source">Source</a>
+  
+</div>
+<div class="detail">
+  <p class="signature" id="reduce/2">
+    <strong>reduce(arg1, acc)</strong>
+  </p>
+  
+  <div class="docstring"><p>Receives a raw key, its value and the current accumulator
+and parses the key merging it into the current accumulator.</p>
+
+<p>Parameters lists are added to the accumulator in reverse order,
+so be sure to pass the parameters in reverse order.</p>
+</div>
+  
+    <a href="https://github.com/dynamo/dynamo/blob/master/lib/dynamo/connection/query_parser.ex#L50" target="_blank" class="view_source">Source</a>
+  
+</div>
+
+        </div>
+      
+
+      
+
+      
+    </div>
+  </body>
+</html>

@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Dynamo.Filters.Session.ETSStore</title>
+    <meta charset="utf-8">
+    <link rel="stylesheet" href="css/style.css" type="text/css" media="screen" charset="utf-8" />
+
+    <script type="text/javascript" charset="utf-8">
+      relpath = '';
+      if (relpath != '') relpath += '/';
+    </script>
+
+    <script type="text/javascript" charset="utf-8" src="js/jquery.js"></script>
+    <script type="text/javascript" charset="utf-8" src="js/app.js"></script>
+  </head>
+
+  <body>
+    <script type="text/javascript" charset="utf-8">
+      if (window.top.frames.main) document.body.className = 'frames';
+    </script>
+
+    <div id="content">
+      <h1>
+        Dynamo.Filters.Session.ETSStore
+        
+      </h1>
+
+      
+        <div id="moduledoc" class="docstring">
+          <p>Stores the session in an ETS table (i.e. in memory).</p>
+
+<p>Useful for single server Dynamos which do not want
+to write their session down to a cookie.</p>
+
+<p>This store does not create the ETS table, it is expected
+that an existing named table is given as argument with
+public properties.</p>
+
+        </div>
+      
+
+      
+        <a href="https://github.com/dynamo/dynamo/blob/master/lib/dynamo/filters/session/stores.ex#L87" target="_blank" class="view_source">Source</a>
+      
+
+      
+
+      
+        <h2 id="functions_summary">Functions summary</h2>
+        <table class="summary">
+          <tr>
+  <td class="summary_signature"><a href="#delete_session/2">delete_session(key, opts)</a></td>
+  
+    <td class="summary_synopsis"><p>Callback implementation of <a href="Dynamo.Filters.Session.Store.html#delete_session/2"><code>Dynamo.Filters.Session.Store.delete_session/2</code></a>.</p>
+</td>
+  
+</tr>
+<tr>
+  <td class="summary_signature"><a href="#get_session/2">get_session(content, opts)</a></td>
+  
+    <td class="summary_synopsis"><p>Callback implementation of <a href="Dynamo.Filters.Session.Store.html#get_session/2"><code>Dynamo.Filters.Session.Store.get_session/2</code></a>.</p>
+</td>
+  
+</tr>
+<tr>
+  <td class="summary_signature"><a href="#put_session/3">put_session(key, term, opts)</a></td>
+  
+    <td class="summary_synopsis"><p>Callback implementation of <a href="Dynamo.Filters.Session.Store.html#put_session/3"><code>Dynamo.Filters.Session.Store.put_session/3</code></a>.</p>
+</td>
+  
+</tr>
+<tr>
+  <td class="summary_signature"><a href="#setup/1">setup(opts)</a></td>
+  
+    <td class="summary_synopsis"><p>Callback implementation of <a href="Dynamo.Filters.Session.Store.html#setup/1"><code>Dynamo.Filters.Session.Store.setup/1</code></a>.</p>
+</td>
+  
+</tr>
+
+        </table>
+      
+
+      
+
+      
+
+      
+
+      
+        <div id="functions_details" class="details_list">
+          <h2>Functions</h2>
+          <div class="detail">
+  <p class="signature" id="delete_session/2">
+    <strong>delete_session(key, opts)</strong>
+  </p>
+  
+  <div class="docstring"><p>Callback implementation of <a href="Dynamo.Filters.Session.Store.html#delete_session/2"><code>Dynamo.Filters.Session.Store.delete_session/2</code></a>.</p>
+</div>
+  
+    <a href="https://github.com/dynamo/dynamo/blob/master/lib/dynamo/filters/session/stores.ex#L131" target="_blank" class="view_source">Source</a>
+  
+</div>
+<div class="detail">
+  <p class="signature" id="get_session/2">
+    <strong>get_session(content, opts)</strong>
+  </p>
+  
+  <div class="docstring"><p>Callback implementation of <a href="Dynamo.Filters.Session.Store.html#get_session/2"><code>Dynamo.Filters.Session.Store.get_session/2</code></a>.</p>
+</div>
+  
+    <a href="https://github.com/dynamo/dynamo/blob/master/lib/dynamo/filters/session/stores.ex#L109" target="_blank" class="view_source">Source</a>
+  
+</div>
+<div class="detail">
+  <p class="signature" id="put_session/3">
+    <strong>put_session(key, term, opts)</strong>
+  </p>
+  
+  <div class="docstring"><p>Callback implementation of <a href="Dynamo.Filters.Session.Store.html#put_session/3"><code>Dynamo.Filters.Session.Store.put_session/3</code></a>.</p>
+</div>
+  
+    <a href="https://github.com/dynamo/dynamo/blob/master/lib/dynamo/filters/session/stores.ex#L116" target="_blank" class="view_source">Source</a>
+  
+</div>
+<div class="detail">
+  <p class="signature" id="setup/1">
+    <strong>setup(opts)</strong>
+  </p>
+  
+  <div class="docstring"><p>Callback implementation of <a href="Dynamo.Filters.Session.Store.html#setup/1"><code>Dynamo.Filters.Session.Store.setup/1</code></a>.</p>
+</div>
+  
+    <a href="https://github.com/dynamo/dynamo/blob/master/lib/dynamo/filters/session/stores.ex#L101" target="_blank" class="view_source">Source</a>
+  
+</div>
+
+        </div>
+      
+
+      
+
+      
+    </div>
+  </body>
+</html>

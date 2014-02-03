@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Dynamo.Cowboy</title>
+    <meta charset="utf-8">
+    <link rel="stylesheet" href="css/style.css" type="text/css" media="screen" charset="utf-8" />
+
+    <script type="text/javascript" charset="utf-8">
+      relpath = '';
+      if (relpath != '') relpath += '/';
+    </script>
+
+    <script type="text/javascript" charset="utf-8" src="js/jquery.js"></script>
+    <script type="text/javascript" charset="utf-8" src="js/app.js"></script>
+  </head>
+
+  <body>
+    <script type="text/javascript" charset="utf-8">
+      if (window.top.frames.main) document.body.className = 'frames';
+    </script>
+
+    <div id="content">
+      <h1>
+        Dynamo.Cowboy
+        
+      </h1>
+
+      
+        <div id="moduledoc" class="docstring">
+          <p>Provides the interface to Cowboy webserver.
+Check <a href="#run/2"><code>run/2</code></a> for more information.</p>
+
+        </div>
+      
+
+      
+        <a href="https://github.com/dynamo/dynamo/blob/master/lib/dynamo/cowboy.ex#L1" target="_blank" class="view_source">Source</a>
+      
+
+      
+
+      
+        <h2 id="functions_summary">Functions summary</h2>
+        <table class="summary">
+          <tr>
+  <td class="summary_signature"><a href="#run/2">run(main, options \\ [])</a></td>
+  
+    <td class="summary_synopsis"><p>Runs the given module with the given options:</p>
+</td>
+  
+</tr>
+<tr>
+  <td class="summary_signature"><a href="#shutdown/1">shutdown(main)</a></td>
+  
+</tr>
+
+        </table>
+      
+
+      
+
+      
+
+      
+
+      
+        <div id="functions_details" class="details_list">
+          <h2>Functions</h2>
+          <div class="detail">
+  <p class="signature" id="run/2">
+    <strong>run(main, options \\ [])</strong>
+  </p>
+  
+  <div class="docstring"><p>Runs the given module with the given options:</p>
+
+<ul>
+<li><p><code>port</code> - the port to run the server (defaults to 4000)</p></li>
+<li><p><code>acceptors</code> - the number of acceptors for the listener</p></li>
+<li><p><code>max_connections</code> - max number of connections supported</p></li>
+<li><p><code>ssl</code> - SSL options for the server. It accepts all options
+mentioned above plus the configuration options accepted
+by the <a href="http://www.erlang.org/doc/man/ssl.html"><code>ssl</code> erlang module</a>
+(like keyfile, certfile, cacertfile and others).</p></li>
+</ul>
+
+<h2>Example</h2>
+
+<pre><code>Dynamo.Cowboy.run MyApp, port: 80
+</code></pre>
+</div>
+  
+    <a href="https://github.com/dynamo/dynamo/blob/master/lib/dynamo/cowboy.ex#L26" target="_blank" class="view_source">Source</a>
+  
+</div>
+<div class="detail">
+  <p class="signature" id="shutdown/1">
+    <strong>shutdown(main)</strong>
+  </p>
+  
+  <div class="docstring"></div>
+  
+    <a href="https://github.com/dynamo/dynamo/blob/master/lib/dynamo/cowboy.ex#L59" target="_blank" class="view_source">Source</a>
+  
+</div>
+
+        </div>
+      
+
+      
+
+      
+    </div>
+  </body>
+</html>

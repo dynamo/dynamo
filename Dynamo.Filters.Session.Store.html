@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Dynamo.Filters.Session.Store</title>
+    <meta charset="utf-8">
+    <link rel="stylesheet" href="css/style.css" type="text/css" media="screen" charset="utf-8" />
+
+    <script type="text/javascript" charset="utf-8">
+      relpath = '';
+      if (relpath != '') relpath += '/';
+    </script>
+
+    <script type="text/javascript" charset="utf-8" src="js/jquery.js"></script>
+    <script type="text/javascript" charset="utf-8" src="js/app.js"></script>
+  </head>
+
+  <body>
+    <script type="text/javascript" charset="utf-8">
+      if (window.top.frames.main) document.body.className = 'frames';
+    </script>
+
+    <div id="content">
+      <h1>
+        Dynamo.Filters.Session.Store
+        
+          <small>behaviour</small>
+        
+      </h1>
+
+      
+        <div id="moduledoc" class="docstring">
+          <p>This module defines some conveniences and the API
+required by session stores.</p>
+
+        </div>
+      
+
+      
+        <a href="https://github.com/dynamo/dynamo/blob/master/lib/dynamo/filters/session/stores.ex#L3" target="_blank" class="view_source">Source</a>
+      
+
+      
+
+      
+
+      
+
+      
+        <h2 id="callbacks_summary">Callbacks summary</h2>
+        <table class="summary">
+          <tr>
+  <td class="summary_signature"><a href="#delete_session/2">delete_session(sid, opts)</a></td>
+  
+    <td class="summary_synopsis"><p><a href="#delete_session/2"><code>delete_session/2</code></a> is responsible for deleting a previously
+stored sid from the store.</p>
+</td>
+  
+</tr>
+<tr>
+  <td class="summary_signature"><a href="#get_session/2">get_session(cookie, opts)</a></td>
+  
+    <td class="summary_synopsis"><p><a href="#get_session/2"><code>get_session/2</code></a> receives a binary representing the
+current cookie value and must return a tuple with
+the session id (if one exists) and the session value
+(an empty list if there is no session).</p>
+</td>
+  
+</tr>
+<tr>
+  <td class="summary_signature"><a href="#put_session/3">put_session(maybe, session, opts)</a></td>
+  
+    <td class="summary_synopsis"><p><a href="#put_session/3"><code>put_session/3</code></a> receives the session id and the session
+and must persist it. It must return the cookie value (which
+will be passed to <a href="#get_session/2"><code>get_session/2</code></a> in the next request).</p>
+</td>
+  
+</tr>
+<tr>
+  <td class="summary_signature"><a href="#setup/1">setup(opts)</a></td>
+  
+    <td class="summary_synopsis"><p>A callback invoked when the filter is first created.</p>
+</td>
+  
+</tr>
+
+        </table>
+      
+
+      
+        <div id="types_details" class="details_list">
+          <h2>Types</h2>
+          <div class="type_detail">
+  <p class="typespec" id="t:sid/0">
+    <a href="#t:sid/0">sid</a> :: binary
+  </p>
+  
+</div>
+<div class="type_detail">
+  <p class="typespec" id="t:maybe/1">
+    <a href="#t:maybe/1">maybe(v)</a> :: v | nil
+  </p>
+  
+</div>
+<div class="type_detail">
+  <p class="typespec" id="t:opts/0">
+    <a href="#t:opts/0">opts</a> :: <a href="http://elixir-lang.org/docs/master/Keyword.html#t:t/0">Keyword.t</a>
+  </p>
+  
+</div>
+<div class="type_detail">
+  <p class="typespec" id="t:cookie/0">
+    <a href="#t:cookie/0">cookie</a> :: binary
+  </p>
+  
+</div>
+<div class="type_detail">
+  <p class="typespec" id="t:session/0">
+    <a href="#t:session/0">session</a> :: []
+  </p>
+  
+</div>
+
+        </div>
+      
+
+      
+
+      
+
+      
+        <div id="callbacks_details" class="details_list">
+          <h2>Callbacks</h2>
+          <div class="detail">
+  <p class="signature" id="delete_session/2">
+    <strong>delete_session(sid, opts)</strong>
+  </p>
+  
+    <p>Specs:</p>
+    <ul class="spec">
+      
+        <li>delete_session(<a href="#t:sid/0">sid</a>, <a href="#t:opts/0">opts</a>) :: term</li>
+      
+    </ul>
+  
+  <div class="docstring"><p><a href="#delete_session/2"><code>delete_session/2</code></a> is responsible for deleting a previously
+stored sid from the store.</p>
+</div>
+  
+    <a href="https://github.com/dynamo/dynamo/blob/master/lib/dynamo/filters/session/stores.ex#L44" target="_blank" class="view_source">Source</a>
+  
+</div>
+<div class="detail">
+  <p class="signature" id="get_session/2">
+    <strong>get_session(cookie, opts)</strong>
+  </p>
+  
+    <p>Specs:</p>
+    <ul class="spec">
+      
+        <li>get_session(<a href="#t:cookie/0">cookie</a>, <a href="#t:opts/0">opts</a>) :: {<a href="#t:maybe/1">maybe(<a href="#t:sid/0">sid</a>)</a>, <a href="#t:session/0">session</a>}</li>
+      
+    </ul>
+  
+  <div class="docstring"><p><a href="#get_session/2"><code>get_session/2</code></a> receives a binary representing the
+current cookie value and must return a tuple with
+the session id (if one exists) and the session value
+(an empty list if there is no session).</p>
+</div>
+  
+    <a href="https://github.com/dynamo/dynamo/blob/master/lib/dynamo/filters/session/stores.ex#L28" target="_blank" class="view_source">Source</a>
+  
+</div>
+<div class="detail">
+  <p class="signature" id="put_session/3">
+    <strong>put_session(maybe, session, opts)</strong>
+  </p>
+  
+    <p>Specs:</p>
+    <ul class="spec">
+      
+        <li>put_session(<a href="#t:maybe/1">maybe(<a href="#t:sid/0">sid</a>)</a>, <a href="#t:session/0">session</a>, <a href="#t:opts/0">opts</a>) :: <a href="#t:cookie/0">cookie</a></li>
+      
+    </ul>
+  
+  <div class="docstring"><p><a href="#put_session/3"><code>put_session/3</code></a> receives the session id and the session
+and must persist it. It must return the cookie value (which
+will be passed to <a href="#get_session/2"><code>get_session/2</code></a> in the next request).</p>
+
+<p>The session id <strong>may</strong> be nil. In such cases, the store
+is responsible for generating a session id if required.</p>
+</div>
+  
+    <a href="https://github.com/dynamo/dynamo/blob/master/lib/dynamo/filters/session/stores.ex#L38" target="_blank" class="view_source">Source</a>
+  
+</div>
+<div class="detail">
+  <p class="signature" id="setup/1">
+    <strong>setup(opts)</strong>
+  </p>
+  
+    <p>Specs:</p>
+    <ul class="spec">
+      
+        <li>setup(<a href="#t:opts/0">opts</a>) :: <a href="#t:opts/0">opts</a></li>
+      
+    </ul>
+  
+  <div class="docstring"><p>A callback invoked when the filter is first created.</p>
+</div>
+  
+    <a href="https://github.com/dynamo/dynamo/blob/master/lib/dynamo/filters/session/stores.ex#L20" target="_blank" class="view_source">Source</a>
+  
+</div>
+
+        </div>
+      
+    </div>
+  </body>
+</html>

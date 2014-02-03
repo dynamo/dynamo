@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Dynamo.Loader</title>
+    <meta charset="utf-8">
+    <link rel="stylesheet" href="css/style.css" type="text/css" media="screen" charset="utf-8" />
+
+    <script type="text/javascript" charset="utf-8">
+      relpath = '';
+      if (relpath != '') relpath += '/';
+    </script>
+
+    <script type="text/javascript" charset="utf-8" src="js/jquery.js"></script>
+    <script type="text/javascript" charset="utf-8" src="js/app.js"></script>
+  </head>
+
+  <body>
+    <script type="text/javascript" charset="utf-8">
+      if (window.top.frames.main) document.body.className = 'frames';
+    </script>
+
+    <div id="content">
+      <h1>
+        Dynamo.Loader
+        
+      </h1>
+
+      
+        <div id="moduledoc" class="docstring">
+          <p>This module is responsible for managing code reloading used
+in development environments in Dynamo.</p>
+
+<p>The reloader is enabled per Elixir process, so each process
+which requires reloading semantics must explicitly enabled
+it with <code>Dynamo.Loader.enable</code>.</p>
+
+<p>The <a href="Dynamo.Loader.html"><code>Dynamo.Loader</code></a> is part of the Dynamo OTP application
+and one is started per node, regardless the number of
+dynamos in the node.</p>
+
+        </div>
+      
+
+      
+        <a href="https://github.com/dynamo/dynamo/blob/master/lib/dynamo/loader.ex#L1" target="_blank" class="view_source">Source</a>
+      
+
+      
+
+      
+        <h2 id="functions_summary">Functions summary</h2>
+        <table class="summary">
+          <tr>
+  <td class="summary_signature"><a href="#append_paths/1">append_paths(paths)</a></td>
+  
+    <td class="summary_synopsis"><p>Starts the <a href="Dynamo.Loader.html"><code>Dynamo.Loader</code></a> server. Usually called
+internally by Dynamo. The given <code>paths</code> must be expanded.</p>
+</td>
+  
+</tr>
+<tr>
+  <td class="summary_signature"><a href="#conditional_purge/0">conditional_purge()</a></td>
+  
+    <td class="summary_synopsis"><p>Checks if any of the <code>.ex</code> files in the registered paths
+were updated and if so, purges all automatically compiled
+and loaded modules, and &quot;unrequire&quot; the relevant files.</p>
+</td>
+  
+</tr>
+<tr>
+  <td class="summary_signature"><a href="#enable/0">enable()</a></td>
+  
+    <td class="summary_synopsis"><p>Enables the reloader in the given process and returns
+<code>:ok</code>. In case the reloader server is disabled, it works
+as noop and returns <code>:error</code>.</p>
+</td>
+  
+</tr>
+<tr>
+  <td class="summary_signature"><a href="#load_missing/1">load_missing(module)</a></td>
+  
+    <td class="summary_synopsis"><p>Tries to load the missing module. It returns <code>:ok</code> if a file
+for the given module could be found and <code>:error</code> otherwise.
+Note it does not actually ensure the module was loaded (only
+that the related file was required).</p>
+</td>
+  
+</tr>
+<tr>
+  <td class="summary_signature"><a href="#on_purge/1">on_purge(fun)</a></td>
+  
+    <td class="summary_synopsis"><p>Register a callback that is invoked every time modules are purged.</p>
+</td>
+  
+</tr>
+
+        </table>
+      
+
+      
+
+      
+
+      
+
+      
+        <div id="functions_details" class="details_list">
+          <h2>Functions</h2>
+          <div class="detail">
+  <p class="signature" id="append_paths/1">
+    <strong>append_paths(paths)</strong>
+  </p>
+  
+  <div class="docstring"><p>Starts the <a href="Dynamo.Loader.html"><code>Dynamo.Loader</code></a> server. Usually called
+internally by Dynamo. The given <code>paths</code> must be expanded.</p>
+</div>
+  
+    <a href="https://github.com/dynamo/dynamo/blob/master/lib/dynamo/loader.ex#L36" target="_blank" class="view_source">Source</a>
+  
+</div>
+<div class="detail">
+  <p class="signature" id="conditional_purge/0">
+    <strong>conditional_purge()</strong>
+  </p>
+  
+  <div class="docstring"><p>Checks if any of the <code>.ex</code> files in the registered paths
+were updated and if so, purges all automatically compiled
+and loaded modules, and &quot;unrequire&quot; the relevant files.</p>
+</div>
+  
+    <a href="https://github.com/dynamo/dynamo/blob/master/lib/dynamo/loader.ex#L92" target="_blank" class="view_source">Source</a>
+  
+</div>
+<div class="detail">
+  <p class="signature" id="enable/0">
+    <strong>enable()</strong>
+  </p>
+  
+  <div class="docstring"><p>Enables the reloader in the given process and returns
+<code>:ok</code>. In case the reloader server is disabled, it works
+as noop and returns <code>:error</code>.</p>
+</div>
+  
+    <a href="https://github.com/dynamo/dynamo/blob/master/lib/dynamo/loader.ex#L22" target="_blank" class="view_source">Source</a>
+  
+</div>
+<div class="detail">
+  <p class="signature" id="load_missing/1">
+    <strong>load_missing(module)</strong>
+  </p>
+  
+  <div class="docstring"><p>Tries to load the missing module. It returns <code>:ok</code> if a file
+for the given module could be found and <code>:error</code> otherwise.
+Note it does not actually ensure the module was loaded (only
+that the related file was required).</p>
+</div>
+  
+    <a href="https://github.com/dynamo/dynamo/blob/master/lib/dynamo/loader.ex#L58" target="_blank" class="view_source">Source</a>
+  
+</div>
+<div class="detail">
+  <p class="signature" id="on_purge/1">
+    <strong>on_purge(fun)</strong>
+  </p>
+  
+  <div class="docstring"><p>Register a callback that is invoked every time modules are purged.</p>
+</div>
+  
+    <a href="https://github.com/dynamo/dynamo/blob/master/lib/dynamo/loader.ex#L48" target="_blank" class="view_source">Source</a>
+  
+</div>
+
+        </div>
+      
+
+      
+
+      
+    </div>
+  </body>
+</html>

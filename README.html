@@ -1,0 +1,495 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>README</title>
+    <meta charset="utf-8">
+    <link rel="stylesheet" href="css/style.css" type="text/css" media="screen" charset="utf-8" />
+
+    <script type="text/javascript" charset="utf-8">
+      relpath = '';
+      if (relpath != '') relpath += '/';
+    </script>
+
+    <script type="text/javascript" charset="utf-8" src="js/jquery.js"></script>
+    <script type="text/javascript" charset="utf-8" src="js/app.js"></script>
+  </head>
+
+  <body>
+    <script type="text/javascript" charset="utf-8">
+      if (window.top.frames.main) document.body.className = 'frames';
+    </script>
+
+    <div id="content">
+      <h1>Dynamo</h1>
+
+<p><a href="https://travis-ci.org/dynamo/dynamo"><img src="https://travis-ci.org/dynamo/dynamo.png?branch=master" alt="Build Status"></a></p>
+
+<p>Run, Dynamo, Run!</p>
+
+<p>Dynamo is a web framework that runs on <a href="http://elixir-lang.org/">Elixir</a>. It leverages the power of the Erlang VM to build highly performant and concurrent web applications. Dynamo&#39;s goals are performance, robustness and simplicity.</p>
+
+<p><strong>WARNING:</strong> Dynamo is currently alpha-software and its API will suffer major changes. The current version is an experiment that showcases Elixir&#39;s flexibility for building frameworks and its excellent performance.</p>
+
+<p>Dynamo shows excellent performance out of the box, beating similar frameworks like Sinatra and Express, available in other languages, in a callback-free programming fashion. By using the Erlang VM, all of the network I/O is asynchronous but your code appears to be synchronous. The Erlang VM also allows you to use all cores available by default, without a need to start many instances of your web server, and performs well under heavy load with many concurrent open connections.</p>
+
+<p>On the developer side, Dynamo focuses on simplicity by shipping with a bare stack, allowing a team to get started quickly while making it easy to extend the application as and when they see fit.</p>
+
+<p>It is currently alpha software and it supports:</p>
+
+<ul>
+<li>Light-weight connections with streaming.</li>
+<li>Code organization in environments.</li>
+<li>Code reloading for fast development cycles.</li>
+<li>Lazy parsing and handling of cookies, sessions, params and headers.</li>
+<li>Handling of static assets.</li>
+<li>Template rendering.</li>
+<li>An exceptional exception handler for development.</li>
+<li>Integration with Erlang OTP applications.</li>
+</ul>
+
+<p>Before becoming beta, we want to add the following to Dynamo:</p>
+
+<ul>
+<li>Logging.</li>
+<li>Websockets support.</li>
+<li>Built-in JSON encoding.</li>
+<li>Database adapters.</li>
+</ul>
+
+<p>This README will go into Dynamo installation and a basic walk-through.</p>
+
+<h1>Installation</h1>
+
+<p>As an alpha-software, Dynamo installation is a bit manual but can be done in few steps:</p>
+
+<ol>
+<li><p>Ensure you are on Elixir master (available on homebrew, see below)</p></li>
+<li><p>Clone this repository and go to its directory</p></li>
+<li><p>Get Dynamo dependencies and run tests with: <code>MIX_ENV=test mix do deps.get, test</code></p></li>
+<li><p>Create a project: <code>mix dynamo path/to/your/project</code></p></li>
+</ol>
+
+<p>Congratulations! You created your first project with Dynamo! Let&#39;s run it:</p>
+
+<ol>
+<li><p>Go to your app</p></li>
+<li><p>Get dependencies with: <code>mix deps.get</code></p></li>
+<li><p>Run it: <code>iex -S mix server</code></p></li>
+</ol>
+
+<p>If you do not want a console, then start the app with <code>mix server</code>.</p>
+
+<p>Check the <code>lib/</code> and <code>web/</code> folders for more information. Changes done in the <code>web</code> directory are picked up without a need to reload the server.</p>
+
+<p>Static content is served from <code>priv/static/</code> folder and from the <code>/static</code> route.</p>
+
+<p>Your project can be compiled and used in production with: <code>MIX_ENV=prod mix do compile, server</code>.</p>
+
+<h2>Installation using the <strong>master</strong> branch of elixir</h2>
+
+<p>Elixir evolves rapidly and Dynamo follows it. If you get build or test errors, please use the
+current <strong>master</strong> branch of elixir before reporting any bugs.</p>
+
+<p>If you&#39;re on OSX and use <a href="http://brew.sh/">homebrew</a>, this is easily done as follows:</p>
+
+<pre><code class="bash">$ brew unlink elixir # remove non-head installation of elixir
+$ brew install elixir --HEAD
+</code></pre>
+
+<h1>Walk-through</h1>
+
+<p>This walk-through is going to put you in touch with the four main elements in Dynamo: routers, connection, OTP and the Dynamo itself. This walk-through requires you to be familiar with Elixir, so please read <a href="http://elixir-lang.org/getting_started/1.html">Elixir&#39;s getting started guide</a> if you haven&#39;t yet.</p>
+
+<h2>Routers</h2>
+
+<p>A Dynamo is organized in routers. Routers are kept in the <code>web/routers</code> directory and by default a project contains an <code>ApplicationRouter</code> defined at <code>web/routers/application_router.ex</code>, which is your Dynamo main entry point:</p>
+
+<pre><code class="elixir">defmodule ApplicationRouter do
+  use Dynamo.Router
+
+  prepare do
+    # Pick which parts of the request you want to fetch
+    # You can comment the line below if you don&#39;t need
+    # any of them or move them to a forwarded router
+    conn.fetch([:cookies, :params])
+  end
+
+  # It is common to break your Dynamo in many
+  # routers forwarding the requests between them
+  # forward &quot;/posts&quot;, to: PostsRouter
+
+  get &quot;/&quot; do
+    conn = conn.assign(:title, &quot;Welcome to Dynamo!&quot;)
+    render conn, &quot;index.html&quot;
+  end
+end
+</code></pre>
+
+<p>All routers must use the <code>Dynamo.Router</code> module. By using this module you have access to the macros <code>get</code>, <code>post</code>, <code>put</code>, <code>patch</code> and <code>delete</code> that allows developers to generate routes. Here is a simple route:</p>
+
+<pre><code class="elixir">get &quot;/hello/world&quot; do
+  conn.resp(200, &quot;Hello world&quot;)
+end
+</code></pre>
+
+<p>The <code>conn</code> value above represents a connection, about which we are going to get into more details soon. In the example above in particular, we are setting the connection to have response status <code>200</code> with the body <code>&quot;Hello world&quot;</code>. Routes can also contain dynamic segments:</p>
+
+<pre><code class="elixir">put &quot;/users/:user_id&quot; do
+  conn.resp 200, &quot;Got user id: #{conn.params[:user_id]}&quot;
+end
+</code></pre>
+
+<pre><code class="elixir">get &quot;/hello/*&quot; do
+  conn.resp 200, &quot;Match all routes starting with /hello&quot;
+end
+</code></pre>
+
+<p>Each route is compiled down to a function clause, making route matching extremely fast and also allows the use of guard constraints:</p>
+
+<pre><code class="elixir">get &quot;/section/:section&quot; when section in [&quot;contact&quot;, &quot;about&quot;] do
+  render conn, &quot;#{section}.html&quot;
+end
+</code></pre>
+
+<p>In general, Dynamos are broken into many routers, with requests forwarded between them. Furthermore, routers also provide hooks, such as the <code>prepare</code> hook seen above.</p>
+
+<h3>Hooks</h3>
+
+<p>Hooks are a mechanism to encapsulate actions that are shared between many routes. For example, one may write a hook that only allows requests with a given parameter to proceed:</p>
+
+<pre><code class="elixir">prepare do
+  unless conn.params[:user_info] do
+    halt! conn.status(400)
+  end
+end
+</code></pre>
+
+<p>Another common functionality in hooks is to prepare the connection, sometimes by setting a layout:</p>
+
+<pre><code class="elixir">prepare do
+  conn.assign :layout, &quot;home.html&quot;
+end
+</code></pre>
+
+<p>Or by fetching information used throughout all routes:</p>
+
+<pre><code class="elixir">prepare do
+  conn.fetch :params
+end
+</code></pre>
+
+<p>There is also a <code>finalize</code> hook which is used after the request is processed.</p>
+
+<p>Besides adding hooks to a router as a whole, hooks can also be added to a specific route using the <code>@prepare</code> and <code>@finalize</code> attributes before each route:</p>
+
+<pre><code class="elixir">@prepare :authenticate_user
+get &quot;/users/:user_id&quot; do
+  # ...
+end
+
+defp authenticate_user(conn) do
+  unless get_session(conn, :user_id) do
+    halt! conn.status(401)
+  end
+end
+</code></pre>
+
+<h3>Forwarding</h3>
+
+<p>As your Dynamo grows, it would be impractical to have all routes in a single router. For this reason, Dynamo allows you to easily compose and forward requests between routers. Let&#39;s consider the router generated by default:</p>
+
+<pre><code class="elixir">defmodule ApplicationRouter do
+  use Dynamo.Router
+
+  prepare do
+    conn.fetch([:cookies, :params])
+  end
+
+  forward &quot;/posts&quot;, to: PostsRouter
+
+  get &quot;/&quot; do
+    conn = conn.assign(:title, &quot;Welcome to Dynamo!&quot;)
+    render conn, &quot;index.html&quot;
+  end
+end
+</code></pre>
+
+<p>In the example above, all routes starting with <code>/posts</code> will be automatically routed to the <code>PostsRouter</code>. Furthermore, the <code>PostsRouter</code> will receive on the trailing part of the url. A request to <code>/posts/recent</code> will be seen by the <code>PostsRouter</code> as <code>/recent</code>:</p>
+
+<pre><code class="elixir">defmodule PostsRouter do
+  use Dynamo.Router
+
+  get &quot;/recent&quot; do
+    # Get all recent posts
+  end
+end
+</code></pre>
+
+<p>Finally, in the <code>ApplicationRouter</code> above, notice we fetch cookies and the request params for every request. However, if just the <code>PostsRouter</code> is using such information, the <code>prepare</code> hook could be moved to inside the <code>PostsRouter</code>, so it will be fetched only when it is needed.</p>
+
+<p>This forwarding mechanism makes it very easy to split and organize your code into its logical sections while also having control on which features are required by each router.</p>
+
+<h2>Connection</h2>
+
+<p>The connection plays a huge part when building Dynamos. As we have seen above, each route has access to the connection as the <strong>variable</strong> <code>conn</code>. The <code>authenticate_user</code> prepare hook defined above also receives the connection as an argument:</p>
+
+<pre><code class="elixir">defp authenticate_user(conn) do
+  unless get_session(conn, :user_id) do
+    halt! conn.status(401)
+  end
+end
+</code></pre>
+
+<p>The connection is a <strong>direct interface to the underlying web server</strong>. In the examples above, we have used <code>conn.resp(status, body)</code> to set up our response. This will set a status and a response that will be sent back to the client <strong>after</strong> the route finishes processing.</p>
+
+<p>However, a developer could also use <code>conn.send(status, body)</code>, which will send the response immediately:</p>
+
+<pre><code class="elixir">conn.send(200, &quot;Hello world&quot;)
+</code></pre>
+
+<p>In the example above there is no wait and the response is sent immediately. The fact the connection is a direct interface makes streaming equally trivial:</p>
+
+<pre><code class="elixir">conn = conn.send_chunked(200)
+conn.chunk(&quot;Hello World&quot;)
+</code></pre>
+
+<p>There are no dirty hacks nor work-around required. You get a fast and clean API to interact with the web server.</p>
+
+<h3>Immutability</h3>
+
+<p>One common confusion for developers starting with Dynamo (and to certain extent functional programming too) is immutability.</p>
+
+<p>Elixir data structures are immutable. If you have a tuple, you can&#39;t modify this tuple in place. Adding or removing elements will actually return a new tuple:</p>
+
+<pre><code class="elixir">first  = { 1, 2, 3 }
+second = set_elem(first, 0, :hello)
+
+first  #=&gt; { 1, 2, 3 }
+second #=&gt; { :hello, 2, 3 }
+</code></pre>
+
+<p>Notice how the elements of the first tuple remain intact. The same happens with the connection data structure. Consider this route:</p>
+
+<pre><code class="elixir">get &quot;/&quot; do
+  conn.assign(:title, &quot;Welcome to Dynamo!&quot;)
+  render conn, &quot;index.html&quot;
+end
+</code></pre>
+
+<p>The first line <code>conn.assign(:title, &quot;Welcome to Dynamo!&quot;)</code> has no effect whatsoever because we don&#39;t store the result of the operation anywhere. In fact, if someone writes <code>IO.inspect conn.assigns[:title]</code> in the next line, the value of the <code>:title</code> assign will still be <code>nil</code>. That said, as we do with tuples, we need to store the new connection in the updated variable:</p>
+
+<pre><code class="elixir">get &quot;/&quot; do
+  conn = conn.assign(:title, &quot;Welcome to Dynamo!&quot;)
+  render conn, &quot;index.html&quot;
+end
+</code></pre>
+
+<p>Almost all functions throughout Dynamo will receive and <strong>return a connection</strong>. For example, the <code>render</code> function above will return a new connection with the render template as a body. Similarly, all routes and hooks must return the connection, you will get a gentle exception if you don&#39;t.</p>
+
+<h3>APIs</h3>
+
+<p>The connection data structure keeps the low-level API to interact with web servers. You can set status codes and response bodies, handle headers and parse request information as <code>:params</code>, <code>:cookies</code>, <code>:session</code> and so forth.</p>
+
+<p>Furthermore, the connection is responsible to carry out the information in between routers and between routers and templates via assigns. For example:</p>
+
+<pre><code class="elixir">get &quot;/&quot; do
+  conn = conn.assign(:title, &quot;Welcome to Dynamo!&quot;)
+  render conn, &quot;index.html&quot;
+end
+</code></pre>
+
+<p>A <code>prepare</code> hook may also set the a <code>current_user</code> assign which could then be retrieved in any router as <code>conn.assigns[:current_user]</code>. You can find more information about assigns and other connection functions in <a href="http://elixir-lang.org/docs/dynamo/Dynamo.Connection.html">Dynamo.Connection</a>.</p>
+
+<p>Dynamo also builds many functionalities on top of this low-level connection API:</p>
+
+<ul>
+<li><a href="http://elixir-lang.org/docs/dynamo/Dynamo.HTTP.Cookies.html">Dynamo.HTTP.Cookies</a> - conveniences for working with cookies</li>
+<li><a href="http://elixir-lang.org/docs/dynamo/Dynamo.HTTP.Halt.html">Dynamo.HTTP.Halt</a> - conveniences for halting a connection, as the function <code>halt!</code> we saw in some examples</li>
+<li><a href="http://elixir-lang.org/docs/dynamo/Dynamo.HTTP.Redirect.html">Dynamo.HTTP.Redirect</a> - conveniences for redirecting a connection</li>
+<li><a href="http://elixir-lang.org/docs/dynamo/Dynamo.HTTP.Render.html">Dynamo.HTTP.Render</a> - conveniences for rendering templates</li>
+<li><a href="http://elixir-lang.org/docs/dynamo/Dynamo.HTTP.Session.html">Dynamo.HTTP.Session</a> - conveniences for working with session</li>
+</ul>
+
+<p>All those functions in <code>Dynamo.HTTP.*</code> are imported by default into your <code>Dynamo.Router</code>.</p>
+
+<h3>Templating</h3>
+
+<p>Dynamo templates uses <a href="http://elixir-lang.org/docs/stable/EEx.html">EEx</a> to
+let you embed Elixir logic into your HTML templates. For example, if you had
+this route:</p>
+
+<pre><code class="elixir">get &quot;/fruits&quot; do
+  conn = conn.assign(:fruits, [{0, &quot;Apple&quot;}, {1, &quot;Orange&quot;}, {2, &quot;Banana&quot;}])
+  render conn, &quot;fruits.html&quot;
+end
+</code></pre>
+
+<p>To display the list of fruits, <code>fruits.html.eex</code> might look like:</p>
+
+<pre class="codeblock"><code>&lt;html&gt;
+&lt;body&gt;
+  &lt;ul&gt;
+  &lt;%= lc { id, name } inlist @fruits do %&gt;
+    &lt;li&gt;&lt;a href=&quot;/fruit/&lt;%= id %&gt;&quot;&gt;&lt;%= name %&gt;&lt;/a&gt;&lt;/li&gt;
+  &lt;% end %&gt;
+  &lt;/ul&gt;
+&lt;/body&gt;
+&lt;/html&gt;
+</code></pre>
+
+<p>Notice we have used list comprehensions but any of the <code>Enum</code> functions,
+like <code>Enum.filter/2</code> and <code>Enum.map/2</code> are also available.</p>
+
+<h2>OTP application</h2>
+
+<p>The next two sections will focus on the Dynamo integration with OTP, which is a set of tools and libraries for building robust, fault-tolerant applications. Talking about &quot;applications&quot;, you may have noticed throughout this tutorial we haven&#39;t used the word &quot;application&quot; a lot so far. This is intentional as there is no such thing as a &quot;Dynamo application&quot;!</p>
+
+<p>I will explain. When we first invoked <code>mix dynamo path/to/your/project</code>, it generated a <strong>project</strong>. This project may contain one or more OTP applications (by default, just one) and the Dynamo is always part of an <strong>OTP application</strong>.</p>
+
+<p>In this section we are going to detail what it means to be an OTP application. Before continuing, make sure you have the guide about <a href="http://elixir-lang.org/getting_started/mix/2.html">building OTP apps with Mix</a>, because we will build on top of it.</p>
+
+<h3>Getting the names right</h3>
+
+<p>To recap, when we invoke <code>mix dynamo path/to/your/project</code>, we have:</p>
+
+<ul>
+<li><p>a <strong>project</strong> - the project is everything that was generated and its backbone is the <code>mix.exs</code> file that contains the project dependencies, tasks to compile and run tests and much more;</p></li>
+<li><p>one or more <strong>applications</strong> - a project may contain one or more application, but most of the cases, it contains just one. In general, an application is an artifact generated by a project. For example, when you compile your code, you will have a bunch of <code>.beam</code> files and an <code>.app</code> file inside the <code>ebin</code> directory. The <code>priv</code> directory is also part of the application and it contains everything that is needed at runtime but is not source code, like assets, database configuration, etc. Your application also has dependencies and they are a subset of your project dependencies (in general, test and compile-time dependencies are not application dependencies);</p></li>
+<li><p>one or more <strong>dynamos</strong> - one application may contain one or more dynamos. Yes, you heard it right: Dynamo was designed from the ground up to be isolated, so you can have many Dynamos, listening to and serving different ports in the same project and running in the same OS process.</p></li>
+</ul>
+
+<h3>Applications and supervisors</h3>
+
+<p>A project generated with <code>mix dynamo</code> contains the same elements as a basic OTP application. Assume we generate the same project as we did in <a href="http://elixir-lang.org/getting_started/mix/2.html">building OTP apps with Mix</a> but now using the dynamo command:</p>
+
+<pre class="codeblock"><code>$ mix dynamo stacker
+</code></pre>
+
+<p>In the <code>mix.exs</code> file, we will see the project definition, containing the main application, the version and the project dependencies. We will also see a function named <code>application</code>, this function returns the application specification:</p>
+
+<pre><code class="elixir">def application do
+  [ applications: [:cowboy, :dynamo],
+    mod: { Stacker, [] } ]
+end
+</code></pre>
+
+<p>This <strong>application specification</strong> declares it depends on two other applications, in this case <code>:cowboy</code> (the web server) and <code>:dynamo</code> (this web framework). It also specifies an <strong>application callback</strong>. The application callback is the module <code>Stacker</code> and it will be initialized receiving an empty list as the argument.</p>
+
+<p>If we open up the <code>lib/hello.ex</code> file, we can see the application callback implementation:</p>
+
+<pre><code class="elixir">defmodule Stacker do
+  use Application.Behaviour
+
+  @doc &quot;&quot;&quot;
+  The application callback used to start this
+  application and its Dynamos.
+  &quot;&quot;&quot;
+  def start(_type, _args) do
+    Stacker.Dynamo.start_link([max_restarts: 5, max_seconds: 5])
+  end
+end
+</code></pre>
+
+<p>As explained in the <a href="http://elixir-lang.org/getting_started/mix/2.html">building OTP apps with Mix guide</a>, the application callback must return the PID of an OTP Supervisor. In this case, we are returning the PID of the Dynamo supervisor. In this case, if our Dynamo fails, the Erlang VM will act on it.</p>
+
+<p>In case your application has other workers and supervisors, you can create your own supervisor tree and simply embed the Dynamo supervisor in your own tree. For example, imagine we copy both <code>Stacker.Supervisor</code> and <code>Stacker.Server</code> from the Mix guide, the supervisor looks like this:</p>
+
+<pre><code class="elixir">defmodule Stacker.Supervisor do
+  use Supervisor.Behaviour
+
+  # A convenience to start the supervisor
+  def start_link(stack) do
+    :supervisor.start_link(__MODULE__, stack)
+  end
+
+  # The callback invoked when the supervisor starts
+  def init(stack) do
+    children = [ worker(Stacker.Server, [stack]) ]
+    supervise children, strategy: :one_for_one
+  end
+end
+</code></pre>
+
+<p>Notice this supervisor has its own worker, called <code>Stacker.Server</code>, that should be part of the supervision tree. We can embed the Dynamo supervisor in that tree by changing the <code>init</code> function:</p>
+
+<pre><code class="elixir">def init(stack) do
+  children = [
+    worker(Stacker.Server, [stack]),
+    supervisor(Stacker.Dynamo, [])
+  ]
+  supervise children, strategy: :one_for_one
+end
+</code></pre>
+
+<p>Now all we need to do is to change the <code>Stacker</code> module to initialize the new supervisor tree instead of the Dynamo directly:</p>
+
+<pre><code class="elixir">defmodule Stacker do
+  use Application.Behaviour
+
+  def start(_type, _args) do
+    Stacker.Supervisor.start_link([])
+  end
+end
+</code></pre>
+
+<p>This shows that your application is the one in <strong>control</strong> and a Dynamo is simply embedded into it.</p>
+
+<h2>Dynamo</h2>
+
+<p>So what is a Dynamo after all? A Dynamo is nothing more than a module which can be found at <code>lib/*/dynamo.ex</code> of a newly generated project. Here is an example:</p>
+
+<pre><code class="elixir">defmodule Stacker.Dynamo do
+  use Dynamo
+
+  config :dynamo,
+    env: Mix.env,
+    otp_app: :stacker,
+    endpoint: ApplicationRouter,
+    static_route: &quot;/static&quot;
+end
+</code></pre>
+
+<p>When you run <code>mix compile</code>, this Dynamo is compiled and becomes functional when you start your application supervision tree, as we just discussed. The Dynamo is responsible for handling requests, compiling and managing the files under the <code>web</code> directory, and each Dynamo also has its own supervisor tree.</p>
+
+<p>Finally, notice that in the same directory you find your Dynamo you can also find an <code>environments</code> directory which contains configuration specific for each environment. Take a look at them for examples on the available configuration options.</p>
+
+<p>Summing up, when you run <code>mix dynamo stacker</code> to create a project and then fetch its dependencies, this is the final structure you get:</p>
+
+<pre class="codeblock"><code>- deps                        # Your project dependencies
+- lib                         # Contains your application files
+  - lib/stacker.ex            # Your application callback
+  - lib/stacker/dynamo.ex     # The Dynamo definition
+  + lib/stacker/environments  # Dynamo environment related configuration
+- mix.exs                     # Your project specification
+- priv                        # Application files that are needed at runtime
+  + priv/static               # Static assets (they are needed on runtime!)
+- test                        # Your test files
+  + test/features             # End-to-end tests
+  + test/routers              # Routers unit tests
+- web                         # Files managed and compiled by the Dynamo
+  + web/routers               # Your application routers
+</code></pre>
+
+<p>That&#39;s all. If you haven&#39;t built an OTP application before, you may be a bit overwhelmed but there is nothing stop you from diving into the <code>web</code> directory and learning about OTP just when you need it. Before you know it, you will be leveraging the power of the Erlang VM to build robust, high performance and concurrent web applications!</p>
+
+<h2>Learn more</h2>
+
+<p>In the <a href="guides">guides</a> directory we include a bunch of small, simple guides that teach you how to achieve something in Dynamo: </p>
+
+<ul>
+<li><p><a href="guides/how-to-single-file-dynamos.md">How to create single file Dynamos</a>, (although not recommended for production, the <a href="examples">examples</a> directory usually uses single file Dynamos to easily show how to achieve something)</p></li>
+<li><p><a href="guides/how-to-heroku.md">How to run a Dynamo on Heroku</a></p></li>
+<li><p><a href="guides/how-to-layouts.md">How to render templates with layouts</a></p></li>
+<li><p><a href="guides/how-to-helpers.md">How to import functions (helpers) into templates</a></p></li>
+<li><p><a href="guides/how-to-ssl.md">How to use SSL</a></p></li>
+</ul>
+
+<h1>License</h1>
+
+<p>Dynamo source code is released under Apache 2 License.
+Check LICENSE file for more information.</p>
+
+    </div>
+  </body>
+</html>
+

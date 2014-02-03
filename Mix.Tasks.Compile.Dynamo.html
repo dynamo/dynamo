@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Mix.Tasks.Compile.Dynamo</title>
+    <meta charset="utf-8">
+    <link rel="stylesheet" href="css/style.css" type="text/css" media="screen" charset="utf-8" />
+
+    <script type="text/javascript" charset="utf-8">
+      relpath = '';
+      if (relpath != '') relpath += '/';
+    </script>
+
+    <script type="text/javascript" charset="utf-8" src="js/jquery.js"></script>
+    <script type="text/javascript" charset="utf-8" src="js/app.js"></script>
+  </head>
+
+  <body>
+    <script type="text/javascript" charset="utf-8">
+      if (window.top.frames.main) document.body.className = 'frames';
+    </script>
+
+    <div id="content">
+      <h1>
+        Mix.Tasks.Compile.Dynamo
+        
+      </h1>
+
+      
+        <div id="moduledoc" class="docstring">
+          <p>A task to compile Dynamo source files.</p>
+
+<p>This task will compile all dynamos registered in
+your Mix project under the <code>dynamos</code> configuration.
+If the current dynamo is set to <code>:compile_on_demand</code>
+compilation is actually skipped.</p>
+
+<h2>Configuration</h2>
+
+<ul>
+<li><p><code>:dynamos</code> - the dynamos registered in this project:</p>
+
+<p>[dynamos: Foo, Bar]</p></li>
+</ul>
+
+<p>This task also uses <code>:compile_path</code> and <code>:elixirc_options</code>
+options shared with other compilation tasks.</p>
+
+<h2>Command line options</h2>
+
+<ul>
+<li><code>--force</code> - forces compilation regardless of mod times;</li>
+</ul>
+
+        </div>
+      
+
+      
+        <a href="https://github.com/dynamo/dynamo/blob/master/lib/mix/tasks/compile.dynamo.ex#L1" target="_blank" class="view_source">Source</a>
+      
+
+      
+
+      
+        <h2 id="functions_summary">Functions summary</h2>
+        <table class="summary">
+          <tr>
+  <td class="summary_signature"><a href="#manifests/0">manifests()</a></td>
+  
+    <td class="summary_synopsis"><p>The manifests for this compiler.</p>
+</td>
+  
+</tr>
+<tr>
+  <td class="summary_signature"><a href="#run/1">run(args)</a></td>
+  
+    <td class="summary_synopsis"><p>Runs this task.</p>
+</td>
+  
+</tr>
+
+        </table>
+      
+
+      
+
+      
+
+      
+
+      
+        <div id="functions_details" class="details_list">
+          <h2>Functions</h2>
+          <div class="detail">
+  <p class="signature" id="manifests/0">
+    <strong>manifests()</strong>
+  </p>
+  
+  <div class="docstring"><p>The manifests for this compiler.</p>
+</div>
+  
+    <a href="https://github.com/dynamo/dynamo/blob/master/lib/mix/tasks/compile.dynamo.ex#L53" target="_blank" class="view_source">Source</a>
+  
+</div>
+<div class="detail">
+  <p class="signature" id="run/1">
+    <strong>run(args)</strong>
+  </p>
+  
+  <div class="docstring"><p>Runs this task.</p>
+</div>
+  
+    <a href="https://github.com/dynamo/dynamo/blob/master/lib/mix/tasks/compile.dynamo.ex#L38" target="_blank" class="view_source">Source</a>
+  
+</div>
+
+        </div>
+      
+
+      
+
+      
+    </div>
+  </body>
+</html>

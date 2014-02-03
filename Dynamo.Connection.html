@@ -1,0 +1,1637 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Dynamo.Connection</title>
+    <meta charset="utf-8">
+    <link rel="stylesheet" href="css/style.css" type="text/css" media="screen" charset="utf-8" />
+
+    <script type="text/javascript" charset="utf-8">
+      relpath = '';
+      if (relpath != '') relpath += '/';
+    </script>
+
+    <script type="text/javascript" charset="utf-8" src="js/jquery.js"></script>
+    <script type="text/javascript" charset="utf-8" src="js/app.js"></script>
+  </head>
+
+  <body>
+    <script type="text/javascript" charset="utf-8">
+      if (window.top.frames.main) document.body.className = 'frames';
+    </script>
+
+    <div id="content">
+      <h1>
+        Dynamo.Connection
+        
+          <small>behaviour</small>
+        
+      </h1>
+
+      
+        <div id="moduledoc" class="docstring">
+          <p>This modules defines the connection API.</p>
+
+<p>By default, Elixir ships with two implementations
+of this API: <code>Dynamo.Cowboy.Connection</code> (used by
+Cowboy web server) and <a href="Dynamo.Connection.Test.html"><code>Dynamo.Connection.Test</code></a>.</p>
+
+<p>Notice that this module documentation uses the record
+notation. So although the documentation says <code>params(conn)</code>,
+the function should be invoked as <code>conn.params()</code> and
+Elixir automatically moves the <code>conn</code> to the last argument.</p>
+
+<p>It is also important to remind that, as in all Elixir
+structures, a connection is immutable. So if you are using
+<code>conn.put_resp_header(&quot;X-API&quot;, &quot;123456&quot;)</code> to set a response
+header, a new connection will be returned with the new header
+set. The original <code>conn</code> is not going to be modified.</p>
+
+        </div>
+      
+
+      
+        <a href="https://github.com/dynamo/dynamo/blob/master/lib/dynamo/connection.ex#L1" target="_blank" class="view_source">Source</a>
+      
+
+      
+
+      
+        <h2 id="functions_summary">Functions summary</h2>
+        <table class="summary">
+          <tr>
+  <td class="summary_signature"><a href="#default_before_send/0">default_before_send()</a></td>
+  
+    <td class="summary_synopsis"><p>Default values for before send callbacks.
+It contains callbacks to set content type,
+configure cookies and session.</p>
+</td>
+  
+</tr>
+
+        </table>
+      
+
+      
+
+      
+        <h2 id="callbacks_summary">Callbacks summary</h2>
+        <table class="summary">
+          <tr>
+  <td class="summary_signature"><a href="#already_sent?/1">already_sent?(conn)</a></td>
+  
+    <td class="summary_synopsis"><p>Returns a boolean if the connection was already sent or not.
+This must return the correct result regardless if we have an
+updated copy of the connection or not.</p>
+</td>
+  
+</tr>
+<tr>
+  <td class="summary_signature"><a href="#assign/3">assign(key, value, conn)</a></td>
+  
+    <td class="summary_synopsis"><p>Puts a new assign with the given key and value.</p>
+</td>
+  
+</tr>
+<tr>
+  <td class="summary_signature"><a href="#assigns/1">assigns(conn)</a></td>
+  
+    <td class="summary_synopsis"><p>Returns a keywords list with assigns set so far.</p>
+</td>
+  
+</tr>
+<tr>
+  <td class="summary_signature"><a href="#chunk/2">chunk(body, conn)</a></td>
+  
+    <td class="summary_synopsis"><p>Send the given data through the socket.
+<a href="#send_chunked/2"><code>send_chunked/2</code></a> needs to be called before <a href="#chunk/2"><code>chunk/2</code></a>.</p>
+</td>
+  
+</tr>
+<tr>
+  <td class="summary_signature"><a href="#delete_resp_header/2">delete_resp_header(key, conn)</a></td>
+  
+    <td class="summary_synopsis"><p>Deletes a response header.
+The header key must be downcased.</p>
+</td>
+  
+</tr>
+<tr>
+  <td class="summary_signature"><a href="#fetch/2">fetch(fetch_aspect, conn)</a></td>
+  
+    <td class="summary_synopsis"><p>Responsible for fetching and caching aspects of the response.
+The default &quot;fetchable&quot; aspects are: headers, params, cookies and body.</p>
+</td>
+  
+</tr>
+<tr>
+  <td class="summary_signature"><a href="#fetchable/3">fetchable(atom, list2, conn)</a></td>
+  
+    <td class="summary_synopsis"><p>Register an aspect as fetchable in the connection.</p>
+</td>
+  
+</tr>
+<tr>
+  <td class="summary_signature"><a href="#forward_to/3">forward_to(segments, module, conn)</a></td>
+  
+    <td class="summary_synopsis"><p>Mounts the request by setting the new path information to the given
+<em>segments</em>. Both script<em>name/1 and path</em>segments/1 are updated.
+The segments given must be a suffix of the current path segments.</p>
+</td>
+  
+</tr>
+<tr>
+  <td class="summary_signature"><a href="#host/1">host(conn)</a></td>
+  
+    <td class="summary_synopsis"><p>Returns the request host.</p>
+</td>
+  
+</tr>
+<tr>
+  <td class="summary_signature"><a href="#host_url/1">host_url(conn)</a></td>
+  
+    <td class="summary_synopsis"><p>Returns the host_url (i.e. containing the scheme,
+hort and port).</p>
+</td>
+  
+</tr>
+<tr>
+  <td class="summary_signature"><a href="#main/1">main(conn)</a></td>
+  
+    <td class="summary_synopsis"><p>Returns the main module that started the connection the request.</p>
+</td>
+  
+</tr>
+<tr>
+  <td class="summary_signature"><a href="#method/1">method(conn)</a></td>
+  
+    <td class="summary_synopsis"><p>Returns the HTTP method as a binary.</p>
+</td>
+  
+</tr>
+<tr>
+  <td class="summary_signature"><a href="#method/2">method(method, conn)</a></td>
+  
+    <td class="summary_synopsis"><p>Changes the request method to the given <code>method</code>,
+storing the previous value in original_method.</p>
+</td>
+  
+</tr>
+<tr>
+  <td class="summary_signature"><a href="#original_method/1">original_method(conn)</a></td>
+  
+    <td class="summary_synopsis"><p>Returns the original HTTP method as a binary.
+Sometimes a filter may change the method from
+HEAD to GET or from POST to PUT, this function
+returns the original method.</p>
+</td>
+  
+</tr>
+<tr>
+  <td class="summary_signature"><a href="#params/1">params(conn)</a></td>
+  
+    <td class="summary_synopsis"><p>Returns the params retrieved from the query string and the request
+body as a <a href="Binary.Dict.html"><code>Binary.Dict</code></a>. The parameters need to be explicitly
+fetched with <code>conn.fetch(:params)</code> before using this function.</p>
+</td>
+  
+</tr>
+<tr>
+  <td class="summary_signature"><a href="#path/1">path(conn)</a></td>
+  
+    <td class="summary_synopsis"><p>Returns the full path as a binary, as received by the web server.</p>
+</td>
+  
+</tr>
+<tr>
+  <td class="summary_signature"><a href="#path_info/1">path_info(conn)</a></td>
+  
+    <td class="summary_synopsis"><p>Returns the request path relative to the forwarding endpoint
+as a binary.</p>
+</td>
+  
+</tr>
+<tr>
+  <td class="summary_signature"><a href="#path_info_segments/1">path_info_segments(conn)</a></td>
+  
+    <td class="summary_synopsis"><p>Return the path as a list of binaries split on &quot;/&quot;.
+If the request was forwarded request, <code>path_info_segments</code> returns
+only the segments related to the current forwarded endpoint.</p>
+</td>
+  
+</tr>
+<tr>
+  <td class="summary_signature"><a href="#path_segments/1">path_segments(conn)</a></td>
+  
+    <td class="summary_synopsis"><p>Returns the full path segments, as received by the web server.</p>
+</td>
+  
+</tr>
+<tr>
+  <td class="summary_signature"><a href="#peer/1">peer(conn)</a></td>
+  
+    <td class="summary_synopsis"><p>The remote host ip address.</p>
+</td>
+  
+</tr>
+<tr>
+  <td class="summary_signature"><a href="#port/1">port(conn)</a></td>
+  
+    <td class="summary_synopsis"><p>Returns the request port.</p>
+</td>
+  
+</tr>
+<tr>
+  <td class="summary_signature"><a href="#private/1">private(conn)</a></td>
+  
+    <td class="summary_synopsis"><p>Returns a keywords list with private assigns set so far.</p>
+</td>
+  
+</tr>
+<tr>
+  <td class="summary_signature"><a href="#put_assign/3">put_assign(key, value, conn)</a></td>
+  
+    <td class="summary_synopsis"><p>The same as <a href="#assign/3"><code>assign/3</code></a>.</p>
+</td>
+  
+</tr>
+<tr>
+  <td class="summary_signature"><a href="#put_private/3">put_private(key, value, conn)</a></td>
+  
+    <td class="summary_synopsis"><p>Sets a new private assign with the given key and value.
+We recommended private keys to follow the format:</p>
+</td>
+  
+</tr>
+<tr>
+  <td class="summary_signature"><a href="#put_resp_cookie/4">put_resp_cookie(key, value, opts, conn)</a></td>
+  
+    <td class="summary_synopsis"><p>Puts the response cookie with the given key, value and list
+of options.</p>
+</td>
+  
+</tr>
+<tr>
+  <td class="summary_signature"><a href="#put_resp_header/3">put_resp_header(key, value, conn)</a></td>
+  
+    <td class="summary_synopsis"><p>Puts a response header, overriding any previous value.
+Both <code>key</code> and <code>value</code> are converted to binary.
+The header key must be downcased.</p>
+</td>
+  
+</tr>
+<tr>
+  <td class="summary_signature"><a href="#query_string/1">query_string(conn)</a></td>
+  
+    <td class="summary_synopsis"><p>Returns the query string as a binary.</p>
+</td>
+  
+</tr>
+<tr>
+  <td class="summary_signature"><a href="#req_body/1">req_body(conn)</a></td>
+  
+    <td class="summary_synopsis"><p>Returns the request body as a binary.</p>
+</td>
+  
+</tr>
+<tr>
+  <td class="summary_signature"><a href="#req_cookies/1">req_cookies(conn)</a></td>
+  
+    <td class="summary_synopsis"><p>Returns the cookies sent in the request as a <a href="Binary.Dict.html"><code>Binary.Dict</code></a>.
+Cookies need to be explicitly fetched with <code>conn.fetch(:cookies)</code>
+before using this function.</p>
+</td>
+  
+</tr>
+<tr>
+  <td class="summary_signature"><a href="#req_headers/1">req_headers(conn)</a></td>
+  
+    <td class="summary_synopsis"><p>Returns the request headers as <a href="Binary.Dict.html"><code>Binary.Dict</code></a>. Note that duplicated
+entries are removed. The headers need to be explicitly fetched with
+<code>conn.fetch(:headers)</code> before using this function. Headers keys are
+all downcased.</p>
+</td>
+  
+</tr>
+<tr>
+  <td class="summary_signature"><a href="#resp/3">resp(status, body, conn)</a></td>
+  
+    <td class="summary_synopsis"><p>Sets a response to the given status and body. The
+response will only be sent when <code>send</code> is called.</p>
+</td>
+  
+</tr>
+<tr>
+  <td class="summary_signature"><a href="#resp_body/1">resp_body(conn)</a></td>
+  
+    <td class="summary_synopsis"><p>Returns the response body if one was set.</p>
+</td>
+  
+</tr>
+<tr>
+  <td class="summary_signature"><a href="#resp_body/2">resp_body(body, conn)</a></td>
+  
+    <td class="summary_synopsis"><p>Sets the response body and changes the state to <code>:set</code>.</p>
+</td>
+  
+</tr>
+<tr>
+  <td class="summary_signature"><a href="#resp_charset/1">resp_charset(conn)</a></td>
+  
+    <td class="summary_synopsis"><p>Gets the response charset.
+Defaults to &quot;utf-8&quot;.</p>
+</td>
+  
+</tr>
+<tr>
+  <td class="summary_signature"><a href="#resp_charset/2">resp_charset(charset, conn)</a></td>
+  
+    <td class="summary_synopsis"><p>Sets the response charset. The charset is just added
+to the response if <code>resp_content_type</code> is also set.</p>
+</td>
+  
+</tr>
+<tr>
+  <td class="summary_signature"><a href="#resp_content_type/1">resp_content_type(conn)</a></td>
+  
+    <td class="summary_synopsis"><p>Gets the response content-type.</p>
+</td>
+  
+</tr>
+<tr>
+  <td class="summary_signature"><a href="#resp_content_type/2">resp_content_type(content_type, conn)</a></td>
+  
+    <td class="summary_synopsis"><p>Sets the response content-type.
+This is sent as a header when the response is sent.</p>
+</td>
+  
+</tr>
+<tr>
+  <td class="summary_signature"><a href="#resp_cookies/1">resp_cookies(conn)</a></td>
+  
+    <td class="summary_synopsis"><p>Returns the response cookies as a list of three element tuples
+containing the key, value and given options.</p>
+</td>
+  
+</tr>
+<tr>
+  <td class="summary_signature"><a href="#resp_headers/1">resp_headers(conn)</a></td>
+  
+    <td class="summary_synopsis"><p>Returns the response headers as <a href="Binary.Dict.html"><code>Binary.Dict</code></a>.
+Header names are all downcased.</p>
+</td>
+  
+</tr>
+<tr>
+  <td class="summary_signature"><a href="#route_params/1">route_params(conn)</a></td>
+  
+    <td class="summary_synopsis"><p>Returns the parameters that were set as part of the route
+matching. This is used internally by Dynamo and a developer
+likely does not need to invoke it manually.</p>
+</td>
+  
+</tr>
+<tr>
+  <td class="summary_signature"><a href="#route_params/2">route_params(t, conn)</a></td>
+  
+    <td class="summary_synopsis"><p>Updates the route parameters. This is used internally by Dynamo
+and a developer does not need to invoke it manually.</p>
+</td>
+  
+</tr>
+<tr>
+  <td class="summary_signature"><a href="#scheme/1">scheme(conn)</a></td>
+  
+    <td class="summary_synopsis"><p>Returns the request scheme.</p>
+</td>
+  
+</tr>
+<tr>
+  <td class="summary_signature"><a href="#script_name/1">script_name(conn)</a></td>
+  
+    <td class="summary_synopsis"><p>As in CGI environment, returns the current forwarded endpoint as binary.</p>
+</td>
+  
+</tr>
+<tr>
+  <td class="summary_signature"><a href="#script_name_segments/1">script_name_segments(conn)</a></td>
+  
+    <td class="summary_synopsis"><p>As in CGI environment, returns the current forwarded endpoint as segments.</p>
+</td>
+  
+</tr>
+<tr>
+  <td class="summary_signature"><a href="#send/1">send(conn)</a></td>
+  
+    <td class="summary_synopsis"><p>A shortcut to <code>conn.send(conn.status, conn.resp_body)</code>.</p>
+</td>
+  
+</tr>
+<tr>
+  <td class="summary_signature"><a href="#send/3">send(status, body, conn)</a></td>
+  
+    <td class="summary_synopsis"><p>Sends to the client the given status and body.
+An updated connection is returned with <code>:sent</code> state,
+the given status and response body set to nil.</p>
+</td>
+  
+</tr>
+<tr>
+  <td class="summary_signature"><a href="#send_chunked/2">send_chunked(status, conn)</a></td>
+  
+    <td class="summary_synopsis"><p>Starts to send a chunked response to the client.
+An updated connection is returned with <code>:chunked</code> state,
+the given status and response body set to nil.
+Use <a href="#chunk/2"><code>chunk/2</code></a> to chunk each part of the response.</p>
+</td>
+  
+</tr>
+<tr>
+  <td class="summary_signature"><a href="#sendfile/3">sendfile(status, path, conn)</a></td>
+  
+    <td class="summary_synopsis"><p>Sends the file at the given path. It is expected that the
+given path exists and it points to a regular file. The
+file is sent straight away.</p>
+</td>
+  
+</tr>
+<tr>
+  <td class="summary_signature"><a href="#state/1">state(conn)</a></td>
+  
+    <td class="summary_synopsis"><p>Returns the response state. It can be:</p>
+</td>
+  
+</tr>
+<tr>
+  <td class="summary_signature"><a href="#status/1">status(conn)</a></td>
+  
+    <td class="summary_synopsis"><p>Returns the response status if one was set.</p>
+</td>
+  
+</tr>
+<tr>
+  <td class="summary_signature"><a href="#status/2">status(status, conn)</a></td>
+  
+    <td class="summary_synopsis"><p>Sets the response status and changes the state to <code>:set</code>.</p>
+</td>
+  
+</tr>
+<tr>
+  <td class="summary_signature"><a href="#version/1">version(conn)</a></td>
+  
+    <td class="summary_synopsis"><p>Returns the HTTP version.</p>
+</td>
+  
+</tr>
+
+        </table>
+      
+
+      
+        <div id="types_details" class="details_list">
+          <h2>Types</h2>
+          <div class="type_detail">
+  <p class="typespec" id="t:t/0">
+    <a href="#t:t/0">t</a>
+  </p>
+  
+</div>
+<div class="type_detail">
+  <p class="typespec" id="t:conn/0">
+    <a href="#t:conn/0">conn</a> :: <a href="Dynamo.Connection.html#t:t/0">Dynamo.Connection.t</a>
+  </p>
+  
+</div>
+<div class="type_detail">
+  <p class="typespec" id="t:body/0">
+    <a href="#t:body/0">body</a> :: binary
+  </p>
+  
+</div>
+<div class="type_detail">
+  <p class="typespec" id="t:status/0">
+    <a href="#t:status/0">status</a> :: non_neg_integer
+  </p>
+  
+</div>
+<div class="type_detail">
+  <p class="typespec" id="t:headers/0">
+    <a href="#t:headers/0">headers</a> :: <a href="Binary.Dict.html#t:t/0">Binary.Dict.t</a>
+  </p>
+  
+</div>
+<div class="type_detail">
+  <p class="typespec" id="t:method/0">
+    <a href="#t:method/0">method</a> :: binary
+  </p>
+  
+</div>
+<div class="type_detail">
+  <p class="typespec" id="t:segments/0">
+    <a href="#t:segments/0">segments</a> :: [binary]
+  </p>
+  
+</div>
+<div class="type_detail">
+  <p class="typespec" id="t:charset/0">
+    <a href="#t:charset/0">charset</a> :: binary
+  </p>
+  
+</div>
+<div class="type_detail">
+  <p class="typespec" id="t:content_type/0">
+    <a href="#t:content_type/0">content_type</a> :: binary
+  </p>
+  
+</div>
+<div class="type_detail">
+  <p class="typespec" id="t:fetch_aspect/0">
+    <a href="#t:fetch_aspect/0">fetch_aspect</a> :: :headers | :params | :cookies | :body | atom
+  </p>
+  
+</div>
+<div class="type_detail">
+  <p class="typespec" id="t:main/0">
+    <a href="#t:main/0">main</a> :: module
+  </p>
+  
+</div>
+<div class="type_detail">
+  <p class="typespec" id="t:assigns/0">
+    <a href="#t:assigns/0">assigns</a> :: <a href="http://elixir-lang.org/docs/master/Keyword.html#t:t/0">Keyword.t</a>
+  </p>
+  
+</div>
+<div class="type_detail">
+  <p class="typespec" id="t:private/0">
+    <a href="#t:private/0">private</a> :: <a href="http://elixir-lang.org/docs/master/Keyword.html#t:t/0">Keyword.t</a>
+  </p>
+  
+</div>
+<div class="type_detail">
+  <p class="typespec" id="t:scheme/0">
+    <a href="#t:scheme/0">scheme</a> :: :http | :https
+  </p>
+  
+</div>
+<div class="type_detail">
+  <p class="typespec" id="t:host/0">
+    <a href="#t:host/0">host</a> :: binary
+  </p>
+  
+</div>
+<div class="type_detail">
+  <p class="typespec" id="t:port_number/0">
+    <a href="#t:port_number/0">port_number</a> :: :inet.port_number
+  </p>
+  
+</div>
+<div class="type_detail">
+  <p class="typespec" id="t:host_url/0">
+    <a href="#t:host_url/0">host_url</a> :: binary
+  </p>
+  
+</div>
+<div class="type_detail">
+  <p class="typespec" id="t:state/0">
+    <a href="#t:state/0">state</a> :: :unset | :set | :chunked | :sendfile | :sent
+  </p>
+  
+</div>
+
+        </div>
+      
+
+      
+        <div id="functions_details" class="details_list">
+          <h2>Functions</h2>
+          <div class="detail">
+  <p class="signature" id="default_before_send/0">
+    <strong>default_before_send()</strong>
+  </p>
+  
+  <div class="docstring"><p>Default values for before send callbacks.
+It contains callbacks to set content type,
+configure cookies and session.</p>
+</div>
+  
+    <a href="https://github.com/dynamo/dynamo/blob/master/lib/dynamo/connection.ex#L49" target="_blank" class="view_source">Source</a>
+  
+</div>
+
+        </div>
+      
+
+      
+
+      
+        <div id="callbacks_details" class="details_list">
+          <h2>Callbacks</h2>
+          <div class="detail">
+  <p class="signature" id="already_sent?/1">
+    <strong>already_sent?(conn)</strong>
+  </p>
+  
+    <p>Specs:</p>
+    <ul class="spec">
+      
+        <li>already_sent?(<a href="#t:conn/0">conn</a>) :: boolean</li>
+      
+    </ul>
+  
+  <div class="docstring"><p>Returns a boolean if the connection was already sent or not.
+This must return the correct result regardless if we have an
+updated copy of the connection or not.</p>
+</div>
+  
+    <a href="https://github.com/dynamo/dynamo/blob/master/lib/dynamo/connection.ex#L234" target="_blank" class="view_source">Source</a>
+  
+</div>
+<div class="detail">
+  <p class="signature" id="assign/3">
+    <strong>assign(key, value, conn)</strong>
+  </p>
+  
+    <p>Specs:</p>
+    <ul class="spec">
+      
+        <li>assign(key :: atom, value :: term, <a href="#t:conn/0">conn</a>) :: <a href="#t:conn/0">conn</a></li>
+      
+    </ul>
+  
+  <div class="docstring"><p>Puts a new assign with the given key and value.</p>
+</div>
+  
+    <a href="https://github.com/dynamo/dynamo/blob/master/lib/dynamo/connection.ex#L393" target="_blank" class="view_source">Source</a>
+  
+</div>
+<div class="detail">
+  <p class="signature" id="assigns/1">
+    <strong>assigns(conn)</strong>
+  </p>
+  
+    <p>Specs:</p>
+    <ul class="spec">
+      
+        <li>assigns(<a href="#t:conn/0">conn</a>) :: <a href="#t:assigns/0">assigns</a></li>
+      
+    </ul>
+  
+  <div class="docstring"><p>Returns a keywords list with assigns set so far.</p>
+</div>
+  
+    <a href="https://github.com/dynamo/dynamo/blob/master/lib/dynamo/connection.ex#L388" target="_blank" class="view_source">Source</a>
+  
+</div>
+<div class="detail">
+  <p class="signature" id="chunk/2">
+    <strong>chunk(body, conn)</strong>
+  </p>
+  
+    <p>Specs:</p>
+    <ul class="spec">
+      
+        <li>chunk(<a href="#t:body/0">body</a>, <a href="#t:conn/0">conn</a>) :: {:ok, <a href="#t:conn/0">conn</a>} | {:error, atom}</li>
+      
+    </ul>
+  
+  <div class="docstring"><p>Send the given data through the socket.
+<a href="#send_chunked/2"><code>send_chunked/2</code></a> needs to be called before <a href="#chunk/2"><code>chunk/2</code></a>.</p>
+</div>
+  
+    <a href="https://github.com/dynamo/dynamo/blob/master/lib/dynamo/connection.ex#L255" target="_blank" class="view_source">Source</a>
+  
+</div>
+<div class="detail">
+  <p class="signature" id="delete_resp_header/2">
+    <strong>delete_resp_header(key, conn)</strong>
+  </p>
+  
+    <p>Specs:</p>
+    <ul class="spec">
+      
+        <li>delete_resp_header(key :: <a href="http://elixir-lang.org/docs/master/String.Chars.html#t:t/0">String.Chars.t</a>, <a href="#t:conn/0">conn</a>) :: <a href="#t:conn/0">conn</a></li>
+      
+    </ul>
+  
+  <div class="docstring"><p>Deletes a response header.
+The header key must be downcased.</p>
+</div>
+  
+    <a href="https://github.com/dynamo/dynamo/blob/master/lib/dynamo/connection.ex#L349" target="_blank" class="view_source">Source</a>
+  
+</div>
+<div class="detail">
+  <p class="signature" id="fetch/2">
+    <strong>fetch(fetch_aspect, conn)</strong>
+  </p>
+  
+    <p>Specs:</p>
+    <ul class="spec">
+      
+        <li>fetch(<a href="#t:fetch_aspect/0">fetch_aspect</a> | [<a href="#t:fetch_aspect/0">fetch_aspect</a>], <a href="#t:conn/0">conn</a>) :: <a href="#t:conn/0">conn</a></li>
+      
+    </ul>
+  
+  <div class="docstring"><p>Responsible for fetching and caching aspects of the response.
+The default &quot;fetchable&quot; aspects are: headers, params, cookies and body.</p>
+</div>
+  
+    <a href="https://github.com/dynamo/dynamo/blob/master/lib/dynamo/connection.ex#L378" target="_blank" class="view_source">Source</a>
+  
+</div>
+<div class="detail">
+  <p class="signature" id="fetchable/3">
+    <strong>fetchable(atom, list2, conn)</strong>
+  </p>
+  
+    <p>Specs:</p>
+    <ul class="spec">
+      
+        <li>fetchable(atom, (<a href="#t:conn/0">conn</a> -> <a href="#t:conn/0">conn</a>), <a href="#t:conn/0">conn</a>) :: <a href="#t:conn/0">conn</a></li>
+      
+    </ul>
+  
+  <div class="docstring"><p>Register an aspect as fetchable in the connection.</p>
+</div>
+  
+    <a href="https://github.com/dynamo/dynamo/blob/master/lib/dynamo/connection.ex#L383" target="_blank" class="view_source">Source</a>
+  
+</div>
+<div class="detail">
+  <p class="signature" id="forward_to/3">
+    <strong>forward_to(segments, module, conn)</strong>
+  </p>
+  
+    <p>Specs:</p>
+    <ul class="spec">
+      
+        <li>forward_to(<a href="#t:segments/0">segments</a>, module, <a href="#t:conn/0">conn</a>) :: <a href="#t:conn/0">conn</a></li>
+      
+    </ul>
+  
+  <div class="docstring"><p>Mounts the request by setting the new path information to the given
+<em>segments</em>. Both script<em>name/1 and path</em>segments/1 are updated.
+The segments given must be a suffix of the current path segments.</p>
+</div>
+  
+    <a href="https://github.com/dynamo/dynamo/blob/master/lib/dynamo/connection.ex#L225" target="_blank" class="view_source">Source</a>
+  
+</div>
+<div class="detail">
+  <p class="signature" id="host/1">
+    <strong>host(conn)</strong>
+  </p>
+  
+    <p>Specs:</p>
+    <ul class="spec">
+      
+        <li>host(<a href="#t:conn/0">conn</a>) :: <a href="#t:host/0">host</a></li>
+      
+    </ul>
+  
+  <div class="docstring"><p>Returns the request host.</p>
+</div>
+  
+    <a href="https://github.com/dynamo/dynamo/blob/master/lib/dynamo/connection.ex#L167" target="_blank" class="view_source">Source</a>
+  
+</div>
+<div class="detail">
+  <p class="signature" id="host_url/1">
+    <strong>host_url(conn)</strong>
+  </p>
+  
+    <p>Specs:</p>
+    <ul class="spec">
+      
+        <li>host_url(<a href="#t:conn/0">conn</a>) :: <a href="#t:host_url/0">host_url</a></li>
+      
+    </ul>
+  
+  <div class="docstring"><p>Returns the host_url (i.e. containing the scheme,
+hort and port).</p>
+</div>
+  
+    <a href="https://github.com/dynamo/dynamo/blob/master/lib/dynamo/connection.ex#L178" target="_blank" class="view_source">Source</a>
+  
+</div>
+<div class="detail">
+  <p class="signature" id="main/1">
+    <strong>main(conn)</strong>
+  </p>
+  
+    <p>Specs:</p>
+    <ul class="spec">
+      
+        <li>main(<a href="#t:conn/0">conn</a>) :: <a href="#t:main/0">main</a></li>
+      
+    </ul>
+  
+  <div class="docstring"><p>Returns the main module that started the connection the request.</p>
+</div>
+  
+    <a href="https://github.com/dynamo/dynamo/blob/master/lib/dynamo/connection.ex#L419" target="_blank" class="view_source">Source</a>
+  
+</div>
+<div class="detail">
+  <p class="signature" id="method/1">
+    <strong>method(conn)</strong>
+  </p>
+  
+    <p>Specs:</p>
+    <ul class="spec">
+      
+        <li>method(<a href="#t:conn/0">conn</a>) :: <a href="#t:method/0">method</a></li>
+      
+    </ul>
+  
+  <div class="docstring"><p>Returns the HTTP method as a binary.</p>
+
+<h2>Examples</h2>
+
+<pre><code>conn.method #=&gt; &quot;GET&quot;
+</code></pre>
+</div>
+  
+    <a href="https://github.com/dynamo/dynamo/blob/master/lib/dynamo/connection.ex#L133" target="_blank" class="view_source">Source</a>
+  
+</div>
+<div class="detail">
+  <p class="signature" id="method/2">
+    <strong>method(method, conn)</strong>
+  </p>
+  
+    <p>Specs:</p>
+    <ul class="spec">
+      
+        <li>method(<a href="#t:method/0">method</a>, <a href="#t:conn/0">conn</a>) :: <a href="#t:conn/0">conn</a></li>
+      
+    </ul>
+  
+  <div class="docstring"><p>Changes the request method to the given <code>method</code>,
+storing the previous value in original_method.</p>
+</div>
+  
+    <a href="https://github.com/dynamo/dynamo/blob/master/lib/dynamo/connection.ex#L152" target="_blank" class="view_source">Source</a>
+  
+</div>
+<div class="detail">
+  <p class="signature" id="original_method/1">
+    <strong>original_method(conn)</strong>
+  </p>
+  
+    <p>Specs:</p>
+    <ul class="spec">
+      
+        <li>original_method(<a href="#t:conn/0">conn</a>) :: <a href="#t:method/0">method</a></li>
+      
+    </ul>
+  
+  <div class="docstring"><p>Returns the original HTTP method as a binary.
+Sometimes a filter may change the method from
+HEAD to GET or from POST to PUT, this function
+returns the original method.</p>
+
+<h2>Examples</h2>
+
+<pre><code>conn.original_method #=&gt; &quot;GET&quot;
+</code></pre>
+</div>
+  
+    <a href="https://github.com/dynamo/dynamo/blob/master/lib/dynamo/connection.ex#L146" target="_blank" class="view_source">Source</a>
+  
+</div>
+<div class="detail">
+  <p class="signature" id="params/1">
+    <strong>params(conn)</strong>
+  </p>
+  
+    <p>Specs:</p>
+    <ul class="spec">
+      
+        <li>params(<a href="#t:conn/0">conn</a>) :: <a href="Binary.Dict.html#t:t/0">Binary.Dict.t</a> | no_return</li>
+      
+    </ul>
+  
+  <div class="docstring"><p>Returns the params retrieved from the query string and the request
+body as a <a href="Binary.Dict.html"><code>Binary.Dict</code></a>. The parameters need to be explicitly
+fetched with <code>conn.fetch(:params)</code> before using this function.</p>
+</div>
+  
+    <a href="https://github.com/dynamo/dynamo/blob/master/lib/dynamo/connection.ex#L92" target="_blank" class="view_source">Source</a>
+  
+</div>
+<div class="detail">
+  <p class="signature" id="path/1">
+    <strong>path(conn)</strong>
+  </p>
+  
+    <p>Specs:</p>
+    <ul class="spec">
+      
+        <li>path(<a href="#t:conn/0">conn</a>) :: binary</li>
+      
+    </ul>
+  
+  <div class="docstring"><p>Returns the full path as a binary, as received by the web server.</p>
+</div>
+  
+    <a href="https://github.com/dynamo/dynamo/blob/master/lib/dynamo/connection.ex#L195" target="_blank" class="view_source">Source</a>
+  
+</div>
+<div class="detail">
+  <p class="signature" id="path_info/1">
+    <strong>path_info(conn)</strong>
+  </p>
+  
+    <p>Specs:</p>
+    <ul class="spec">
+      
+        <li>path_info(<a href="#t:conn/0">conn</a>) :: binary</li>
+      
+    </ul>
+  
+  <div class="docstring"><p>Returns the request path relative to the forwarding endpoint
+as a binary.</p>
+</div>
+  
+    <a href="https://github.com/dynamo/dynamo/blob/master/lib/dynamo/connection.ex#L208" target="_blank" class="view_source">Source</a>
+  
+</div>
+<div class="detail">
+  <p class="signature" id="path_info_segments/1">
+    <strong>path_info_segments(conn)</strong>
+  </p>
+  
+    <p>Specs:</p>
+    <ul class="spec">
+      
+        <li>path_info_segments(<a href="#t:conn/0">conn</a>) :: <a href="#t:segments/0">segments</a></li>
+      
+    </ul>
+  
+  <div class="docstring"><p>Return the path as a list of binaries split on &quot;/&quot;.
+If the request was forwarded request, <code>path_info_segments</code> returns
+only the segments related to the current forwarded endpoint.</p>
+</div>
+  
+    <a href="https://github.com/dynamo/dynamo/blob/master/lib/dynamo/connection.ex#L202" target="_blank" class="view_source">Source</a>
+  
+</div>
+<div class="detail">
+  <p class="signature" id="path_segments/1">
+    <strong>path_segments(conn)</strong>
+  </p>
+  
+    <p>Specs:</p>
+    <ul class="spec">
+      
+        <li>path_segments(<a href="#t:conn/0">conn</a>) :: [binary]</li>
+      
+    </ul>
+  
+  <div class="docstring"><p>Returns the full path segments, as received by the web server.</p>
+</div>
+  
+    <a href="https://github.com/dynamo/dynamo/blob/master/lib/dynamo/connection.ex#L190" target="_blank" class="view_source">Source</a>
+  
+</div>
+<div class="detail">
+  <p class="signature" id="peer/1">
+    <strong>peer(conn)</strong>
+  </p>
+  
+    <p>Specs:</p>
+    <ul class="spec">
+      
+        <li>peer(<a href="#t:conn/0">conn</a>) :: tuple</li>
+      
+    </ul>
+  
+  <div class="docstring"><p>The remote host ip address.</p>
+</div>
+  
+    <a href="https://github.com/dynamo/dynamo/blob/master/lib/dynamo/connection.ex#L123" target="_blank" class="view_source">Source</a>
+  
+</div>
+<div class="detail">
+  <p class="signature" id="port/1">
+    <strong>port(conn)</strong>
+  </p>
+  
+    <p>Specs:</p>
+    <ul class="spec">
+      
+        <li>port(<a href="#t:conn/0">conn</a>) :: <a href="#t:port_number/0">port_number</a></li>
+      
+    </ul>
+  
+  <div class="docstring"><p>Returns the request port.</p>
+</div>
+  
+    <a href="https://github.com/dynamo/dynamo/blob/master/lib/dynamo/connection.ex#L172" target="_blank" class="view_source">Source</a>
+  
+</div>
+<div class="detail">
+  <p class="signature" id="private/1">
+    <strong>private(conn)</strong>
+  </p>
+  
+    <p>Specs:</p>
+    <ul class="spec">
+      
+        <li>private(<a href="#t:conn/0">conn</a>) :: <a href="#t:assigns/0">assigns</a></li>
+      
+    </ul>
+  
+  <div class="docstring"><p>Returns a keywords list with private assigns set so far.</p>
+</div>
+  
+    <a href="https://github.com/dynamo/dynamo/blob/master/lib/dynamo/connection.ex#L403" target="_blank" class="view_source">Source</a>
+  
+</div>
+<div class="detail">
+  <p class="signature" id="put_assign/3">
+    <strong>put_assign(key, value, conn)</strong>
+  </p>
+  
+    <p>Specs:</p>
+    <ul class="spec">
+      
+        <li>put_assign(key :: atom, value :: term, <a href="#t:conn/0">conn</a>) :: <a href="#t:conn/0">conn</a></li>
+      
+    </ul>
+  
+  <div class="docstring"><p>The same as <a href="#assign/3"><code>assign/3</code></a>.</p>
+</div>
+  
+    <a href="https://github.com/dynamo/dynamo/blob/master/lib/dynamo/connection.ex#L398" target="_blank" class="view_source">Source</a>
+  
+</div>
+<div class="detail">
+  <p class="signature" id="put_private/3">
+    <strong>put_private(key, value, conn)</strong>
+  </p>
+  
+    <p>Specs:</p>
+    <ul class="spec">
+      
+        <li>put_private(key :: atom, value :: term, <a href="#t:conn/0">conn</a>) :: <a href="#t:conn/0">conn</a></li>
+      
+    </ul>
+  
+  <div class="docstring"><p>Sets a new private assign with the given key and value.
+We recommended private keys to follow the format:</p>
+
+<p>:&quot;#{plugin}_#{key}&quot;</p>
+
+<p>For example, a Dynamo key to store timeout values would
+be set as: <code>:dynamo_timeout</code>.</p>
+</div>
+  
+    <a href="https://github.com/dynamo/dynamo/blob/master/lib/dynamo/connection.ex#L414" target="_blank" class="view_source">Source</a>
+  
+</div>
+<div class="detail">
+  <p class="signature" id="put_resp_cookie/4">
+    <strong>put_resp_cookie(key, value, opts, conn)</strong>
+  </p>
+  
+    <p>Specs:</p>
+    <ul class="spec">
+      
+        <li>put_resp_cookie(key :: binary, value :: binary | nil, opts :: [], <a href="#t:conn/0">conn</a>) :: <a href="#t:conn/0">conn</a></li>
+      
+    </ul>
+  
+  <div class="docstring"><p>Puts the response cookie with the given key, value and list
+of options.</p>
+</div>
+  
+    <a href="https://github.com/dynamo/dynamo/blob/master/lib/dynamo/connection.ex#L370" target="_blank" class="view_source">Source</a>
+  
+</div>
+<div class="detail">
+  <p class="signature" id="put_resp_header/3">
+    <strong>put_resp_header(key, value, conn)</strong>
+  </p>
+  
+    <p>Specs:</p>
+    <ul class="spec">
+      
+        <li>put_resp_header(key :: <a href="http://elixir-lang.org/docs/master/String.Chars.html#t:t/0">String.Chars.t</a>, value :: <a href="http://elixir-lang.org/docs/master/String.Chars.html#t:t/0">String.Chars.t</a>, <a href="#t:conn/0">conn</a>) :: <a href="#t:conn/0">conn</a></li>
+      
+    </ul>
+  
+  <div class="docstring"><p>Puts a response header, overriding any previous value.
+Both <code>key</code> and <code>value</code> are converted to binary.
+The header key must be downcased.</p>
+</div>
+  
+    <a href="https://github.com/dynamo/dynamo/blob/master/lib/dynamo/connection.ex#L343" target="_blank" class="view_source">Source</a>
+  
+</div>
+<div class="detail">
+  <p class="signature" id="query_string/1">
+    <strong>query_string(conn)</strong>
+  </p>
+  
+    <p>Specs:</p>
+    <ul class="spec">
+      
+        <li>query_string(<a href="#t:conn/0">conn</a>) :: binary</li>
+      
+    </ul>
+  
+  <div class="docstring"><p>Returns the query string as a binary.</p>
+</div>
+  
+    <a href="https://github.com/dynamo/dynamo/blob/master/lib/dynamo/connection.ex#L185" target="_blank" class="view_source">Source</a>
+  
+</div>
+<div class="detail">
+  <p class="signature" id="req_body/1">
+    <strong>req_body(conn)</strong>
+  </p>
+  
+    <p>Specs:</p>
+    <ul class="spec">
+      
+        <li>req_body(<a href="#t:conn/0">conn</a>) :: <a href="#t:body/0">body</a> | no_return</li>
+      
+    </ul>
+  
+  <div class="docstring"><p>Returns the request body as a binary.</p>
+</div>
+  
+    <a href="https://github.com/dynamo/dynamo/blob/master/lib/dynamo/connection.ex#L118" target="_blank" class="view_source">Source</a>
+  
+</div>
+<div class="detail">
+  <p class="signature" id="req_cookies/1">
+    <strong>req_cookies(conn)</strong>
+  </p>
+  
+    <p>Specs:</p>
+    <ul class="spec">
+      
+        <li>req_cookies(<a href="#t:conn/0">conn</a>) :: <a href="Binary.Dict.html#t:t/0">Binary.Dict.t</a> | no_return</li>
+      
+    </ul>
+  
+  <div class="docstring"><p>Returns the cookies sent in the request as a <a href="Binary.Dict.html"><code>Binary.Dict</code></a>.
+Cookies need to be explicitly fetched with <code>conn.fetch(:cookies)</code>
+before using this function.</p>
+</div>
+  
+    <a href="https://github.com/dynamo/dynamo/blob/master/lib/dynamo/connection.ex#L358" target="_blank" class="view_source">Source</a>
+  
+</div>
+<div class="detail">
+  <p class="signature" id="req_headers/1">
+    <strong>req_headers(conn)</strong>
+  </p>
+  
+    <p>Specs:</p>
+    <ul class="spec">
+      
+        <li>req_headers(<a href="#t:conn/0">conn</a>) :: <a href="#t:headers/0">headers</a> | no_return</li>
+      
+    </ul>
+  
+  <div class="docstring"><p>Returns the request headers as <a href="Binary.Dict.html"><code>Binary.Dict</code></a>. Note that duplicated
+entries are removed. The headers need to be explicitly fetched with
+<code>conn.fetch(:headers)</code> before using this function. Headers keys are
+all downcased.</p>
+</div>
+  
+    <a href="https://github.com/dynamo/dynamo/blob/master/lib/dynamo/connection.ex#L113" target="_blank" class="view_source">Source</a>
+  
+</div>
+<div class="detail">
+  <p class="signature" id="resp/3">
+    <strong>resp(status, body, conn)</strong>
+  </p>
+  
+    <p>Specs:</p>
+    <ul class="spec">
+      
+        <li>resp(<a href="#t:status/0">status</a>, <a href="#t:body/0">body</a>, <a href="#t:conn/0">conn</a>) :: <a href="#t:conn/0">conn</a></li>
+      
+    </ul>
+  
+  <div class="docstring"><p>Sets a response to the given status and body. The
+response will only be sent when <code>send</code> is called.</p>
+
+<p>After calling this function, the state changes to <code>:set</code>,
+both <code>status</code> and <code>resp_body</code> are set.</p>
+</div>
+  
+    <a href="https://github.com/dynamo/dynamo/blob/master/lib/dynamo/connection.ex#L307" target="_blank" class="view_source">Source</a>
+  
+</div>
+<div class="detail">
+  <p class="signature" id="resp_body/1">
+    <strong>resp_body(conn)</strong>
+  </p>
+  
+    <p>Specs:</p>
+    <ul class="spec">
+      
+        <li>resp_body(<a href="#t:conn/0">conn</a>) :: <a href="#t:body/0">body</a> | nil</li>
+      
+    </ul>
+  
+  <div class="docstring"><p>Returns the response body if one was set.</p>
+</div>
+  
+    <a href="https://github.com/dynamo/dynamo/blob/master/lib/dynamo/connection.ex#L270" target="_blank" class="view_source">Source</a>
+  
+</div>
+<div class="detail">
+  <p class="signature" id="resp_body/2">
+    <strong>resp_body(body, conn)</strong>
+  </p>
+  
+    <p>Specs:</p>
+    <ul class="spec">
+      
+        <li>resp_body(<a href="#t:body/0">body</a>, <a href="#t:conn/0">conn</a>) :: <a href="#t:conn/0">conn</a></li>
+      
+    </ul>
+  
+  <div class="docstring"><p>Sets the response body and changes the state to <code>:set</code>.</p>
+</div>
+  
+    <a href="https://github.com/dynamo/dynamo/blob/master/lib/dynamo/connection.ex#L275" target="_blank" class="view_source">Source</a>
+  
+</div>
+<div class="detail">
+  <p class="signature" id="resp_charset/1">
+    <strong>resp_charset(conn)</strong>
+  </p>
+  
+    <p>Specs:</p>
+    <ul class="spec">
+      
+        <li>resp_charset(<a href="#t:conn/0">conn</a>) :: binary</li>
+      
+    </ul>
+  
+  <div class="docstring"><p>Gets the response charset.
+Defaults to &quot;utf-8&quot;.</p>
+</div>
+  
+    <a href="https://github.com/dynamo/dynamo/blob/master/lib/dynamo/connection.ex#L281" target="_blank" class="view_source">Source</a>
+  
+</div>
+<div class="detail">
+  <p class="signature" id="resp_charset/2">
+    <strong>resp_charset(charset, conn)</strong>
+  </p>
+  
+    <p>Specs:</p>
+    <ul class="spec">
+      
+        <li>resp_charset(<a href="#t:charset/0">charset</a>, <a href="#t:conn/0">conn</a>) :: <a href="#t:conn/0">conn</a></li>
+      
+    </ul>
+  
+  <div class="docstring"><p>Sets the response charset. The charset is just added
+to the response if <code>resp_content_type</code> is also set.</p>
+</div>
+  
+    <a href="https://github.com/dynamo/dynamo/blob/master/lib/dynamo/connection.ex#L287" target="_blank" class="view_source">Source</a>
+  
+</div>
+<div class="detail">
+  <p class="signature" id="resp_content_type/1">
+    <strong>resp_content_type(conn)</strong>
+  </p>
+  
+    <p>Specs:</p>
+    <ul class="spec">
+      
+        <li>resp_content_type(<a href="#t:conn/0">conn</a>) :: binary | nil</li>
+      
+    </ul>
+  
+  <div class="docstring"><p>Gets the response content-type.</p>
+</div>
+  
+    <a href="https://github.com/dynamo/dynamo/blob/master/lib/dynamo/connection.ex#L292" target="_blank" class="view_source">Source</a>
+  
+</div>
+<div class="detail">
+  <p class="signature" id="resp_content_type/2">
+    <strong>resp_content_type(content_type, conn)</strong>
+  </p>
+  
+    <p>Specs:</p>
+    <ul class="spec">
+      
+        <li>resp_content_type(<a href="#t:content_type/0">content_type</a>, <a href="#t:conn/0">conn</a>) :: <a href="#t:conn/0">conn</a></li>
+      
+    </ul>
+  
+  <div class="docstring"><p>Sets the response content-type.
+This is sent as a header when the response is sent.</p>
+</div>
+  
+    <a href="https://github.com/dynamo/dynamo/blob/master/lib/dynamo/connection.ex#L298" target="_blank" class="view_source">Source</a>
+  
+</div>
+<div class="detail">
+  <p class="signature" id="resp_cookies/1">
+    <strong>resp_cookies(conn)</strong>
+  </p>
+  
+    <p>Specs:</p>
+    <ul class="spec">
+      
+        <li>resp_cookies(<a href="#t:conn/0">conn</a>) :: [{binary, binary, []}]</li>
+      
+    </ul>
+  
+  <div class="docstring"><p>Returns the response cookies as a list of three element tuples
+containing the key, value and given options.</p>
+</div>
+  
+    <a href="https://github.com/dynamo/dynamo/blob/master/lib/dynamo/connection.ex#L364" target="_blank" class="view_source">Source</a>
+  
+</div>
+<div class="detail">
+  <p class="signature" id="resp_headers/1">
+    <strong>resp_headers(conn)</strong>
+  </p>
+  
+    <p>Specs:</p>
+    <ul class="spec">
+      
+        <li>resp_headers(<a href="#t:conn/0">conn</a>) :: <a href="Binary.Dict.html#t:t/0">Binary.Dict.t</a></li>
+      
+    </ul>
+  
+  <div class="docstring"><p>Returns the response headers as <a href="Binary.Dict.html"><code>Binary.Dict</code></a>.
+Header names are all downcased.</p>
+</div>
+  
+    <a href="https://github.com/dynamo/dynamo/blob/master/lib/dynamo/connection.ex#L336" target="_blank" class="view_source">Source</a>
+  
+</div>
+<div class="detail">
+  <p class="signature" id="route_params/1">
+    <strong>route_params(conn)</strong>
+  </p>
+  
+    <p>Specs:</p>
+    <ul class="spec">
+      
+        <li>route_params(<a href="#t:conn/0">conn</a>) :: <a href="http://elixir-lang.org/docs/master/Keyword.html#t:t/0">Keyword.t</a></li>
+      
+    </ul>
+  
+  <div class="docstring"><p>Returns the parameters that were set as part of the route
+matching. This is used internally by Dynamo and a developer
+likely does not need to invoke it manually.</p>
+</div>
+  
+    <a href="https://github.com/dynamo/dynamo/blob/master/lib/dynamo/connection.ex#L99" target="_blank" class="view_source">Source</a>
+  
+</div>
+<div class="detail">
+  <p class="signature" id="route_params/2">
+    <strong>route_params(t, conn)</strong>
+  </p>
+  
+    <p>Specs:</p>
+    <ul class="spec">
+      
+        <li>route_params(<a href="http://elixir-lang.org/docs/master/Keyword.html#t:t/0">Keyword.t</a>, <a href="#t:conn/0">conn</a>) :: <a href="#t:conn/0">conn</a></li>
+      
+    </ul>
+  
+  <div class="docstring"><p>Updates the route parameters. This is used internally by Dynamo
+and a developer does not need to invoke it manually.</p>
+</div>
+  
+    <a href="https://github.com/dynamo/dynamo/blob/master/lib/dynamo/connection.ex#L105" target="_blank" class="view_source">Source</a>
+  
+</div>
+<div class="detail">
+  <p class="signature" id="scheme/1">
+    <strong>scheme(conn)</strong>
+  </p>
+  
+    <p>Specs:</p>
+    <ul class="spec">
+      
+        <li>scheme(<a href="#t:conn/0">conn</a>) :: <a href="#t:scheme/0">scheme</a></li>
+      
+    </ul>
+  
+  <div class="docstring"><p>Returns the request scheme.</p>
+</div>
+  
+    <a href="https://github.com/dynamo/dynamo/blob/master/lib/dynamo/connection.ex#L162" target="_blank" class="view_source">Source</a>
+  
+</div>
+<div class="detail">
+  <p class="signature" id="script_name/1">
+    <strong>script_name(conn)</strong>
+  </p>
+  
+    <p>Specs:</p>
+    <ul class="spec">
+      
+        <li>script_name(<a href="#t:conn/0">conn</a>) :: binary</li>
+      
+    </ul>
+  
+  <div class="docstring"><p>As in CGI environment, returns the current forwarded endpoint as binary.</p>
+</div>
+  
+    <a href="https://github.com/dynamo/dynamo/blob/master/lib/dynamo/connection.ex#L218" target="_blank" class="view_source">Source</a>
+  
+</div>
+<div class="detail">
+  <p class="signature" id="script_name_segments/1">
+    <strong>script_name_segments(conn)</strong>
+  </p>
+  
+    <p>Specs:</p>
+    <ul class="spec">
+      
+        <li>script_name_segments(<a href="#t:conn/0">conn</a>) :: <a href="#t:segments/0">segments</a></li>
+      
+    </ul>
+  
+  <div class="docstring"><p>As in CGI environment, returns the current forwarded endpoint as segments.</p>
+</div>
+  
+    <a href="https://github.com/dynamo/dynamo/blob/master/lib/dynamo/connection.ex#L213" target="_blank" class="view_source">Source</a>
+  
+</div>
+<div class="detail">
+  <p class="signature" id="send/1">
+    <strong>send(conn)</strong>
+  </p>
+  
+    <p>Specs:</p>
+    <ul class="spec">
+      
+        <li>send(<a href="#t:conn/0">conn</a>) :: <a href="#t:conn/0">conn</a></li>
+      
+    </ul>
+  
+  <div class="docstring"><p>A shortcut to <code>conn.send(conn.status, conn.resp_body)</code>.</p>
+</div>
+  
+    <a href="https://github.com/dynamo/dynamo/blob/master/lib/dynamo/connection.ex#L312" target="_blank" class="view_source">Source</a>
+  
+</div>
+<div class="detail">
+  <p class="signature" id="send/3">
+    <strong>send(status, body, conn)</strong>
+  </p>
+  
+    <p>Specs:</p>
+    <ul class="spec">
+      
+        <li>send(<a href="#t:status/0">status</a>, body :: term, <a href="#t:conn/0">conn</a>) :: <a href="#t:conn/0">conn</a></li>
+      
+    </ul>
+  
+  <div class="docstring"><p>Sends to the client the given status and body.
+An updated connection is returned with <code>:sent</code> state,
+the given status and response body set to nil.</p>
+</div>
+  
+    <a href="https://github.com/dynamo/dynamo/blob/master/lib/dynamo/connection.ex#L241" target="_blank" class="view_source">Source</a>
+  
+</div>
+<div class="detail">
+  <p class="signature" id="send_chunked/2">
+    <strong>send_chunked(status, conn)</strong>
+  </p>
+  
+    <p>Specs:</p>
+    <ul class="spec">
+      
+        <li>send_chunked(<a href="#t:status/0">status</a>, <a href="#t:conn/0">conn</a>) :: <a href="#t:conn/0">conn</a></li>
+      
+    </ul>
+  
+  <div class="docstring"><p>Starts to send a chunked response to the client.
+An updated connection is returned with <code>:chunked</code> state,
+the given status and response body set to nil.
+Use <a href="#chunk/2"><code>chunk/2</code></a> to chunk each part of the response.</p>
+</div>
+  
+    <a href="https://github.com/dynamo/dynamo/blob/master/lib/dynamo/connection.ex#L249" target="_blank" class="view_source">Source</a>
+  
+</div>
+<div class="detail">
+  <p class="signature" id="sendfile/3">
+    <strong>sendfile(status, path, conn)</strong>
+  </p>
+  
+    <p>Specs:</p>
+    <ul class="spec">
+      
+        <li>sendfile(<a href="#t:status/0">status</a>, path :: binary, <a href="#t:conn/0">conn</a>) :: <a href="#t:conn/0">conn</a></li>
+      
+    </ul>
+  
+  <div class="docstring"><p>Sends the file at the given path. It is expected that the
+given path exists and it points to a regular file. The
+file is sent straight away.</p>
+</div>
+  
+    <a href="https://github.com/dynamo/dynamo/blob/master/lib/dynamo/connection.ex#L319" target="_blank" class="view_source">Source</a>
+  
+</div>
+<div class="detail">
+  <p class="signature" id="state/1">
+    <strong>state(conn)</strong>
+  </p>
+  
+    <p>Specs:</p>
+    <ul class="spec">
+      
+        <li>state(<a href="#t:conn/0">conn</a>) :: <a href="#t:state/0">state</a></li>
+      
+    </ul>
+  
+  <div class="docstring"><p>Returns the response state. It can be:</p>
+
+<ul>
+<li><code>:unset</code> - the response was not configured yet</li>
+<li><code>:set</code> - the response was set via <code>conn.resp_body</code> or <code>conn.status</code></li>
+<li><code>:chunked</code> - the response is being sent in chunks</li>
+<li><code>:sent</code> - the response was sent</li>
+</ul>
+</div>
+  
+    <a href="https://github.com/dynamo/dynamo/blob/master/lib/dynamo/connection.ex#L330" target="_blank" class="view_source">Source</a>
+  
+</div>
+<div class="detail">
+  <p class="signature" id="status/1">
+    <strong>status(conn)</strong>
+  </p>
+  
+    <p>Specs:</p>
+    <ul class="spec">
+      
+        <li>status(<a href="#t:conn/0">conn</a>) :: <a href="#t:status/0">status</a></li>
+      
+    </ul>
+  
+  <div class="docstring"><p>Returns the response status if one was set.</p>
+</div>
+  
+    <a href="https://github.com/dynamo/dynamo/blob/master/lib/dynamo/connection.ex#L260" target="_blank" class="view_source">Source</a>
+  
+</div>
+<div class="detail">
+  <p class="signature" id="status/2">
+    <strong>status(status, conn)</strong>
+  </p>
+  
+    <p>Specs:</p>
+    <ul class="spec">
+      
+        <li>status(<a href="#t:status/0">status</a>, <a href="#t:conn/0">conn</a>) :: <a href="#t:conn/0">conn</a></li>
+      
+    </ul>
+  
+  <div class="docstring"><p>Sets the response status and changes the state to <code>:set</code>.</p>
+</div>
+  
+    <a href="https://github.com/dynamo/dynamo/blob/master/lib/dynamo/connection.ex#L265" target="_blank" class="view_source">Source</a>
+  
+</div>
+<div class="detail">
+  <p class="signature" id="version/1">
+    <strong>version(conn)</strong>
+  </p>
+  
+    <p>Specs:</p>
+    <ul class="spec">
+      
+        <li>version(<a href="#t:conn/0">conn</a>) :: binary</li>
+      
+    </ul>
+  
+  <div class="docstring"><p>Returns the HTTP version.</p>
+</div>
+  
+    <a href="https://github.com/dynamo/dynamo/blob/master/lib/dynamo/connection.ex#L157" target="_blank" class="view_source">Source</a>
+  
+</div>
+
+        </div>
+      
+    </div>
+  </body>
+</html>

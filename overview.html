@@ -1,0 +1,447 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Overview</title>
+    <meta charset="utf-8">
+    <link rel="stylesheet" href="css/style.css" type="text/css" media="screen" charset="utf-8" />
+
+    <script type="text/javascript" charset="utf-8">
+      relpath = '';
+      if (relpath != '') relpath += '/';
+    </script>
+
+    <script type="text/javascript" charset="utf-8" src="js/jquery.js"></script>
+    <script type="text/javascript" charset="utf-8" src="js/app.js"></script>
+  </head>
+
+  <body>
+    <script type="text/javascript" charset="utf-8">
+      if (window.top.frames.main) document.body.className = 'frames';
+    </script>
+	
+    <h1>Dynamo v0.1.0-dev</h1>
+
+    <div id="content">
+      
+        <h2 id="modules_summary">Modules summary</h2>
+        <table class="summary">
+          <tr>
+  <td class="summary_signature"><a href="Binary.Dict.html">Binary.Dict</a></td>
+  
+    <td class="summary_synopsis"><p>This module implements a dictionary that forces the keys to
+be converted to binaries on insertion. Currently it is
+implemented using a <code>List.Dict</code> underneath, but this may
+change in the future.</p>
+</td>
+  
+</tr>
+<tr>
+  <td class="summary_signature"><a href="Dynamo.html">Dynamo</a></td>
+  
+    <td class="summary_synopsis"><p>Run, Dynamo, Run!</p>
+</td>
+  
+</tr>
+<tr>
+  <td class="summary_signature"><a href="Dynamo.Base.html">Dynamo.Base</a></td>
+  
+    <td class="summary_synopsis"><p>Holds the base configuration available in a Dynamo.</p>
+</td>
+  
+</tr>
+<tr>
+  <td class="summary_signature"><a href="Dynamo.Connection.html">Dynamo.Connection</a></td>
+  
+    <td class="summary_synopsis"><p>This modules defines the connection API.</p>
+</td>
+  
+</tr>
+<tr>
+  <td class="summary_signature"><a href="Dynamo.Connection.Behaviour.html">Dynamo.Connection.Behaviour</a></td>
+  
+    <td class="summary_synopsis"><p>Common behaviour used between <a href="Dynamo.Connection.html"><code>Dynamo.Connection</code></a> connection
+implementations. When used, it defines a private record
+via <code>defrecordp</code> named <code>connection</code> with the following fields
+and their default values:</p>
+</td>
+  
+</tr>
+<tr>
+  <td class="summary_signature"><a href="Dynamo.Connection.QueryParser.html">Dynamo.Connection.QueryParser</a></td>
+  
+    <td class="summary_synopsis"><p>Conveniences for parsing query strings in Dynamo.</p>
+</td>
+  
+</tr>
+<tr>
+  <td class="summary_signature"><a href="Dynamo.Connection.Test.html">Dynamo.Connection.Test</a></td>
+  
+    <td class="summary_synopsis"><p>Implementation of the <a href="Dynamo.Connection.html"><code>Dynamo.Connection</code></a> behaviour used for testing.
+Check <a href="Dynamo.Connection.html"><code>Dynamo.Connection</code></a> for documentation of all available callbacks.</p>
+</td>
+  
+</tr>
+<tr>
+  <td class="summary_signature"><a href="Dynamo.Cowboy.html">Dynamo.Cowboy</a></td>
+  
+    <td class="summary_synopsis"><p>Provides the interface to Cowboy webserver.
+Check <a href="#run/2"><code>run/2</code></a> for more information.</p>
+</td>
+  
+</tr>
+<tr>
+  <td class="summary_signature"><a href="Dynamo.Filters.Exceptions.html">Dynamo.Filters.Exceptions</a></td>
+  
+    <td class="summary_synopsis"><p>A filter that is responsible to catch, log and handle exceptions.</p>
+</td>
+  
+</tr>
+<tr>
+  <td class="summary_signature"><a href="Dynamo.Filters.Exceptions.Debug.html">Dynamo.Filters.Exceptions.Debug</a></td>
+  
+</tr>
+<tr>
+  <td class="summary_signature"><a href="Dynamo.Filters.Exceptions.Public.html">Dynamo.Filters.Exceptions.Public</a></td>
+  
+    <td class="summary_synopsis"><p>Display exceptions publicly.
+It simply sets th status code in the conneciton.</p>
+</td>
+  
+</tr>
+<tr>
+  <td class="summary_signature"><a href="Dynamo.Filters.Head.html">Dynamo.Filters.Head</a></td>
+  
+    <td class="summary_synopsis"><p>A simple filter that converts HEAD requests to GET.
+<code>conn.method</code> will report to be &quot;GET&quot; and
+<code>conn.original_method</code> will return &quot;HEAD&quot;.</p>
+</td>
+  
+</tr>
+<tr>
+  <td class="summary_signature"><a href="Dynamo.Filters.Loader.html">Dynamo.Filters.Loader</a></td>
+  
+    <td class="summary_synopsis"><p>A simple module that handles compilation on demand
+and automatic code loading. This filter is automatically
+by Dynamos based on your configuration options.</p>
+</td>
+  
+</tr>
+<tr>
+  <td class="summary_signature"><a href="Dynamo.Filters.MethodOverride.html">Dynamo.Filters.MethodOverride</a></td>
+  
+    <td class="summary_synopsis"><p>A filter to overwrite &quot;POST&quot; method with the one defined in _method parameter.</p>
+</td>
+  
+</tr>
+<tr>
+  <td class="summary_signature"><a href="Dynamo.Filters.Session.html">Dynamo.Filters.Session</a></td>
+  
+    <td class="summary_synopsis"><p>The session filter. When added to your Dynamo, this filter allows
+you to fetch the session and to serialize it back.</p>
+</td>
+  
+</tr>
+<tr>
+  <td class="summary_signature"><a href="Dynamo.Filters.Session.CookieStore.html">Dynamo.Filters.Session.CookieStore</a></td>
+  
+    <td class="summary_synopsis"><p>Implements a cookie store. This cookie store is based on
+<a href="Dynamo.Utils.MessageVerifier.html"><code>Dynamo.Utils.MessageVerifier</code></a> which signs each cookie to
+ensure they won&#39;t be tampered with.</p>
+</td>
+  
+</tr>
+<tr>
+  <td class="summary_signature"><a href="Dynamo.Filters.Session.ETSStore.html">Dynamo.Filters.Session.ETSStore</a></td>
+  
+    <td class="summary_synopsis"><p>Stores the session in an ETS table (i.e. in memory).</p>
+</td>
+  
+</tr>
+<tr>
+  <td class="summary_signature"><a href="Dynamo.Filters.Session.Store.html">Dynamo.Filters.Session.Store</a></td>
+  
+    <td class="summary_synopsis"><p>This module defines some conveniences and the API
+required by session stores.</p>
+</td>
+  
+</tr>
+<tr>
+  <td class="summary_signature"><a href="Dynamo.Filters.Static.html">Dynamo.Filters.Static</a></td>
+  
+    <td class="summary_synopsis"><p>A Dynamo filter capable of serving static assets.</p>
+</td>
+  
+</tr>
+<tr>
+  <td class="summary_signature"><a href="Dynamo.HTTP.html">Dynamo.HTTP</a></td>
+  
+    <td class="summary_synopsis"><p>This module is a namespace to many conveniences
+that allow developers to manipulate cookies and
+session, redirect, render templates and others.</p>
+</td>
+  
+</tr>
+<tr>
+  <td class="summary_signature"><a href="Dynamo.HTTP.Case.html">Dynamo.HTTP.Case</a></td>
+  
+    <td class="summary_synopsis"><p>A bunch of helpers to make it easy to test Dynamos and routers.</p>
+</td>
+  
+</tr>
+<tr>
+  <td class="summary_signature"><a href="Dynamo.HTTP.Cookies.html">Dynamo.HTTP.Cookies</a></td>
+  
+</tr>
+<tr>
+  <td class="summary_signature"><a href="Dynamo.HTTP.Halt.html">Dynamo.HTTP.Halt</a></td>
+  
+    <td class="summary_synopsis"><p>Conveniences to halt a request.
+A filter needs to be in place to
+handle the halted request.</p>
+</td>
+  
+</tr>
+<tr>
+  <td class="summary_signature"><a href="Dynamo.HTTP.Hibernate.html">Dynamo.HTTP.Hibernate</a></td>
+  
+    <td class="summary_synopsis"><p>Conveniences that allows a connection to hibernate or wait
+a given amount or an unlimited amount of time.</p>
+</td>
+  
+</tr>
+<tr>
+  <td class="summary_signature"><a href="Dynamo.HTTP.Redirect.html">Dynamo.HTTP.Redirect</a></td>
+  
+    <td class="summary_synopsis"><p>Conveniences to redirect a connection.
+To use them, just import this module.</p>
+</td>
+  
+</tr>
+<tr>
+  <td class="summary_signature"><a href="Dynamo.HTTP.Render.html">Dynamo.HTTP.Render</a></td>
+  
+    <td class="summary_synopsis"><p>Conveniences for template rendering.
+To use them, just import this module.</p>
+</td>
+  
+</tr>
+<tr>
+  <td class="summary_signature"><a href="Dynamo.HTTP.Session.html">Dynamo.HTTP.Session</a></td>
+  
+</tr>
+<tr>
+  <td class="summary_signature"><a href="Dynamo.Helpers.html">Dynamo.Helpers</a></td>
+  
+    <td class="summary_synopsis"><p>A simple module that aggregates all common templates
+functionality in Dynamo.</p>
+</td>
+  
+</tr>
+<tr>
+  <td class="summary_signature"><a href="Dynamo.Helpers.ContentFor.html">Dynamo.Helpers.ContentFor</a></td>
+  
+    <td class="summary_synopsis"><p>This module exposes macros that allows a child
+template to assign data which will eventually
+be read and use by the parent.</p>
+</td>
+  
+</tr>
+<tr>
+  <td class="summary_signature"><a href="Dynamo.Helpers.Escaping.html">Dynamo.Helpers.Escaping</a></td>
+  
+    <td class="summary_synopsis"><p>Conveniences for escaping html and
+other common outputs in views.</p>
+</td>
+  
+</tr>
+<tr>
+  <td class="summary_signature"><a href="Dynamo.Helpers.Rendering.html">Dynamo.Helpers.Rendering</a></td>
+  
+    <td class="summary_synopsis"><p>Conveniences for rendering a template from
+inside another template.</p>
+</td>
+  
+</tr>
+<tr>
+  <td class="summary_signature"><a href="Dynamo.Loader.html">Dynamo.Loader</a></td>
+  
+    <td class="summary_synopsis"><p>This module is responsible for managing code reloading used
+in development environments in Dynamo.</p>
+</td>
+  
+</tr>
+<tr>
+  <td class="summary_signature"><a href="Dynamo.Router.html">Dynamo.Router</a></td>
+  
+    <td class="summary_synopsis"><p>A Dynamo is made of many routers that redirect a connection
+between endpoints. Those endpoints are usually built with
+<code>Dynamo.Routes</code> which are responsible for bringing routing
+semantics to your modules.</p>
+</td>
+  
+</tr>
+<tr>
+  <td class="summary_signature"><a href="Dynamo.Router.Base.html">Dynamo.Router.Base</a></td>
+  
+    <td class="summary_synopsis"><p>This module contains the basic structure for a <a href="Dynamo.Router.html"><code>Dynamo.Router</code></a>.</p>
+</td>
+  
+</tr>
+<tr>
+  <td class="summary_signature"><a href="Dynamo.Router.Filters.html">Dynamo.Router.Filters</a></td>
+  
+    <td class="summary_synopsis"><p>This module is responsible for providing filters to a router or a Dynamo.
+A filter is a module that is invoked before, during or after a service match.</p>
+</td>
+  
+</tr>
+<tr>
+  <td class="summary_signature"><a href="Dynamo.Supervisor.html">Dynamo.Supervisor</a></td>
+  
+    <td class="summary_synopsis"><p>Dynamo&#39;s base supervisor. Each Dynamo starts its own copy of
+the <a href="Dynamo.Supervisor.html"><code>Dynamo.Supervisor</code></a> and attach children to it throughout
+the boot process.</p>
+</td>
+  
+</tr>
+<tr>
+  <td class="summary_signature"><a href="Dynamo.Templates.Handler.html">Dynamo.Templates.Handler</a></td>
+  
+    <td class="summary_synopsis"><p>A module that specifies the handler API and
+small conveniences around it.</p>
+</td>
+  
+</tr>
+<tr>
+  <td class="summary_signature"><a href="Dynamo.Utils.MessageVerifier.html">Dynamo.Utils.MessageVerifier</a></td>
+  
+    <td class="summary_synopsis"><p><code>MessageVerifier</code> makes it easy to generate and verify messages
+which are signed to prevent tampering.</p>
+</td>
+  
+</tr>
+<tr>
+  <td class="summary_signature"><a href="Dynamo.Utils.Once.html">Dynamo.Utils.Once</a></td>
+  
+    <td class="summary_synopsis"><p>A convenience that allows a module to be used
+just once via <code>use_once</code>.</p>
+</td>
+  
+</tr>
+<tr>
+  <td class="summary_signature"><a href="Mix.Tasks.Compile.Dynamo.html">Mix.Tasks.Compile.Dynamo</a></td>
+  
+    <td class="summary_synopsis"><p>A task to compile Dynamo source files.</p>
+</td>
+  
+</tr>
+<tr>
+  <td class="summary_signature"><a href="Mix.Tasks.Dynamo.html">Mix.Tasks.Dynamo</a></td>
+  
+    <td class="summary_synopsis"><p>Creates a new Dynamo project.
+It expects the path of the project as argument.</p>
+</td>
+  
+</tr>
+<tr>
+  <td class="summary_signature"><a href="Mix.Tasks.Dynamo.Filters.html">Mix.Tasks.Dynamo.Filters</a></td>
+  
+    <td class="summary_synopsis"><p>Prints all dynamos filters</p>
+</td>
+  
+</tr>
+<tr>
+  <td class="summary_signature"><a href="Mix.Tasks.Server.html">Mix.Tasks.Server</a></td>
+  
+    <td class="summary_synopsis"><p>Runs all registered Dynamos in their servers.</p>
+</td>
+  
+</tr>
+
+        </table>
+      
+
+      
+        <h2 id="records_summary">Records summary</h2>
+        <table class="summary">
+          <tr>
+  <td class="summary_signature"><a href="Dynamo.Connection.File.html">Dynamo.Connection.File</a></td>
+  
+    <td class="summary_synopsis"><p>Contains a file representation whenever there is a multipart
+request and it contains a File.</p>
+</td>
+  
+</tr>
+<tr>
+  <td class="summary_signature"><a href="Dynamo.Connection.NotSentError.html">Dynamo.Connection.NotSentError</a></td>
+  
+</tr>
+<tr>
+  <td class="summary_signature"><a href="Dynamo.Connection.QueryParser.ParseError.html">Dynamo.Connection.QueryParser.ParseError</a></td>
+  
+</tr>
+<tr>
+  <td class="summary_signature"><a href="Dynamo.Connection.UnfetchedError.html">Dynamo.Connection.UnfetchedError</a></td>
+  
+</tr>
+<tr>
+  <td class="summary_signature"><a href="Dynamo.Connection.UnknownFetchError.html">Dynamo.Connection.UnknownFetchError</a></td>
+  
+</tr>
+<tr>
+  <td class="summary_signature"><a href="Dynamo.Filters.Session.CookieOverflowError.html">Dynamo.Filters.Session.CookieOverflowError</a></td>
+  
+</tr>
+<tr>
+  <td class="summary_signature"><a href="Dynamo.NotFoundError.html">Dynamo.NotFoundError</a></td>
+  
+</tr>
+<tr>
+  <td class="summary_signature"><a href="Dynamo.Router.InvalidHookError.html">Dynamo.Router.InvalidHookError</a></td>
+  
+</tr>
+<tr>
+  <td class="summary_signature"><a href="Dynamo.Router.InvalidSpecError.html">Dynamo.Router.InvalidSpecError</a></td>
+  
+</tr>
+<tr>
+  <td class="summary_signature"><a href="Dynamo.Template.html">Dynamo.Template</a></td>
+  
+    <td class="summary_synopsis"><p>The template record is responsible to keep information about
+templates to be rendered. It contains:</p>
+</td>
+  
+</tr>
+<tr>
+  <td class="summary_signature"><a href="Dynamo.TemplateNotFound.html">Dynamo.TemplateNotFound</a></td>
+  
+</tr>
+
+        </table>
+      
+
+      
+        <h2 id="protocols_summary">Protocols summary</h2>
+        <table class="summary">
+          <tr>
+  <td class="summary_signature"><a href="Dynamo.Exception.html">Dynamo.Exception</a></td>
+  
+    <td class="summary_synopsis"><p>This protocol specifies how Dynamo should react to specific
+exceptions. particularly, the status code to be used when an
+exception happens.</p>
+</td>
+  
+</tr>
+<tr>
+  <td class="summary_signature"><a href="Dynamo.Templates.Finder.html">Dynamo.Templates.Finder</a></td>
+  
+    <td class="summary_synopsis"><p>Defines the protocol required for finding templates.</p>
+</td>
+  
+</tr>
+
+        </table>
+      
+    </div>
+  </body>
+</html>

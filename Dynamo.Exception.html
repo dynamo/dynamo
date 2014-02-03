@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Dynamo.Exception</title>
+    <meta charset="utf-8">
+    <link rel="stylesheet" href="css/style.css" type="text/css" media="screen" charset="utf-8" />
+
+    <script type="text/javascript" charset="utf-8">
+      relpath = '';
+      if (relpath != '') relpath += '/';
+    </script>
+
+    <script type="text/javascript" charset="utf-8" src="js/jquery.js"></script>
+    <script type="text/javascript" charset="utf-8" src="js/app.js"></script>
+  </head>
+
+  <body>
+    <script type="text/javascript" charset="utf-8">
+      if (window.top.frames.main) document.body.className = 'frames';
+    </script>
+
+    <div id="content">
+      <h1>
+        Dynamo.Exception
+        
+          <small>protocol</small>
+        
+      </h1>
+
+      
+        <div id="moduledoc" class="docstring">
+          <p>This protocol specifies how Dynamo should react to specific
+exceptions. particularly, the status code to be used when an
+exception happens.</p>
+
+        </div>
+      
+
+      
+        <a href="https://github.com/dynamo/dynamo/blob/master/lib/dynamo/exceptions.ex#L4" target="_blank" class="view_source">Source</a>
+      
+
+      
+
+      
+        <h2 id="functions_summary">Functions summary</h2>
+        <table class="summary">
+          <tr>
+  <td class="summary_signature"><a href="#impl_for/1">impl_for(data)</a></td>
+  
+</tr>
+<tr>
+  <td class="summary_signature"><a href="#impl_for!/1">impl_for!(data)</a></td>
+  
+</tr>
+<tr>
+  <td class="summary_signature"><a href="#status/1">status(exception)</a></td>
+  
+    <td class="summary_synopsis"><p>Receives the exception. It must return an integer
+representing the exception status code or a tuple
+containing the forementioned integer and a connection
+in case the exception holds a connection.</p>
+</td>
+  
+</tr>
+
+        </table>
+      
+
+      
+
+      
+
+      
+        <div id="types_details" class="details_list">
+          <h2>Types</h2>
+          <div class="type_detail">
+  <p class="typespec" id="t:t/0">
+    <a href="#t:t/0">t</a> :: term
+  </p>
+  
+</div>
+
+        </div>
+      
+
+      
+        <div id="functions_details" class="details_list">
+          <h2>Functions</h2>
+          <div class="detail">
+  <p class="signature" id="impl_for/1">
+    <strong>impl_for(data)</strong>
+  </p>
+  
+    <p>Specs:</p>
+    <ul class="spec">
+      
+        <li>impl_for(term) :: module | nil</li>
+      
+    </ul>
+  
+  <div class="docstring"></div>
+  
+    <a href="https://github.com/dynamo/dynamo/blob/master/lib/dynamo/exceptions.ex#L4" target="_blank" class="view_source">Source</a>
+  
+</div>
+<div class="detail">
+  <p class="signature" id="impl_for!/1">
+    <strong>impl_for!(data)</strong>
+  </p>
+  
+    <p>Specs:</p>
+    <ul class="spec">
+      
+        <li>impl_for!(term) :: module | no_return</li>
+      
+    </ul>
+  
+  <div class="docstring"></div>
+  
+    <a href="https://github.com/dynamo/dynamo/blob/master/lib/dynamo/exceptions.ex#L4" target="_blank" class="view_source">Source</a>
+  
+</div>
+<div class="detail">
+  <p class="signature" id="status/1">
+    <strong>status(exception)</strong>
+  </p>
+  
+  <div class="docstring"><p>Receives the exception. It must return an integer
+representing the exception status code or a tuple
+containing the forementioned integer and a connection
+in case the exception holds a connection.</p>
+</div>
+  
+    <a href="https://github.com/dynamo/dynamo/blob/master/lib/dynamo/exceptions.ex#L19" target="_blank" class="view_source">Source</a>
+  
+</div>
+
+        </div>
+      
+
+      
+
+      
+    </div>
+  </body>
+</html>

@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Dynamo.Router.Filters</title>
+    <meta charset="utf-8">
+    <link rel="stylesheet" href="css/style.css" type="text/css" media="screen" charset="utf-8" />
+
+    <script type="text/javascript" charset="utf-8">
+      relpath = '';
+      if (relpath != '') relpath += '/';
+    </script>
+
+    <script type="text/javascript" charset="utf-8" src="js/jquery.js"></script>
+    <script type="text/javascript" charset="utf-8" src="js/app.js"></script>
+  </head>
+
+  <body>
+    <script type="text/javascript" charset="utf-8">
+      if (window.top.frames.main) document.body.className = 'frames';
+    </script>
+
+    <div id="content">
+      <h1>
+        Dynamo.Router.Filters
+        
+      </h1>
+
+      
+        <div id="moduledoc" class="docstring">
+          <p>This module is responsible for providing filters to a router or a Dynamo.
+A filter is a module that is invoked before, during or after a service match.</p>
+
+<p>While hooks are executed only if a route match, filters are always
+executed. In general, filters are a more low-level mechanism, with
+less conveniences compared to hooks.</p>
+
+<p>There is also a difference regarding ordering. While filters are invoked
+in the order they are declared, regardless of their behaviour, hooks
+always execute <code>prepare</code> hooks first, followed by the <code>finalize</code> ones.</p>
+
+<h2>Usage</h2>
+
+<pre><code>defmodule MyDynamo do
+  use Dynamo.Router
+  filter Dynamo.Static.new(&quot;/public&quot;, :myapp)
+end
+</code></pre>
+
+<h2>Behaviours</h2>
+
+<p>A filter must implement one of the three functions:</p>
+
+<ul>
+<li><code>prepare/1</code>  - the filter will be executed before invoking service</li>
+<li><code>service/2</code>  - the filter will be executed with the service function as argument</li>
+<li><code>finalize/1</code> - the filter will be executed after invoking the service</li>
+</ul>
+
+<h2>Examples</h2>
+
+<p>A filter that adds a Chrome Frame header to the response:</p>
+
+<p>defmodule ChromeFrameFilter do
+    def prepare(conn) do
+      conn.put<em>resp</em>header(&quot;x-ua-compatible&quot;, &quot;chrome=1&quot;)
+    end
+  end</p>
+
+<p>Notice the filter receives a <code>conn</code> as argument and must return an
+updated <code>conn</code>. A finalize filter works similarly.</p>
+
+<p>A service filter receives and must return a <code>conn</code>, but it also 
+receives a function which should be invoked in order to continue
+the request. Here is a filter that sets the content type to json
+and converts the response body to valid json:</p>
+
+<pre><code>defmodule JSONFilter do
+  def service(conn, fun) do
+    conn = conn.put_resp_header(&quot;content-type&quot;, &quot;application/json&quot;)
+    conn = fun.(conn)
+    conn.resp_body(to_json(conn.resp_body))
+  end
+
+  def to_json(data), do: ...
+end
+</code></pre>
+
+        </div>
+      
+
+      
+        <a href="https://github.com/dynamo/dynamo/blob/master/lib/dynamo/router/filters.ex#L1" target="_blank" class="view_source">Source</a>
+      
+
+      
+
+      
+        <h2 id="functions_summary">Functions summary</h2>
+        <table class="summary">
+          <tr>
+  <td class="summary_signature"><a href="#match?/2">match?(atom, filter)</a></td>
+  
+    <td class="summary_synopsis"><p>Matches a filter against the other</p>
+</td>
+  
+</tr>
+
+        </table>
+      
+
+      
+        <h2 id="macros_summary">Macros summary</h2>
+        <table class="summary">
+          <tr>
+  <td class="summary_signature"><a href="#delete_filter/1">delete_filter(atom)</a></td>
+  
+    <td class="summary_synopsis"><p>Deletes a filter from the filter chain.</p>
+</td>
+  
+</tr>
+<tr>
+  <td class="summary_signature"><a href="#filter/1">filter(spec)</a></td>
+  
+    <td class="summary_synopsis"><p>Adds a filter to the filter chain.</p>
+</td>
+  
+</tr>
+<tr>
+  <td class="summary_signature"><a href="#prepend_filter/1">prepend_filter(spec)</a></td>
+  
+    <td class="summary_synopsis"><p>Prepends a filter to the filter chain.</p>
+</td>
+  
+</tr>
+
+        </table>
+      
+
+      
+
+      
+
+      
+        <div id="functions_details" class="details_list">
+          <h2>Functions</h2>
+          <div class="detail">
+  <p class="signature" id="match?/2">
+    <strong>match?(atom, filter)</strong>
+  </p>
+  
+  <div class="docstring"><p>Matches a filter against the other</p>
+</div>
+  
+    <a href="https://github.com/dynamo/dynamo/blob/master/lib/dynamo/router/filters.ex#L115" target="_blank" class="view_source">Source</a>
+  
+</div>
+
+        </div>
+      
+
+      
+        <div id="macros_details" class="details_list">
+          <h2>Macros</h2>
+          <div class="detail">
+  <p class="signature" id="delete_filter/1">
+    <strong>delete_filter(atom)</strong>
+  </p>
+  
+  <div class="docstring"><p>Deletes a filter from the filter chain.</p>
+</div>
+  
+    <a href="https://github.com/dynamo/dynamo/blob/master/lib/dynamo/router/filters.ex#L105" target="_blank" class="view_source">Source</a>
+  
+</div>
+<div class="detail">
+  <p class="signature" id="filter/1">
+    <strong>filter(spec)</strong>
+  </p>
+  
+  <div class="docstring"><p>Adds a filter to the filter chain.</p>
+</div>
+  
+    <a href="https://github.com/dynamo/dynamo/blob/master/lib/dynamo/router/filters.ex#L87" target="_blank" class="view_source">Source</a>
+  
+</div>
+<div class="detail">
+  <p class="signature" id="prepend_filter/1">
+    <strong>prepend_filter(spec)</strong>
+  </p>
+  
+  <div class="docstring"><p>Prepends a filter to the filter chain.</p>
+</div>
+  
+    <a href="https://github.com/dynamo/dynamo/blob/master/lib/dynamo/router/filters.ex#L96" target="_blank" class="view_source">Source</a>
+  
+</div>
+
+        </div>
+      
+
+      
+    </div>
+  </body>
+</html>

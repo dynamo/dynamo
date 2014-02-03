@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Dynamo.Templates.Finder</title>
+    <meta charset="utf-8">
+    <link rel="stylesheet" href="css/style.css" type="text/css" media="screen" charset="utf-8" />
+
+    <script type="text/javascript" charset="utf-8">
+      relpath = '';
+      if (relpath != '') relpath += '/';
+    </script>
+
+    <script type="text/javascript" charset="utf-8" src="js/jquery.js"></script>
+    <script type="text/javascript" charset="utf-8" src="js/app.js"></script>
+  </head>
+
+  <body>
+    <script type="text/javascript" charset="utf-8">
+      if (window.top.frames.main) document.body.className = 'frames';
+    </script>
+
+    <div id="content">
+      <h1>
+        Dynamo.Templates.Finder
+        
+          <small>protocol</small>
+        
+      </h1>
+
+      
+        <div id="moduledoc" class="docstring">
+          <p>Defines the protocol required for finding templates.</p>
+
+        </div>
+      
+
+      
+        <a href="https://github.com/dynamo/dynamo/blob/master/lib/dynamo/templates/finder.ex#L1" target="_blank" class="view_source">Source</a>
+      
+
+      
+
+      
+        <h2 id="functions_summary">Functions summary</h2>
+        <table class="summary">
+          <tr>
+  <td class="summary_signature"><a href="#all/1">all(finder)</a></td>
+  
+    <td class="summary_synopsis"><p>Returns all templates available in this finder.
+This is used for precompilation of templates.
+Must return nil if this finder already holds
+precompiled templates (i.e. <code>requires_precompilation?</code> is true).</p>
+</td>
+  
+</tr>
+<tr>
+  <td class="summary_signature"><a href="#find/2">find(finder, query)</a></td>
+  
+    <td class="summary_synopsis"><p>Attempts to find a template given by name in the
+current finder.</p>
+</td>
+  
+</tr>
+<tr>
+  <td class="summary_signature"><a href="#impl_for/1">impl_for(data)</a></td>
+  
+</tr>
+<tr>
+  <td class="summary_signature"><a href="#impl_for!/1">impl_for!(data)</a></td>
+  
+</tr>
+<tr>
+  <td class="summary_signature"><a href="#requires_precompilation?/1">requires_precompilation?(finder)</a></td>
+  
+    <td class="summary_synopsis"><p>Returns true if templates require precompilation.</p>
+</td>
+  
+</tr>
+<tr>
+  <td class="summary_signature"><a href="#source/2">source(finder, template)</a></td>
+  
+    <td class="summary_synopsis"><p>Returns the given template source.</p>
+</td>
+  
+</tr>
+
+        </table>
+      
+
+      
+
+      
+
+      
+        <div id="types_details" class="details_list">
+          <h2>Types</h2>
+          <div class="type_detail">
+  <p class="typespec" id="t:t/0">
+    <a href="#t:t/0">t</a> :: term
+  </p>
+  
+</div>
+
+        </div>
+      
+
+      
+        <div id="functions_details" class="details_list">
+          <h2>Functions</h2>
+          <div class="detail">
+  <p class="signature" id="all/1">
+    <strong>all(finder)</strong>
+  </p>
+  
+    <p>Specs:</p>
+    <ul class="spec">
+      
+        <li>all(<a href="#t:t/0">t</a>) :: [<a href="Dynamo.Template.html#t:t/0">Dynamo.Template.t</a>] | nil</li>
+      
+    </ul>
+  
+  <div class="docstring"><p>Returns all templates available in this finder.
+This is used for precompilation of templates.
+Must return nil if this finder already holds
+precompiled templates (i.e. <code>requires_precompilation?</code> is true).</p>
+</div>
+  
+    <a href="https://github.com/dynamo/dynamo/blob/master/lib/dynamo/templates/finder.ex#L29" target="_blank" class="view_source">Source</a>
+  
+</div>
+<div class="detail">
+  <p class="signature" id="find/2">
+    <strong>find(finder, query)</strong>
+  </p>
+  
+    <p>Specs:</p>
+    <ul class="spec">
+      
+        <li>find(<a href="#t:t/0">t</a>, query :: binary) :: <a href="Dynamo.Template.html#t:t/0">Dynamo.Template.t</a></li>
+      
+    </ul>
+  
+  <div class="docstring"><p>Attempts to find a template given by name in the
+current finder.</p>
+
+<p>Returns a <a href="Dynamo.Template.html"><code>Dynamo.Template</code></a> or nil in case a template
+can&#39;t be found.</p>
+</div>
+  
+    <a href="https://github.com/dynamo/dynamo/blob/master/lib/dynamo/templates/finder.ex#L20" target="_blank" class="view_source">Source</a>
+  
+</div>
+<div class="detail">
+  <p class="signature" id="impl_for/1">
+    <strong>impl_for(data)</strong>
+  </p>
+  
+    <p>Specs:</p>
+    <ul class="spec">
+      
+        <li>impl_for(term) :: module | nil</li>
+      
+    </ul>
+  
+  <div class="docstring"></div>
+  
+    <a href="https://github.com/dynamo/dynamo/blob/master/lib/dynamo/templates/finder.ex#L1" target="_blank" class="view_source">Source</a>
+  
+</div>
+<div class="detail">
+  <p class="signature" id="impl_for!/1">
+    <strong>impl_for!(data)</strong>
+  </p>
+  
+    <p>Specs:</p>
+    <ul class="spec">
+      
+        <li>impl_for!(term) :: module | no_return</li>
+      
+    </ul>
+  
+  <div class="docstring"></div>
+  
+    <a href="https://github.com/dynamo/dynamo/blob/master/lib/dynamo/templates/finder.ex#L1" target="_blank" class="view_source">Source</a>
+  
+</div>
+<div class="detail">
+  <p class="signature" id="requires_precompilation?/1">
+    <strong>requires_precompilation?(finder)</strong>
+  </p>
+  
+    <p>Specs:</p>
+    <ul class="spec">
+      
+        <li>requires_precompilation?(<a href="#t:t/0">t</a>) :: boolean</li>
+      
+    </ul>
+  
+  <div class="docstring"><p>Returns true if templates require precompilation.</p>
+</div>
+  
+    <a href="https://github.com/dynamo/dynamo/blob/master/lib/dynamo/templates/finder.ex#L10" target="_blank" class="view_source">Source</a>
+  
+</div>
+<div class="detail">
+  <p class="signature" id="source/2">
+    <strong>source(finder, template)</strong>
+  </p>
+  
+    <p>Specs:</p>
+    <ul class="spec">
+      
+        <li>source(<a href="#t:t/0">t</a>, <a href="Dynamo.Template.html#t:t/0">Dynamo.Template.t</a>) :: binary</li>
+      
+    </ul>
+  
+  <div class="docstring"><p>Returns the given template source.</p>
+</div>
+  
+    <a href="https://github.com/dynamo/dynamo/blob/master/lib/dynamo/templates/finder.ex#L35" target="_blank" class="view_source">Source</a>
+  
+</div>
+
+        </div>
+      
+
+      
+
+      
+    </div>
+  </body>
+</html>

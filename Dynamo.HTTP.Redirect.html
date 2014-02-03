@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Dynamo.HTTP.Redirect</title>
+    <meta charset="utf-8">
+    <link rel="stylesheet" href="css/style.css" type="text/css" media="screen" charset="utf-8" />
+
+    <script type="text/javascript" charset="utf-8">
+      relpath = '';
+      if (relpath != '') relpath += '/';
+    </script>
+
+    <script type="text/javascript" charset="utf-8" src="js/jquery.js"></script>
+    <script type="text/javascript" charset="utf-8" src="js/app.js"></script>
+  </head>
+
+  <body>
+    <script type="text/javascript" charset="utf-8">
+      if (window.top.frames.main) document.body.className = 'frames';
+    </script>
+
+    <div id="content">
+      <h1>
+        Dynamo.HTTP.Redirect
+        
+      </h1>
+
+      
+        <div id="moduledoc" class="docstring">
+          <p>Conveniences to redirect a connection.
+To use them, just import this module.</p>
+
+        </div>
+      
+
+      
+        <a href="https://github.com/dynamo/dynamo/blob/master/lib/dynamo/http/redirect.ex#L1" target="_blank" class="view_source">Source</a>
+      
+
+      
+
+      
+        <h2 id="functions_summary">Functions summary</h2>
+        <table class="summary">
+          <tr>
+  <td class="summary_signature"><a href="#redirect/2">redirect(conn, opts)</a></td>
+  
+    <td class="summary_synopsis"><p>Redirects the connection to the given endpoint.</p>
+</td>
+  
+</tr>
+<tr>
+  <td class="summary_signature"><a href="#redirect!/2">redirect!(conn, opts)</a></td>
+  
+    <td class="summary_synopsis"><p>A convenience that redirects and halts straight away.</p>
+</td>
+  
+</tr>
+
+        </table>
+      
+
+      
+
+      
+
+      
+
+      
+        <div id="functions_details" class="details_list">
+          <h2>Functions</h2>
+          <div class="detail">
+  <p class="signature" id="redirect/2">
+    <strong>redirect(conn, opts)</strong>
+  </p>
+  
+  <div class="docstring"><p>Redirects the connection to the given endpoint.</p>
+
+<h2>Options</h2>
+
+<ul>
+<li><code>to</code> - the path or url to redirect to</li>
+<li><code>status</code> - the status to redirect to, defaults to 302</li>
+<li><code>format</code> - the response format</li>
+</ul>
+
+<h2>Examples</h2>
+
+<pre><code>redirect conn, to: &quot;/&quot;
+redirect conn, to: &quot;/&quot;, format: :html
+</code></pre>
+</div>
+  
+    <a href="https://github.com/dynamo/dynamo/blob/master/lib/dynamo/http/redirect.ex#L22" target="_blank" class="view_source">Source</a>
+  
+</div>
+<div class="detail">
+  <p class="signature" id="redirect!/2">
+    <strong>redirect!(conn, opts)</strong>
+  </p>
+  
+  <div class="docstring"><p>A convenience that redirects and halts straight away.</p>
+</div>
+  
+    <a href="https://github.com/dynamo/dynamo/blob/master/lib/dynamo/http/redirect.ex#L50" target="_blank" class="view_source">Source</a>
+  
+</div>
+
+        </div>
+      
+
+      
+
+      
+    </div>
+  </body>
+</html>

@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Dynamo.Filters.Session</title>
+    <meta charset="utf-8">
+    <link rel="stylesheet" href="css/style.css" type="text/css" media="screen" charset="utf-8" />
+
+    <script type="text/javascript" charset="utf-8">
+      relpath = '';
+      if (relpath != '') relpath += '/';
+    </script>
+
+    <script type="text/javascript" charset="utf-8" src="js/jquery.js"></script>
+    <script type="text/javascript" charset="utf-8" src="js/app.js"></script>
+  </head>
+
+  <body>
+    <script type="text/javascript" charset="utf-8">
+      if (window.top.frames.main) document.body.className = 'frames';
+    </script>
+
+    <div id="content">
+      <h1>
+        Dynamo.Filters.Session
+        
+      </h1>
+
+      
+        <div id="moduledoc" class="docstring">
+          <p>The session filter. When added to your Dynamo, this filter allows
+you to fetch the session and to serialize it back.</p>
+
+<p>When initialized, this filter supports a set of options:</p>
+
+<ul>
+<li><code>key</code> - The name of the session cookie. This option is required;</li>
+</ul>
+
+<p>Besides is supports the following cookie related options:</p>
+
+<ul>
+<li><p><code>secure</code> - Marks the cookie as secure;</p></li>
+<li><p><code>domain</code> - The domain to which the cookie applies;</p></li>
+<li><p><code>path</code> - The path to which the cookie applies;</p></li>
+<li><p><code>http_only</code> - If the cookie is sent only via http. Default to true;</p></li>
+</ul>
+
+<p>The options above may also be set during the request, by using
+<a href="Dynamo.HTTP.Session.html#configure_session/3"><code>Dynamo.HTTP.Session.configure_session/3</code></a>. For instance, to
+mark a session as secure, one can do:</p>
+
+<pre><code>configure_session(conn, :secure, true)
+</code></pre>
+
+        </div>
+      
+
+      
+        <a href="https://github.com/dynamo/dynamo/blob/master/lib/dynamo/filters/session.ex#L1" target="_blank" class="view_source">Source</a>
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+    </div>
+  </body>
+</html>

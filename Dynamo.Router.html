@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Dynamo.Router</title>
+    <meta charset="utf-8">
+    <link rel="stylesheet" href="css/style.css" type="text/css" media="screen" charset="utf-8" />
+
+    <script type="text/javascript" charset="utf-8">
+      relpath = '';
+      if (relpath != '') relpath += '/';
+    </script>
+
+    <script type="text/javascript" charset="utf-8" src="js/jquery.js"></script>
+    <script type="text/javascript" charset="utf-8" src="js/app.js"></script>
+  </head>
+
+  <body>
+    <script type="text/javascript" charset="utf-8">
+      if (window.top.frames.main) document.body.className = 'frames';
+    </script>
+
+    <div id="content">
+      <h1>
+        Dynamo.Router
+        
+      </h1>
+
+      
+        <div id="moduledoc" class="docstring">
+          <p>A Dynamo is made of many routers that redirect a connection
+between endpoints. Those endpoints are usually built with
+<code>Dynamo.Routes</code> which are responsible for bringing routing
+semantics to your modules.</p>
+
+<p>Here is a minimal router:</p>
+
+<pre><code>defmodule HomeRouter do
+  use Dynamo.Router
+
+  get &quot;/hello&quot; do
+    conn.resp 200, &quot;world&quot;
+  end
+end
+</code></pre>
+
+<p>The functionality and documentation for routers is split into
+diverse modules. Keep reading below for more information.</p>
+
+<h2>Routes and hooks</h2>
+
+<p>A router is made by many routes which usually map to an HTTP
+verb like <code>get</code>, <code>post</code>, etc. Not only that, a router may easily
+forward requests to another router to handle a specific set of
+requests via the forward API:</p>
+
+<pre><code>defmodule ApplicationRouter do
+  use Dynamo.Router
+  forward &quot;/home&quot;, to: HomeRouter
+end
+</code></pre>
+
+<p>Hooks can be used to prepare and finalize requests after a given
+route match. For more information, check <a href="Dynamo.Router.Base.html"><code>Dynamo.Router.Base</code></a>
+documentation.</p>
+
+<h2>Filters</h2>
+
+<p>As a Dynamo, Routers also support filters. For more information about
+filters, check <a href="Dynamo.html"><code>Dynamo</code></a> and <a href="Dynamo.Router.Filters.html"><code>Dynamo.Router.Filters</code></a> docs.</p>
+
+<h2>HTTP conveniences</h2>
+
+<p>Finally, a router imports by default many of the <a href="Dynamo.HTTP.html"><code>Dynamo.HTTP</code></a>
+modules, as listed below:</p>
+
+<ul>
+<li><a href="Dynamo.HTTP.Cookies.html"><code>Dynamo.HTTP.Cookies</code></a> - conveniences for working with cookies</li>
+<li><a href="Dynamo.HTTP.Halt.html"><code>Dynamo.HTTP.Halt</code></a> - conveniences for halting a request</li>
+<li><a href="Dynamo.HTTP.Hibernate.html"><code>Dynamo.HTTP.Hibernate</code></a> - conveniences for awaiting and hibernating a connection</li>
+<li><a href="Dynamo.HTTP.Redirect.html"><code>Dynamo.HTTP.Redirect</code></a> - conveniences for redirect connection</li>
+<li><a href="Dynamo.HTTP.Render.html"><code>Dynamo.HTTP.Render</code></a> - conveniences for rendering templates</li>
+<li><a href="Dynamo.HTTP.Session.html"><code>Dynamo.HTTP.Session</code></a> - conveniences for working with session</li>
+</ul>
+
+        </div>
+      
+
+      
+        <a href="https://github.com/dynamo/dynamo/blob/master/lib/dynamo/router.ex#L1" target="_blank" class="view_source">Source</a>
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+    </div>
+  </body>
+</html>

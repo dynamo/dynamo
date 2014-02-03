@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Dynamo.Supervisor</title>
+    <meta charset="utf-8">
+    <link rel="stylesheet" href="css/style.css" type="text/css" media="screen" charset="utf-8" />
+
+    <script type="text/javascript" charset="utf-8">
+      relpath = '';
+      if (relpath != '') relpath += '/';
+    </script>
+
+    <script type="text/javascript" charset="utf-8" src="js/jquery.js"></script>
+    <script type="text/javascript" charset="utf-8" src="js/app.js"></script>
+  </head>
+
+  <body>
+    <script type="text/javascript" charset="utf-8">
+      if (window.top.frames.main) document.body.className = 'frames';
+    </script>
+
+    <div id="content">
+      <h1>
+        Dynamo.Supervisor
+        
+      </h1>
+
+      
+        <div id="moduledoc" class="docstring">
+          <p>Dynamo&#39;s base supervisor. Each Dynamo starts its own copy of
+the <a href="Dynamo.Supervisor.html"><code>Dynamo.Supervisor</code></a> and attach children to it throughout
+the boot process.</p>
+
+<p>The local name, <code>:max_restarts</code> and <code>:max_seconds</code> can
+be configured on <code>start_link</code>.</p>
+
+        </div>
+      
+
+      
+        <a href="https://github.com/dynamo/dynamo/blob/master/lib/dynamo/supervisor.ex#L1" target="_blank" class="view_source">Source</a>
+      
+
+      
+
+      
+        <h2 id="functions_summary">Functions summary</h2>
+        <table class="summary">
+          <tr>
+  <td class="summary_signature"><a href="#start_child/4">start_child(supervisor, name, args, opts \\ [])</a></td>
+  
+    <td class="summary_synopsis"><p>Add a child to the given supervisor.
+It accepts the same options as <code>Supervisor.Behaviour.worker/3</code>.</p>
+</td>
+  
+</tr>
+<tr>
+  <td class="summary_signature"><a href="#start_link/2">start_link(name, opts)</a></td>
+  
+    <td class="summary_synopsis"><p>Starts the supervisor. It is automatically started
+when the Dynamo is started.</p>
+</td>
+  
+</tr>
+
+        </table>
+      
+
+      
+
+      
+
+      
+
+      
+        <div id="functions_details" class="details_list">
+          <h2>Functions</h2>
+          <div class="detail">
+  <p class="signature" id="start_child/4">
+    <strong>start_child(supervisor, name, args, opts \\ [])</strong>
+  </p>
+  
+  <div class="docstring"><p>Add a child to the given supervisor.
+It accepts the same options as <code>Supervisor.Behaviour.worker/3</code>.</p>
+
+<h2>Examples</h2>
+
+<pre><code>Dynamo.Supervisor.start_child MyDynamo.supervisor, Worker, []
+</code></pre>
+</div>
+  
+    <a href="https://github.com/dynamo/dynamo/blob/master/lib/dynamo/supervisor.ex#L30" target="_blank" class="view_source">Source</a>
+  
+</div>
+<div class="detail">
+  <p class="signature" id="start_link/2">
+    <strong>start_link(name, opts)</strong>
+  </p>
+  
+  <div class="docstring"><p>Starts the supervisor. It is automatically started
+when the Dynamo is started.</p>
+</div>
+  
+    <a href="https://github.com/dynamo/dynamo/blob/master/lib/dynamo/supervisor.ex#L17" target="_blank" class="view_source">Source</a>
+  
+</div>
+
+        </div>
+      
+
+      
+
+      
+    </div>
+  </body>
+</html>

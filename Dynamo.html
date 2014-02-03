@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Dynamo</title>
+    <meta charset="utf-8">
+    <link rel="stylesheet" href="css/style.css" type="text/css" media="screen" charset="utf-8" />
+
+    <script type="text/javascript" charset="utf-8">
+      relpath = '';
+      if (relpath != '') relpath += '/';
+    </script>
+
+    <script type="text/javascript" charset="utf-8" src="js/jquery.js"></script>
+    <script type="text/javascript" charset="utf-8" src="js/app.js"></script>
+  </head>
+
+  <body>
+    <script type="text/javascript" charset="utf-8">
+      if (window.top.frames.main) document.body.className = 'frames';
+    </script>
+
+    <div id="content">
+      <h1>
+        Dynamo
+        
+      </h1>
+
+      
+        <div id="moduledoc" class="docstring">
+          <p>Run, Dynamo, Run!</p>
+
+<p>This is the main module in the Dynamo repository. It allows
+users to configure the Dynamo framework and define their
+own Dynamos.</p>
+
+<p>A very simple Dynamo can be defined as follow:</p>
+
+<pre><code>defmodule MyDynamo do
+  use Dynamo
+  endpoint SomeRouter
+end
+</code></pre>
+
+<p>A Dynamo can be used on top of a <a href="Dynamo.Router.html"><code>Dynamo.Router</code></a> in case
+you want to extend a single router to a single file Dynamo.</p>
+
+<h2>Configuration</h2>
+
+<p>A Dynamo comes with a configuration API that allows a
+developer to customize how dynamo works and custom
+extensions.</p>
+
+<p>For example, here is a snippet that configures Dynamo
+to serve public assets from the :myapp application
+everytime we have a request at <code>/static</code>:</p>
+
+<pre><code>config :dynamo,
+  env: &quot;prod&quot;,
+  otp_app: :myapp,
+  static_root:  &quot;priv/static&quot;,
+  static_route: &quot;/static&quot;
+</code></pre>
+
+<p>The available <code>:dynamo</code> configurations are:</p>
+
+<ul>
+<li><code>:compile_on_demand</code> - Compiles modules as they are needed</li>
+<li><code>:env</code> - The environment this Dynamo runs on</li>
+<li><code>:endpoint</code> - The endpoint to dispatch requests too</li>
+<li><code>:exceptions_editor</code> - Some exception handlers show editors information
+to help debugging (defaults to the DYNAMO_EDITOR environment variable)</li>
+<li><code>:exceptions_handler</code> - How to handle and display exceptions (defaults to <code>Exceptions.Public</code>)</li>
+<li><code>:reload_modules</code> - Reload modules after they are changed</li>
+<li><code>:session_store</code> - The session store to be used, may be <code>CookieStore</code> and <code>ETSStore</code></li>
+<li><code>:session_options</code> - The session options to be used</li>
+<li><code>:source_paths</code> - The paths to search when compiling modules on demand</li>
+<li><code>:static_route</code> - The route to serve static assets</li>
+<li><code>:static_root</code> - The location static assets are defined. It is a path from the otp_app root</li>
+<li><code>:supervisor</code> - The supervisor local node name</li>
+<li><code>:templates_paths</code> - The paths to find templates</li>
+</ul>
+
+<p>Check <a href="Dynamo.Base.html"><code>Dynamo.Base</code></a> for more information on <code>config</code> and
+other initialize configuration.</p>
+
+<h2>Filters</h2>
+
+<p>A Dynamo also contains a set of filters that are meant
+to be used on all requests. Some of these filters are added
+based on the configuration options above. Others are included by
+default under the following conditions:</p>
+
+<ul>
+<li><a href="Dynamo.Filters.Static.html"><code>Dynamo.Filters.Static</code></a> - when a static<em>route and static</em>root are set,
+this filter is added to serve static assets;</li>
+<li><a href="Dynamo.Filters.Head.html"><code>Dynamo.Filters.Head</code></a> - converts HEAD requests to GET, added by default;</li>
+<li><a href="Dynamo.Filters.Loader.html"><code>Dynamo.Filters.Loader</code></a> - when <code>:compile_on_demand</code> or <code>:reload_modules</code>
+configs are set to true, this filter is added to compiled and reloaded
+code on demand;</li>
+<li><a href="Dynamo.Filters.Session.html"><code>Dynamo.Filters.Session</code></a> - when a <code>:session_store</code> is configured, it adds
+session functionality to the Dynamo;</li>
+<li><a href="Dynamo.Filters.Exceptions.html"><code>Dynamo.Filters.Exceptions</code></a> - responsible for logging and handling
+exceptions, added by default;</li>
+</ul>
+
+<p>Filters can be added and removed using <code>filter</code> and <code>remove_filter</code>
+macros. You can get the list of all dynamos filters using:
+<code>mix dynamo.filters</code>.</p>
+
+<p>For more information, check <a href="Dynamo.Router.Filters.html"><code>Dynamo.Router.Filters</code></a> docs.</p>
+
+<h2>Initialization</h2>
+
+<p>A Dynamo allows you to register initializers which are
+invoked when the dynamo starts. A Dynamo is initialized
+in three steps:</p>
+
+<ul>
+<li>The <code>:dynamos</code> registered in your project are compiled</li>
+<li>The dynamos supervision trees are started via <code>DYNAMO.start_link</code></li>
+<li>A dynamo is hooked into a web server via <code>DYNAMO.run</code></li>
+</ul>
+
+<p>The step 2 can be extended via initializers. For example:</p>
+
+<pre><code>defmodule MyDynamo do
+  use Dynamo
+
+  initializer :some_config do
+    # Connect to the database
+  end
+end
+</code></pre>
+
+        </div>
+      
+
+      
+        <a href="https://github.com/dynamo/dynamo/blob/master/lib/dynamo.ex#L1" target="_blank" class="view_source">Source</a>
+      
+
+      
+
+      
+        <h2 id="functions_summary">Functions summary</h2>
+        <table class="summary">
+          <tr>
+  <td class="summary_signature"><a href="#under_test/0">under_test()</a></td>
+  
+    <td class="summary_synopsis"><p>Gets the Dynamo used by default under test.</p>
+</td>
+  
+</tr>
+<tr>
+  <td class="summary_signature"><a href="#under_test/1">under_test(mod)</a></td>
+  
+    <td class="summary_synopsis"><p>Sets the Dynamo to be used under test.</p>
+</td>
+  
+</tr>
+
+        </table>
+      
+
+      
+        <h2 id="macros_summary">Macros summary</h2>
+        <table class="summary">
+          <tr>
+  <td class="summary_signature"><a href="#define_source_paths/1">define_source_paths(env)</a></td>
+  
+</tr>
+
+        </table>
+      
+
+      
+
+      
+
+      
+        <div id="functions_details" class="details_list">
+          <h2>Functions</h2>
+          <div class="detail">
+  <p class="signature" id="under_test/0">
+    <strong>under_test()</strong>
+  </p>
+  
+  <div class="docstring"><p>Gets the Dynamo used by default under test.</p>
+</div>
+  
+    <a href="https://github.com/dynamo/dynamo/blob/master/lib/dynamo.ex#L104" target="_blank" class="view_source">Source</a>
+  
+</div>
+<div class="detail">
+  <p class="signature" id="under_test/1">
+    <strong>under_test(mod)</strong>
+  </p>
+  
+  <div class="docstring"><p>Sets the Dynamo to be used under test.</p>
+</div>
+  
+    <a href="https://github.com/dynamo/dynamo/blob/master/lib/dynamo.ex#L112" target="_blank" class="view_source">Source</a>
+  
+</div>
+
+        </div>
+      
+
+      
+        <div id="macros_details" class="details_list">
+          <h2>Macros</h2>
+          <div class="detail">
+  <p class="signature" id="define_source_paths/1">
+    <strong>define_source_paths(env)</strong>
+  </p>
+  
+  <div class="docstring"></div>
+  
+    <a href="https://github.com/dynamo/dynamo/blob/master/lib/dynamo.ex#L332" target="_blank" class="view_source">Source</a>
+  
+</div>
+
+        </div>
+      
+
+      
+    </div>
+  </body>
+</html>

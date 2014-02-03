@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Dynamo.Utils.MessageVerifier</title>
+    <meta charset="utf-8">
+    <link rel="stylesheet" href="css/style.css" type="text/css" media="screen" charset="utf-8" />
+
+    <script type="text/javascript" charset="utf-8">
+      relpath = '';
+      if (relpath != '') relpath += '/';
+    </script>
+
+    <script type="text/javascript" charset="utf-8" src="js/jquery.js"></script>
+    <script type="text/javascript" charset="utf-8" src="js/app.js"></script>
+  </head>
+
+  <body>
+    <script type="text/javascript" charset="utf-8">
+      if (window.top.frames.main) document.body.className = 'frames';
+    </script>
+
+    <div id="content">
+      <h1>
+        Dynamo.Utils.MessageVerifier
+        
+      </h1>
+
+      
+        <div id="moduledoc" class="docstring">
+          <p><code>MessageVerifier</code> makes it easy to generate and verify messages
+which are signed to prevent tampering.</p>
+
+<p>For example, the session store uses this verifier to send data
+to the client. Although the data can be read by the client, he
+cannot tamper it.</p>
+
+        </div>
+      
+
+      
+        <a href="https://github.com/dynamo/dynamo/blob/master/lib/dynamo/utils/message_verifier.ex#L1" target="_blank" class="view_source">Source</a>
+      
+
+      
+
+      
+        <h2 id="functions_summary">Functions summary</h2>
+        <table class="summary">
+          <tr>
+  <td class="summary_signature"><a href="#generate/2">generate(secret, term)</a></td>
+  
+    <td class="summary_synopsis"><p>Generates an encoded and signed binary for the given term.</p>
+</td>
+  
+</tr>
+<tr>
+  <td class="summary_signature"><a href="#secure_compare/2">secure_compare(left, right)</a></td>
+  
+    <td class="summary_synopsis"><p>Comapres the two binaries completely, byte by byte,
+to avoid timing attacks.</p>
+</td>
+  
+</tr>
+<tr>
+  <td class="summary_signature"><a href="#verify/2">verify(secret, encoded)</a></td>
+  
+    <td class="summary_synopsis"><p>Decodes and verifies the encoded binary was not tampared with.</p>
+</td>
+  
+</tr>
+
+        </table>
+      
+
+      
+
+      
+
+      
+
+      
+        <div id="functions_details" class="details_list">
+          <h2>Functions</h2>
+          <div class="detail">
+  <p class="signature" id="generate/2">
+    <strong>generate(secret, term)</strong>
+  </p>
+  
+  <div class="docstring"><p>Generates an encoded and signed binary for the given term.</p>
+</div>
+  
+    <a href="https://github.com/dynamo/dynamo/blob/master/lib/dynamo/utils/message_verifier.ex#L30" target="_blank" class="view_source">Source</a>
+  
+</div>
+<div class="detail">
+  <p class="signature" id="secure_compare/2">
+    <strong>secure_compare(left, right)</strong>
+  </p>
+  
+  <div class="docstring"><p>Comapres the two binaries completely, byte by byte,
+to avoid timing attacks.</p>
+</div>
+  
+    <a href="https://github.com/dynamo/dynamo/blob/master/lib/dynamo/utils/message_verifier.ex#L44" target="_blank" class="view_source">Source</a>
+  
+</div>
+<div class="detail">
+  <p class="signature" id="verify/2">
+    <strong>verify(secret, encoded)</strong>
+  </p>
+  
+  <div class="docstring"><p>Decodes and verifies the encoded binary was not tampared with.</p>
+</div>
+  
+    <a href="https://github.com/dynamo/dynamo/blob/master/lib/dynamo/utils/message_verifier.ex#L14" target="_blank" class="view_source">Source</a>
+  
+</div>
+
+        </div>
+      
+
+      
+
+      
+    </div>
+  </body>
+</html>
