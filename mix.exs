@@ -8,7 +8,7 @@ defmodule Dynamo.Mixfile do
       name: "Dynamo",
       source_url: "https://github.com/dynamo/dynamo",
       deps: deps(Mix.env),
-      docs: [ readme: true, main: "README" ] ]
+      docs: &docs/0 ]
   end
 
   def deps(:prod) do
@@ -30,5 +30,11 @@ defmodule Dynamo.Mixfile do
     [ applications: [:crypto],
       env: [under_test: nil],
       mod: { Dynamo.App, [] } ]
+  end
+
+  defp docs do
+    [ readme: true,
+      main: "README",
+      source_ref: System.cmd("git rev-parse --verify --quiet HEAD") ]
   end
 end
