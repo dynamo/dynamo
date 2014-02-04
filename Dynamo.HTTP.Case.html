@@ -38,7 +38,7 @@ to the registered endpoint. Here is an example:</p>
 
   test :root_route do
     conn = get(&quot;/&quot;)
-    assert String.match? conn.sent_body, %r/somevalue/
+    assert conn.sent_body =~ %r/somevalue/
   end
 end
 </code></pre>
@@ -54,7 +54,7 @@ This can be changed in a specific test case using <code>@endpoint</code>:</p>
 
   test :route do
     conn = get(&quot;/route&quot;)
-    assert String.match? conn.sent_body, %r/somevalue/
+    assert conn.sent_body =~ %r/somevalue/
   end
 end
 </code></pre>
@@ -68,10 +68,10 @@ which provides some test specific function.</p>
 
 <pre><code>test :session do
   conn = get(&quot;/put_session&quot;)
-  assert String.match? conn.sent_body, %r/somevalue/
+  assert conn.sent_body =~ %r/somevalue/
 
   conn = get(conn, &quot;/set_session&quot;)
-  assert String.match? conn.sent_body, %r/othervalue/
+  assert conn.sent_body =~ %r/othervalue/
 end
 </code></pre>
 
@@ -89,11 +89,11 @@ set in the connection:</p>
 
 <pre><code>test :session do
   conn = get(&quot;/put_session&quot;)
-  assert String.match? conn.sent_body, %r/somevalue/
+  assert conn.sent_body =~ %r/somevalue/
 
   conn = conn.assign(:foo, :bar)
   conn = get(conn, &quot;/set_session&quot;)
-  assert String.match? conn.sent_body, %r/othervalue/
+  assert conn.sent_body =~ %r/othervalue/
 end
 </code></pre>
 
@@ -114,7 +114,7 @@ to different dynamos at the same time, <a href="#process/4"><code>process/4</cod
       
 
       
-        <a href="https://github.com/dynamo/dynamo/blob/a9c00218187be7b472956f5b122992829baa2734
+        <a href="https://github.com/dynamo/dynamo/blob/5f45a150a914c86cf17f2b69c158ef5987884664
 /lib/dynamo/http/case.ex#L1" target="_blank" class="view_source">Source</a>
       
 
@@ -215,7 +215,7 @@ set the session before a request.</p>
   <div class="docstring"><p>Returns a connection built with the given method, path and body.</p>
 </div>
   
-    <a href="https://github.com/dynamo/dynamo/blob/a9c00218187be7b472956f5b122992829baa2734
+    <a href="https://github.com/dynamo/dynamo/blob/5f45a150a914c86cf17f2b69c158ef5987884664
 /lib/dynamo/http/case.ex#L95" target="_blank" class="view_source">Source</a>
   
 </div>
@@ -234,7 +234,7 @@ process MyDynamo, conn, :get, &quot;/foo&quot;
 </code></pre>
 </div>
   
-    <a href="https://github.com/dynamo/dynamo/blob/a9c00218187be7b472956f5b122992829baa2734
+    <a href="https://github.com/dynamo/dynamo/blob/5f45a150a914c86cf17f2b69c158ef5987884664
 /lib/dynamo/http/case.ex#L206" target="_blank" class="view_source">Source</a>
   
 </div>
@@ -248,7 +248,7 @@ be used in the next request. This is the preferred way to
 set the session before a request.</p>
 </div>
   
-    <a href="https://github.com/dynamo/dynamo/blob/a9c00218187be7b472956f5b122992829baa2734
+    <a href="https://github.com/dynamo/dynamo/blob/5f45a150a914c86cf17f2b69c158ef5987884664
 /lib/dynamo/http/case.ex#L188" target="_blank" class="view_source">Source</a>
   
 </div>
@@ -271,7 +271,7 @@ delete(conn, &quot;/foo&quot;)
 </code></pre>
 </div>
   
-    <a href="https://github.com/dynamo/dynamo/blob/a9c00218187be7b472956f5b122992829baa2734
+    <a href="https://github.com/dynamo/dynamo/blob/5f45a150a914c86cf17f2b69c158ef5987884664
 /lib/dynamo/http/case.ex#L156" target="_blank" class="view_source">Source</a>
   
 </div>
@@ -287,7 +287,7 @@ get(conn, &quot;/foo&quot;)
 </code></pre>
 </div>
   
-    <a href="https://github.com/dynamo/dynamo/blob/a9c00218187be7b472956f5b122992829baa2734
+    <a href="https://github.com/dynamo/dynamo/blob/5f45a150a914c86cf17f2b69c158ef5987884664
 /lib/dynamo/http/case.ex#L106" target="_blank" class="view_source">Source</a>
   
 </div>
@@ -303,7 +303,7 @@ options(conn, &quot;/foo&quot;)
 </code></pre>
 </div>
   
-    <a href="https://github.com/dynamo/dynamo/blob/a9c00218187be7b472956f5b122992829baa2734
+    <a href="https://github.com/dynamo/dynamo/blob/5f45a150a914c86cf17f2b69c158ef5987884664
 /lib/dynamo/http/case.ex#L167" target="_blank" class="view_source">Source</a>
   
 </div>
@@ -319,7 +319,7 @@ patch(conn, &quot;/foo&quot;)
 </code></pre>
 </div>
   
-    <a href="https://github.com/dynamo/dynamo/blob/a9c00218187be7b472956f5b122992829baa2734
+    <a href="https://github.com/dynamo/dynamo/blob/5f45a150a914c86cf17f2b69c158ef5987884664
 /lib/dynamo/http/case.ex#L145" target="_blank" class="view_source">Source</a>
   
 </div>
@@ -337,7 +337,7 @@ post(conn, &quot;/foo&quot;, [{&quot;foo&quot;, &quot;bar&quot;}]) # POSTs to `/
 </code></pre>
 </div>
   
-    <a href="https://github.com/dynamo/dynamo/blob/a9c00218187be7b472956f5b122992829baa2734
+    <a href="https://github.com/dynamo/dynamo/blob/5f45a150a914c86cf17f2b69c158ef5987884664
 /lib/dynamo/http/case.ex#L119" target="_blank" class="view_source">Source</a>
   
 </div>
@@ -353,7 +353,7 @@ put(conn, &quot;/foo&quot;)
 </code></pre>
 </div>
   
-    <a href="https://github.com/dynamo/dynamo/blob/a9c00218187be7b472956f5b122992829baa2734
+    <a href="https://github.com/dynamo/dynamo/blob/5f45a150a914c86cf17f2b69c158ef5987884664
 /lib/dynamo/http/case.ex#L134" target="_blank" class="view_source">Source</a>
   
 </div>
