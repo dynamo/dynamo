@@ -51,9 +51,8 @@
 
 <ul>
 <li>Logging.</li>
-<li>Websockets support.</li>
+<li>Better Websockets support.</li>
 <li>Built-in JSON encoding.</li>
-<li>Database adapters.</li>
 </ul>
 
 <p>This README will go into Dynamo installation and a basic walk-through.</p>
@@ -63,7 +62,7 @@
 <p>As an alpha-software, Dynamo installation is a bit manual but can be done in few steps:</p>
 
 <ol>
-<li><p>Ensure you are on Elixir master (available on homebrew, see below)</p></li>
+<li><p>Ensure you are on Elixir master (available on Homebrew, see below)</p></li>
 <li><p>Clone this repository and go to its directory</p></li>
 <li><p>Get Dynamo dependencies and run tests with: <code>MIX_ENV=test mix do deps.get, test</code></p></li>
 <li><p>Create a project: <code>mix dynamo path/to/your/project</code></p></li>
@@ -85,14 +84,14 @@
 
 <p>Your project can be compiled and used in production with: <code>MIX_ENV=prod mix do compile, server</code>.</p>
 
-<h2>Installation using the <strong>master</strong> branch of elixir</h2>
+<h2>Installation using the <strong>master</strong> branch of Elixir</h2>
 
 <p>Elixir evolves rapidly and Dynamo follows it. If you get build or test errors, please use the
-current <strong>master</strong> branch of elixir before reporting any bugs.</p>
+current <strong>master</strong> branch of Elixir before reporting any bugs.</p>
 
-<p>If you&#39;re on OSX and use <a href="http://brew.sh/">homebrew</a>, this is easily done as follows:</p>
+<p>If you&#39;re on OSX and use <a href="http://brew.sh/">Homebrew</a>, this is easily done as follows:</p>
 
-<pre><code class="bash">$ brew unlink elixir # remove non-head installation of elixir
+<pre><code class="sh-session">$ brew unlink elixir # remove non-head installation of Elixir
 $ brew install elixir --HEAD
 </code></pre>
 
@@ -298,16 +297,16 @@ end
 end
 </code></pre>
 
-<p>A <code>prepare</code> hook may also set the a <code>current_user</code> assign which could then be retrieved in any router as <code>conn.assigns[:current_user]</code>. You can find more information about assigns and other connection functions in <a href="http://elixir-lang.org/docs/dynamo/Dynamo.Connection.html">Dynamo.Connection</a>.</p>
+<p>A <code>prepare</code> hook may also set the a <code>current_user</code> assign which could then be retrieved in any router as <code>conn.assigns[:current_user]</code>. You can find more information about assigns and other connection functions in <a href="http://dynamo.github.io/dynamo/Dynamo.Connection.html">Dynamo.Connection</a>.</p>
 
 <p>Dynamo also builds many functionalities on top of this low-level connection API:</p>
 
 <ul>
-<li><a href="http://elixir-lang.org/docs/dynamo/Dynamo.HTTP.Cookies.html">Dynamo.HTTP.Cookies</a> - conveniences for working with cookies</li>
-<li><a href="http://elixir-lang.org/docs/dynamo/Dynamo.HTTP.Halt.html">Dynamo.HTTP.Halt</a> - conveniences for halting a connection, as the function <code>halt!</code> we saw in some examples</li>
-<li><a href="http://elixir-lang.org/docs/dynamo/Dynamo.HTTP.Redirect.html">Dynamo.HTTP.Redirect</a> - conveniences for redirecting a connection</li>
-<li><a href="http://elixir-lang.org/docs/dynamo/Dynamo.HTTP.Render.html">Dynamo.HTTP.Render</a> - conveniences for rendering templates</li>
-<li><a href="http://elixir-lang.org/docs/dynamo/Dynamo.HTTP.Session.html">Dynamo.HTTP.Session</a> - conveniences for working with session</li>
+<li><a href="http://dynamo.github.io/dynamo/Dynamo.HTTP.Cookies.html">Dynamo.HTTP.Cookies</a> - conveniences for working with cookies</li>
+<li><a href="http://dynamo.github.io/dynamo/Dynamo.HTTP.Halt.html">Dynamo.HTTP.Halt</a> - conveniences for halting a connection, as the function <code>halt!</code> we saw in some examples</li>
+<li><a href="http://dynamo.github.io/dynamo/Dynamo.HTTP.Redirect.html">Dynamo.HTTP.Redirect</a> - conveniences for redirecting a connection</li>
+<li><a href="http://dynamo.github.io/dynamo/Dynamo.HTTP.Render.html">Dynamo.HTTP.Render</a> - conveniences for rendering templates</li>
+<li><a href="http://dynamo.github.io/dynamo/Dynamo.HTTP.Session.html">Dynamo.HTTP.Session</a> - conveniences for working with session</li>
 </ul>
 
 <p>All those functions in <code>Dynamo.HTTP.*</code> are imported by default into your <code>Dynamo.Router</code>.</p>
