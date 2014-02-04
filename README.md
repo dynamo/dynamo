@@ -26,9 +26,8 @@ It is currently alpha software and it supports:
 Before becoming beta, we want to add the following to Dynamo:
 
 * Logging.
-* Websockets support.
+* Better Websockets support.
 * Built-in JSON encoding.
-* Database adapters.
 
 This README will go into Dynamo installation and a basic walk-through.
 
@@ -36,7 +35,7 @@ This README will go into Dynamo installation and a basic walk-through.
 
 As an alpha-software, Dynamo installation is a bit manual but can be done in few steps:
 
-1. Ensure you are on Elixir master (available on homebrew, see below)
+1. Ensure you are on Elixir master (available on Homebrew, see below)
 
 2. Clone this repository and go to its directory
 
@@ -60,15 +59,15 @@ Static content is served from `priv/static/` folder and from the `/static` route
 
 Your project can be compiled and used in production with: `MIX_ENV=prod mix do compile, server`.
 
-## Installation using the **master** branch of elixir
+## Installation using the **master** branch of Elixir
 
 Elixir evolves rapidly and Dynamo follows it. If you get build or test errors, please use the
-current **master** branch of elixir before reporting any bugs.
+current **master** branch of Elixir before reporting any bugs.
 
-If you're on OSX and use [homebrew](http://brew.sh/), this is easily done as follows:
+If you're on OSX and use [Homebrew](http://brew.sh/), this is easily done as follows:
 
-```bash
-$ brew unlink elixir # remove non-head installation of elixir
+```sh-session
+$ brew unlink elixir # remove non-head installation of Elixir
 $ brew install elixir --HEAD
 ```
 
@@ -102,7 +101,7 @@ defmodule ApplicationRouter do
 end
 ```
 
-All routers must use the `Dynamo.Router` module. By using this module you have access to the macros `get`, `post`, `put`, `patch` and `delete` that allows developers to generate routes. Here is a simple route:
+All routers must use the `Dynamo.Router` module. By using this module you have access to the macros `get`, `post`, `put`, `patch`, `delete` and `options` that allows developers to generate routes. Here is a simple route:
 
 ```elixir
 get "/hello/world" do
@@ -292,15 +291,15 @@ get "/" do
 end
 ```
 
-A `prepare` hook may also set the a `current_user` assign which could then be retrieved in any router as `conn.assigns[:current_user]`. You can find more information about assigns and other connection functions in [Dynamo.Connection](http://elixir-lang.org/docs/dynamo/Dynamo.Connection.html).
+A `prepare` hook may also set the a `current_user` assign which could then be retrieved in any router as `conn.assigns[:current_user]`. You can find more information about assigns and other connection functions in [Dynamo.Connection](http://dynamo.github.io/dynamo/Dynamo.Connection.html).
 
 Dynamo also builds many functionalities on top of this low-level connection API:
 
-* [Dynamo.HTTP.Cookies](http://elixir-lang.org/docs/dynamo/Dynamo.HTTP.Cookies.html) - conveniences for working with cookies
-* [Dynamo.HTTP.Halt](http://elixir-lang.org/docs/dynamo/Dynamo.HTTP.Halt.html) - conveniences for halting a connection, as the function `halt!` we saw in some examples
-* [Dynamo.HTTP.Redirect](http://elixir-lang.org/docs/dynamo/Dynamo.HTTP.Redirect.html) - conveniences for redirecting a connection
-* [Dynamo.HTTP.Render](http://elixir-lang.org/docs/dynamo/Dynamo.HTTP.Render.html) - conveniences for rendering templates
-* [Dynamo.HTTP.Session](http://elixir-lang.org/docs/dynamo/Dynamo.HTTP.Session.html) - conveniences for working with session
+* [Dynamo.HTTP.Cookies](http://dynamo.github.io/dynamo/Dynamo.HTTP.Cookies.html) - conveniences for working with cookies
+* [Dynamo.HTTP.Halt](http://dynamo.github.io/dynamo/Dynamo.HTTP.Halt.html) - conveniences for halting a connection, as the function `halt!` we saw in some examples
+* [Dynamo.HTTP.Redirect](http://dynamo.github.io/dynamo/Dynamo.HTTP.Redirect.html) - conveniences for redirecting a connection
+* [Dynamo.HTTP.Render](http://dynamo.github.io/dynamo/Dynamo.HTTP.Render.html) - conveniences for rendering templates
+* [Dynamo.HTTP.Session](http://dynamo.github.io/dynamo/Dynamo.HTTP.Session.html) - conveniences for working with session
 
 All those functions in `Dynamo.HTTP.*` are imported by default into your `Dynamo.Router`.
 
