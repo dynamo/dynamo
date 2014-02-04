@@ -124,7 +124,7 @@ $ brew install elixir --HEAD
 end
 </code></pre>
 
-<p>All routers must use the <code>Dynamo.Router</code> module. By using this module you have access to the macros <code>get</code>, <code>post</code>, <code>put</code>, <code>patch</code> and <code>delete</code> that allows developers to generate routes. Here is a simple route:</p>
+<p>All routers must use the <code>Dynamo.Router</code> module. By using this module you have access to the macros <code>get</code>, <code>post</code>, <code>put</code>, <code>patch</code>, <code>delete</code> and <code>options</code> that allows developers to generate routes. Here is a simple route:</p>
 
 <pre><code class="elixir">get &quot;/hello/world&quot; do
   conn.resp(200, &quot;Hello world&quot;)
