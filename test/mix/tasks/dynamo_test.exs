@@ -21,22 +21,22 @@ defmodule Mix.Tasks.DynamoTest do
       Mix.Tasks.Dynamo.run ["."]
 
       assert_file "mix.exs", fn(file) ->
-        assert String.match? file, %r(app: :my_app)
-        assert String.match? file, %r(version: "0.0.1")
-        assert String.match? file, %r({ :dynamo)
-        assert String.match? file, %r(github: "elixir-lang/dynamo")
+        assert file =~ %r(app: :my_app)
+        assert file =~ %r(version: "0.0.1")
+        assert file =~ %r({ :dynamo)
+        assert file =~ %r(github: "elixir-lang/dynamo")
       end
 
       assert_file "README.md", %r(# MyApp)
       assert_file ".gitignore"
 
       assert_file "lib/my_app.ex", fn(file) ->
-        assert String.match? file, %r(use Application.Behaviour)
+        assert file =~ %r(use Application.Behaviour)
       end
 
       assert_file "lib/my_app/dynamo.ex", fn(file) ->
-        assert String.match? file, %r(endpoint: ApplicationRouter)
-        assert String.match? file, %r(env: Mix.env)
+        assert file =~ %r(endpoint: ApplicationRouter)
+        assert file =~ %r(env: Mix.env)
       end
 
       assert_file "web/routers/application_router.ex"
@@ -60,7 +60,7 @@ defmodule Mix.Tasks.DynamoTest do
       Mix.Tasks.Dynamo.run [".", "--dev"]
 
       assert_file "mix.exs", fn(file) ->
-        assert String.match? file, %r(path:)
+        assert file =~ %r(path:)
       end
 
       assert_received { :mix_shell, :info, ["* creating mix.exs"] }

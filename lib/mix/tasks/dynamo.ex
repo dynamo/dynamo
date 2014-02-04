@@ -98,7 +98,7 @@ defmodule Mix.Tasks.Dynamo do
   end
 
   defp check_project_name!(name) do
-    unless String.match?(name, %r/^[a-z][\w_]+$/) do
+    unless name =~ %r/^[a-z][\w_]+$/ do
       raise Mix.Error, message: "project path must start with a letter and have only lowercase letters, numbers and underscore"
     end
     if Code.ensure_loaded?(Module.concat([String.capitalize(name)])) do

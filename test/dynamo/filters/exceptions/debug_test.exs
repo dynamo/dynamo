@@ -17,35 +17,35 @@ defmodule Dynamo.Filters.Exceptions.DebugTest do
   test "prints exception name and title" do
     conn = @endpoint.service(conn)
     assert conn.status == 500
-    assert String.match? conn.sent_body, %r"ArgumentError"
-    assert String.match? conn.sent_body, %r"bad argument"
+    assert conn.sent_body =~ %r"ArgumentError"
+    assert conn.sent_body =~ %r"bad argument"
   end
 
   test "shows shortcut file path, module and function" do
     conn = @endpoint.service(conn)
-    assert String.match? conn.sent_body, %r"\bfilters/exceptions/debug_test.exs\b"
-    assert String.match? conn.sent_body, %r"\bDynamo.Filters.Exceptions.DebugTest\b"
-    assert String.match? conn.sent_body, %r"\bstacktrace/0\b"
+    assert conn.sent_body =~ %r"\bfilters/exceptions/debug_test.exs\b"
+    assert conn.sent_body =~ %r"\bDynamo.Filters.Exceptions.DebugTest\b"
+    assert conn.sent_body =~ %r"\bstacktrace/0\b"
   end
 
   test "handles __MODULE__ stacktraces" do
     conn = @endpoint.service(conn)
-    assert String.match? conn.sent_body, %r"Dynamo.Filters.Exceptions.DebugTest \(module\)"
+    assert conn.sent_body =~ %r"Dynamo.Filters.Exceptions.DebugTest \(module\)"
   end
 
   test "show editor links" do
     conn = @endpoint.service(conn)
-    assert String.match? conn.sent_body, %r"editor://#{URI.encode __ENV__.file}:#{16}"
+    assert conn.sent_body =~ %r"editor://#{URI.encode __ENV__.file}:#{16}"
   end
 
   test "shows snippets if they are part of the source_paths" do
     conn = @endpoint.service(conn)
-    assert String.match? conn.sent_body, %r"@endpoint Dynamo.Filters.Exceptions.Debug"
+    assert conn.sent_body =~ %r"@endpoint Dynamo.Filters.Exceptions.Debug"
   end
 
   test "does not show snippets if they are not part of the source_paths" do
     conn = @endpoint.service(conn)
-    assert String.match? conn.sent_body, %r"No code snippets for code outside the Dynamo"
+    assert conn.sent_body =~ %r"No code snippets for code outside the Dynamo"
   end
 
   defp conn do

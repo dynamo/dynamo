@@ -230,7 +230,7 @@ defmodule Dynamo.Cowboy.ConnectionTest do
 
     { _, headers, _ } = response
     { "set-cookie", contents } = List.keyfind(headers, "set-cookie", 0)
-    assert String.match? contents, %r"foo=; path=/; expires=Thu, 01 Jan 1970 12:00:00 GMT; max-age=0; HttpOnly"
+    assert contents =~ %r"foo=; path=/; expires=Thu, 01 Jan 1970 12:00:00 GMT; max-age=0; HttpOnly"
 
     headers = List.keydelete(headers, "set-cookie", 0)
     assert List.keyfind(headers, "set-cookie", 0) == nil
