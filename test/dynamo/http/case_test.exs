@@ -20,6 +20,18 @@ defmodule Dynamo.HTTP.CaseTest do
       conn = conn.fetch :body
       conn.send 200, conn.req_body
     end
+
+    post "/post_cookie" do
+      conn = conn.fetch :cookies
+      conn = conn.fetch :body
+      { "token", token, _ } = List.keyfind(conn.resp_cookies, "token", 0)
+      conn.send 200, "body(#{conn.req_body}) token(#{token})"
+    end
+
+    put "/put_cookie" do
+      conn = conn.fetch :body
+      conn.send 200, conn.req_body
+    end
   end
 
   use ExUnit.Case
@@ -51,5 +63,17 @@ defmodule Dynamo.HTTP.CaseTest do
   test "sees the request body from a post with HashDict" do
     conn = post("/test_post", [{"foo", "bar"}, {"bar", "foo"}])
     assert conn.sent_body == "foo=bar&bar=foo"
+  end
+
+  test "sees the cookie from the post request" do
+    conn = put_cookie conn(:post, "/"), :token, "1a2b3c"
+    conn = post(conn, "/post_cookie", "hello")
+    assert conn.sent_body == "body(hello) token(1a2b3c)"
+  end
+
+  test "sees the request body from a HashDict when reusing the connection" do
+    conn = put_cookie conn(:post, "/"), :token, "qazwsx"
+    conn = put(conn, "/put_cookie", [{ "first", "Serge" }, { "last", "Gainsbourg" }])
+    assert conn.sent_body == "first=Serge&last=Gainsbourg"
   end
 end

@@ -116,12 +116,8 @@ defmodule Dynamo.HTTP.Case do
       post(conn, "/foo", [{"foo", "bar"}]) # POSTs to `/foo` with `foo=bar` body
 
   """
-  defmacro post(arg1, arg2 \\ nil) do
-    if is_list(arg2) do
-      do_method :POST, arg1, URI.encode_query(arg2)
-    else
-      do_method :POST, arg1, arg2
-    end
+  defmacro post(arg1, arg2 \\ nil, arg3 \\ nil) do
+    do_method_with_body :POST, arg1, arg2, arg3
   end
 
   @doc """
@@ -129,10 +125,13 @@ defmodule Dynamo.HTTP.Case do
 
       put("/foo")
       put(conn, "/foo")
+      put(conn, "/foo", "test body")
+      put(conn, "/foo", [{"foo", "bar"}])
 
   """
-  defmacro put(arg1, arg2 \\ nil) do
+  defmacro put(arg1, arg2 \\ nil, arg3 \\ nil) do
     do_method :PUT, arg1, arg2
+    do_method_with_body :PUT, arg1, arg2, arg3
   end
 
   @doc """
@@ -140,10 +139,12 @@ defmodule Dynamo.HTTP.Case do
 
       patch("/foo")
       patch(conn, "/foo")
+      patch(conn, "/foo", "test body")
+      patch(conn, "/foo", [{"foo", "bar"}])
 
   """
-  defmacro patch(arg1, arg2 \\ nil) do
-    do_method :PATCH, arg1, arg2
+  defmacro patch(arg1, arg2 \\ nil, arg3 \\ nil) do
+    do_method_with_body :PATH, arg1, arg2, arg3
   end
 
   @doc """
@@ -168,6 +169,22 @@ defmodule Dynamo.HTTP.Case do
     do_method :OPTIONS, arg1, arg2
   end
 
+  defp do_method_with_body(method, arg1, arg2, nil) when is_list(arg2) do
+    do_method method, arg1, URI.encode_query(arg2)
+  end
+
+  defp do_method_with_body(method, arg1, arg2, nil) do
+    do_method method, arg1, arg2
+  end
+
+  defp do_method_with_body(method, arg1, arg2, arg3) when is_list(arg3) do
+    do_method method, arg1, arg2, URI.encode_query(arg3)
+  end
+
+  defp do_method_with_body(method, arg1, arg2, arg3) do
+    do_method(method, arg1, arg2, arg3)
+  end
+
   defp do_method(method, arg1, nil) do
     quote do
       unquote(__MODULE__).process @endpoint, unquote(method), unquote(arg1)
@@ -177,6 +194,12 @@ defmodule Dynamo.HTTP.Case do
   defp do_method(method, arg1, arg2) do
     quote do
       unquote(__MODULE__).process @endpoint, unquote(arg1), unquote(method), unquote(arg2)
+    end
+  end
+
+  defp do_method(method, conn, path, body) do
+    quote do
+      unquote(__MODULE__).process @endpoint, unquote(conn), unquote(method), unquote(path), unquote(body)
     end
   end
 
@@ -203,19 +226,24 @@ defmodule Dynamo.HTTP.Case do
       process MyDynamo, conn, :get, "/foo"
 
   """
-  def process(endpoint, conn, method, path \\ nil)
+  def process(endpoint, conn, method, path \\ nil, body \\ nil)
 
-  def process(endpoint, conn, method, path) when is_tuple(conn) do
+  def process(endpoint, method, path, nil, nil) do
+    do_process endpoint, Dynamo.Connection.Test.new(method, path)
+  end
+
+  def process(endpoint, conn, method, path, nil) when is_tuple(conn) do
     conn = if conn.sent_body, do: conn.recycle, else: conn
     do_process endpoint, conn.req(method, path)
   end
 
-  def process(endpoint, method, path, nil) do
-    do_process endpoint, Dynamo.Connection.Test.new(method, path)
+  def process(endpoint, path, method, body, nil) when is_binary(path) do
+    do_process endpoint, conn(method, path, body)
   end
 
-  def process(endpoint, path, method, body) when is_binary(path) do
-    do_process endpoint, conn(method, path, body)
+  def process(endpoint, conn, method, path, body) do
+    conn = if conn.sent_body, do: conn.recycle, else: conn
+    do_process endpoint, conn.req(method, path, body)
   end
 
   defp do_process(endpoint, conn) do
