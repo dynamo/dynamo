@@ -178,7 +178,7 @@ defmodule Dynamo.HTTP.Case do
   end
 
   defp do_method_with_body(method, arg1, arg2, arg3) when is_list(arg3) do
-    do_method method, arg1, arg2, UIR.encode_query(arg3)
+    do_method method, arg1, arg2, URI.encode_query(arg3)
   end
 
   defp do_method_with_body(method, arg1, arg2, arg3) do
@@ -246,7 +246,7 @@ defmodule Dynamo.HTTP.Case do
     do_process endpoint, conn.req(method, path, body)
   end
 
-  def do_process(endpoint, conn) do
+  defp do_process(endpoint, conn) do
     conn = endpoint.service(conn)
 
     if not is_tuple(conn) or not function_exported?(elem(conn, 0), :state, 1) do
