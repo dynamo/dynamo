@@ -39,7 +39,7 @@ As an alpha-software, Dynamo installation is a bit manual but can be done in few
 
 2. Clone this repository and go to its directory
 
-3. Get Dynamo dependencies and run tests with: `MIX_ENV=test mix do deps.get, test`
+3. Get Dynamo dependencies and compile: `mix do deps.get, compile`
 
 4. Create a project: `mix dynamo path/to/your/project`
 
