@@ -48,7 +48,7 @@ defmodule Dynamo.Connection.QueryParserTest do
       IO.inspect parse "x[y]=1&x=1"
     end
 
-    assert_raise FunctionClauseError, fn ->
+    assert_raise ArgumentError, fn ->
       IO.inspect parse "x=%2x"
     end
   end
