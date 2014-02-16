@@ -4,9 +4,13 @@
 
 Run, Dynamo, Run!
 
-Dynamo is a web framework that runs on [Elixir](http://elixir-lang.org/). It leverages the power of the Erlang VM to build highly performant and concurrent web applications. Dynamo's goals are performance, robustness and simplicity.
+Dynamo is an experimental web framework that runs on [Elixir](http://elixir-lang.org/). It leverages the power of the Erlang VM to build highly performant and concurrent web applications. Dynamo's goals are performance, robustness and simplicity.
 
-**WARNING:** Dynamo is currently alpha-software and its API will suffer major changes. The current version is an experiment that showcases Elixir's flexibility for building frameworks and its excellent performance.
+As an experiment, Dynamo is as alpha-software as alpha gets. The main goal for Dynamo was to be a testbed for ideas and many of its APIs were extracted and improved into separated projects like [Plug](http://github.com/elixir-lang/plug).
+
+Dynamo is currently in maintenance mode for those who are already using it in production. Developers who seek for an actively developed framework are recommended to look for other alternatives in Elixir or join the Dynamo team to make it happen.
+
+# Description
 
 Dynamo shows excellent performance out of the box, beating similar frameworks like Sinatra and Express, available in other languages, in a callback-free programming fashion. By using the Erlang VM, all of the network I/O is asynchronous but your code appears to be synchronous. The Erlang VM also allows you to use all cores available by default, without a need to start many instances of your web server, and performs well under heavy load with many concurrent open connections.
 
@@ -22,12 +26,6 @@ It is currently alpha software and it supports:
 * Template rendering.
 * An exceptional exception handler for development.
 * Integration with Erlang OTP applications.
-
-Before becoming beta, we want to add the following to Dynamo:
-
-* Logging.
-* Better Websockets support.
-* Built-in JSON encoding.
 
 This README will go into Dynamo installation and a basic walk-through.
 
