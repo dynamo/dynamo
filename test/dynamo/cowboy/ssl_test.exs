@@ -21,6 +21,10 @@ defmodule Dynamo.Cowboy.SSLTest do
       conn.send(200, "host: " <> conn.host)
     end
 
+    get "/sendfile" do
+      conn.sendfile(200, Path.expand("../../fixtures/static/file.txt", __DIR__))
+    end
+
     config :server, port: 8021
 
     config :ssl,
@@ -60,6 +64,11 @@ defmodule Dynamo.Cowboy.SSLTest do
     assert { :ok, "port: 8021" } = :hackney.body(client)
   end
 
+  test :http_sendfile do
+    assert { :ok, 200, _, client } = :hackney.request(:get, "http://127.0.0.1:8021/sendfile", [], "", [])
+    assert { :ok, "HELLO" } = :hackney.body(client)
+  end
+
   test :https_scheme do
     assert { :ok, 200, _, client } = :hackney.request(:get, "https://127.0.0.1:8022/scheme", [], "", [])
     assert { :ok, "scheme: https" } = :hackney.body(client)
@@ -79,4 +88,10 @@ defmodule Dynamo.Cowboy.SSLTest do
     assert { :ok, 200, _, client } = :hackney.request(:get, "https://127.0.0.1:8022/port", [], "", [])
     assert { :ok, "port: 8022" } = :hackney.body(client)
   end
+
+  test :https_sendfile do
+    assert { :ok, 200, _, client } = :hackney.request(:get, "https://127.0.0.1:8022/sendfile", [], "", [])
+    assert { :ok, "HELLO" } = :hackney.body(client)
+  end
+
 end
