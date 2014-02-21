@@ -45,7 +45,7 @@ Congratulations! You created your first project with Dynamo! Let's run it:
 
 1. Go to your app
 
-2. Get dependencies with: `mix deps.get`
+2. Get dependencies and compile with: `mix do deps.get, compile`
 
 3. Run it: `iex -S mix server`
 
@@ -469,7 +469,7 @@ That's all. If you haven't built an OTP application before, you may be a bit ove
 
 ## Learn more
 
-In the [guides](guides) directory we include a bunch of small, simple guides that teach you how to achieve something in Dynamo: 
+In the [guides](guides) directory we include a bunch of small, simple guides that teach you how to achieve something in Dynamo:
 
 * [How to create single file Dynamos](guides/how-to-single-file-dynamos.md), (although not recommended for production, the [examples](examples) directory usually uses single file Dynamos to easily show how to achieve something)
 
