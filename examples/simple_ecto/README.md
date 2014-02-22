@@ -17,7 +17,7 @@ INSERT INTO weather (city, temp_lo, temp_hi, prcp) VALUES ('Chicago, IL', 10, 80
 
 Then, from the command line:
 
-* `mix deps.get`
+* `mix do deps.get, compile`
 * `mix server`
 
 Inside web browser, navigate to:
