@@ -153,9 +153,15 @@ defmodule Dynamo.Cowboy.Connection do
   @doc false
   def sendfile(status, path, conn) do
     File.Stat[type: :regular, size: size] = File.stat!(path)
-    body_fun = fn (socket, _transport) ->
-                    {:ok, sent} = :file.sendfile(path, socket)
-                    {:sent, sent}
+    body_fun = fn (socket, transport) ->
+                    case transport.sendfile(socket, path) do
+                      {:ok, _sent} ->
+                        :ok
+                      {:error, :closed} ->
+                        :ok
+                      {:error, :etimedout} ->
+                        :ok
+                    end
                end
 
     conn = run_before_send(connection(conn, status: status, state: :sendfile))
