@@ -1,5 +1,5 @@
-[ "cowboy": {:git, "git://github.com/extend/cowboy.git", "b09f3a570d702be7a55c36e5f5b4b63b26198637", []},
-  "cowlib": {:git, "git://github.com/extend/cowlib.git", "63298e8e160031a70efff86a1acde7e7db1fcda6", [ref: "0.4.0"]},
+[ "cowboy": {:git, "git://github.com/extend/cowboy.git", "239e5e0ba7f413642aca3cf2735f0709a643fb8e", []},
+  "cowlib": {:git, "git://github.com/extend/cowlib.git", "0d4ece08a7cce90a07cf33d4edad29bc324c7d90", [ref: "0.5.1"]},
   "hackney": {:git, "git://github.com/benoitc/hackney.git", "7f2a0b5996313d930277786e7ff5d538e9346547", [tag: "0.10.1"]},
   "hackney_lib": {:git, "https://github.com/benoitc/hackney_lib.git", "eecdb481f1d38bfb194896bffdf9bdcdd967ae96", [tag: "0.2.2"]},
   "mime": {:git, "git://github.com/dynamo/mime.git", "7e56a3dd5692afcd39c9797ae2898c5841967098", []},

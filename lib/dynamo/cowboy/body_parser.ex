@@ -14,7 +14,7 @@ defmodule Dynamo.Cowboy.BodyParser do
   end
 
   defp parse_body({ "multipart", style, _ }, dict, req) when style in ["form-data", "mixed"] do
-    { tuples, req } = parse_multipart(R.multipart_data(req), nil, [])
+    { tuples, req } = parse_multipart(R.part(req), nil, [])
     dict = Enum.reduce(tuples, dict, &Dynamo.Connection.QueryParser.reduce(&1, &2))
     { dict, req }
   end
@@ -23,44 +23,45 @@ defmodule Dynamo.Cowboy.BodyParser do
     { dict, req }
   end
 
-  defp parse_multipart({ :eof, req }, _tmp_dir, acc) do
+  defp parse_multipart({ :done, req }, _tmp_dir, acc) do
     { acc, req }
   end
 
-  defp parse_multipart({ :headers, headers, req }, tmp_dir, acc) do
+  defp parse_multipart({ :ok, headers, req }, tmp_dir, acc) do
     case parse_multipart_headers(headers) do
       { name, nil } ->
-        { body, req } = parse_multipart_body(R.multipart_data(req), "")
-        parse_multipart(R.multipart_data(req), tmp_dir, [{ name, body }|acc])
+        { body, req } = parse_multipart_body(R.part_body(req), "")
+        parse_multipart(R.part(req), tmp_dir, [{ name, body }|acc])
 
       { name, Dynamo.Connection.File[] = file } ->
         tmp_dir = get_tmp_dir(tmp_dir)
 
         { path, { :ok, req } } = Dynamo.Connection.Utils.random_file("uploaded",
-          tmp_dir, &parse_multipart_file(R.multipart_data(req), &1))
+          tmp_dir, &parse_multipart_file(R.part_body(req), &1))
 
-        parse_multipart(R.multipart_data(req), tmp_dir, [{ name, file.path(path) }|acc])
+        parse_multipart(R.part(req), tmp_dir, [{ name, file.path(path) }|acc])
 
       nil ->
         { :ok, req } = R.multipart_skip(req)
-        parse_multipart(R.multipart_data(req), tmp_dir, acc)
+        parse_multipart(R.part(req), tmp_dir, acc)
     end
   end
 
-  defp parse_multipart_body({ :body, tail, req }, body) do
-    parse_multipart_body(R.multipart_data(req), body <> tail)
+  defp parse_multipart_body({ :more, tail, req }, body) do
+    parse_multipart_body(R.part_body(req), body <> tail)
   end
 
-  defp parse_multipart_body({ :end_of_part, req }, body) do
-    { body, req }
+  defp parse_multipart_body({ :ok, tail, req }, body) do
+    { body <> tail, req }
   end
 
-  defp parse_multipart_file({ :body, body, req }, file) do
+  defp parse_multipart_file({ :more, body, req }, file) do
     :file.write(file, body)
-    parse_multipart_file(R.multipart_data(req), file)
+    parse_multipart_file(R.part_body(req), file)
   end
 
-  defp parse_multipart_file({ :end_of_part, req }, _file) do
+  defp parse_multipart_file({ :ok, body, req }, file) do
+    :file.write(file, body)
     { :ok, req }
   end
 
