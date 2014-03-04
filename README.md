@@ -481,6 +481,8 @@ In the [guides](guides) directory we include a bunch of small, simple guides tha
 
 * [How to use SSL](guides/how-to-ssl.md)
 
+There are also a number of examples of dynamo features in the `examples/` directory. Look at the top each file for directions of how to run them.
+
 # License
 
 Dynamo source code is released under Apache 2 License.
