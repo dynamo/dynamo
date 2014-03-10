@@ -123,6 +123,6 @@ defmodule Dynamo.HTTP.RenderTest do
   end
 
   defp strip_lines(body) do
-    Regex.replace %r"\n+\s*", body, "\n"
+    Regex.replace ~r"\n+\s*", body, "\n"
   end
 end

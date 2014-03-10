@@ -27,7 +27,7 @@ defmodule Dynamo.HTTP.Redirect do
       # combination of letters, digits, and the plus ("+"),
       # period ("."), or hyphen ("-") characters; and is
       # terminated by a colon (":").
-      unless to =~ %r{^(\w[\w+.-]*:|//).*} do
+      unless to =~ ~r{^(\w[\w+.-]*:|//).*} do
         to = conn.host_url <> to
       end
     else
@@ -51,6 +51,6 @@ defmodule Dynamo.HTTP.Redirect do
     Dynamo.HTTP.Halt.halt! redirect(conn, opts)
   end
 
-  defp redirect_body("text/html", to), do: %s[<html><body>You are being <a href="#{to}">redirected</a>.</body></html>]
+  defp redirect_body("text/html", to), do: ~s[<html><body>You are being <a href="#{to}">redirected</a>.</body></html>]
   defp redirect_body(_, _), do: ""
 end

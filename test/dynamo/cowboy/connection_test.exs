@@ -208,9 +208,9 @@ defmodule Dynamo.Cowboy.ConnectionTest do
   end
 
   test :req_cookies do
-    assert_success request :get, "/req_cookies_0", [{ "Cookie", %s(foo=bar; baz=bat) }]
-    assert_success request :get, "/req_cookies_1", [{ "Cookie", %s(foo=bar; baz=bat) }]
-    assert_success request :get, "/req_cookies_2", [{ "Cookie", %s(foo=bar=baz) }]
+    assert_success request :get, "/req_cookies_0", [{ "Cookie", ~s(foo=bar; baz=bat) }]
+    assert_success request :get, "/req_cookies_1", [{ "Cookie", ~s(foo=bar; baz=bat) }]
+    assert_success request :get, "/req_cookies_2", [{ "Cookie", ~s(foo=bar=baz) }]
   end
 
   test :resp_cookies do
@@ -225,12 +225,12 @@ defmodule Dynamo.Cowboy.ConnectionTest do
   end
 
   test :req_resp_cookies do
-    response = request :get, "/req_resp_cookies", [{ "Cookie", %s(foo=bar; baz=bat) }]
+    response = request :get, "/req_resp_cookies", [{ "Cookie", ~s(foo=bar; baz=bat) }]
     assert_success response
 
     { _, headers, _ } = response
     { "set-cookie", contents } = List.keyfind(headers, "set-cookie", 0)
-    assert contents =~ %r"foo=; path=/; expires=Thu, 01 Jan 1970 12:00:00 GMT; max-age=0; HttpOnly"
+    assert contents =~ ~r"foo=; path=/; expires=Thu, 01 Jan 1970 12:00:00 GMT; max-age=0; HttpOnly"
 
     headers = List.keydelete(headers, "set-cookie", 0)
     assert List.keyfind(headers, "set-cookie", 0) == nil

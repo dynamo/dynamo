@@ -53,9 +53,9 @@ defmodule Mix.Tasks.Dynamo do
     lib = underscore(mod)
 
     dynamo = if opts[:dev] do
-      %s(path: "#{Path.expand("../../..", __DIR__)}")
+      ~s(path: "#{Path.expand("../../..", __DIR__)}")
     else
-      %s(github: "elixir-lang/dynamo")
+      ~s(github: "elixir-lang/dynamo")
     end
 
     assigns = [app: app, mod: mod, dynamo: dynamo, version: @version]
@@ -98,7 +98,7 @@ defmodule Mix.Tasks.Dynamo do
   end
 
   defp check_project_name!(name) do
-    unless name =~ %r/^[a-z][\w_]+$/ do
+    unless name =~ ~r/^[a-z][\w_]+$/ do
       raise Mix.Error, message: "project path must start with a letter and have only lowercase letters, numbers and underscore"
     end
     if Code.ensure_loaded?(Module.concat([String.capitalize(name)])) do
@@ -128,7 +128,7 @@ defmodule Mix.Tasks.Dynamo do
   erl_crash.dump
   """
 
-  embed_template :mixfile, %S"""
+  embed_template :mixfile, ~S"""
   defmodule <%= @mod %>.Mixfile do
     use Mix.Project
 
