@@ -69,11 +69,12 @@ defmodule Dynamo.Cowboy do
 
   defp start_listener(kind, main, options) do
     acceptors = options[:acceptors] || 100
+    compress   = options[:compress] || false
     dispatch  = :cowboy_router.compile(options[:dispatch]  || dispatch_for(main))
-    options   = Enum.reduce [:acceptors, :dispatch], options, &Keyword.delete(&2, &1)
+    options   = Enum.reduce [:acceptors, :dispatch, :compress], options, &Keyword.delete(&2, &1)
 
     ref = Module.concat(main, kind |> to_string |> String.upcase)
-    apply(:cowboy, :"start_#{kind}", [ref, acceptors, options, [env: [dispatch: dispatch]]])
+    apply(:cowboy, :"start_#{kind}", [ref, acceptors, options, [env: [dispatch: dispatch], compress: compress]])
   end
 
   defp http_options(_main, options) do
