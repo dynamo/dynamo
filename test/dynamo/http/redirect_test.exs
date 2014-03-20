@@ -30,7 +30,7 @@ defmodule Dynamo.HTTP.RedirectTest do
   test :redirect_with_set_content_type do
     conn = redirect conn(:GET, "/").resp_content_type("text/html"), to: "/foo"
     assert conn.resp_headers["location"] == "http://127.0.0.1/foo"
-    assert conn.resp_body =~ %r"redirected"
+    assert conn.resp_body =~ ~r"redirected"
   end
 
   test :redirect_with_full_url do

@@ -402,7 +402,7 @@ defmodule Dynamo.Connection do
   """
   defcallback private(conn) :: assigns
 
-  @doc %S"""
+  @doc ~S"""
   Sets a new private assign with the given key and value.
   We recommended private keys to follow the format:
 

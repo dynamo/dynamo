@@ -7,17 +7,17 @@ defmodule Mix.TasksTest do
       app_with_dynamo_deps_path(:prod)
 
       output = System.cmd "MIX_ENV=prod mix compile"
-      assert output =~ %r(Compiled web/routers/application_router.ex)
-      assert output =~ %r(Compiled lib/my_app.ex)
-      assert output =~ %r(Compiled lib/my_app/dynamo.ex)
-      assert output =~ %r(Generated my_compiled_app.app)
-      assert output =~ %r(Generated MyApp.Dynamo.CompiledTemplates)
+      assert output =~ ~r(Compiled web/routers/application_router.ex)
+      assert output =~ ~r(Compiled lib/my_app.ex)
+      assert output =~ ~r(Compiled lib/my_app/dynamo.ex)
+      assert output =~ ~r(Generated my_compiled_app.app)
+      assert output =~ ~r(Generated MyApp.Dynamo.CompiledTemplates)
       assert File.regular?("_build/prod/lib/my_compiled_app/ebin/Elixir.MyApp.Dynamo.CompiledTemplates.beam")
 
       # Can recompile after changes
       File.touch!("web/routers/application_router.ex", { { 2030, 1, 1 }, { 0, 0, 0 } })
       output = System.cmd "MIX_ENV=prod mix compile"
-      assert output =~ %r(Compiled web/routers/application_router.ex)
+      assert output =~ ~r(Compiled web/routers/application_router.ex)
     end
   end
 
@@ -26,9 +26,9 @@ defmodule Mix.TasksTest do
       app_with_dynamo_deps_path(:dev)
 
       output = System.cmd "mix dynamo.filters"
-      assert output =~ %r(filter Dynamo.Filters.Head)
-      assert output =~ %r(filter \{Dynamo.Filters.Loader, *true, *true\})
-      assert output =~ %r(ApplicationRouter.service/1)
+      assert output =~ ~r(filter Dynamo.Filters.Head)
+      assert output =~ ~r(filter \{Dynamo.Filters.Loader, *true, *true\})
+      assert output =~ ~r(ApplicationRouter.service/1)
     end
   end
 
@@ -36,8 +36,8 @@ defmodule Mix.TasksTest do
     in_tmp "my_run_app", fn ->
       app_with_dynamo_deps_path(:dev)
 
-      output = System.cmd %s{mix run -e "IO.inspect HelloRouter.__info__(:module)"}
-      assert output =~ %r(HelloRouter)
+      output = System.cmd ~s{mix run -e "IO.inspect HelloRouter.__info__(:module)"}
+      assert output =~ ~r(HelloRouter)
     end
   end
 
@@ -55,8 +55,8 @@ defmodule Mix.TasksTest do
       end
       """
 
-      output = System.cmd %s{unset MIX_ENV; mix test}
-      assert output =~ %r(3 tests, 0 failures)
+      output = System.cmd ~s{unset MIX_ENV; mix test}
+      assert output =~ ~r(3 tests, 0 failures)
     end
   end
 
@@ -70,7 +70,7 @@ defmodule Mix.TasksTest do
     :ok = :file.make_symlink("../../deps", "deps")
 
     File.write! "mix.exs",
-      Regex.replace(%r"deps: deps", File.read!("mix.exs"), %s(deps: deps, deps_path: "../../deps"))
+      Regex.replace(~r"deps: deps", File.read!("mix.exs"), ~s(deps: deps, deps_path: "../../deps"))
 
     File.write! "web/routers/hello_router.ex", """
     defmodule HelloRouter do

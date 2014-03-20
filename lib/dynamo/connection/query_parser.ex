@@ -54,7 +54,7 @@ defmodule Dynamo.Connection.QueryParser do
       #
       #     users[address][street] #=> [ _, "users", "address][street" ]
       #
-      case Regex.run(%r"^([^\[]+)\[(.*)\]$", key) do
+      case Regex.run(~r"^([^\[]+)\[(.*)\]$", key) do
         [_all, key, subpart] ->
           [key|String.split(subpart, "][", trim: false)]
         _ ->
