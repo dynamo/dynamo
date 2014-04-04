@@ -5,7 +5,7 @@ System.put_env("MIX_ENV", "dev")
 
 ExUnit.start
 
-Application.Behaviour.start(:hackney)
+:application.ensure_all_started(:hackney)
 
 defmodule MixHelpers do
   import ExUnit.Assertions

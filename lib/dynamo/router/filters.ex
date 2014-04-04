@@ -39,7 +39,7 @@ defmodule Dynamo.Router.Filters do
   Notice the filter receives a `conn` as argument and must return an
   updated `conn`. A finalize filter works similarly.
 
-  A service filter receives and must return a `conn`, but it also 
+  A service filter receives and must return a `conn`, but it also
   receives a function which should be invoked in order to continue
   the request. Here is a filter that sets the content type to json
   and converts the response body to valid json:
@@ -50,7 +50,7 @@ defmodule Dynamo.Router.Filters do
           conn = fun.(conn)
           conn.resp_body(to_json(conn.resp_body))
         end
-  
+
         def to_json(data), do: ...
       end
 
