@@ -12,7 +12,7 @@
             <th>City</th>
             <th>Avg Low</th>
             <th>Avg High</th>
-            <th>Percipitation</th>
+            <th>Precipitation</th>
           </tr>
         <%= lc { _id, city, temp_lo, temp_hi, prcp } inlist @results do %>
           <tr>
