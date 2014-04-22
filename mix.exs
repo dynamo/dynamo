@@ -3,7 +3,7 @@ defmodule Dynamo.Mixfile do
 
   def project do
     [ app: :dynamo,
-      elixir: "~> 0.12.4-dev",
+      elixir: "~> 0.13.0-dev",
       version: "0.1.0-dev",
       name: "Dynamo",
       source_url: "https://github.com/dynamo/dynamo",
@@ -23,7 +23,7 @@ defmodule Dynamo.Mixfile do
 
   def deps(_) do
     deps(:prod) ++
-      [ { :hackney, github: "benoitc/hackney", tag: "0.10.1" } ]
+      [ { :hackney, github: "benoitc/hackney", tag: "0.12.1" } ]
   end
 
   def application do

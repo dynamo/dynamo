@@ -1,7 +1,9 @@
-[ "cowboy": {:git, "git://github.com/extend/cowboy.git", "239e5e0ba7f413642aca3cf2735f0709a643fb8e", []},
-  "cowlib": {:git, "git://github.com/extend/cowlib.git", "0d4ece08a7cce90a07cf33d4edad29bc324c7d90", [ref: "0.5.1"]},
-  "hackney": {:git, "git://github.com/benoitc/hackney.git", "7f2a0b5996313d930277786e7ff5d538e9346547", [tag: "0.10.1"]},
-  "hackney_lib": {:git, "https://github.com/benoitc/hackney_lib.git", "eecdb481f1d38bfb194896bffdf9bdcdd967ae96", [tag: "0.2.2"]},
+%{"cowboy": {:git, "git://github.com/extend/cowboy.git", "05024529679d1d0203b8dcd6e2932cc2a526d370", []},
+  "cowlib": {:git, "git://github.com/extend/cowlib.git", "f58340a0044856bb508df03cfe94cf79308380a2", [ref: "0.6.1"]},
+  "ets_lru": {:git, "https://github.com/cloudant/ets_lru.git", "54df566f02412595f69500ce2326d31cfa55ae7a", [ref: "master"]},
+  "hackney": {:git, "git://github.com/benoitc/hackney.git", "1a427d1e1820f89699b51228746e586e53d15cf9", [tag: "0.12.1"]},
+  "hackney_lib": {:git, "https://github.com/benoitc/hackney_lib.git", "48a5a3fc64892c95e4e3efdd464f26ca5683d2f9", [tag: "0.3.0"]},
+  "idna": {:git, "git://github.com/benoitc/erlang-idna.git", "21aa158b7f36bf2a000f12fe40d7f21eece9cf65", [tag: "hackney-0.11.2"]},
   "mime": {:git, "git://github.com/dynamo/mime.git", "db84370c53a67a7e58a4d0cfb026f4edc64a9367", []},
   "mimetypes": {:git, "git://github.com/spawngrid/mimetypes.git", "47d37a977a7d633199822bf6b08353007483d00f", [ref: "master"]},
-  "ranch": {:git, "git://github.com/extend/ranch.git", "5df1f222f94e08abdcab7084f5e13027143cc222", [ref: "0.9.0"]} ]
+  "ranch": {:git, "git://github.com/extend/ranch.git", "5df1f222f94e08abdcab7084f5e13027143cc222", [ref: "0.9.0"]}}

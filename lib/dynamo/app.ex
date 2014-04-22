@@ -8,7 +8,7 @@ defmodule Dynamo.App do
   required at compilation time.
   """
   def start do
-    Application.Behaviour.start(:dynamo)
+    :application.ensure_all_started(:dynamo)
   end
 
   @doc """
