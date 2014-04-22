@@ -55,7 +55,7 @@ defmodule Mix.Tasks.Dynamo do
     dynamo = if opts[:dev] do
       ~s(path: "#{Path.expand("../../..", __DIR__)}")
     else
-      ~s(github: "elixir-lang/dynamo")
+      ~s(github: "dynamo/dynamo")
     end
 
     assigns = [app: app, mod: mod, dynamo: dynamo, version: @version]
