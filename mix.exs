@@ -23,7 +23,7 @@ defmodule Dynamo.Mixfile do
 
   def deps(_) do
     deps(:prod) ++
-      [ { :hackney, github: "benoitc/hackney", tag: "0.11.1" } ]
+      [ { :hackney, github: "benoitc/hackney", tag: "0.12.1" } ]
   end
 
   def application do
