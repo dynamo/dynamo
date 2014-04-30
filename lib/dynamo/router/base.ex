@@ -521,7 +521,7 @@ defmodule Dynamo.Router.Base do
   end
 
   defp is_mod_fun?({ mod, fun } = ref, kind) when is_atom(mod) and is_atom(fun) do
-    not function_exported?(ref, kind, 1)
+    not Dynamo.Router.Utils.is_function_exported?(ref, kind, 1)
   end
 
   defp is_mod_fun?(_ref, _kind), do: false
