@@ -146,4 +146,13 @@ defmodule Dynamo.Router.Utils do
   defp binary_from_buffer(buffer) do
     iolist_to_binary(Enum.reverse(buffer))
   end
+
+  def is_function_exported?(module, function, arity) do
+    case is_tuple(module) do
+      true  ->
+        function_exported?(elem(module, 0), function, arity + 1)
+      false ->
+        function_exported?(module, function, arity)
+    end
+  end
 end

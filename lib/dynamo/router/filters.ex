@@ -132,16 +132,16 @@ defmodule Dynamo.Router.Filters do
         escaped = Macro.escape(filter)
 
         cond do
-          function_exported?(filter, :service, 2)  ->
+          Dynamo.Router.Utils.is_function_exported?(filter, :service, 2)  ->
             quote do
               unquote(escaped).service(conn, fn(conn) -> unquote(acc) end)
             end
-          function_exported?(filter, :prepare, 1)  ->
+          Dynamo.Router.Utils.is_function_exported?(filter, :prepare, 1)  ->
             quote do
               conn = unquote(escaped).prepare(conn)
               unquote(acc)
             end
-          function_exported?(filter, :finalize, 1)  ->
+          Dynamo.Router.Utils.is_function_exported?(filter, :finalize, 1)  ->
             quote do
               unquote(escaped).finalize(unquote(acc))
             end

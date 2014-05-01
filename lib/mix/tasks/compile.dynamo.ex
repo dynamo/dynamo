@@ -51,7 +51,7 @@ defmodule Mix.Tasks.Compile.Dynamo do
   The manifests for this compiler.
   """
   def manifests, do: [manifest]
-  defp manifest, do: Path.join(Mix.project[:compile_path], @manifest)
+  defp manifest, do: Path.join(Mix.Project.compile_path, @manifest)
 
   defp do_compile(mod, opts, acc) do
     root    = File.cwd!
