@@ -50,7 +50,7 @@ defmodule Dynamo.Templates.EEXHandler do
   @moduledoc false
   @behaviour Dynamo.Templates.Handler
 
-  def compile(Dynamo.Template[identifier: identifier], source, locals) do
+  def compile(%Dynamo.Template{identifier: identifier}, source, locals) do
     vars   = vars(locals)
     args   = [{ :assigns, [], nil }|vars]
     match  = match(args)

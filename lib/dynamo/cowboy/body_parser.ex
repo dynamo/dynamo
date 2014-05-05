@@ -33,13 +33,13 @@ defmodule Dynamo.Cowboy.BodyParser do
         { body, req } = parse_multipart_body(R.part_body(req), "")
         parse_multipart(R.part(req), tmp_dir, [{ name, body }|acc])
 
-      { name, Dynamo.Connection.File[] = file } ->
+      { name, %Dynamo.Connection.File{} = file } ->
         tmp_dir = get_tmp_dir(tmp_dir)
 
         { path, { :ok, req } } = Dynamo.Connection.Utils.random_file("uploaded",
           tmp_dir, &parse_multipart_file(R.part_body(req), &1))
 
-        parse_multipart(R.part(req), tmp_dir, [{ name, file.path(path) }|acc])
+        parse_multipart(R.part(req), tmp_dir, [{ name, %Dynamo.Connection.File{file | path: path} }|acc])
 
       nil ->
         { :ok, req } = R.multipart_skip(req)
@@ -76,7 +76,7 @@ defmodule Dynamo.Cowboy.BodyParser do
             case List.keyfind(parts, "filename", 0) do
               { _, filename } ->
                 { _, type } = List.keyfind(headers, "content-type", 0) || { "content-type", nil }
-                { name, Dynamo.Connection.File[name: name, filename: filename, content_type: type, path: nil] }
+                { name, %Dynamo.Connection.File{name: name, filename: filename, content_type: type, path: nil} }
               _ ->
                 { name, nil }
             end

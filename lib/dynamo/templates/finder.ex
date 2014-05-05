@@ -53,7 +53,7 @@ defimpl Dynamo.Templates.Finder, for: BitString do
     if path, do: build(root, key, path)
   end
 
-  def source(_root, Dynamo.Template[identifier: path]) do
+  def source(_root, %Dynamo.Template{identifier: path}) do
     File.read!(path)
   end
 
@@ -68,14 +68,14 @@ defimpl Dynamo.Templates.Finder, for: BitString do
   end
 
   defp build(root, key, path) do
-    Dynamo.Template[
+    %Dynamo.Template{
       key: key,
       updated_at: File.stat!(path).mtime,
       identifier: path,
       handler: Dynamo.Templates.Handler.get!(extname(path)),
       format: extname(Path.rootname(path)),
       finder: root
-    ]
+    }
   end
 
   defp extname(path) do

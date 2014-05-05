@@ -97,14 +97,14 @@ defmodule Dynamo.Connection.QueryParser do
   # continue looping.
   defp assign_parts([key|t], acc, value) do
     child =
-      case Dict.get(acc, key) do
+      case Binary.Dict.get(acc, key) do
         current when is_record(current, Binary.Dict) -> current
         nil -> Binary.Dict.new
         _   -> raise ParseError, message: "expected dict at #{key}"
       end
 
     value = assign_parts(t, child, value)
-    Dict.put(acc, key, value)
+    Binary.Dict.put(acc, key, value)
   end
 
   defp assign_list_parts([], value), do: value

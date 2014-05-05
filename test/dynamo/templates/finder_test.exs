@@ -6,9 +6,9 @@ defmodule Dynamo.Templates.FinderTest do
   test "finds available template" do
     path = Path.join(@fixture_path, "hello.html.eex")
 
-    assert Dynamo.Template[identifier: ^path, key: "hello.html",
+    assert %Dynamo.Template{identifier: ^path, key: "hello.html",
       handler: Dynamo.Templates.EEXHandler, format: "html",
-      finder: @fixture_path] = Dynamo.Templates.Finder.find @fixture_path, "hello.html"
+      finder: @fixture_path} = Dynamo.Templates.Finder.find @fixture_path, "hello.html"
   end
 
   test "returns all templates" do

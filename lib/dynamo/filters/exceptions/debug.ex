@@ -22,7 +22,9 @@
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 defmodule Dynamo.Filters.Exceptions.Debug do
-  defrecord Frame, [:module, :function, :file, :line, :context, :index, :snippet, :link]
+  defmodule Frame do
+    defstruct [:module, :function, :file, :line, :context, :index, :snippet, :link]
+  end
 
   import Dynamo.Helpers.Escaping
 
@@ -62,7 +64,7 @@ defmodule Dynamo.Filters.Exceptions.Debug do
     { file, line } = { to_string(opts[:file] || "nofile"), opts[:line] }
     { relative, context, snippet } = file_context(file, line, root, sources)
 
-    { Frame[
+    { %Frame{
         module: mod,
         function: fun,
         file: relative,
@@ -71,7 +73,7 @@ defmodule Dynamo.Filters.Exceptions.Debug do
         snippet: snippet,
         index: index,
         link: editor_link(file, line, editor)
-      ], index + 1 }
+      }, index + 1 }
   end
 
   def mod_fun(module, :__MODULE__, 0) do

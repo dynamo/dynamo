@@ -34,7 +34,7 @@ defmodule Dynamo.Utils.MessageVerifier do
 
   defp digest(secret, data) do
     <<mac :: [integer, size(160)]>> = :crypto.hmac(:sha, secret, data)
-    :erlang.integer_to_list(mac, 16) |> iolist_to_binary
+    :erlang.integer_to_list(mac, 16) |> iodata_to_binary
   end
 
   @doc """

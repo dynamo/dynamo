@@ -37,7 +37,7 @@ defmodule DynamoTest do
   ## Config
 
   test "defines root based on otp app" do
-    assert ReloadApp.root == String.from_char_list! :code.lib_dir(:dynamo)
+    assert ReloadApp.root == String.from_char_data! :code.lib_dir(:dynamo)
   end
 
   test "defines root based on user config" do

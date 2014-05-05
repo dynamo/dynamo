@@ -108,7 +108,7 @@ defmodule Mix.Tasks.Compile.Dynamo do
        template <- templates, do: template
   end
 
-  defp template_mtime(Dynamo.Template[key: key, updated_at: updated_at]) do
+  defp template_mtime(%Dynamo.Template{key: key, updated_at: updated_at}) do
     { key, updated_at }
   end
 
