@@ -14,7 +14,7 @@
             <th>Avg High</th>
             <th>Precipitation</th>
           </tr>
-        <%= lc { _id, city, temp_lo, temp_hi, prcp } inlist @results do %>
+        <%= for { _id, city, temp_lo, temp_hi, prcp } <- @results do %>
           <tr>
             <td><%= city %></td>
             <td><%= temp_lo %></td>
