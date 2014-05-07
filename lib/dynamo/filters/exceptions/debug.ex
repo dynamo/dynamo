@@ -52,7 +52,7 @@ defmodule Dynamo.Filters.Exceptions.Debug do
     config  = dynamo.config[:dynamo]
     editor  = config[:exceptions_editor]
     sources = config[:source_paths] ++ config[:templates_paths]
-    sources = lc source inlist sources, path inlist Path.wildcard(Path.join(root, source)), do: path
+    sources = for source <- sources, path <- Path.wildcard(Path.join(root, source)), do: path
 
     Enum.map_reduce(stacktrace, 0, &each_frame(&1, &2, root, sources, editor)) |> elem(0)
   end

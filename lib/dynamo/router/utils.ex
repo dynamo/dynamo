@@ -60,7 +60,7 @@ defmodule Dynamo.Router.Utils do
 
   """
   def split(bin) do
-    lc segment inlist String.split(bin, "/"), segment != "", do: segment
+    for segment <- String.split(bin, "/"), segment != "", do: segment
   end
 
   ## Helpers
@@ -140,7 +140,7 @@ defmodule Dynamo.Router.Utils do
   end
 
   defp list_split(bin) do
-    lc segment inlist String.split(bin, "/"), segment != "", do: String.to_char_list!(segment)
+    for segment <- String.split(bin, "/"), segment != "", do: String.to_char_list!(segment)
   end
 
   defp binary_from_buffer(buffer) do

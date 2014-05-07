@@ -69,7 +69,7 @@ defmodule Dynamo.Cowboy.BodyParser do
     case List.keyfind(headers, "content-disposition", 0) do
       { _, disposition } ->
         [_|parts] = String.split(disposition, ";")
-        parts     = lc part inlist parts, do: split_equals(part)
+        parts     = for part <- parts, do: split_equals(part)
 
         case List.keyfind(parts, "name", 0) do
           { _, name } ->
