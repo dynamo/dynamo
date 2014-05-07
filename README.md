@@ -320,7 +320,7 @@ To display the list of fruits, `fruits.html.eex` might look like:
 <html>
 <body>
   <ul>
-  <%= lc { id, name } inlist @fruits do %>
+  <%= for { id, name } <- @fruits do %>
     <li><a href="/fruit/<%= id %>"><%= name %></a></li>
   <% end %>
   </ul>
