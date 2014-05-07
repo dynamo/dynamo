@@ -36,12 +36,12 @@ defmodule Binary.Dict do
 
   @doc false
   def keys(dict(data)) do
-    lc { k, _ } inlist data, do: k
+    for { k, _ } <- data, do: k
   end
 
   @doc false
   def values(dict(data)) do
-    lc { _, v } inlist data, do: v
+    for { _, v } <- data, do: v
   end
 
   @doc false
@@ -123,7 +123,7 @@ defmodule Binary.Dict do
   end
 
   defp keydelete(data, key) do
-    lc { k, _ } = tuple inlist data, key != k, do: tuple
+    for { k, _ } = tuple <- data, key != k, do: tuple
   end
 
   defp keyupdate([{key, value}|dict], key, fun) do
