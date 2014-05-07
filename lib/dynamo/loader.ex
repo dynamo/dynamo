@@ -73,7 +73,7 @@ defmodule Dynamo.Loader do
                 Code.unload_files [file]
                 :erlang.raise(kind, reason, stacktrace)
             end
-          modules = lc { mod, _ } inlist tuples, do: mod
+          modules = for { mod, _ } <- tuples, do: mod
           :gen_server.cast(__MODULE__, { :loaded, file, modules })
           :ok
         else
@@ -93,7 +93,7 @@ defmodule Dynamo.Loader do
     case :gen_server.call(__MODULE__, :conditional_purge) do
       :ok -> :ok
       { :purged, callbacks } ->
-        lc callback inlist callbacks, do: callback.()
+        for callback <- callbacks, do: callback.()
         :purged
     end
   end

@@ -84,7 +84,7 @@ defmodule Mix.Tasks.Compile.Dynamo do
       end
 
       compiled = compile_files to_compile, compile_path, root
-      compiled = lc { mod, _ } inlist compiled, do: atom_to_binary(mod)
+      compiled = for { mod, _ } <- compiled, do: atom_to_binary(mod)
 
       Mix.Utils.write_manifest(manifest, compiled)
       compile_templates mod, dynamo[:compiled_templates], templates, compile_path
@@ -102,10 +102,10 @@ defmodule Mix.Tasks.Compile.Dynamo do
   end
 
   defp extract_templates(paths) do
-    lc path inlist paths,
+    for path <- paths,
        not Dynamo.Templates.Finder.requires_precompilation?(path),
        templates = Dynamo.Templates.Finder.all(path),
-       template inlist templates, do: template
+       template <- templates, do: template
   end
 
   defp template_mtime(Dynamo.Template[key: key, updated_at: updated_at]) do

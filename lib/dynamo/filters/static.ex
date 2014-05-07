@@ -31,7 +31,7 @@ defmodule Dynamo.Filters.Static do
   @doc false
   def service(conn, fun, { __MODULE__, path, root }) do
     segments = subset(path, conn.path_info_segments)
-    segments = lc segment inlist List.wrap(segments), do: URI.decode(segment)
+    segments = for segment <- List.wrap(segments), do: URI.decode(segment)
 
     cond do
       segments in [nil, []] ->

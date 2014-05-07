@@ -304,7 +304,7 @@ defmodule Dynamo do
     end
 
     templates_server = dynamo[:supervisor].TemplatesServer
-    templates_paths  = lc path inlist templates_paths do
+    templates_paths  = for path <- templates_paths do
       if is_binary(path) do
         Path.expand(path)
       else

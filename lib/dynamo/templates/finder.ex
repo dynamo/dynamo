@@ -41,7 +41,7 @@ defimpl Dynamo.Templates.Finder, for: BitString do
   end
 
   def all(root) do
-    lc path inlist Path.wildcard("#{root}/**/*.*") do
+    for path <- Path.wildcard("#{root}/**/*.*") do
       key = Path.relative_to path, root
       build(root, Path.rootname(key), path)
     end

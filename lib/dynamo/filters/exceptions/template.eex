@@ -409,13 +409,13 @@
         font-weight: bold;
         font-size: 10pt;
     }
-    
+
     .trace_info .title .location a {
         color:inherit;
         text-decoration:none;
         border-bottom:1px solid #aaaaaa;
     }
-    
+
     .trace_info .title .location a:hover {
         border-color:#666666;
     }
@@ -605,7 +605,7 @@
                 <a href="#" id="all_frames">All frames</a>
             </nav>
             <ul class="frames">
-                <%= lc frame inlist @frames do %>
+                <%= for frame <- @frames do %>
                     <li class="<%= frame.context %>" style="display: none" data-context="<%= frame.context %>" data-index="<%= frame.index %>">
                         <span class='stroke'></span>
                         <i class="icon <%= frame.context %>"></i>
@@ -626,7 +626,7 @@
         </nav>
 
         <div class="conn_info">
-            <%= lc frame inlist @frames do %>
+            <%= for frame <- @frames do %>
                 <div class="frame_info" id="frame_info_<%= frame.index %>" style="display: none;">
                     <header class="trace_info">
                         <div class="title">
@@ -636,7 +636,7 @@
 
                         <div class="code">
                           <%= if snippet = frame.snippet do %>
-                            <%= lc { index, line, highlight } inlist snippet do %>
+                            <%= for { index, line, highlight } <- snippet do %>
                               <pre class="<%= if highlight, do: "highlight" %>"><span class="ln"><%= index %></span><span><%=h line %></span></pre>
                             <% end %>
                           <% else %>
