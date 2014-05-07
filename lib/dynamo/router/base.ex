@@ -455,7 +455,7 @@ defmodule Dynamo.Router.Base do
     end
 
     unless vars == [] do
-      route_params = lc var inlist vars, do: { var, { var, [], nil } }
+      route_params = for var <- vars, do: { var, { var, [], nil } }
       hooks = quote do
         var!(conn) = var!(conn).route_params(unquote(route_params))
         unquote(hooks)

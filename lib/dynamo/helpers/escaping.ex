@@ -8,7 +8,7 @@ defmodule Dynamo.Helpers.Escaping do
   Escapes HTML.
   """
   def h(string) do
-    bc <<code>> inbits to_string(string) do
+    for <<code>> <- to_string(string) do
       << case code do
            ?& -> "&amp;"
            ?< -> "&lt;"
