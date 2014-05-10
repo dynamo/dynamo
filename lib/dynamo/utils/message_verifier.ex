@@ -38,7 +38,7 @@ defmodule Dynamo.Utils.MessageVerifier do
   end
 
   @doc """
-  Comapres the two binaries completely, byte by byte,
+  Compares the two binaries completely, byte by byte,
   to avoid timing attacks.
   """
   def secure_compare(left, right) do
