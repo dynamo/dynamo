@@ -70,7 +70,7 @@ defmodule Dynamo.Static do
 
   defp static_path(path, %Config{} = config) do
     case File.stat(Path.join(config.root, path)) do
-      { :ok, File.Stat[mtime: mtime, type: type] } when type != :directory and is_tuple(mtime) ->
+      { :ok, %File.Stat{mtime: mtime, type: type} } when type != :directory and is_tuple(mtime) ->
         seconds = :calendar.datetime_to_gregorian_seconds(mtime)
         Path.join(config.route, [path, ??, integer_to_list(seconds)])
       _ ->

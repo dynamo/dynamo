@@ -152,7 +152,7 @@ defmodule Dynamo.Cowboy.Connection do
 
   @doc false
   def sendfile(status, path, conn) do
-    File.Stat[type: :regular, size: size] = File.stat!(path)
+    %File.Stat{type: :regular, size: size} = File.stat!(path)
     body_fun = fn (socket, transport) ->
                     case transport.sendfile(socket, path) do
                       {:ok, _sent} ->
