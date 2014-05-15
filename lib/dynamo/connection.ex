@@ -1,9 +1,10 @@
 defmodule Dynamo.Connection do
-  defrecord File, path: nil, name: nil, content_type: nil, filename: nil do
+  defmodule File do
     @moduledoc """
     Contains a file representation whenever there is a multipart
     request and it contains a File.
     """
+    defstruct [path: nil, name: nil, content_type: nil, filename: nil]
   end
 
   defexception UnfetchedError, aspect: nil do

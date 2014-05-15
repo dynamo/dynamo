@@ -175,7 +175,7 @@ defmodule Dynamo.Connection.Test do
 
   def fetch(:params, connection(query_string: query_string, params: nil, route_params: route_params, fetched: fetched) = conn) do
     params = Dynamo.Connection.QueryParser.parse(query_string)
-    params = Dict.merge(params, route_params)
+    params = Binary.Dict.merge(params, route_params)
     connection(conn, params: params, fetched: [:params|fetched])
   end
 
@@ -302,7 +302,7 @@ defmodule Dynamo.Connection.Test do
   Sets the cookies to be read by the request.
   """
   def put_req_cookie(key, value, connection(raw_req_cookies: cookies) = conn) do
-    connection(conn, raw_req_cookies: Dict.put(cookies, key, value))
+    connection(conn, raw_req_cookies: Binary.Dict.put(cookies, key, value))
   end
 
   @doc """
@@ -310,14 +310,14 @@ defmodule Dynamo.Connection.Test do
   Both `key` and `value` are converted to binary.
   """
   def put_req_header(key, value, connection(raw_req_headers: raw_req_headers) = conn) do
-    connection(conn, raw_req_headers: Dict.put(raw_req_headers, String.downcase(key), to_string(value)))
+    connection(conn, raw_req_headers: Binary.Dict.put(raw_req_headers, String.downcase(key), to_string(value)))
   end
 
   @doc """
   Deletes a request header.
   """
   def delete_req_header(key, connection(raw_req_headers: raw_req_headers) = conn) do
-    connection(conn, raw_req_headers: Dict.delete(raw_req_headers, String.downcase(key)))
+    connection(conn, raw_req_headers: Binary.Dict.delete(raw_req_headers, String.downcase(key)))
   end
 end
 

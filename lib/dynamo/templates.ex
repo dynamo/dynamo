@@ -1,7 +1,6 @@
-defrecord Dynamo.Template, key: nil, identifier: nil, format: nil,
-    handler: nil, updated_at: nil, extra: nil, ref: nil, finder: nil do
+defmodule Dynamo.Template do
   @moduledoc """
-  The template record is responsible to keep information about
+  The template struct is responsible for keeping information about
   templates to be rendered. It contains:
 
   * `:key` - The key used to find the template;
@@ -18,6 +17,8 @@ defrecord Dynamo.Template, key: nil, identifier: nil, format: nil,
 
   * `:ref` - A reference for already compiled templates
   """
+  defstruct [key: nil, identifier: nil, format: nil,
+  handler: nil, updated_at: nil, extra: nil, ref: nil, finder: nil]
 end
 
 defexception Dynamo.TemplateNotFound, query: nil, paths: nil do
@@ -78,8 +79,8 @@ defmodule Dynamo.Templates do
   """
   def compile_module(name, templates, locals, prelude) do
     { finders, _ } =
-      Enum.map_reduce templates, 0, fn(Dynamo.Template[] = template, i) ->
-        template = template.ref({ name, :"dynamo_template_#{i}" })
+      Enum.map_reduce templates, 0, fn(%Dynamo.Template{} = template, i) ->
+        template = %Dynamo.Template{template | ref: { name, :"dynamo_template_#{i}" }}
         finder   = quote do
           def find(unquote(template.key)) do
             unquote(Macro.escape(template))
@@ -89,7 +90,7 @@ defmodule Dynamo.Templates do
       end
 
     { templates, _ } =
-      Enum.map_reduce templates, 0, fn(Dynamo.Template[] = template, i) ->
+      Enum.map_reduce templates, 0, fn(%Dynamo.Template{} = template, i) ->
         source = Dynamo.Templates.Finder.source(template.finder, template)
         { args, source } = template.handler.compile(template, source, locals)
 

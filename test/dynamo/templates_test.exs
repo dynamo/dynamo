@@ -66,9 +66,9 @@ defmodule Dynamo.TemplatesTest do
     path     = Path.join(@fixture_path, "hello.html.eex")
     template = CompileTest.CompiledTemplates.find "hello.html"
 
-    assert Dynamo.Template[identifier: ^path, key: "hello.html",
+    assert %Dynamo.Template{identifier: ^path, key: "hello.html",
       handler: Dynamo.Templates.EEXHandler, format: "html",
-      ref: { CompileTest.CompiledTemplates, _ }, finder: @fixture_path] = template
+      ref: { CompileTest.CompiledTemplates, _ }, finder: @fixture_path} = template
 
     { mod, fun } = template.ref
     assert apply(mod, fun, [[], nil]) == { [nil], "HELLO!" }

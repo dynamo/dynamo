@@ -54,7 +54,7 @@ defmodule Dynamo.Filters.Exceptions.DebugTest do
   end
 
   defp stacktrace do
-    [ { Dynamo.Filters.Exceptions.DebugTest, :stacktrace, 0, __ENV__.location },
+    [ { Dynamo.Filters.Exceptions.DebugTest, :stacktrace, 0, [file: __ENV__.file, lilne: __ENV__.line] },
       { Dynamo.Filters.Exceptions.DebugTest, :stacktrace, 0, [file: __ENV__.file, line: 1000] },
       { Dynamo.Filters.Exceptions.DebugTest, :__MODULE__, 0, [file: __ENV__.file, line: 16] },
       { Dynamo, :__MODULE__, 0, [file: "lib/dynamo.ex", line: 1] } ]

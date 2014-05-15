@@ -128,7 +128,7 @@ defmodule Dynamo.Connection.Behaviour do
 
       @doc false
       def route_params(new, connection(params: params, route_params: route_params) = conn) do
-        connection(conn, route_params: route_params ++ new, params: Dict.merge(params, new))
+        connection(conn, route_params: route_params ++ new, params: Binary.Dict.merge(params, new))
       end
 
       @doc false
