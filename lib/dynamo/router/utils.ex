@@ -140,7 +140,7 @@ defmodule Dynamo.Router.Utils do
   end
 
   defp list_split(bin) do
-    for segment <- String.split(bin, "/"), segment != "", do: String.to_char_list!(segment)
+    for segment <- String.split(bin, "/"), segment != "", do: List.from_char_data!(segment)
   end
 
   defp binary_from_buffer(buffer) do

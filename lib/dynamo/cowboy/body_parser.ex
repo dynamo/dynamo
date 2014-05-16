@@ -90,7 +90,7 @@ defmodule Dynamo.Cowboy.BodyParser do
   defp get_tmp_dir(other), do: other
 
   defp split_equals(binary) do
-    case String.split(binary, "=", global: false) do
+    case String.split(binary, "=", parts: 2) do
       [h]   -> { trim(h), nil }
       [h,t] -> { trim(h), strip_quotes(t) }
     end

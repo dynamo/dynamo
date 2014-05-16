@@ -58,7 +58,7 @@ defimpl Dynamo.Templates.Finder, for: BitString do
   end
 
   defp escape(key) do
-    bc <<code>> inbits key do
+    for <<code <- key>>, into: "" do
       << if code in [?[, ?], ?{, ?}, ?*, ??] do
            << ?\\, code >>
          else

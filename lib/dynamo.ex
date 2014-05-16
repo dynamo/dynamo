@@ -375,7 +375,7 @@ defmodule Dynamo do
         based on the OTP app directory.
         """
         def root do
-          :code.lib_dir(unquote(app)) |> String.from_char_list!
+          :code.lib_dir(unquote(app)) |> String.from_char_data!
         end
       end
     else
