@@ -30,10 +30,12 @@ end
 defmodule Dynamo.Templates do
   @moduledoc false
 
+  require Record
+
   @doc """
   Finds the given template in any of the templates paths.
   """
-  def find(query, _tmpl_paths) when is_record(query, Template) do
+  def find(query, _tmpl_paths) when Record.record?(query, Template) do
     query
   end
 

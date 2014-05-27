@@ -2,7 +2,7 @@ defmodule Dynamo.Connection.Behaviour do
   @moduledoc """
   Common behaviour used between `Dynamo.Connection` connection
   implementations. When used, it defines a private record
-  via `defrecordp` named `connection` with the following fields
+  via `Record.defrecordp` named `connection` with the following fields
   and their default values:
 
   * assigns - an empty list
@@ -61,9 +61,11 @@ defmodule Dynamo.Connection.Behaviour do
     ] ++ opts
 
     quote location: :keep do
+
+      require Record
       @behaviour Dynamo.Connection
 
-      defrecordp :connection, __MODULE__, unquote(fields)
+      Record.defrecordp :connection, __MODULE__, unquote(fields)
 
       ## Assigns
 

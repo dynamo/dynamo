@@ -223,7 +223,7 @@ defmodule Dynamo.Cowboy.Connection do
   ## Helpers
 
   defp merge_route_params(params, []), do: params
-  defp merge_route_params(params, route_params), do: Dict.merge(params, route_params)
+  defp merge_route_params(params, route_params), do: Binary.Dict.merge(params, route_params)
 
   defp split_path(path) do
     case :binary.split(path, "/", [:global, :trim]) do

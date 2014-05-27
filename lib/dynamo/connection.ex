@@ -7,21 +7,26 @@ defmodule Dynamo.Connection do
     defstruct [path: nil, name: nil, content_type: nil, filename: nil]
   end
 
-  defexception UnfetchedError, aspect: nil do
+  defmodule UnfetchedError do
+    defexception [aspect: nil]
+
     def message(exception) do
-      aspect = aspect(exception)
+      aspect = exception.aspect
       "did not fetch #{aspect} from request, call `conn.fetch :#{aspect}` in order to fetch it"
     end
   end
 
-  defexception UnknownFetchError, aspect: nil do
+  defmodule UnknownFetchError do
+    defexception [aspect: nil]
+
     def message(exception) do
-      "cannot fetch unknown :#{aspect(exception)}"
+      "cannot fetch unknown :#{exception.aspect}"
     end
   end
 
-  defexception NotSentError,
-    message: "no response was set in the connection"
+  defmodule NotSentError do
+    defexception message:  "no response was set in the connection"
+  end
 
   @moduledoc """
   This modules defines the connection API.

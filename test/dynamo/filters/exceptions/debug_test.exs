@@ -50,7 +50,7 @@ defmodule Dynamo.Filters.Exceptions.DebugTest do
 
   defp conn do
     conn(:get, "/oops").main(ExceptionsApp).put_assign(:exception,
-      { 500, :error, ArgumentError[message: "bad argument"], stacktrace })
+      { 500, :error, %ArgumentError{message: "bad argument"}, stacktrace })
   end
 
   defp stacktrace do

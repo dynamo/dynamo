@@ -1,6 +1,7 @@
 defmodule Dynamo.Cowboy.Handler do
   @moduledoc false
-
+  require Record
+  
   @behaviour :cowboy_http_handler
 
   require :cowboy_req
@@ -13,7 +14,7 @@ defmodule Dynamo.Cowboy.Handler do
   def init({ transport, :http }, req, main) when transport in [:tcp, :ssl] do
     conn = main.service(Dynamo.Cowboy.Connection.new(main, req, scheme(transport)))
 
-    if is_record(conn, Dynamo.Cowboy.Connection) do
+    if Record.record?(conn, Dynamo.Cowboy.Connection) do
       { :ok, conn.cowboy_request, nil }
     else
       raise "Expected service to return a Dynamo.Cowboy.Connection, got #{inspect conn}"

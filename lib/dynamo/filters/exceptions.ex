@@ -24,7 +24,7 @@ defmodule Dynamo.Filters.Exceptions do
     catch
       { :halt!, conn } ->
         case conn.state do
-          :unset -> handle(conn, handler, :error, Dynamo.Connection.NotSentError[], System.stacktrace)
+          :unset -> handle(conn, handler, :error, %Dynamo.Connection.NotSentError{}, System.stacktrace)
           :set   -> conn.send
           _      -> conn
         end
@@ -66,7 +66,7 @@ defmodule Dynamo.Filters.Exceptions do
   end
 
   defp logger_reason(:error, value) do
-    "    Reason: (#{inspect value.__record__(:name)}) #{value.message}\n"
+    "    Reason: (#{inspect value.__struct__}) #{Exception.message(value)}\n"
   end
 
   defp logger_reason(kind, value) do

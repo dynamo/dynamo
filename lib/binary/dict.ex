@@ -12,7 +12,7 @@ defmodule Binary.Dict do
   @compile { :inline, to_binary: 1 }
 
   defp to_binary(key) do
-    if is_binary(key), do: key, else: String.Chars.to_string(key)
+    if is_binary(key), do: key, else: to_string(key)
   end
 
   defmacrop dict(data) do
