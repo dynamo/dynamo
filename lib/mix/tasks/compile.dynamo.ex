@@ -57,7 +57,7 @@ defmodule Mix.Tasks.Compile.Dynamo do
     root    = File.cwd!
     project = Mix.Project.config
     dynamo  = mod.config[:dynamo]
-    
+
     compile_path = Mix.Project.compile_path
     compile_exts = [:ex]
     watch_exts   = [:ex, :eex, :exs]

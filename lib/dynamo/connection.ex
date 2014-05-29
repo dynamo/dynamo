@@ -10,8 +10,7 @@ defmodule Dynamo.Connection do
   defmodule UnfetchedError do
     defexception [aspect: nil]
 
-    def message(exception) do
-      aspect = exception.aspect
+    def message(%{aspect: aspect}) do
       "did not fetch #{aspect} from request, call `conn.fetch :#{aspect}` in order to fetch it"
     end
   end
@@ -19,13 +18,13 @@ defmodule Dynamo.Connection do
   defmodule UnknownFetchError do
     defexception [aspect: nil]
 
-    def message(exception) do
-      "cannot fetch unknown :#{exception.aspect}"
+    def message(%{aspect: aspect}) do
+      "cannot fetch unknown :#{aspect}"
     end
   end
 
   defmodule NotSentError do
-    defexception message:  "no response was set in the connection"
+    defexception message: "no response was set in the connection"
   end
 
   @moduledoc """

@@ -4,6 +4,6 @@
   "hackney": {:git, "git://github.com/benoitc/hackney.git", "1a427d1e1820f89699b51228746e586e53d15cf9", [tag: "0.12.1"]},
   "hackney_lib": {:git, "https://github.com/benoitc/hackney_lib.git", "48a5a3fc64892c95e4e3efdd464f26ca5683d2f9", [tag: "0.3.0"]},
   "idna": {:git, "git://github.com/benoitc/erlang-idna.git", "21aa158b7f36bf2a000f12fe40d7f21eece9cf65", [tag: "hackney-0.11.2"]},
-  "mime": {:git, "git://github.com/dynamo/mime.git", "ae4295d1dbec8dd36fe366cc2b78df07f573e673", []},
+  "mime": {:git, "git://github.com/dynamo/mime.git", "a13f7b071fdc6146c162300c9ab5025f1c23e98b", []},
   "mimetypes": {:git, "git://github.com/spawngrid/mimetypes.git", "47d37a977a7d633199822bf6b08353007483d00f", [ref: "master"]},
   "ranch": {:git, "git://github.com/extend/ranch.git", "5df1f222f94e08abdcab7084f5e13027143cc222", [ref: "0.9.0"]}}
