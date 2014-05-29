@@ -17,7 +17,7 @@ defmodule Mix.Tasks.Server do
     opts = OptionParser.parse(args, aliases: [h: :host, p: :port]) |> elem(0)
     Mix.Task.run "app.start", args
 
-    dynamos = Mix.project[:dynamos]
+    dynamos = Mix.Project.config[:dynamos]
 
     if length(dynamos) != 1 && (opts[:host] || opts[:port]) do
       raise "cannot pass host/port when serving more than one dynamo"

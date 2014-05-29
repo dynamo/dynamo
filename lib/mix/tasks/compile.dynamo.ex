@@ -38,7 +38,7 @@ defmodule Mix.Tasks.Compile.Dynamo do
   def run(args) do
     opts = OptionParser.parse(args, switches: @switches) |> elem(0)
 
-    Enum.reduce Mix.project[:dynamos], :noop, fn(dynamo, acc) ->
+    Enum.reduce Mix.Project.config[:dynamos], :noop, fn(dynamo, acc) ->
       if dynamo.config[:dynamo][:compile_on_demand] do
         acc
       else
@@ -55,12 +55,12 @@ defmodule Mix.Tasks.Compile.Dynamo do
 
   defp do_compile(mod, opts, acc) do
     root    = File.cwd!
-    project = Mix.project
+    project = Mix.Project.config
     dynamo  = mod.config[:dynamo]
-
+    
     compile_path = Mix.Project.compile_path
-    compile_exts = project[:elixirc_exts]
-    watch_exts   = project[:elixirc_watch_exts]
+    compile_exts = [:ex]
+    watch_exts   = [:ex, :eex, :exs]
     source_paths = dynamo[:source_paths]
     templates    = extract_templates(dynamo[:templates_paths])
 

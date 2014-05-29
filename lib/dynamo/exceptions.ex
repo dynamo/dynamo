@@ -23,10 +23,21 @@ defimpl Dynamo.Exception, for: Any do
   def status(_), do: 500
 end
 
-defexception Dynamo.NotFoundError, conn: nil, message: "no route found" do
+# defexception Dynamo.NotFoundError, conn: nil, message: "no route found" do
+#   defimpl Dynamo.Exception do
+#     def status(exception) do
+#       { 404, exception.conn }
+#     end
+#   end
+# end
+
+defmodule Dynamo.NotFoundError do
+  defexception [conn: nil, message: "no route found"]
+
   defimpl Dynamo.Exception do
     def status(exception) do
       { 404, exception.conn }
     end
   end
 end
+

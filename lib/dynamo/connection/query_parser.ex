@@ -1,6 +1,8 @@
 defmodule Dynamo.Connection.QueryParser do
   defexception ParseError, message: nil
 
+  require Record
+
   @moduledoc """
   Conveniences for parsing query strings in Dynamo.
 
@@ -68,7 +70,7 @@ defmodule Dynamo.Connection.QueryParser do
   # `age=17` would match here.
   defp assign_parts([key], acc, value) do
     Binary.Dict.update(acc, key, value, fn
-      x when is_list(x) or is_record(x, Binary.Dict) ->
+      x when is_list(x) or Record.record?(x, Binary.Dict) ->
         raise ParseError, message: "expected string at #{key}"
       x -> x
     end)
@@ -98,7 +100,7 @@ defmodule Dynamo.Connection.QueryParser do
   defp assign_parts([key|t], acc, value) do
     child =
       case Binary.Dict.get(acc, key) do
-        current when is_record(current, Binary.Dict) -> current
+        current when Record.record?(current, Binary.Dict) -> current
         nil -> Binary.Dict.new
         _   -> raise ParseError, message: "expected dict at #{key}"
       end
