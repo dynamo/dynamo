@@ -5,7 +5,7 @@ notifications:
 otp_release:
   - 17.0
 before_install:
-  - git clone git://github.com/elixir-lang/elixir --depth 1
+  - git clone -b stable git://github.com/elixir-lang/elixir --depth 1
   - make -C elixir
 before_script: "export PATH=`pwd`/elixir/bin:$PATH"
 script: "MIX_ENV=test mix do deps.get, test"
