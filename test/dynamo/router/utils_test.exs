@@ -3,7 +3,11 @@ defmodule Dynamo.Router.UtilsTest do
 
   use ExUnit.Case, async: true
 
-  @opts [hygiene: [vars: false], context: Dynamo.Router.Utils]
+  @opts [context: Dynamo.Router.Utils]
+
+  defp generate_match(route) do
+    R.generate_match(route, Dynamo.Router.Utils)
+  end
 
   test "root" do
     assert R.split("/") == []
@@ -26,40 +30,40 @@ defmodule Dynamo.Router.UtilsTest do
   end
 
   test "generate match with literal" do
-    assert quote(@opts, do: { [], ["foo"] }) == R.generate_match("/foo")
-    assert quote(@opts, do: { [], ["foo"] }) == R.generate_match("foo")
+    assert quote(@opts, do: { [], ["foo"] }) == generate_match("/foo")
+    assert quote(@opts, do: { [], ["foo"] }) == generate_match("foo")
   end
 
   test "generate match with identifier" do
-    assert quote(@opts, do: { [:id], ["foo", id] }) == R.generate_match("/foo/:id")
-    assert quote(@opts, do: { [:username], ["foo", username] }) == R.generate_match("foo/:username")
+    assert quote(@opts, do: { [:id], ["foo", id] }) == generate_match("/foo/:id")
+    assert quote(@opts, do: { [:username], ["foo", username] }) == generate_match("foo/:username")
   end
 
   test "generate match with literal plus identifier" do
-    assert quote(@opts, do: { [:id], ["foo", "bar-" <> id] }) == R.generate_match("/foo/bar-:id")
-    assert quote(@opts, do: { [:username], ["foo", "bar" <> username] }) == R.generate_match("foo/bar:username")
+    assert quote(@opts, do: { [:id], ["foo", "bar-" <> id] }) == generate_match("/foo/bar-:id")
+    assert quote(@opts, do: { [:username], ["foo", "bar" <> username] }) == generate_match("foo/bar:username")
   end
 
   test "generate match only with glob" do
-    assert quote(@opts, do: { [:bar], bar }) == R.generate_match("*bar")
-    assert quote(@opts, do: { [:glob], glob }) == R.generate_match("/*glob")
+    assert quote(@opts, do: { [:bar], bar }) == generate_match("*bar")
+    assert quote(@opts, do: { [:glob], glob }) == generate_match("/*glob")
 
-    assert quote(@opts, context: Dynamo.Router.Utils, do: { [:bar], ["id-" <> _ | _] = bar }) == R.generate_match("id-*bar")
-    assert quote(@opts, do: { [:glob], ["id-" <> _ | _] = glob }) == R.generate_match("/id-*glob")
+    assert quote(@opts, context: Dynamo.Router.Utils, do: { [:bar], ["id-" <> _ | _] = bar }) == generate_match("id-*bar")
+    assert quote(@opts, do: { [:glob], ["id-" <> _ | _] = glob }) == generate_match("/id-*glob")
   end
 
   test "generate match with glob" do
-    assert quote(@opts, do: { [:bar], ["foo" | bar] }) == R.generate_match("/foo/*bar")
-    assert quote(@opts, do: { [:glob], ["foo" | glob] }) == R.generate_match("foo/*glob")
+    assert quote(@opts, do: { [:bar], ["foo" | bar] }) == generate_match("/foo/*bar")
+    assert quote(@opts, do: { [:glob], ["foo" | glob] }) == generate_match("foo/*glob")
   end
 
   test "generate match with literal plus glob" do
-    assert quote(@opts, do: { [:bar], ["foo" | ["id-" <> _ | _] = bar] }) == R.generate_match("/foo/id-*bar")
-    assert quote(@opts, do: { [:glob], ["foo" | ["id-" <> _ | _] = glob] }) == R.generate_match("foo/id-*glob")
+    assert quote(@opts, do: { [:bar], ["foo" | ["id-" <> _ | _] = bar] }) == generate_match("/foo/id-*bar")
+    assert quote(@opts, do: { [:glob], ["foo" | ["id-" <> _ | _] = glob] }) == generate_match("foo/id-*glob")
   end
 
   test "generate invalid match with segments after glob" do
-    R.generate_match("/foo/*bar/baz")
+    generate_match("/foo/*bar/baz")
     flunk "generate_match should have failed"
   rescue
     x in [Dynamo.Router.InvalidSpecError] ->

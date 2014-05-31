@@ -250,7 +250,7 @@ defmodule Dynamo.Router.Base do
 
   """
   defmacro match(expression, options, contents \\ []) do
-    compile(:generate_match, expression, Keyword.merge(contents, options))
+    compile(:generate_match, expression, Keyword.merge(contents, options), __CALLER__)
   end
 
   @doc """
@@ -277,7 +277,7 @@ defmodule Dynamo.Router.Base do
       end
 
     options = Keyword.put(options, :do, block)
-    compile(:generate_forward, expression, options)
+    compile(:generate_forward, expression, options, __CALLER__)
   end
 
   @doc """
@@ -285,7 +285,7 @@ defmodule Dynamo.Router.Base do
   See `match/3` for more examples.
   """
   defmacro get(path, contents) do
-    compile(:generate_match, path, Keyword.merge(contents, via: :get))
+    compile(:generate_match, path, Keyword.merge(contents, via: :get), __CALLER__)
   end
 
   @doc """
@@ -293,7 +293,7 @@ defmodule Dynamo.Router.Base do
   See `match/3` for more examples.
   """
   defmacro post(path, contents) do
-    compile(:generate_match, path, Keyword.merge(contents, via: :post))
+    compile(:generate_match, path, Keyword.merge(contents, via: :post), __CALLER__)
   end
 
   @doc """
@@ -301,7 +301,7 @@ defmodule Dynamo.Router.Base do
   See `match/3` for more examples.
   """
   defmacro put(path, contents) do
-    compile(:generate_match, path, Keyword.merge(contents, via: :put))
+    compile(:generate_match, path, Keyword.merge(contents, via: :put), __CALLER__)
   end
 
   @doc """
@@ -309,7 +309,7 @@ defmodule Dynamo.Router.Base do
   See `match/3` for more examples.
   """
   defmacro patch(path, contents) do
-    compile(:generate_match, path, Keyword.merge(contents, via: :patch))
+    compile(:generate_match, path, Keyword.merge(contents, via: :patch), __CALLER__)
   end
 
   @doc """
@@ -317,7 +317,7 @@ defmodule Dynamo.Router.Base do
   See `match/3` for more examples.
   """
   defmacro delete(path, contents) do
-    compile(:generate_match, path, Keyword.merge(contents, via: :delete))
+    compile(:generate_match, path, Keyword.merge(contents, via: :delete), __CALLER__)
   end
 
   @doc """
@@ -325,14 +325,14 @@ defmodule Dynamo.Router.Base do
   See `match/3` for more examples.
   """
   defmacro options(path, contents) do
-    compile(:generate_match, path, Keyword.merge(contents, via: :options))
+    compile(:generate_match, path, Keyword.merge(contents, via: :options), __CALLER__)
   end
 
   ## Match Helpers
 
   # Entry point for both forward and match that is actually
   # responsible to compile the route.
-  defp compile(generator, expression, options) do
+  defp compile(generator, expression, options, caller) do
     verb  = Keyword.get options, :via, nil
     block = Keyword.get options, :do, nil
     to    = Keyword.get options, :to, nil
@@ -347,7 +347,7 @@ defmodule Dynamo.Router.Base do
         true -> raise ArgumentError, message: "Expected :to or :do to be given as option"
       end
 
-    { vars, match } = apply Dynamo.Router.Utils, generator, [path]
+    { vars, match } = apply Dynamo.Router.Utils, generator, [Macro.expand(path, caller)]
     args  = quote do: [_verb, unquote(match), var!(conn)]
 
     quote bind_quoted: [args: Macro.escape(args),

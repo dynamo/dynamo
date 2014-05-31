@@ -19,11 +19,13 @@ defmodule Dynamo.Router.Utils do
       generate_match("/foo/:id") => ["foo", { :id, [], nil }]
 
   """
-  def generate_match(spec) when is_binary(spec) do
-    generate_match list_split(spec), [], []
+  def generate_match(spec, context \\ nil)
+
+  def generate_match(spec, context) when is_binary(spec) do
+    generate_match list_split(spec), context, [], []
   end
 
-  def generate_match(match) do
+  def generate_match(match, _context) do
     { [], match }
   end
 
@@ -36,18 +38,20 @@ defmodule Dynamo.Router.Utils do
       generate_forward("/foo/:id") => ["foo", { :id, [], nil } | _glob]
 
   """
-  def generate_forward({ :_, _, _ }) do
-    generate_forward ""
+  def generate_forward(spec, context \\ nil)
+
+  def generate_forward({ :_, _, _ }, context) do
+    generate_forward "", context
   end
 
-  def generate_forward(list) when is_list(list) do
+  def generate_forward(list, context) when is_list(list) do
     [h|t] = Enum.reverse(list)
-    glob  = { :glob, [], nil }
+    glob  = { :glob, [], context }
     { [], Enum.reverse [ { :|, [], [h, glob] } | t ] }
   end
 
-  def generate_forward(spec) when is_binary(spec) do
-    generate_match list_split(spec) ++ ['*glob'], [], []
+  def generate_forward(spec, context) when is_binary(spec) do
+    generate_match list_split(spec) ++ ['*glob'], context, [], []
   end
 
   @doc """
@@ -67,26 +71,26 @@ defmodule Dynamo.Router.Utils do
 
   # Loops each segment checking for matches.
 
-  defp generate_match([h|t], vars, acc) do
-    handle_segment_match segment_match(h, []), t, vars, acc
+  defp generate_match([h|t], context, vars, acc) do
+    handle_segment_match segment_match(h, [], context), context, t, vars, acc
   end
 
-  defp generate_match([], vars, acc) do
+  defp generate_match([], _context, vars, acc) do
     { vars |> Enum.uniq |> Enum.reverse, Enum.reverse(acc) }
   end
 
   # Handle each segment match. They can either be a
   # :literal ('foo'), an identifier (':bar') or a glob ('*path')
 
-  def handle_segment_match({ :literal, literal }, t, vars, acc) do
-    generate_match t, vars, [literal|acc]
+  def handle_segment_match({ :literal, literal }, context, t, vars, acc) do
+    generate_match t, context, vars, [literal|acc]
   end
 
-  def handle_segment_match({ :identifier, identifier, expr }, t, vars, acc) do
-    generate_match t, [identifier|vars], [expr|acc]
+  def handle_segment_match({ :identifier, identifier, expr }, context, t, vars, acc) do
+    generate_match t, context, [identifier|vars], [expr|acc]
   end
 
-  def handle_segment_match({ :glob, identifier, expr }, t, vars, acc) do
+  def handle_segment_match({ :glob, identifier, expr }, context, t, vars, acc) do
     if t != [] do
       raise(Dynamo.Router.InvalidSpecError, message: "cannot have a *glob followed by other segments")
     end
@@ -94,48 +98,49 @@ defmodule Dynamo.Router.Utils do
     case acc do
       [hs|ts] ->
         acc = [{ :|, [], [hs, expr] } | ts]
-        generate_match([], [identifier|vars], acc)
+        generate_match([], context, [identifier|vars], acc)
       _ ->
-        { vars, expr } = generate_match([], [identifier|vars], [expr])
+        { vars, expr } = generate_match([], context, [identifier|vars], [expr])
         { vars, hd(expr) }
     end
   end
 
   # In a given segment, checks if there is a match.
 
-  defp segment_match([?:|argument], []) do
+  defp segment_match([?:|argument], [], context) do
     identifier = list_to_atom(argument)
-    { :identifier, identifier, { identifier, [], nil } }
+    { :identifier, identifier, { identifier, [], context } }
   end
 
-  defp segment_match([?*|argument], []) do
+  defp segment_match([?*|argument], [], context) do
     identifier = list_to_atom(argument)
-    { :glob, identifier, { identifier, [], nil } }
+    { :glob, identifier, { identifier, [], context } }
   end
 
-  defp segment_match([?:|argument], buffer) do
+  defp segment_match([?:|argument], buffer, context) do
     identifier = list_to_atom(argument)
-    var = { identifier, [], nil }
+    var = { identifier, [], context }
     expr = quote do
       unquote(binary_from_buffer(buffer)) <> unquote(var)
     end
     { :identifier, identifier, expr }
   end
 
-  defp segment_match([?*|argument], buffer) do
+  defp segment_match([?*|argument], buffer, context) do
+    underscore = {:_, [], context}
     identifier = list_to_atom(argument)
-    var = { identifier, [], nil }
-    expr = quote [hygiene: [vars: false]] do
-      [unquote(binary_from_buffer(buffer)) <> _ | _] = unquote(var)
+    var = { identifier, [], context }
+    expr = quote do
+      [unquote(binary_from_buffer(buffer)) <> unquote(underscore) | unquote(underscore)] = unquote(var)
     end
     { :glob, identifier, expr }
   end
 
-  defp segment_match([h|t], buffer) do
-    segment_match t, [h|buffer]
+  defp segment_match([h|t], buffer, context) do
+    segment_match t, [h|buffer], context
   end
 
-  defp segment_match([], buffer) do
+  defp segment_match([], buffer, _context) do
     { :literal, binary_from_buffer(buffer) }
   end
 
